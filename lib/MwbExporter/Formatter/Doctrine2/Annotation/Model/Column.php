@@ -96,7 +96,7 @@ class MwbExporter_Formatter_Doctrine2_Annotation_Model_Column extends MwbExporte
 
         $return[] = '    public function set' . $this->columnNameBeautifier($this->config['name']) . '($' . $this->config['name'] . ')';
         $return[] = '    {';
-        $return[] = '         $this->' . $this->config['name'] . ' = $' . $this->config['name'];
+        $return[] = '         $this->' . $this->config['name'] . ' = $' . $this->config['name'] . ';';
         $return[] = '         return $this; // fluent interface';
         $return[] = '    }';
         $return[] = '';
