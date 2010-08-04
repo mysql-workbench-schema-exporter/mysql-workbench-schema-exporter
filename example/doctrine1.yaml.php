@@ -23,44 +23,46 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine2_Annotation_Model_Table extends MwbExporter_Core_Model_Table
-{
-    public function __construct($data)
-    {
-        parent::__construct($data);
-    }
+// show errors
+error_reporting(E_ALL);
 
-    public function display()
-    {
-        $return = array();
+// lets stop the time
+$start = microtime(true);
 
-        $return[] = '<?php';
-        $return[] = '';
-        $return[] = 'namespace Models;';
-        $return[] = '';
-        $return[] = '/**';
-        $return[] = ' * @Entity';
-        $tmp = ' * @Table(name="' . $this->getRawTableName() . '"';
 
-        if(count($this->indexes) > 0){
-            $tmp .= ',indexes={';
-
-            foreach($this->indexes as $index){
-                $tmp .= '@index(' . $index->display() . '),';
-            }
-            $tmp = substr($tmp, 0, -1);
-            $tmp .= '}';
-        }
-
-        $return[] = $tmp . ')';
-        $return[] = ' */';
-        $return[] = 'class ' . $this->getModelName();
-        $return[] = '{';
-
-        $return[] = $this->columns->display();
-
-        $return[] = '}';
-        $return[] = '?>';
-        return implode("\n", $return);
-    }
+// enable autoloading of classes
+function mySimpleAutoloadFunction($className){
+    require_once dirname(__FILE__)
+        . DIRECTORY_SEPARATOR
+        . '..'
+        . DIRECTORY_SEPARATOR
+        . 'lib'
+        . DIRECTORY_SEPARATOR
+        . str_replace('_', DIRECTORY_SEPARATOR, $className ) 
+        . '.php';
 }
+spl_autoload_register('mySimpleAutoloadFunction');
+
+
+// show a simple text box with the output
+echo '<textarea cols="100" rows="50">';
+
+    // create a formatter
+    $formatter = new MwbExporter_Formatter_Doctrine1_Yaml_Loader();
+    
+    // parse the mwb file
+    $mwb = new MwbExporter_Core_Workbench_Document('data/test.mwb', $formatter);
+    
+    // show the export output of the mwb file
+    echo $mwb->display();
+ 
+echo "</textarea>";
+
+// show some information about used memory
+echo "<br><br>";
+echo (memory_get_peak_usage(true) / 1024 / 1024) . " MB used";
+echo "<br>";
+
+// show the time needed to parse the mwb file
+$end = microtime(true);
+echo  sprintf('%0.3f', $end-$start) . " sec needed";

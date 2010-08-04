@@ -63,7 +63,7 @@ class MwbExporter_Helper_Pluralizer
     
     public static function wordIsPlural($word)
     {
-        return strlen($word) > 1 && self::wordEndsWith($word, 's') && !self::wordEndsWith($word, 'ss') && self::wordEndsWith($word, 'us');
+        return strlen($word) > 1 && self::wordEndsWith($word, 's') && !self::wordEndsWith($word, 'ss') && !self::wordEndsWith($word, 'us');
     }
     
     protected static function wordEndsWith($word, $ending)

@@ -48,11 +48,7 @@ spl_autoload_register('mySimpleAutoloadFunction');
 echo '<textarea cols="100" rows="50">';
 
     // create a formatter
-    $formatter = new MwbExporter_Formatter_Doctrine1_Yaml_Loader();
-    
-    // alternative formatter example
-    //$formatter = new MwbExporter_Formatter_Doctrine2_Annotation_Loader();
-    //$formatter = new MwbExporter_Formatter_Doctrine2_Yaml_Loader();
+    $formatter = new MwbExporter_Formatter_Doctrine2_Annotation_Loader();
     
     // parse the mwb file
     $mwb = new MwbExporter_Core_Workbench_Document('data/test.mwb', $formatter);

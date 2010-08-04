@@ -28,26 +28,26 @@ abstract class MwbExporter_Core_Model_Table
     protected $data = null;
     protected $attributes = null;
     protected $config = null;
-    
+
     protected $id = null;
-    
+
     protected $columns = null;     // workbench object
     protected $indices = null;     // workbench object
     protected $foreignKeys = null; // workbench object
     protected $indexes = array();   // collection of indexes
     protected $relations = array(); // collection of relations
 
-    
+
     public function __construct($data)
     {
         $this->attributes = $data->attributes();
         $this->data = $data;
-        
+
         $this->id = (string) $this->attributes['id'];
 
         $tmp = $this->data->xpath("value[@key='columns']");
         $this->columns = MwbExporter_Core_Registry::get('formatter')->createColumns($tmp[0]);
-        
+
         /**
          * iterate on column configuration
          */
@@ -60,21 +60,21 @@ abstract class MwbExporter_Core_Model_Table
 
         MwbExporter_Core_Registry::set($this->id, $this);
     }
-    
+
     public function checkForIndices()
     {
         foreach($this->data->xpath("value[@key='indices']") as $key => $node){
             $this->indices = MwbExporter_Core_Registry::get('formatter')->createIndices($node);
         }
     }
-    
+
     public function checkForForeignKeys()
     {
         foreach($this->data->xpath("value[@key='foreignKeys']") as $key => $node){
             $this->foreignKeys = MwbExporter_Core_Registry::get('formatter')->createForeignKeys($node);
         }
     }
-    
+
     public function isTranslationTable()
     {
         $return = preg_match('@^(.*)\_translation$@', $this->getRawTableName(), $matches);
@@ -83,18 +83,25 @@ abstract class MwbExporter_Core_Model_Table
         }
         return $return;
     }
-    
+
     public function getRawTableName()
     {
         return $this->config['name'];
     }
-    
+
     public function getModelName()
     {
+        $tablename = $this->getRawTableName();
+
+        // check if table name is plural --> convert to singular
+        if(MwbExporter_Helper_Pluralizer::wordIsPlural($tablename)){
+            $tablename = MwbExporter_Helper_Singularizer::singularize($tablename);
+        }
+
         // camleCase under scores for model names
-        return ucfirst(preg_replace('@\_(\w)@e', 'ucfirst("$1")', $this->getRawTableName()));
+        return ucfirst(preg_replace('@\_(\w)@e', 'ucfirst("$1")', $tablename));
     }
-    
+
     public function getModelNameInPlural()
     {
         return Helper_Pluralizer::pluralize($this->getModelName());
