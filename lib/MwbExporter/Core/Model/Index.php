@@ -27,16 +27,16 @@ abstract class MwbExporter_Core_Model_Index
 {
     protected $data = null;
     protected $attributes = null;
-    
+
     protected $id = null;
     protected $referencedColumn = array();
-    
+
     public function __construct($data)
     {
         $this->attributes = $data->attributes();
         $this->data       = $data;
         $this->id         = (string) $this->attributes['id'];
-        
+
         /**
          * iterate on column configuration
          */
@@ -45,7 +45,7 @@ abstract class MwbExporter_Core_Model_Index
             $key                = (string) $attributes['key']; // assign key
             $this->config[$key] = (string) $node[0];           // assign value
         }
-        
+
         /**
          * iterate on links to other wb objects
          */
@@ -54,21 +54,20 @@ abstract class MwbExporter_Core_Model_Index
             $key                = (string) $attributes['key'];
         }
 
-        foreach($this->data->xpath("value[@key='columns']/value") as $indexColumn){
-            foreach($indexColumn->link as $node){
-                if( (string) $node['key'] === 'referencedColumn' ){
-                    // for primary indexes ignore external index
-                    // definition and set column to primary instead
-                    if($this->config['name'] == 'PRIMARY'){
-                        MwbExporter_Core_Registry::get((string) $node)->markAsPrimary();
-                        return;
-                    }
-                    $this->referencedColumn[] = MwbExporter_Core_Registry::get((string) $node);
-                }
+        /**
+         * check for primary columns, to notify column
+         */
+        foreach($this->data->xpath("value[@key='columns']/value/link[@key='referencedColumn']") as $node){
+            // for primary indexes ignore external index
+            // definition and set column to primary instead
+            if($this->config['name'] == 'PRIMARY'){
+                MwbExporter_Core_Registry::get((string) $node)->markAsPrimary();
+                return;
             }
+            $this->referencedColumn[] = MwbExporter_Core_Registry::get((string) $node);
         }
-        
-        MwbExporter_Core_Registry::get((string)$this->data->link)->injectIndex($this);
-    }
 
+        MwbExporter_Core_Registry::get((string)$this->data->link)->injectIndex($this);
+        MwbExporter_Core_Registry::set($this->id, $this);
+    }
 }

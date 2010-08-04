@@ -41,5 +41,7 @@ abstract class MwbExporter_Core_Model_Indices
         foreach($data->value as $key => $node){
             $this->indices[] = MwbExporter_Core_Registry::get('formatter')->createIndex($node);
         }
+        
+        MwbExporter_Core_Registry::set($this->id, $this);
     }
 }

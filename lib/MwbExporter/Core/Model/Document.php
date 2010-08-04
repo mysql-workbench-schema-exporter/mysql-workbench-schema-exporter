@@ -23,25 +23,44 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_ForeignKeys
+class MwbExporter_Core_Model_Document
 {
     protected $data = null;
     protected $attributes = null;
     
     protected $id = null;
-    protected $foreignKeys = array();
     
-    public function __construct($data)
+    protected $physicalModel = null;
+    
+    public function __construct($mwbFile, MwbExporter_Core_IFormatter $formatter)
     {
-        $this->attributes = $data->attributes();
-        $this->data       = $data;
+        // load mxb xml file
+        $this->data = simplexml_load_string(MwbExporter_Helper_Mwb::read($mwbFile));
+
+        // save formatter in registry
+        MwbExporter_Core_Registry::set('formatter', $formatter);
+
+        // save document in registry
+        MwbExporter_Core_Registry::set('document', $this);
+        $this->parse();
+
+        // save this object in registry by workebench id
+        MwbExporter_Core_Registry::set($this->id, $this);
+    }
+    
+    protected function parse()
+    {
+        $this->attributes = $this->data->value->attributes();
+        $this->data       = $this->data->value;
         
         $this->id = (string) $this->attributes['id'];
-        
-        foreach($data->value as $key => $node){
-            $this->foreignKeys[] = MwbExporter_Core_Registry::get('formatter')->createForeignKey($node);
-        }
-        
-        MwbExporter_Core_Registry::set($this->id, $this);
+
+        $tmp = $this->data->xpath("value[@key='physicalModels']/value");
+        $this->physicalModel = new MwbExporter_Core_Model_PhysicalModel($tmp[0]);
+    }
+    
+    public function display()
+    {
+        return $this->physicalModel->display();
     }
 }

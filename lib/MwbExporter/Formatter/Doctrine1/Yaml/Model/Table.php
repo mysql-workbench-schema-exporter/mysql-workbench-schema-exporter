@@ -60,7 +60,7 @@ class MwbExporter_Formatter_Doctrine1_Yaml_Model_Table extends MwbExporter_Core_
         }
 
         $return[] = '  options:';
-        $return[] = '    charset: ' . $this->config['defaultCharacterSetName'];
+        $return[] = '    charset: ' . (($this->config['defaultCharacterSetName'] == "") ? 'utf8' : $this->config['defaultCharacterSetName']);
         $return[] = '    type: ' . $this->config['tableEngine'];
 
         // add empty line behind table

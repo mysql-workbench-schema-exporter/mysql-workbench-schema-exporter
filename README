@@ -1,17 +1,20 @@
-This software is BETA and not for production use. It's currently just a proof of concept.
+This software is in EXPERIMENTAL state and not for production use. It's currently just a proof of concept.
 
 This application is written in PHP and intended to create Doctrine1 and Doctrine2 schema files
 from MySQL Workbench Files (*.mwb). It is inspired by http://code.google.com/p/mysql-workbench-doctrine-plugin/.
 
-To create models use it as follows. Do not forget to implement a class autoloading mechanism like in
-the example.
+To create models use it as follows. (do not forget to implement a class autoloading mechanism like in
+the example)
 
 <?php
+
+// define a formatter
 $formatter = new MwbExporter_Formatter_Doctrine2_Annotation_Loader();
 
 // parse the mwb file
 $mwb = new MwbExporter_Core_Workbench_Document('myDatabaseModel.mwb', $formatter);
 
+// show the output
 echo $mwb->display();
 ?>
 

@@ -23,7 +23,7 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Core_Workbench_Physical_Model
+class MwbExporter_Core_Model_PhysicalModel
 {
     protected $data = null;
     protected $attributes = null;
