@@ -35,7 +35,7 @@ class MwbExporter_Core_Model_Document
     public function __construct($mwbFile, MwbExporter_Core_IFormatter $formatter)
     {
         // load mxb xml file
-        $this->data = simplexml_load_string(MwbExporter_Helper_Mwb::read($mwbFile));
+        $this->data = simplexml_load_string(MwbExporter_Core_Helper_Mwb::read($mwbFile));
 
         // save formatter in registry
         MwbExporter_Core_Registry::set('formatter', $formatter);

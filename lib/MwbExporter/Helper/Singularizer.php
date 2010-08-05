@@ -23,7 +23,7 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Helper_Singularizer
+class MwbExporter_Helper_Singularizer extends MwbExporter_Core_Helper_WordTransform
 {
     public static function singularize($word)
     {
@@ -70,16 +70,5 @@ class MwbExporter_Helper_Singularizer
     public static function wordIsSingular($word)
     {
         return !MwbExporter_Helper_Pluralizer::wordIsPlural($word);
-    }
-    
-    protected static function wordEndsWith($word, $ending)
-    {
-        $ending = preg_quote($ending);
-        return preg_match('@' . $ending . '$@', $word);
-    }
-    
-    protected static function stripWordEnd($word, $ending)
-    {
-        return substr($word, 0, -strlen($ending));
     }
 }

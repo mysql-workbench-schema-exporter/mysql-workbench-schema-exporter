@@ -28,7 +28,7 @@
  * of singularization and pluralization rule
  */
 
-class MwbExporter_Helper_SpecialWordList
+class MwbExporter_Helper_SpecialWordList extends MwbExporter_Core_Helper_SpecialWordList
 {
 
     protected static $specialWordList = array(
@@ -41,30 +41,4 @@ class MwbExporter_Helper_SpecialWordList
         ,array('s' => 'address', 'p' => 'addresses')
     );
 
-
-
-
-    /**
-     * do not change class MwbExporter_from here
-     */
-    public static function getPluralOf($singular)
-    {
-        foreach(self::$specialWordList as $word){
-            if($word['s'] === strtolower($singular)){
-                return ucfirst($word['p']);
-            }
-        }
-        return false;
-    }
-
-    public static function getSingularOf($plural)
-    {
-        foreach(self::$specialWordList as $word){
-            if($word['p'] === strtolower($plural)){
-                return ucfirst($word['s']);
-            }
-        }
-        return false;
-    }
 }
-

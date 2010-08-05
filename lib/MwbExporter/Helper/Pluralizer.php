@@ -23,14 +23,14 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Helper_Pluralizer
+class MwbExporter_Helper_Pluralizer extends MwbExporter_Core_Helper_WordTransform
 {
     public static function pluralize($word)
     {
         if($tmpWord = MwbExporter_Helper_SpecialWordList::getPluralOf($word)){
             return ucfirst($tmpWord);
         }
-    
+
         if (    self::wordEndsWith($word, 'ch')
              or self::wordEndsWith($word, 'sh')
              or self::wordEndsWith($word, 'ss')
@@ -57,23 +57,13 @@ class MwbExporter_Helper_Pluralizer
             // append "s" ("games", "referees", "monkeys", ...)
             $word = $word . 's';
         }
-        
+
         return $word;
     }
-    
+
     public static function wordIsPlural($word)
     {
         return strlen($word) > 1 && self::wordEndsWith($word, 's') && !self::wordEndsWith($word, 'ss') && !self::wordEndsWith($word, 'us');
     }
-    
-    protected static function wordEndsWith($word, $ending)
-    {
-        $ending = preg_quote($ending);
-        return preg_match('@' . $ending . '$@', $word);
-    }
-    
-    protected static function stripWordEnd($word, $ending)
-    {
-        return substr($word, 0, -strlen($ending));
-    }
+
 }

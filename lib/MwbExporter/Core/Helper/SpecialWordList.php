@@ -23,23 +23,15 @@
  *  THE SOFTWARE.
  */
 
-/**
+/*
  * simple word list to handle exceptions
  * of singularization and pluralization rule
  */
 
 abstract class MwbExporter_Core_Helper_SpecialWordList
 {
+    protected static $specialWordList = array();
 
-    protected static $specialWordList = array(
-        // ***************************************************
-        // **        add special words here
-        // ***************************************************
-    );
-
-    /**
-     * do not change class MwbExporter_from here
-     */
     public static function getPluralOf($singular)
     {
         foreach(self::$specialWordList as $word){
