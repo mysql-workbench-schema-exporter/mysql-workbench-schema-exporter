@@ -23,27 +23,20 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_Column
+abstract class MwbExporter_Core_Model_Column extends MwbExporter_Core_Model_Base
 {
-    protected $data       = null;
-    protected $attributes = null;
-
-    protected $id     = null;
-
     protected $config = array();
     protected $link   = array();
     protected $isPrimary = false;
+    
+    protected $local;
+    protected $foreign;
 
     public function __construct($data)
     {
-        $this->attributes = $data->attributes();
-        $this->data       = $data;
+        parent::__construct($data);
 
-        $this->id         = (string) $this->attributes['id'];
-
-        /**
-         * iterate on column configuration
-         */
+        // iterate on column configuration
         foreach($this->data->xpath("value") as $key => $node){
             $attributes         = $node->attributes();         // read attributes
 
@@ -51,9 +44,7 @@ abstract class MwbExporter_Core_Model_Column
             $this->config[$key] = (string) $node[0];           // assign value
         }
 
-        /**
-         * iterate on links to other wb objects
-         */
+        // iterate on links to other wb objects
         foreach($this->data->xpath("link") as $key => $node){
             $attributes         = $node->attributes();
 
@@ -77,6 +68,16 @@ abstract class MwbExporter_Core_Model_Column
     public function markAsPrimary()
     {
         $this->isPrimary = true;
+    }
+    
+    public function markAsLocalReference(MwbExporter_Core_Model_ForeignKey $local)
+    {
+        $this->local = $local;
+    }
+    
+    public function markAsForeignReference(MwbExporter_Core_Model_ForeignKey $foreign)
+    {
+        $this->foreign = $foreign;
     }
 
     public function getColumnName()

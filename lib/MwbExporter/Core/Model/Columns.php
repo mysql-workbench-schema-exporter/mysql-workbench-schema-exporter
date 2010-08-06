@@ -23,21 +23,13 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_Columns
+abstract class MwbExporter_Core_Model_Columns extends MwbExporter_Core_Model_Base
 {
-    protected $data = null;
-    protected $attributes = null;
-    
-    protected $id = null;
-    
     protected $columns = array();
     
     public function __construct($data)
     {
-        $this->attributes = $data->attributes();
-        $this->data = $data;
-        
-        $this->id = (string) $this->attributes['id'];
+        parent::__construct($data);
        
         foreach($this->data as $key => $node){
             $this->columns[] = MwbExporter_Core_Registry::get('formatter')->createColumn($node);

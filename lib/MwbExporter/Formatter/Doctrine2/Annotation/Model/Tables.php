@@ -35,6 +35,8 @@ class MwbExporter_Formatter_Doctrine2_Annotation_Model_Tables extends MwbExporte
         $return = array();
 
         foreach($this->tables as $table){
+            $table->checkForIndices();
+            $table->checkForForeignKeys();
             $return[] = $table->display();
         }
 

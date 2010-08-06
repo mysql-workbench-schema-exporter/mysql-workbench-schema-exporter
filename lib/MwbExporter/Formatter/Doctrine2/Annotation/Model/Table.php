@@ -32,6 +32,20 @@ class MwbExporter_Formatter_Doctrine2_Annotation_Model_Table extends MwbExporter
 
     public function display()
     {
+        // add relations
+        if(count($this->relations) > 0){
+            foreach($this->relations as $relation){
+                $relation->display();
+            }
+        }
+
+        // add indices
+        if(count($this->indexes) > 0){
+            foreach($this->indexes as $index){
+                $index->display();
+            }
+        }
+
         $return = array();
 
         $return[] = '<?php';

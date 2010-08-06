@@ -23,40 +23,28 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_Index
+abstract class MwbExporter_Core_Model_Index extends MwbExporter_Core_Model_Base
 {
-    protected $data = null;
-    protected $attributes = null;
-
-    protected $id = null;
     protected $referencedColumn = array();
 
     public function __construct($data)
     {
-        $this->attributes = $data->attributes();
-        $this->data       = $data;
-        $this->id         = (string) $this->attributes['id'];
+        parent::__construct($data);
 
-        /**
-         * iterate on column configuration
-         */
+        //iterate on column configuration
         foreach($this->data->value as $key => $node){
             $attributes         = $node->attributes();         // read attributes
             $key                = (string) $attributes['key']; // assign key
             $this->config[$key] = (string) $node[0];           // assign value
         }
 
-        /**
-         * iterate on links to other wb objects
-         */
+        // iterate on links to other wb objects
         foreach($this->data->link as $key => $node){
             $attributes         = $node->attributes();
             $key                = (string) $attributes['key'];
         }
 
-        /**
-         * check for primary columns, to notify column
-         */
+        // check for primary columns, to notify column
         foreach($this->data->xpath("value[@key='columns']/value/link[@key='referencedColumn']") as $node){
             // for primary indexes ignore external index
             // definition and set column to primary instead

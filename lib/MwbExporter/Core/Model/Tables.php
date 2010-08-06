@@ -23,25 +23,15 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_Tables
+abstract class MwbExporter_Core_Model_Tables extends MwbExporter_Core_Model_Base
 {
-    protected $data = null;
-    protected $attributes = null;
-    
-    protected $id = null;
-    
     protected $tables = array();
     
     public function __construct($data)
     {
-        $this->attributes = $data->attributes();
-        $this->data = $data;
+        parent::__construct($data);
         
-        $this->id = (string) $this->attributes['id'];
-        
-        /**
-         * collect tables
-         */
+        // collect tables
         foreach($this->data->xpath("value") as $key => $node){
             $tmp = MwbExporter_Core_Registry::get('formatter')->createTable($node);
             

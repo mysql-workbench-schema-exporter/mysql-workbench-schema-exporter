@@ -23,22 +23,14 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_Catalog
+abstract class MwbExporter_Core_Model_Catalog extends MwbExporter_Core_Model_Base
 {
-    protected $data = null;
-    protected $attributes = null;
-    
-    protected $id = null;
-    
     protected $schemas = null;
     
     public function __construct($data)
     {
-        $this->attributes = $data->attributes();
-        $this->data       = $data;
-        
-        $this->id = (string) $this->attributes['id'];
-
+        parent::__construct($data);
+    
         $tmp = $this->data->xpath("value[@key='schemata']");
         $this->schemas = MwbExporter_Core_Registry::get('formatter')->createSchemas($tmp[0]);
         

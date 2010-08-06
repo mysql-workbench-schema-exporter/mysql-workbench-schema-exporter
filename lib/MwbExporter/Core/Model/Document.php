@@ -23,7 +23,7 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Core_Model_Document
+class MwbExporter_Core_Model_Document extends MwbExporter_Core_Model_Base
 {
     protected $data = null;
     protected $attributes = null;

@@ -23,13 +23,9 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_Table
+abstract class MwbExporter_Core_Model_Table extends MwbExporter_Core_Model_Base
 {
-    protected $data = null;
-    protected $attributes = null;
     protected $config = null;
-
-    protected $id = null;
 
     protected $columns = null;     // workbench object
     protected $indices = null;     // workbench object
@@ -40,17 +36,12 @@ abstract class MwbExporter_Core_Model_Table
 
     public function __construct($data)
     {
-        $this->attributes = $data->attributes();
-        $this->data = $data;
-
-        $this->id = (string) $this->attributes['id'];
+        parent::__construct($data);
 
         $tmp = $this->data->xpath("value[@key='columns']");
         $this->columns = MwbExporter_Core_Registry::get('formatter')->createColumns($tmp[0]);
 
-        /**
-         * iterate on column configuration
-         */
+        // iterate on column configuration
         foreach($this->data->value as $key => $node){
             $attributes         = $node->attributes();         // read attributes
 

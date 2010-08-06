@@ -23,25 +23,15 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_Views
+abstract class MwbExporter_Core_Model_Views extends MwbExporter_Core_Model_Base
 {
-    protected $data = null;
-    protected $attributes = null;
-    
-    protected $id = null;
-    
     protected $views = array();
     
     public function __construct($data)
     {
-        $this->attributes = $data->attributes();
-        $this->data = $data;
+        parent::__construct($data);
         
-        $this->id = (string) $this->attributes['id'];
-        
-        /**
-         * iterate on views
-         */
+        // iterate on views
         foreach($data->value as $key => $node){
             $this->views[] = MwbExporter_Core_Registry::get('formatter')->createView($node);
         }

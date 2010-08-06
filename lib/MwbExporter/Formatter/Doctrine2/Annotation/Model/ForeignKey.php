@@ -28,29 +28,20 @@ class MwbExporter_Formatter_Doctrine2_Annotation_Model_ForeignKey extends MwbExp
     public function __construct($data)
     {
         parent::__construct($data);
+        
+        $referencedColumn = $this->data->xpath("value[@key='referencedColumns']");
+        $local = MwbExporter_Core_Registry::get((string) $referencedColumn[0]->link);
+
+        $ownerColumn = $this->data->xpath("value[@key='columns']");
+        $foreign = MwbExporter_Core_Registry::get((string) $ownerColumn[0]->link);
+        
+        // for doctrine2 annotations switch the local and the foreign
+        // reference for a proper output
+        $local->markAsForeignReference($this);
+        $foreign->markAsLocalReference($this);
     }
 
     public function display()
     {
-        $return = array();
-        $return[] = '    ' . $this->referencedTable->getModelName() . ':';
-        $return[] = '      class: ' . $this->referencedTable->getModelName();
-
-        $referencedColumn = $this->data->xpath("value[@key='referencedColumns']");
-        $return[] = '      local: ' . MwbExporter_Wb_Registry::get((string) $referencedColumn[0]->link)->getColumnName();
-
-        $ownerColumn = $this->data->xpath("value[@key='columns']");
-        $return[] = '      foreign: ' . MwbExporter_Wb_Registry::get((string) $ownerColumn[0]->link)->getColumnName();
-
-        if((int)$this->config['many'] === 1){
-            $return[] = '      foreignAlias: ' . MwbExporter_Helper_Pluralizer::pluralize($this->owningTable->getModelName());
-        } else {
-            $return[] = '      foreignAlias: ' . $this->owningTable->getModelName();
-        }
-
-        $return[] = '      onDelete: ' . strtolower($this->config['deleteRule']);
-        $return[] = '      onUpdate: ' . strtolower($this->config['updateRule']);
-
-        return implode("\n", $return);
     }
 }

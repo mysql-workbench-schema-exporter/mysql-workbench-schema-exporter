@@ -23,21 +23,13 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_Schemas
+abstract class MwbExporter_Core_Model_Schemas extends MwbExporter_Core_Model_Base
 {
-    protected $data = null;
-    protected $attributes = null;
-    
-    protected $id = null;
-    
     protected $schemas = array();
     
     public function __construct($data)
     {
-        $this->attributes = $data->attributes();
-        $this->data       = $data;
-        
-        $this->id = (string) $this->attributes['id'];
+        parent::__construct($data);
         
         foreach($this->data->xpath("value") as $key => $node){
             $this->schemas[] = MwbExporter_Core_Registry::get('formatter')->createSchema($node);

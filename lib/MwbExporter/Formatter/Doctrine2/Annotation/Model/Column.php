@@ -53,10 +53,18 @@ class MwbExporter_Formatter_Doctrine2_Annotation_Model_Column extends MwbExporte
         if(isset($this->config['autoIncrement']) && $this->config['autoIncrement'] == 1){
             $return[] = '     * @GeneratedValue';
         }
-
+        
         $return[] = '     */';
         $return[] = '    private $' . $this->config['name'] . ';';
 
+        // one to many references
+        if(!is_null($this->foreign)){
+            $return[] = '    /**';
+            $return[] = '     * @OneToMany(targetEntity="' . $this->foreign->getOwningTable()->getModelName() . '", mappedBy="' . $this->foreign->getReferencedTable()->getModelName() . '")';
+            $return[] = '     */';
+            $return[] = '    private $' . lcfirst(MwbExporter_Helper_Pluralizer::pluralize($this->foreign->getOwningTable()->getModelName())) . ';';
+        }
+        
         /*
         // set datatype of column
         $return[] = '      type: ' . Wb_DatatypeConverter::getType((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);

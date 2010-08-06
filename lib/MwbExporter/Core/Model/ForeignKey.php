@@ -23,28 +23,18 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_ForeignKey
+abstract class MwbExporter_Core_Model_ForeignKey extends MwbExporter_Core_Model_Base
 {
-    protected $data = null;
-    protected $attributes = null;
-    
     protected $config = null;
     
     protected $referencedTable = null;
     protected $owningTable = null;
     
-    protected $id = null;
-    
     public function __construct($data)
     {
-        $this->attributes = $data->attributes();
-        $this->data       = $data;
+        parent::__construct($data);
         
-        $this->id = (string) $this->attributes['id'];
-        
-        /**
-         * iterate on foreign key configuration
-         */
+        // iterate on foreign key configuration
         foreach($this->data->value as $key => $node){
             $attributes         = $node->attributes();         // read attributes
 
@@ -52,9 +42,7 @@ abstract class MwbExporter_Core_Model_ForeignKey
             $this->config[$key] = (string) $node[0];           // assign value
         }
         
-        /**
-         * follow references to tables
-         */
+        // follow references to tables
         foreach($this->data->link as $key => $node){
             $attributes         = $node->attributes();         // read attributes
             $key                = (string) $attributes['key']; // assign key
@@ -71,10 +59,20 @@ abstract class MwbExporter_Core_Model_ForeignKey
             }
         }
         
-        //print_r($this->data->asXML());
+        //print_r($this->debug());
         //die();
         
         MwbExporter_Core_Registry::set($this->id, $this);
+    }
+    
+    public function getReferencedTable()
+    {
+        return $this->referencedTable;
+    }
+    
+    public function getOwningTable()
+    {
+        return $this->owningTable;
     }
 
 }
