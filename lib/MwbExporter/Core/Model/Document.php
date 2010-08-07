@@ -59,6 +59,11 @@ class MwbExporter_Core_Model_Document extends MwbExporter_Core_Model_Base
         $this->physicalModel = new MwbExporter_Core_Model_PhysicalModel($tmp[0]);
     }
     
+    public function getData()
+    {
+        return $this->data;
+    }
+    
     public function display()
     {
         return $this->physicalModel->display();

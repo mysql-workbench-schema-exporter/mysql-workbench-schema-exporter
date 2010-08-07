@@ -63,6 +63,10 @@ class MwbExporter_Helper_Pluralizer extends MwbExporter_Core_Helper_WordTransfor
 
     public static function wordIsPlural($word)
     {
+        // check if plural is in special word list
+        if(MwbExporter_Helper_SpecialWordList::getSingularOf($word)){
+            return true;
+        }
         return strlen($word) > 1 && self::wordEndsWith($word, 's') && !self::wordEndsWith($word, 'ss') && !self::wordEndsWith($word, 'us');
     }
 

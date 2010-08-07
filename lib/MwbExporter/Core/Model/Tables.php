@@ -43,10 +43,10 @@ abstract class MwbExporter_Core_Model_Tables extends MwbExporter_Core_Model_Base
             $this->tables[] = $tmp;
         }
         
-        /**
+        /*
          * before you can check for foreign keys
-         * you have to store all tables in the
-         * object registry first
+         * you have to store at first all tables in the
+         * object registry
          */
         foreach($this->tables as $table){
             $table->checkForIndices();

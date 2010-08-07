@@ -39,6 +39,7 @@ class MwbExporter_Helper_SpecialWordList extends MwbExporter_Core_Helper_Special
         ,array('s' => 'status', 'p' => 'statuses') // real plural of status is status
         ,array('s' => 'profile', 'p' => 'profiles')
         ,array('s' => 'address', 'p' => 'addresses')
+        ,array('s' => 'bureau', 'p' => 'bureaus')
     );
 
 }

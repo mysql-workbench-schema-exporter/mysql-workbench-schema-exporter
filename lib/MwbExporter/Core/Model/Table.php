@@ -65,6 +65,22 @@ abstract class MwbExporter_Core_Model_Table extends MwbExporter_Core_Model_Base
             $this->foreignKeys = MwbExporter_Core_Registry::get('formatter')->createForeignKeys($node);
         }
     }
+    
+    public function hasForeignKeys()
+    {
+        if($this->foreignKeys){
+            return true;
+        }
+        return false;
+    }
+    
+    public function getForeignKeys()
+    {
+        if(!$this->hasForeignKeys()){
+            return false;
+        }
+        return $this->foreignKeys->getForeignKeys();
+    }
 
     public function isTranslationTable()
     {

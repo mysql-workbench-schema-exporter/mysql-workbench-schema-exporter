@@ -36,6 +36,11 @@ abstract class MwbExporter_Core_Model_Base
         $this->id = (string) $this->attributes['id'];
     }
 
+    public function getId()
+    {
+        return $this->id;
+    }
+    
     public function debug()
     {
         return $this->data->asXML();

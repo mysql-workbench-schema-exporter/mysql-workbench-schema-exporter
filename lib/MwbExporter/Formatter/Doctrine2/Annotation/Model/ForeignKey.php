@@ -39,6 +39,26 @@ class MwbExporter_Formatter_Doctrine2_Annotation_Model_ForeignKey extends MwbExp
         // reference for a proper output
         $local->markAsForeignReference($this);
         $foreign->markAsLocalReference($this);
+        
+        // many to many
+        if($fk = $this->getOwningTable()->getForeignKeys()){
+            // only > 2 foreign keys implicate an n:m relation
+            // of the current table
+            if(count($fk) > 1){
+                foreach($fk as $foreignKey1){
+                    foreach($fk as $foreignKey2){
+                        if($foreignKey1->getReferencedTable()->getId() != $foreignKey2->getReferencedTable()->getId()){
+                            $foreignKey1->getReferencedTable()->setManyToManyRelation(
+                                array(
+                                    'reference'  => $this,
+                                    'refTable'   => $foreignKey2->getReferencedTable()
+                                )
+                            );
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public function display()

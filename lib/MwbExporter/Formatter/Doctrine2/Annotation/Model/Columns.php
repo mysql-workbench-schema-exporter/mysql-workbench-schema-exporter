@@ -38,12 +38,17 @@ class MwbExporter_Formatter_Doctrine2_Annotation_Model_Columns extends MwbExport
             $return[] = $column->display();
         }
 
-        $return[] = '';
+        return implode("\n", $return);
+    }
+    
+    public function displayGetterAndSetter()
+    {
+        $return = array();
 
         foreach($this->columns as $column){
             $return[] = $column->displayGetterAndSetter();
         }
-
+        
         return implode("\n", $return);
     }
 }

@@ -23,23 +23,26 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_ForeignKeys extends MwbExporter_Core_Model_Base
+class MwbExporter_Formatter_Doctrine2_Annotation_Model_ManyToMany
 {
-    protected $foreignKeys = array();
+
+    // checks if a relation indicates a many to many relation
+
+    // public static function isRelationManyToMany(MwbExporter_Core_Model_ForeignKey $relation)
+    // {
+        // echo $relation->getOwningTable()->getModelName() . "\n";
+        // /*
+        // if($fk = $relation->getOwningTable()->hasForeignKeys()){
+            // $fk = $relation->getOwningTable()->getForeignKeys();
+            
+            // foreach($fk as $foreignKey){
+                // return $foreignKey->getReferencedTable();
+            // }
+            // return true;
+        // }
+        // return false;
+        // */
+        // return false;
+    // }
     
-    public function __construct($data)
-    {
-        parent::__construct($data);
-        
-        foreach($data->value as $key => $node){
-            $this->foreignKeys[] = MwbExporter_Core_Registry::get('formatter')->createForeignKey($node);
-        }
-        
-        MwbExporter_Core_Registry::set($this->id, $this);
-    }
-    
-    public function getForeignKeys()
-    {
-        return $this->foreignKeys;
-    }
 }

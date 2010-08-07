@@ -34,7 +34,8 @@ abstract class MwbExporter_Core_Helper_SpecialWordList
 
     public static function getPluralOf($singular)
     {
-        foreach(self::$specialWordList as $word){
+        // late static binding requires PHP > 5.3
+        foreach(static::$specialWordList as $word){
             if($word['s'] === strtolower($singular)){
                 return ucfirst($word['p']);
             }
@@ -44,12 +45,14 @@ abstract class MwbExporter_Core_Helper_SpecialWordList
 
     public static function getSingularOf($plural)
     {
-        foreach(self::$specialWordList as $word){
+        // late static binding requires PHP > 5.3
+        foreach(static::$specialWordList as $word){
             if($word['p'] === strtolower($plural)){
                 return ucfirst($word['s']);
             }
         }
         return false;
     }
+
 }
 
