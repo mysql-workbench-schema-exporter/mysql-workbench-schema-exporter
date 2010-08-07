@@ -34,28 +34,32 @@ class MwbExporter_Formatter_Doctrine2_Annotation_Model_Column extends MwbExporte
     {
         $return = array();
 
-        $return[] = '    /** ';
+        // do not include columns that reflect references
+        if(is_null($this->local)){
+            // generate private $<column> class vars
+            $return[] = '    /** ';
 
-        $tmp = '     * ';
-        if($this->isPrimary){
-            $tmp .= '@Id ';
-        }
+            $tmp = '     * ';
+            if($this->isPrimary){
+                $tmp .= '@Id ';
+            }
 
-        // set name of column
-        $tmp  .= '@Column(type=' . MwbExporter_Core_Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
+            // set name of column
+            $tmp  .= '@Column(type=' . MwbExporter_Core_Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
 
-        if(!isset($this->config['isNotNull']) || $this->config['isNotNull'] != 1){
-            $tmp .= ',nullable=true';
+            if(!isset($this->config['isNotNull']) || $this->config['isNotNull'] != 1){
+                $tmp .= ',nullable=true';
+            }
+            $tmp .= ')'; // column definition ending bracket
+            $return[] = $tmp;
+
+            if(isset($this->config['autoIncrement']) && $this->config['autoIncrement'] == 1){
+                $return[] = '     * @GeneratedValue(strategy="AUTO")';
+            }
+
+            $return[] = '     */';
+            $return[] = '    private $' . $this->config['name'] . ';';
         }
-        $tmp .= ')'; // column definition ending bracket
-        $return[] = $tmp;
-        
-        if(isset($this->config['autoIncrement']) && $this->config['autoIncrement'] == 1){
-            $return[] = '     * @GeneratedValue';
-        }
-        
-        $return[] = '     */';
-        $return[] = '    private $' . $this->config['name'] . ';';
 
         // one to many references
         if(!is_null($this->foreign)){
@@ -64,28 +68,19 @@ class MwbExporter_Formatter_Doctrine2_Annotation_Model_Column extends MwbExporte
             $return[] = '     */';
             $return[] = '    private $' . lcfirst(MwbExporter_Helper_Pluralizer::pluralize($this->foreign->getOwningTable()->getModelName())) . ';';
         }
+
+        // many to references
+        if(!is_null($this->local)){
+            $return[] = '    /**';
+            $return[] = '     * @ManyToOne(targetEntity="' . $this->local->getReferencedTable()->getModelName() . '", inversedBy="' . $this->local->getOwningTable()->getModelName() . '")';
+            $return[] = '     */';
+            $return[] = '    private $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
+        }
         
         /*
-        // set datatype of column
-        $return[] = '      type: ' . Wb_DatatypeConverter::getType((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
-
-        if($this->isPrimary){
-            $return[] = '      primary: true';
-        }
-
-        // check for auto increment column
-        if(isset($this->config['autoIncrement']) && $this->config['autoIncrement'] == 1){
-            $return[] = '      autoincrement: true';
-        }
-
         // set default value
         if(isset($this->config['defaultValue']) && $this->config['defaultValue'] != '' && $this->config['defaultValue'] != 'NULL'){
             $return[] = '      default: ' . $this->config['defaultValue'];
-        }
-
-        // check for not null column
-        if(isset($this->config['isNotNull']) && $this->config['isNotNull'] == 1){
-            $return[] = '      notnull: true';
         }
 
         // iterate on column flags
@@ -102,18 +97,54 @@ class MwbExporter_Formatter_Doctrine2_Annotation_Model_Column extends MwbExporte
     {
         $return = array();
 
-        $return[] = '    public function set' . $this->columnNameBeautifier($this->config['name']) . '($' . $this->config['name'] . ')';
-        $return[] = '    {';
-        $return[] = '         $this->' . $this->config['name'] . ' = $' . $this->config['name'] . ';';
-        $return[] = '         return $this; // fluent interface';
-        $return[] = '    }';
-        $return[] = '';
+        // do not include getter and setter for columns that reflect references
+        if(is_null($this->local)){
+            $return[] = '    public function set' . $this->columnNameBeautifier($this->config['name']) . '($' . $this->config['name'] . ')';
+            $return[] = '    {';
+            $return[] = '         $this->' . $this->config['name'] . ' = $' . $this->config['name'] . ';';
+            $return[] = '         return $this; // fluent interface';
+            $return[] = '    }';
+            $return[] = '';
 
-        $return[] = '    public function get' . $this->columnNameBeautifier($this->config['name']) . '()';
-        $return[] = '    {';
-        $return[] = '         return $this->' . $this->config['name'] . ';';
-        $return[] = '    }';
-        $return[] = '';
+            $return[] = '    public function get' . $this->columnNameBeautifier($this->config['name']) . '()';
+            $return[] = '    {';
+            $return[] = '         return $this->' . $this->config['name'] . ';';
+            $return[] = '    }';
+            $return[] = '';
+        }
+
+        // one to many references
+        if(!is_null($this->foreign)){
+            $return[] = '    public function add' . $this->columnNameBeautifier($this->foreign->getOwningTable()->getModelName()) . '(' . $this->foreign->getOwningTable()->getModelName() . ' $' . lcfirst($this->foreign->getOwningTable()->getModelName()) . ')';
+            $return[] = '    {';
+            $return[] = '         $this->' . lcfirst(MwbExporter_Helper_Pluralizer::pluralize($this->foreign->getOwningTable()->getModelName())) . '[] = $' . lcfirst($this->foreign->getOwningTable()->getModelName()) . ';';
+            $return[] = '         return $this; // fluent interface';
+            $return[] = '    }';
+            $return[] = '';
+
+            $return[] = '    public function get' . $this->columnNameBeautifier(MwbExporter_Helper_Pluralizer::pluralize($this->foreign->getOwningTable()->getModelName())) . '()';
+            $return[] = '    {';
+            $return[] = '         return $this->' . lcfirst(MwbExporter_Helper_Pluralizer::pluralize($this->foreign->getOwningTable()->getModelName())) . ';';
+            $return[] = '    }';
+            $return[] = '';
+        }
+
+        // many to one references
+        if(!is_null($this->local)){
+            $return[] = '    public function set' . $this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()) . '(' . $this->local->getReferencedTable()->getModelName() . ' $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ')';
+            $return[] = '    {';
+            $return[] = '         $' . lcfirst($this->local->getReferencedTable()->getModelName()) . '->set' . $this->columnNameBeautifier($this->local->getOwningTable()->getModelName()) . '($this);';
+            $return[] = '         $this->' . lcfirst($this->local->getReferencedTable()->getModelName()) . ' = $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
+            $return[] = '         return $this; // fluent interface';
+            $return[] = '    }';
+            $return[] = '';
+
+            $return[] = '    public function get' . $this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()) . '()';
+            $return[] = '    {';
+            $return[] = '         return $this->' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
+            $return[] = '    }';
+            $return[] = '';
+        }
 
         return implode("\n", $return);
     }
