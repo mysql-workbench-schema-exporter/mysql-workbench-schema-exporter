@@ -23,11 +23,18 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine2_Yaml_Model_Tables extends \MwbExporter\Core\Model\Tables
+namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
+
+class Tables extends \MwbExporter\Core\Model\Tables
 {
     public function __construct($data)
     {
         parent::__construct($data);
+
+        foreach($this->tables as $table){
+            $table->checkForIndices();
+            $table->checkForForeignKeys();
+        }
     }
 
     public function display()

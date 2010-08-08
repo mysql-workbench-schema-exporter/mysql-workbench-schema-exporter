@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine2_Yaml_Model_Catalog extends \MwbExporter\Core\Model\Catalog
+namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
+
+class Catalog extends \MwbExporter\Core\Model\Catalog
 {
     public function __construct($data)
     {

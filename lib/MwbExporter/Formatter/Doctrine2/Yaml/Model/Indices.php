@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine2_Yaml_Model_Indices extends \MwbExporter\Core\Model\Indices
+namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
+
+class Indices extends \MwbExporter\Core\Model\Indices
 {
     public function __construct($data)
     {

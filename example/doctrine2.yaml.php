@@ -40,10 +40,10 @@ $classLoader->register();
 echo '<textarea cols="100" rows="50">';
 
     // create a formatter
-    $formatter = new MwbExporter_Formatter_Doctrine2_Yaml_Loader();
+    $formatter = new \MwbExporter\Formatter\Doctrine2\Yaml\Loader();
     
     // parse the mwb file
-    $mwb = new MwbExporter_Core_Workbench_Document('data/test.mwb', $formatter);
+    $mwb = new \MwbExporter\Core\Workbench\Document('data/test.mwb', $formatter);
     
     // show the export output of the mwb file
     echo $mwb->display();
