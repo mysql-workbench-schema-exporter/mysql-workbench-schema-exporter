@@ -41,6 +41,16 @@ abstract class MwbExporter_Core_Model_Base
         return $this->id;
     }
     
+    public function getAttributes()
+    {
+        return $this->attributes;
+    }
+    
+    public function getData()
+    {
+        return $this->data;
+    }
+    
     public function debug()
     {
         return $this->data->asXML();
