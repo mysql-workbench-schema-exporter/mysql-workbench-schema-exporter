@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine1_Yaml_Model_ForeignKeys extends MwbExporter_Core_Model_ForeignKeys
+namespace MwbExporter\Formatter\Doctrine1\Yaml\Model;
+
+class ForeignKeys extends \MwbExporter\Core\Model\ForeignKeys
 {
     public function __construct($data)
     {

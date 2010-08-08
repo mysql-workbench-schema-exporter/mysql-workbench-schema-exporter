@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_Tables extends MwbExporter_Core_Model_Base
+namespace MwbExporter\Core\Model;
+
+abstract class Tables extends Base
 {
     protected $tables = array();
     
@@ -33,7 +35,7 @@ abstract class MwbExporter_Core_Model_Tables extends MwbExporter_Core_Model_Base
         
         // collect tables
         foreach($this->data->xpath("value") as $key => $node){
-            $tmp = MwbExporter_Core_Registry::get('formatter')->createTable($node);
+            $tmp = \MwbExporter\Core\Registry::get('formatter')->createTable($node);
             
             if($tmp->isTranslationTable()){
                 // skip translation tables
@@ -53,7 +55,7 @@ abstract class MwbExporter_Core_Model_Tables extends MwbExporter_Core_Model_Base
             $table->checkForForeignKeys();
         }
         
-        MwbExporter_Core_Registry::set($this->id, $this);
+        \MwbExporter\Core\Registry::set($this->id, $this);
     }
 
 }

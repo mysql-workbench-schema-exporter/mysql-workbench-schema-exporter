@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine2_Annotation_Model_Catalog extends MwbExporter_Core_Model_Catalog
+namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
+
+class Catalog extends \MwbExporter\Core\Model\Catalog
 {
     public function __construct($data)
     {

@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_Columns extends MwbExporter_Core_Model_Base
+namespace MwbExporter\Core\Model;
+
+abstract class Columns extends Base
 {
     protected $columns = array();
     
@@ -32,10 +34,10 @@ abstract class MwbExporter_Core_Model_Columns extends MwbExporter_Core_Model_Bas
         parent::__construct($data);
        
         foreach($this->data as $key => $node){
-            $this->columns[] = MwbExporter_Core_Registry::get('formatter')->createColumn($node);
+            $this->columns[] = \MwbExporter\Core\Registry::get('formatter')->createColumn($node);
         }
         
-        MwbExporter_Core_Registry::set($this->id, $this);
+        \MwbExporter\Core\Registry::set($this->id, $this);
     }
 
 }

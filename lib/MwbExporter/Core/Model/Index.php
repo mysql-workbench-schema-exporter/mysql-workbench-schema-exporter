@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_Index extends MwbExporter_Core_Model_Base
+namespace MwbExporter\Core\Model;
+
+abstract class Index extends Base
 {
     protected $referencedColumn = array();
 
@@ -49,13 +51,13 @@ abstract class MwbExporter_Core_Model_Index extends MwbExporter_Core_Model_Base
             // for primary indexes ignore external index
             // definition and set column to primary instead
             if($this->config['name'] == 'PRIMARY'){
-                MwbExporter_Core_Registry::get((string) $node)->markAsPrimary();
+                \MwbExporter\Core\Registry::get((string) $node)->markAsPrimary();
                 return;
             }
-            $this->referencedColumn[] = MwbExporter_Core_Registry::get((string) $node);
+            $this->referencedColumn[] = \MwbExporter\Core\Registry::get((string) $node);
         }
 
-        MwbExporter_Core_Registry::get((string)$this->data->link)->injectIndex($this);
-        MwbExporter_Core_Registry::set($this->id, $this);
+        \MwbExporter\Core\Registry::get((string)$this->data->link)->injectIndex($this);
+        \MwbExporter\Core\Registry::set($this->id, $this);
     }
 }

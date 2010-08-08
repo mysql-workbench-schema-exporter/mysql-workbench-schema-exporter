@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_ForeignKeys extends MwbExporter_Core_Model_Base
+namespace MwbExporter\Core\Model;
+
+abstract class ForeignKeys extends Base
 {
     protected $foreignKeys = array();
     
@@ -32,10 +34,10 @@ abstract class MwbExporter_Core_Model_ForeignKeys extends MwbExporter_Core_Model
         parent::__construct($data);
         
         foreach($data->value as $key => $node){
-            $this->foreignKeys[] = MwbExporter_Core_Registry::get('formatter')->createForeignKey($node);
+            $this->foreignKeys[] = \MwbExporter\Core\Registry::get('formatter')->createForeignKey($node);
         }
         
-        MwbExporter_Core_Registry::set($this->id, $this);
+        \MwbExporter\Core\Registry::set($this->id, $this);
     }
     
     public function getForeignKeys()

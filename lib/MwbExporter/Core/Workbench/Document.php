@@ -23,9 +23,11 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Core_Workbench_Document extends MwbExporter_Core_Model_Document
+namespace MwbExporter\Core\Workbench;
+
+class Document extends \MwbExporter\Core\Model\Document
 {
-    public function __construct($mwbFile, MwbExporter_Core_IFormatter $formatter)
+    public function __construct($mwbFile, \MwbExporter\Core\IFormatter $formatter)
     {
         parent::__construct($mwbFile, $formatter);
     }

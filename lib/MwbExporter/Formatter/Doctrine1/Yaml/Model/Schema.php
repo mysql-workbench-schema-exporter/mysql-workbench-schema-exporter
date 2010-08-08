@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine1_Yaml_Model_Schema extends MwbExporter_Core_Model_Schema
+namespace MwbExporter\Formatter\Doctrine1\Yaml\Model;
+
+class Schema extends \MwbExporter\Core\Model\Schema
 {
     public function __construct($data)
     {
@@ -34,7 +36,8 @@ class MwbExporter_Formatter_Doctrine1_Yaml_Model_Schema extends MwbExporter_Core
     {
         $return = array();
         $return[] = $this->tables->display();
-        //$return[] = $this->views->display();
+        // views are not supported
+        // $return[] = $this->views->display();
 
         return implode("\n", $return);
     }

@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_Column extends MwbExporter_Core_Model_Base
+namespace MwbExporter\Core\Model;
+
+abstract class Column extends Base
 {
     protected $config = array();
     protected $link   = array();
@@ -52,7 +54,7 @@ abstract class MwbExporter_Core_Model_Column extends MwbExporter_Core_Model_Base
             $this->link[$key]   = (string) $node[0];
         }
 
-        MwbExporter_Core_Registry::set($this->id, $this);
+        \MwbExporter\Core\Registry::set($this->id, $this);
     }
 
     public function getConfig()
@@ -70,12 +72,12 @@ abstract class MwbExporter_Core_Model_Column extends MwbExporter_Core_Model_Base
         $this->isPrimary = true;
     }
     
-    public function markAsLocalReference(MwbExporter_Core_Model_ForeignKey $local)
+    public function markAsLocalReference( \MwbExporter\Core\Model\ForeignKey $local)
     {
         $this->local = $local;
     }
     
-    public function markAsForeignReference(MwbExporter_Core_Model_ForeignKey $foreign)
+    public function markAsForeignReference( \MwbExporter\Core\Model\ForeignKey $foreign)
     {
         $this->foreign = $foreign;
     }

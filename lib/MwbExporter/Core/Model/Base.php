@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_Base
+namespace MwbExporter\Core\Model;
+
+abstract class Base
 {
     protected $id;
     protected $attributes;

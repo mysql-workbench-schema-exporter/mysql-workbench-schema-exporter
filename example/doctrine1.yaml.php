@@ -31,27 +31,19 @@ $start = microtime(true);
 
 
 // enable autoloading of classes
-function mySimpleAutoloadFunction($className){
-    require_once dirname(__FILE__)
-        . DIRECTORY_SEPARATOR
-        . '..'
-        . DIRECTORY_SEPARATOR
-        . 'lib'
-        . DIRECTORY_SEPARATOR
-        . str_replace('_', DIRECTORY_SEPARATOR, $className ) 
-        . '.php';
-}
-spl_autoload_register('mySimpleAutoloadFunction');
-
+require_once('../lib/MwbExporter/Core/SplClassLoader.php');
+$classLoader = new SplClassLoader();
+$classLoader->setIncludePath('../lib');
+$classLoader->register();
 
 // show a simple text box with the output
 echo '<textarea cols="100" rows="50">';
 
     // create a formatter
-    $formatter = new MwbExporter_Formatter_Doctrine1_Yaml_Loader();
+    $formatter = new \MwbExporter\Formatter\Doctrine1\Yaml\Loader();
     
     // parse the mwb file
-    $mwb = new MwbExporter_Core_Workbench_Document('data/test.mwb', $formatter);
+    $mwb = new \MwbExporter\Core\Workbench\Document('data/test.mwb', $formatter);
     
     // show the export output of the mwb file
     echo $mwb->display();

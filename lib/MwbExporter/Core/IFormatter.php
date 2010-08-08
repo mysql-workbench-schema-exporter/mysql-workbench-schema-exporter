@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-interface MwbExporter_Core_IFormatter {
+namespace MwbExporter\Core;
+
+interface IFormatter {
     public function createCatalog($parameter);
     public function createColumn($parameter);
     public function createColumns($parameter);
@@ -37,5 +39,5 @@ interface MwbExporter_Core_IFormatter {
     public function createTables($parameter);
     public function createView($parameter);
     public function createViews($parameter);
-    public function useDatatypeConverter($type, MwbExporter_Core_Model_Column $column);
+    public function useDatatypeConverter($type, \MwbExporter\Core\Model\Column $column);
 }

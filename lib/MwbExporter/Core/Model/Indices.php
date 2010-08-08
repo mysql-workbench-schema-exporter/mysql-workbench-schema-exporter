@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_Indices extends MwbExporter_Core_Model_Base
+namespace MwbExporter\Core\Model;
+
+abstract class Indices extends Base
 {
     protected $indices = array();
     
@@ -32,9 +34,9 @@ abstract class MwbExporter_Core_Model_Indices extends MwbExporter_Core_Model_Bas
         parent::__construct($data);
         
         foreach($data->value as $key => $node){
-            $this->indices[] = MwbExporter_Core_Registry::get('formatter')->createIndex($node);
+            $this->indices[] = \MwbExporter\Core\Registry::get('formatter')->createIndex($node);
         }
         
-        MwbExporter_Core_Registry::set($this->id, $this);
+        \MwbExporter\Core\Registry::set($this->id, $this);
     }
 }

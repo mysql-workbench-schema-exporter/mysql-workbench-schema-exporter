@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_Schema extends MwbExporter_Core_Model_Base
+namespace MwbExporter\Core\Model;
+
+abstract class Schema extends Base
 {
     protected $tables = null;
     protected $views = null;
@@ -33,12 +35,12 @@ abstract class MwbExporter_Core_Model_Schema extends MwbExporter_Core_Model_Base
         parent::__construct($data);
 
         $tmp = $this->data->xpath("value[@key='tables']");
-        $this->tables = MwbExporter_Core_Registry::get('formatter')->createTables($tmp[0]);
+        $this->tables = \MwbExporter\Core\Registry::get('formatter')->createTables($tmp[0]);
 
         $tmp = $this->data->xpath("value[@key='views']");
-        $this->views  = MwbExporter_Core_Registry::get('formatter')->createViews($tmp[0]);
+        $this->views  = \MwbExporter\Core\Registry::get('formatter')->createViews($tmp[0]);
         
-        MwbExporter_Core_Registry::set($this->id, $this);
+        \MwbExporter\Core\Registry::set($this->id, $this);
     }
 
 }

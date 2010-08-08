@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_Catalog extends MwbExporter_Core_Model_Base
+namespace MwbExporter\Core\Model;
+
+abstract class Catalog extends Base
 {
     protected $schemas = null;
     
@@ -32,8 +34,8 @@ abstract class MwbExporter_Core_Model_Catalog extends MwbExporter_Core_Model_Bas
         parent::__construct($data);
     
         $tmp = $this->data->xpath("value[@key='schemata']");
-        $this->schemas = MwbExporter_Core_Registry::get('formatter')->createSchemas($tmp[0]);
+        $this->schemas = \MwbExporter\Core\Registry::get('formatter')->createSchemas($tmp[0]);
         
-        MwbExporter_Core_Registry::set($this->id, $this);
+        \MwbExporter\Core\Registry::set($this->id, $this);
     }
 }

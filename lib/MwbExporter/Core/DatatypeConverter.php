@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_DatatypeConverter
+namespace MwbExporter\Core;
+
+abstract class DatatypeConverter
 {
     protected static $datatypes = array(
         // simple datatypes

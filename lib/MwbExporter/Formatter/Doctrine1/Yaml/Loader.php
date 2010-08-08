@@ -23,62 +23,64 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine1_Yaml_Loader implements MwbExporter_Core_IFormatter
+namespace MwbExporter\Formatter\Doctrine1\Yaml;
+
+class Loader implements \MwbExporter\Core\IFormatter
 {
     
     public function createCatalog($parameter){
-        return new MwbExporter_Formatter_Doctrine1_Yaml_Model_Catalog($parameter);
+        return new Model\Catalog($parameter);
     }
 
     public function createColumn($parameter){
-        return new MwbExporter_Formatter_Doctrine1_Yaml_Model_Column($parameter);
+        return new Model\Column($parameter);
     }
 
     public function createColumns($parameter){
-        return new MwbExporter_Formatter_Doctrine1_Yaml_Model_Columns($parameter);
+        return new Model\Columns($parameter);
     }
 
     public function createForeignKey($parameter){
-        return new MwbExporter_Formatter_Doctrine1_Yaml_Model_ForeignKey($parameter);
+        return new Model\ForeignKey($parameter);
     }
 
     public function createForeignKeys($parameter){
-        return new MwbExporter_Formatter_Doctrine1_Yaml_Model_ForeignKeys($parameter);
+        return new Model\ForeignKeys($parameter);
     }
 
     public function createIndex($parameter){
-        return new MwbExporter_Formatter_Doctrine1_Yaml_Model_Index($parameter);
+        return new Model\Index($parameter);
     }
 
     public function createIndices($parameter){
-        return new MwbExporter_Formatter_Doctrine1_Yaml_Model_Indices($parameter);
+        return new Model\Indices($parameter);
     }
 
     public function createSchema($parameter){
-        return new MwbExporter_Formatter_Doctrine1_Yaml_Model_Schema($parameter);
+        return new Model\Schema($parameter);
     }
 
     public function createSchemas($parameter){
-        return new MwbExporter_Formatter_Doctrine1_Yaml_Model_Schemas($parameter);
+        return new Model\Schemas($parameter);
     }
 
     public function createTable($parameter){
-        return new MwbExporter_Formatter_Doctrine1_Yaml_Model_Table($parameter);
+        return new Model\Table($parameter);
     }
 
     public function createTables($parameter){
-        return new MwbExporter_Formatter_Doctrine1_Yaml_Model_Tables($parameter);
+        return new Model\Tables($parameter);
     }
 
     public function createView($parameter){
-        return new MwbExporter_Formatter_Doctrine1_Yaml_Model_View($parameter);
+        return new Model\View($parameter);
     }
 
     public function createViews($parameter){
-        return new MwbExporter_Formatter_Doctrine1_Yaml_Model_Views($parameter);
+        return new Model\Views($parameter);
     }
     
-    public function useDatatypeConverter($type, MwbExporter_Core_Model_Column $column){
-        return MwbExporter_Formatter_Doctrine1_Yaml_DatatypeConverter::getType($type, $column);
+    public function useDatatypeConverter($type, \MwbExporter\Core\Model\Column $column){
+        return DatatypeConverter::getType($type, $column);
     }
 }

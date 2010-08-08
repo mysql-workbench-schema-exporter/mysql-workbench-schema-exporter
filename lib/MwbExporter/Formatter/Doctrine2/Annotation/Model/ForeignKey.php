@@ -23,17 +23,19 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine2_Annotation_Model_ForeignKey extends MwbExporter_Core_Model_ForeignKey
+namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
+
+class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
 {
     public function __construct($data)
     {
         parent::__construct($data);
         
         $referencedColumn = $this->data->xpath("value[@key='referencedColumns']");
-        $local = MwbExporter_Core_Registry::get((string) $referencedColumn[0]->link);
+        $local = \MwbExporter\Core\Registry::get((string) $referencedColumn[0]->link);
 
         $ownerColumn = $this->data->xpath("value[@key='columns']");
-        $foreign = MwbExporter_Core_Registry::get((string) $ownerColumn[0]->link);
+        $foreign = \MwbExporter\Core\Registry::get((string) $ownerColumn[0]->link);
         
         // for doctrine2 annotations switch the local and the foreign
         // reference for a proper output

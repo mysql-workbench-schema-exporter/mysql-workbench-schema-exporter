@@ -23,11 +23,13 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Helper_Pluralizer extends MwbExporter_Core_Helper_WordTransform
+namespace MwbExporter\Helper;
+
+class Pluralizer extends \MwbExporter\Core\Helper\WordTransform
 {
     public static function pluralize($word)
     {
-        if($tmpWord = MwbExporter_Helper_SpecialWordList::getPluralOf($word)){
+        if($tmpWord = \MwbExporter\Helper\SpecialWordList::getPluralOf($word)){
             return ucfirst($tmpWord);
         }
 
@@ -64,7 +66,7 @@ class MwbExporter_Helper_Pluralizer extends MwbExporter_Core_Helper_WordTransfor
     public static function wordIsPlural($word)
     {
         // check if plural is in special word list
-        if(MwbExporter_Helper_SpecialWordList::getSingularOf($word)){
+        if( \MwbExporter\Helper\SpecialWordList::getSingularOf($word)){
             return true;
         }
         return strlen($word) > 1 && self::wordEndsWith($word, 's') && !self::wordEndsWith($word, 'ss') && !self::wordEndsWith($word, 'us');

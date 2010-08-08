@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_ForeignKey extends MwbExporter_Core_Model_Base
+namespace MwbExporter\Core\Model;
+
+abstract class ForeignKey extends Base
 {
     protected $config = null;
     
@@ -49,12 +51,12 @@ abstract class MwbExporter_Core_Model_ForeignKey extends MwbExporter_Core_Model_
             
             if($key == 'referencedTable'){
                 $referencedTableId = (string) $node;
-                $this->referencedTable = MwbExporter_Core_Registry::get($referencedTableId);
+                $this->referencedTable = \MwbExporter\Core\Registry::get($referencedTableId);
             }
             
             if($key == 'owner'){
                 $owningTableId = (string) $node;
-                $this->owningTable = MwbExporter_Core_Registry::get($owningTableId);
+                $this->owningTable = \MwbExporter\Core\Registry::get($owningTableId);
                 $this->owningTable->injectRelation($this);
             }
         }
@@ -62,7 +64,7 @@ abstract class MwbExporter_Core_Model_ForeignKey extends MwbExporter_Core_Model_
         //print_r($this->debug());
         //die();
         
-        MwbExporter_Core_Registry::set($this->id, $this);
+        \MwbExporter\Core\Registry::set($this->id, $this);
     }
     
     public function getReferencedTable()

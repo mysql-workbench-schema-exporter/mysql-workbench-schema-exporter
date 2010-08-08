@@ -23,7 +23,7 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine2_Yaml_Model_ForeignKey extends MwbExporter_Core_Model_ForeignKey
+class MwbExporter_Formatter_Doctrine2_Yaml_Model_ForeignKey extends \MwbExporter\Core\Model\ForeignKey
 {
     public function __construct($data)
     {
@@ -37,13 +37,13 @@ class MwbExporter_Formatter_Doctrine2_Yaml_Model_ForeignKey extends MwbExporter_
         $return[] = '      class: ' . $this->referencedTable->getModelName();
 
         $referencedColumn = $this->data->xpath("value[@key='referencedColumns']");
-        $return[] = '      local: ' . MwbExporter_Core_Registry::get((string) $referencedColumn[0]->link)->getColumnName();
+        $return[] = '      local: ' . \MwbExporter\Core\Registry::get((string) $referencedColumn[0]->link)->getColumnName();
 
         $ownerColumn = $this->data->xpath("value[@key='columns']");
-        $return[] = '      foreign: ' . MwbExporter_Core_Registry::get((string) $ownerColumn[0]->link)->getColumnName();
+        $return[] = '      foreign: ' . \MwbExporter\Core\Registry::get((string) $ownerColumn[0]->link)->getColumnName();
 
         if((int)$this->config['many'] === 1){
-            $return[] = '      foreignAlias: ' . MwbExporter_Helper_Pluralizer::pluralize($this->owningTable->getModelName());
+            $return[] = '      foreignAlias: ' . \MwbExporter\Helper\Pluralizer::pluralize($this->owningTable->getModelName());
         } else {
             $return[] = '      foreignAlias: ' . $this->owningTable->getModelName();
         }

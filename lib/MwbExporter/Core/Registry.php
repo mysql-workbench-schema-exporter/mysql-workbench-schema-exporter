@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Core_Registry
+namespace MwbExporter\Core;
+
+class Registry
 {
     protected static $register = array();
     

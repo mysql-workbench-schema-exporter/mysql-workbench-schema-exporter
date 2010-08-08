@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine2_Annotation_Model_Table extends MwbExporter_Core_Model_Table
+namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
+
+class Table extends \MwbExporter\Core\Model\Table
 {
     protected $manyToManyRelations = array();
 
@@ -98,7 +100,7 @@ class MwbExporter_Formatter_Doctrine2_Annotation_Model_Table extends MwbExporter
             $return[] = '    /**';
             $return[] = '     * @ManyToMany(targetEntity="' . $relation['refTable']->getModelName() . '")';
             $return[] = '     */';
-            $return[] = '    private $' . lcfirst(MwbExporter_Helper_Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
+            $return[] = '    private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
         }
         
         return implode("\n", $return);
@@ -112,13 +114,13 @@ class MwbExporter_Formatter_Doctrine2_Annotation_Model_Table extends MwbExporter
             $return[] = '    public function add' . $relation['refTable']->getModelName() . '(' . $relation['refTable']->getModelName() . ' $' . lcfirst($relation['refTable']->getModelName()) . ')';
             $return[] = '    {';
             $return[] = '        $' . lcfirst($relation['refTable']->getModelName()) . '->add' . $this->getModelName() . '($this);';
-            $return[] = '        $this->' . lcfirst(MwbExporter_Helper_Pluralizer::pluralize($relation['refTable']->getModelName())) . '[] = $' . lcfirst($relation['refTable']->getModelName()) . ';';
+            $return[] = '        $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . '[] = $' . lcfirst($relation['refTable']->getModelName()) . ';';
             $return[] = '        return $this;';
             $return[] = '    }';
             $return[] = '';
-            $return[] = '    public function get' . MwbExporter_Helper_Pluralizer::pluralize($relation['refTable']->getModelName()) . '()';
+            $return[] = '    public function get' . \MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName()) . '()';
             $return[] = '    {';
-            $return[] = '        return $this->' . lcfirst(MwbExporter_Helper_Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
+            $return[] = '        return $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
             $return[] = '    }';
         }
 

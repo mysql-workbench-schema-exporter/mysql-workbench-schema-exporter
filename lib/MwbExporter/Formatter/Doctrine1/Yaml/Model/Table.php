@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine1_Yaml_Model_Table extends MwbExporter_Core_Model_Table
+namespace MwbExporter\Formatter\Doctrine1\Yaml\Model;
+
+class Table extends \MwbExporter\Core\Model\Table
 {
     public function __construct($data)
     {

@@ -23,11 +23,13 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Helper_Singularizer extends MwbExporter_Core_Helper_WordTransform
+namespace MwbExporter\Helper;
+
+class Singularizer extends \MwbExporter\Core\Helper\WordTransform
 {
     public static function singularize($word)
     {
-        if($tmpWord = MwbExporter_Helper_SpecialWordList::getSingularOf($word)){
+        if($tmpWord = \MwbExporter\Helper\SpecialWordList::getSingularOf($word)){
             return ucfirst($tmpWord);
         }
         
@@ -69,6 +71,6 @@ class MwbExporter_Helper_Singularizer extends MwbExporter_Core_Helper_WordTransf
     
     public static function wordIsSingular($word)
     {
-        return !MwbExporter_Helper_Pluralizer::wordIsPlural($word);
+        return !( \MwbExporter\Helper\Pluralizer::wordIsPlural($word) );
     }
 }

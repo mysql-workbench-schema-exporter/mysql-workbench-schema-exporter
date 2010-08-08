@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine2_Annotation_Model_ManyToMany
+namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
+
+class ManyToMany
 {
 
     // checks if a relation indicates a many to many relation

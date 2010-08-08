@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Core_Model_PhysicalModel extends MwbExporter_Core_Model_Base
+namespace MwbExporter\Core\Model;
+
+class PhysicalModel extends Base
 {
     protected $catalog = null;
 
@@ -32,9 +34,9 @@ class MwbExporter_Core_Model_PhysicalModel extends MwbExporter_Core_Model_Base
         parent::__construct($data);
 
         $tmp = $this->data->xpath("value[@key='catalog']");
-        $this->catalog = MwbExporter_Core_Registry::get('formatter')->createCatalog($tmp[0]);
+        $this->catalog = \MwbExporter\Core\Registry::get('formatter')->createCatalog($tmp[0]);
 
-        MwbExporter_Core_Registry::set($this->id, $this);
+        \MwbExporter\Core\Registry::set($this->id, $this);
     }
 
     public function display()

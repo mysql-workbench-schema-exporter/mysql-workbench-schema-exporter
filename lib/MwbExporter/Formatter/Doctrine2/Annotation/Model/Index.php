@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine2_Annotation_Model_Index extends MwbExporter_Core_Model_Index
+namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
+
+class Index extends \MwbExporter\Core\Model\Index
 {
     public function __construct($data)
     {

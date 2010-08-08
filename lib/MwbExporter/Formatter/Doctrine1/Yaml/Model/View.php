@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine1_Yaml_Model_View extends MwbExporter_Core_Model_View
+namespace MwbExporter\Formatter\Doctrine1\Yaml\Model;
+
+class View extends \MwbExporter\Core\Model\View
 {
     public function __construct($data)
     {

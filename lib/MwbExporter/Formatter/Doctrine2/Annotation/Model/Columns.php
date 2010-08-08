@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine2_Annotation_Model_Columns extends MwbExporter_Core_Model_Columns
+namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
+
+class Columns extends \MwbExporter\Core\Model\Columns
 {
     public function __construct($data)
     {

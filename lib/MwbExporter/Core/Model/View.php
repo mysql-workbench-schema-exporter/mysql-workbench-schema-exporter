@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_View extends MwbExporter_Core_Model_Base
+namespace MwbExporter\Core\Model;
+
+abstract class View extends Base
 {
     protected $config = null;
     protected $columns = null;
@@ -33,7 +35,7 @@ abstract class MwbExporter_Core_Model_View extends MwbExporter_Core_Model_Base
         parent::__construct($data);
 
         $tmp = $this->data->xpath("value[@key='columns']");
-        $this->columns = MwbExporter_Core_Registry::get('formatter')->createColumns($tmp[0]);
+        $this->columns = \MwbExporter\Core\Registry::get('formatter')->createColumns($tmp[0]);
         
         // iterate on column configuration
         foreach($this->data->value as $key => $node){
@@ -43,7 +45,7 @@ abstract class MwbExporter_Core_Model_View extends MwbExporter_Core_Model_Base
             $this->config[$key] = (string) $node[0];           // assign value
         }
         
-        MwbExporter_Core_Registry::set($this->id, $this);
+        \MwbExporter\Core\Registry::set($this->id, $this);
     }
     
     public function getRawTableName()

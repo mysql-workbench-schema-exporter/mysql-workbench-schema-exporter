@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine2_Annotation_Model_ForeignKeys extends MwbExporter_Core_Model_ForeignKeys
+namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
+
+class ForeignKeys extends \MwbExporter\Core\Model\ForeignKeys
 {
     public function __construct($data)
     {

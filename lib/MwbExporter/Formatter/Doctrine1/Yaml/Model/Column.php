@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine1_Yaml_Model_Column extends MwbExporter_Core_Model_Column
+namespace MwbExporter\Formatter\Doctrine1\Yaml\Model;
+
+class Column extends \MwbExporter\Core\Model\Column
 {
     public function __construct($data)
     {
@@ -38,7 +40,7 @@ class MwbExporter_Formatter_Doctrine1_Yaml_Model_Column extends MwbExporter_Core
         $return[] = '    ' . $this->config['name'] . ':';
 
         // set datatype of column
-        $return[] = '      type: ' . MwbExporter_Core_Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
+        $return[] = '      type: ' . \MwbExporter\Core\Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
 
         if($this->isPrimary){
             $return[] = '      primary: true';

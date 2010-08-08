@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_Table extends MwbExporter_Core_Model_Base
+namespace MwbExporter\Core\Model;
+
+abstract class Table extends Base
 {
     protected $config = null;
 
@@ -39,7 +41,7 @@ abstract class MwbExporter_Core_Model_Table extends MwbExporter_Core_Model_Base
         parent::__construct($data);
 
         $tmp = $this->data->xpath("value[@key='columns']");
-        $this->columns = MwbExporter_Core_Registry::get('formatter')->createColumns($tmp[0]);
+        $this->columns = \MwbExporter\Core\Registry::get('formatter')->createColumns($tmp[0]);
 
         // iterate on column configuration
         foreach($this->data->value as $key => $node){
@@ -49,20 +51,20 @@ abstract class MwbExporter_Core_Model_Table extends MwbExporter_Core_Model_Base
             $this->config[$key] = (string) $node[0];           // assign value
         }
 
-        MwbExporter_Core_Registry::set($this->id, $this);
+        \MwbExporter\Core\Registry::set($this->id, $this);
     }
 
     public function checkForIndices()
     {
         foreach($this->data->xpath("value[@key='indices']") as $key => $node){
-            $this->indices = MwbExporter_Core_Registry::get('formatter')->createIndices($node);
+            $this->indices = \MwbExporter\Core\Registry::get('formatter')->createIndices($node);
         }
     }
 
     public function checkForForeignKeys()
     {
         foreach($this->data->xpath("value[@key='foreignKeys']") as $key => $node){
-            $this->foreignKeys = MwbExporter_Core_Registry::get('formatter')->createForeignKeys($node);
+            $this->foreignKeys = \MwbExporter\Core\Registry::get('formatter')->createForeignKeys($node);
         }
     }
     
@@ -101,8 +103,8 @@ abstract class MwbExporter_Core_Model_Table extends MwbExporter_Core_Model_Base
         $tablename = $this->getRawTableName();
 
         // check if table name is plural --> convert to singular
-        if(MwbExporter_Helper_Pluralizer::wordIsPlural($tablename)){
-            $tablename = MwbExporter_Helper_Singularizer::singularize($tablename);
+        if(\MwbExporter\Helper\Pluralizer::wordIsPlural($tablename)){
+            $tablename = \MwbExporter\Helper\Singularizer::singularize($tablename);
         }
 
         // camleCase under scores for model names
@@ -111,15 +113,15 @@ abstract class MwbExporter_Core_Model_Table extends MwbExporter_Core_Model_Base
 
     public function getModelNameInPlural()
     {
-        return Helper_Pluralizer::pluralize($this->getModelName());
+        return Helper\Pluralizer::pluralize($this->getModelName());
     }
 
-    public function injectIndex(MwbExporter_Core_Model_Index $index)
+    public function injectIndex( \MwbExporter\Core\Model\Index $index)
     {
         $this->indexes[] = $index;
     }
 
-    public function injectRelation(MwbExporter_Core_Model_ForeignKey $foreignKey)
+    public function injectRelation( \MwbExporter\Core\Model\ForeignKey $foreignKey)
     {
         $this->relations[] = $foreignKey;
     }

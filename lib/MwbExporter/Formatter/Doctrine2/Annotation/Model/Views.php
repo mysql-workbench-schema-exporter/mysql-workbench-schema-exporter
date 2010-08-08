@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine2_Annotation_Model_Views extends MwbExporter_Core_Model_Views
+namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
+
+class Views extends \MwbExporter\Core\Model\Views
 {
     public function __construct($data)
     {

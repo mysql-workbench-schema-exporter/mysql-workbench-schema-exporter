@@ -23,9 +23,11 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine1_Yaml_DatatypeConverter extends MwbExporter_Core_DatatypeConverter
+namespace MwbExporter\Formatter\Doctrine1\Yaml;
+
+class DatatypeConverter extends \MwbExporter\Core\DatatypeConverter
 {
-    public static function getType($key, MwbExporter_Core_Model_Column $column)
+    public static function getType($key, \MwbExporter\Core\Model\Column $column)
     {
         $return = isset(self::$datatypes[$key]) ? self::$datatypes[$key] : 'unknown';
         $config = $column->getConfig();

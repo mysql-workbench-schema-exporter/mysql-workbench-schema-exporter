@@ -23,12 +23,14 @@
  *  THE SOFTWARE.
  */
 
+namespace MwbExporter\Helper;
+
 /**
  * simple word list to handle exceptions
  * of singularization and pluralization rule
  */
 
-class MwbExporter_Helper_SpecialWordList extends MwbExporter_Core_Helper_SpecialWordList
+class SpecialWordList extends \MwbExporter\Core\Helper\SpecialWordList
 {
 
     protected static $specialWordList = array(

@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine2_Annotation_Model_Schema extends MwbExporter_Core_Model_Schema
+namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
+
+class Schema extends \MwbExporter\Core\Model\Schema
 {
     public function __construct($data)
     {

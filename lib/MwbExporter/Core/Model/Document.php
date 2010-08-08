@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Core_Model_Document extends MwbExporter_Core_Model_Base
+namespace MwbExporter\Core\Model;
+
+class Document extends Base
 {
     protected $data = null;
     protected $attributes = null;
@@ -32,20 +34,20 @@ class MwbExporter_Core_Model_Document extends MwbExporter_Core_Model_Base
     
     protected $physicalModel = null;
     
-    public function __construct($mwbFile, MwbExporter_Core_IFormatter $formatter)
+    public function __construct($mwbFile, \MwbExporter\Core\IFormatter $formatter)
     {
         // load mxb xml file
-        $this->data = simplexml_load_string(MwbExporter_Core_Helper_Mwb::read($mwbFile));
+        $this->data = simplexml_load_string( \MwbExporter\Core\Helper\Mwb::read($mwbFile));
 
         // save formatter in registry
-        MwbExporter_Core_Registry::set('formatter', $formatter);
+        \MwbExporter\Core\Registry::set('formatter', $formatter);
 
         // save document in registry
-        MwbExporter_Core_Registry::set('document', $this);
+        \MwbExporter\Core\Registry::set('document', $this);
         $this->parse();
 
         // save this object in registry by workebench id
-        MwbExporter_Core_Registry::set($this->id, $this);
+        \MwbExporter\Core\Registry::set($this->id, $this);
     }
     
     protected function parse()
@@ -56,7 +58,7 @@ class MwbExporter_Core_Model_Document extends MwbExporter_Core_Model_Base
         $this->id = (string) $this->attributes['id'];
 
         $tmp = $this->data->xpath("value[@key='physicalModels']/value");
-        $this->physicalModel = new MwbExporter_Core_Model_PhysicalModel($tmp[0]);
+        $this->physicalModel = new \MwbExporter\Core\Model\PhysicalModel($tmp[0]);
     }
     
     public function getData()

@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Helper_WordTransform
+namespace MwbExporter\Core\Helper;
+
+abstract class WordTransform
 {
     protected static function wordEndsWith($word, $ending)
     {

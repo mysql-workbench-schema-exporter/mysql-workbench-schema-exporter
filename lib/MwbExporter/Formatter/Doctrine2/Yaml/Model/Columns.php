@@ -23,7 +23,7 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine2_Yaml_Model_Columns extends MwbExporter_Core_Model_Columns
+class MwbExporter_Formatter_Doctrine2_Yaml_Model_Columns extends \MwbExporter\Core\Model\Columns
 {
     public function __construct($data)
     {

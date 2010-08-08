@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Core_Helper_Mwb
+namespace MwbExporter\Core\Helper;
+
+class Mwb
 {
     public static function read($filePath)
     {

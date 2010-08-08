@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-abstract class MwbExporter_Core_Model_Views extends MwbExporter_Core_Model_Base
+namespace MwbExporter\Core\Model;
+
+abstract class Views extends Base
 {
     protected $views = array();
     
@@ -33,9 +35,9 @@ abstract class MwbExporter_Core_Model_Views extends MwbExporter_Core_Model_Base
         
         // iterate on views
         foreach($data->value as $key => $node){
-            $this->views[] = MwbExporter_Core_Registry::get('formatter')->createView($node);
+            $this->views[] = \MwbExporter\Core\Registry::get('formatter')->createView($node);
         }
         
-        MwbExporter_Core_Registry::set($this->id, $this);
+        \MwbExporter\Core\Registry::set($this->id, $this);
     }
 }

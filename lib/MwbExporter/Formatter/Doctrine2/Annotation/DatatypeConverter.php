@@ -23,7 +23,9 @@
  *  THE SOFTWARE.
  */
 
-class MwbExporter_Formatter_Doctrine2_Annotation_DatatypeConverter extends MwbExporter_Core_DatatypeConverter
+namespace MwbExporter\Formatter\Doctrine2\Annotation;
+
+class DatatypeConverter extends \MwbExporter\Core\DatatypeConverter
 {
     public static function setUp()
     {
@@ -43,7 +45,7 @@ class MwbExporter_Formatter_Doctrine2_Annotation_DatatypeConverter extends MwbEx
         self::$datatypes['com.mysql.rdbms.mysql.userdatatype.middleint'] = 'mediumint';
     }
 
-    public static function getType($key, MwbExporter_Core_Model_Column $column)
+    public static function getType($key, \MwbExporter\Core\Model\Column $column)
     {
         self::setUp();
 
