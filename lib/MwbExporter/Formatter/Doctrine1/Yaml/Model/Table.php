@@ -32,11 +32,27 @@ class Table extends \MwbExporter\Core\Model\Table
         parent::__construct($data);
     }
 
+    public function checkActAsBehaviour()
+    {
+        if($this->getComment() === ''){
+            return false;
+        }
+        return $this->parseComment('actAs', $this->getComment());
+    }
+
     public function display()
     {
         $return = array();
+
+        // add model name
         $return[] = $this->getModelName() . ':';
 
+        // add behaviours
+        if($actAs = $this->checkActAsBehaviour()){
+            $return[] = '  ' . trim($actAs);
+        }
+
+        // add table name
         if($this->getModelName() !== ucfirst($this->getRawTableName())){
             $return[] = '  table_name: ' . $this->getRawTableName();
         }

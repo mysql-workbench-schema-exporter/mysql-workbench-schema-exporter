@@ -52,6 +52,19 @@ abstract class Base
     {
         return $this->data;
     }
+
+    public function getComment()
+    {
+        return isset($this->config['comment']) ? $this->config['comment'] : '';
+    }
+
+    protected function parseComment($needle, $comment)
+    {
+        $x = preg_quote($needle);
+        $pattern = '@\{doctrine:' . $x . '\}(.+)\{\/doctrine:' . $x . '\}@s';
+        preg_match($pattern, $comment, $matches);
+        return isset($matches[1]) ? $matches[1] : false;
+    }
     
     public function debug()
     {

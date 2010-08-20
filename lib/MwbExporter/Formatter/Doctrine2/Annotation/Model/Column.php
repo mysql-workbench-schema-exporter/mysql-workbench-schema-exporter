@@ -135,7 +135,7 @@ class Column extends \MwbExporter\Core\Model\Column
         if(!is_null($this->local)){
             $return[] = '    public function set' . $this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()) . '(' . $this->local->getReferencedTable()->getModelName() . ' $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ')';
             $return[] = '    {';
-            $return[] = '         $' . lcfirst($this->local->getReferencedTable()->getModelName()) . '->set' . $this->columnNameBeautifier($this->local->getOwningTable()->getModelName()) . '($this);';
+            $return[] = '         $' . lcfirst($this->local->getReferencedTable()->getModelName()) . '->add' . $this->columnNameBeautifier($this->local->getOwningTable()->getModelName()) . '($this);';
             $return[] = '         $this->' . lcfirst($this->local->getReferencedTable()->getModelName()) . ' = $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
             $return[] = '         return $this; // fluent interface';
             $return[] = '    }';
