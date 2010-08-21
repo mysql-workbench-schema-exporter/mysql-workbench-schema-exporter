@@ -24,5 +24,9 @@ $mwb = new \MwbExporter\Core\Workbench\Document('myDatabaseModel.mwb', $formatte
 echo $mwb->display();
 ?>
 
-Currently the formatters need further development to work properly and
-do not support behaviours by now as the Workbench plugin did.
+Support for behaviours is implemented for Doctrine1. Use the comment fields in tables.
+    {d:actAs}
+      actAs:
+        timestampable:
+          [..]
+    {/d:actAs}
