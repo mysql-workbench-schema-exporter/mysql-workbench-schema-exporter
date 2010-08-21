@@ -25,8 +25,8 @@ echo $mwb->display();
 ?>
 
 Support for behaviours is implemented for Doctrine1. Use the comment fields in tables.
-    {d:actAs}
-      actAs:
-        timestampable:
-          [..]
-    {/d:actAs}
+{d:actAs}
+  actAs:
+    timestampable:
+      [..]
+{/d:actAs}
