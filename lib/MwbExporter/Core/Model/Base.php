@@ -61,9 +61,9 @@ abstract class Base
     protected function parseComment($needle, $comment)
     {
         $x = preg_quote($needle);
-        $pattern = '@\{doctrine:' . $x . '\}(.+)\{\/doctrine:' . $x . '\}@s';
+        $pattern = '@\{(d|doctrine)?:' . $x . '\}(.+)\{\/(d|doctrine)?:' . $x . '\}@s';
         preg_match($pattern, $comment, $matches);
-        return isset($matches[1]) ? $matches[1] : false;
+        return isset($matches[2]) ? $matches[2] : false;
     }
     
     public function debug()
