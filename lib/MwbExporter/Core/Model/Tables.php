@@ -45,6 +45,10 @@ abstract class Tables extends Base
             $this->tables[] = $tmp;
         }
         
+        usort($this->tables, function($a, $b) {
+           return strcmp($a->getModelName(), $b->getModelName()); 
+        });
+        
         /*
          * before you can check for foreign keys
          * you have to store at first all tables in the
