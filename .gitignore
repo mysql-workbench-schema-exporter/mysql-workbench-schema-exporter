@@ -1,1 +1,5 @@
 nbproject/
+example/data/
+.buildpath
+.project
+.settings/
