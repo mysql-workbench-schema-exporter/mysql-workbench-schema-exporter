@@ -46,6 +46,11 @@ class Column extends \MwbExporter\Core\Model\Column
             $return[] = '      primary: true';
         }
 
+        // check for not null column
+        if(isset($this->config['isNotNull']) && $this->config['isNotNull'] == 1){
+            $return[] = '      notnull: true';
+        }
+        
         // check for auto increment column
         if(isset($this->config['autoIncrement']) && $this->config['autoIncrement'] == 1){
             $return[] = '      autoincrement: true';
@@ -54,11 +59,6 @@ class Column extends \MwbExporter\Core\Model\Column
         // set default value
         if(isset($this->config['defaultValue']) && $this->config['defaultValue'] != '' && $this->config['defaultValue'] != 'NULL'){
             $return[] = '      default: ' . $this->config['defaultValue'];
-        }
-
-        // check for not null column
-        if(isset($this->config['isNotNull']) && $this->config['isNotNull'] == 1){
-            $return[] = '      notnull: true';
         }
 
         // iterate on column flags
