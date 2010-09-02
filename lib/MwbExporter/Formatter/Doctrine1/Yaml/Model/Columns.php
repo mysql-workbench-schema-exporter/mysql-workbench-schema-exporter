@@ -36,7 +36,7 @@ class Columns extends \MwbExporter\Core\Model\Columns
     {
         $return = array();
 
-        $return[] = '  columns: ';
+        $return[] = '  columns:';
         foreach($this->columns as $column){
             $return[] = $column->display();
         }
