@@ -36,8 +36,8 @@ class Document extends Base
     
     public function __construct($mwbFile, \MwbExporter\Core\IFormatter $formatter)
     {
-        // load mxb xml file
-        $this->data = simplexml_load_string( \MwbExporter\Core\Helper\Mwb::read($mwbFile));
+        // load mwb simple_xml object
+        $this->data = \MwbExporter\Core\Helper\Mwb::readXML($mwbFile);
 
         // save formatter in registry
         \MwbExporter\Core\Registry::set('formatter', $formatter);

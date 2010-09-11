@@ -65,7 +65,7 @@ abstract class DatatypeConverter
         'com.mysql.rdbms.mysql.datatype.enum'               => 'enum',
         'com.mysql.rdbms.mysql.datatype.set'                => 'set',
 
-        // userdazatypes
+        // userdatatypes
         'com.mysql.rdbms.mysql.userdatatype.boolean'        => 'boolean',
         'com.mysql.rdbms.mysql.userdatatype.bool'           => 'boolean',
         'com.mysql.rdbms.mysql.userdatatype.fixed'          => 'decimal',

@@ -27,17 +27,8 @@ namespace MwbExporter\Core\Helper;
 
 class Mwb
 {
-    public static function read($filePath)
+    public static function readXML($filePath)
     {
-        $zip = zip_open($filePath);
-
-        while($zipFile = zip_read($zip)){
-            if(zip_entry_name($zipFile) === 'document.mwb.xml'){
-                zip_entry_open($zip, $zipFile, "r");
-                $tmp = zip_entry_read($zipFile, zip_entry_filesize($zipFile));
-                zip_close($zip);
-                return $tmp;
-            }
-        }
+        return simplexml_load_file("zip://" . str_replace("\\", "/", realpath($filePath)) . "#document.mwb.xml");
     }
 }
