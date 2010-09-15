@@ -1,6 +1,17 @@
-This software is in EXPERIMENTAL state and not for production use. It's currently just a proof of concept.
+README
+======
 
-This application is written in PHP and intended to create:
+ATTENTION
+---------
+
+This software is EXPERIMENTAL and not ready for production use.
+It is just a proof of concept.
+
+
+What is MySQL Workbench schema exporter?
+----------------------------------------
+
+The application is intended to create:
 
   * Doctrine1
   * Doctrine2
@@ -8,11 +19,35 @@ This application is written in PHP and intended to create:
   * CakePHP
   * ...
 
-schema files from MySQL Workbench Files (*.mwb).
+schema files from MySQL Workbench models (*.mwb).
 It is inspired by http://code.google.com/p/mysql-workbench-doctrine-plugin/.
 
-To create models use it as follows. (do not forget to implement a class autoloading mechanism like in
-the example)
+Doctrine behaviours
+-------------------
+
+Support for behaviours is implemented for Doctrine1. Use the comment fields in
+tables.
+
+{d:actAs}
+  actAs:
+    timestampable:
+      [..]
+{/d:actAs}
+
+Requirements
+------------
+
+Supported on PHP 5.3 and up.
+
+Links
+-----
+
+[1]: http://wb.mysql.com/
+[2]: http://code.google.com/p/mysql-workbench-doctrine-plugin/
+[3]: http://www.doctrine-project.org/
+
+Example
+-------
 
 <?php
 
@@ -31,10 +66,3 @@ $mwb = new \MwbExporter\Core\Workbench\Document('myDatabaseModel.mwb', $formatte
 // show the output
 echo $mwb->display();
 ?>
-
-Support for behaviours is implemented for Doctrine1. Use the comment fields in tables.
-{d:actAs}
-  actAs:
-    timestampable:
-      [..]
-{/d:actAs}
