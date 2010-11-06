@@ -42,9 +42,9 @@ Works with PHP 5.3 and up.
 Links
 -----
 
-[1]: http://wb.mysql.com/
-[2]: http://code.google.com/p/mysql-workbench-doctrine-plugin/
-[3]: http://www.doctrine-project.org/
+[1]: http://www.doctrine-project.org/
+[2]: http://wb.mysql.com/
+[3]: http://code.google.com/p/mysql-workbench-doctrine-plugin/
 
 Example
 -------
