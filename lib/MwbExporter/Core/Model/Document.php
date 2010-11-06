@@ -58,12 +58,7 @@ class Document extends Base
         $this->id = (string) $this->attributes['id'];
 
         $tmp = $this->data->xpath("value[@key='physicalModels']/value");
-        $this->physicalModel = new \MwbExporter\Core\Model\PhysicalModel($tmp[0]);
-    }
-    
-    public function getData()
-    {
-        return $this->data;
+        $this->physicalModel = new \MwbExporter\Core\Model\PhysicalModel($tmp[0], $this);
     }
     
     public function display()

@@ -30,12 +30,12 @@ abstract class View extends Base
     protected $config = null;
     protected $columns = null;
     
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
 
         $tmp = $this->data->xpath("value[@key='columns']");
-        $this->columns = \MwbExporter\Core\Registry::get('formatter')->createColumns($tmp[0]);
+        $this->columns = \MwbExporter\Core\Registry::get('formatter')->createColumns($tmp[0], $this);
         
         // iterate on column configuration
         foreach($this->data->value as $key => $node){

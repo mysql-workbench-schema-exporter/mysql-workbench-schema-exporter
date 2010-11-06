@@ -29,12 +29,12 @@ abstract class ForeignKeys extends Base
 {
     protected $foreignKeys = array();
     
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
         
         foreach($data->value as $key => $node){
-            $this->foreignKeys[] = \MwbExporter\Core\Registry::get('formatter')->createForeignKey($node);
+            $this->foreignKeys[] = \MwbExporter\Core\Registry::get('formatter')->createForeignKey($node, $this);
         }
         
         \MwbExporter\Core\Registry::set($this->id, $this);

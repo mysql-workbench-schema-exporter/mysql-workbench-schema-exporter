@@ -29,12 +29,12 @@ abstract class Columns extends Base
 {
     protected $columns = array();
     
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
        
         foreach($this->data as $key => $node){
-            $this->columns[] = \MwbExporter\Core\Registry::get('formatter')->createColumn($node);
+            $this->columns[] = \MwbExporter\Core\Registry::get('formatter')->createColumn($node, $this);
         }
         
         \MwbExporter\Core\Registry::set($this->id, $this);

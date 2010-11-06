@@ -39,8 +39,10 @@ $classLoader->register();
 // show a simple text box with the output
 echo '<textarea cols="100" rows="50">';
 
+    $setup = array();
+
     // create a formatter
-    $formatter = new \MwbExporter\Formatter\Doctrine2\Annotation\Loader();
+    $formatter = new \MwbExporter\Formatter\Doctrine2\Annotation\Loader($setup);
     
     // parse the mwb file
     $mwb = new \MwbExporter\Core\Workbench\Document('data/test.mwb', $formatter);

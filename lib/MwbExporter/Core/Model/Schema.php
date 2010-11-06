@@ -29,18 +29,26 @@ abstract class Schema extends Base
 {
     protected $tables = null;
     protected $views = null;
+    protected $name = null;
     
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
 
+        $tmp = $this->data->xpath("value[@key='name']");
+        $this->name = (string) $tmp[0];
+        
         $tmp = $this->data->xpath("value[@key='tables']");
-        $this->tables = \MwbExporter\Core\Registry::get('formatter')->createTables($tmp[0]);
+        $this->tables = \MwbExporter\Core\Registry::get('formatter')->createTables($tmp[0], $this);
 
         $tmp = $this->data->xpath("value[@key='views']");
-        $this->views  = \MwbExporter\Core\Registry::get('formatter')->createViews($tmp[0]);
+        $this->views  = \MwbExporter\Core\Registry::get('formatter')->createViews($tmp[0], $this);
         
         \MwbExporter\Core\Registry::set($this->id, $this);
     }
 
+    public function getName()
+    {
+        return $this->name;
+    }
 }

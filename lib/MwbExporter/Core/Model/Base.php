@@ -30,12 +30,20 @@ abstract class Base
     protected $id;
     protected $attributes;
     protected $data;
+    protected $parent;
 
-    public function __construct($data)
+    public function __construct($data, Base $parent)
     {
+        $this->preLoad();
+    
         $this->attributes = $data->attributes();
-        $this->data = $data;
+        $this->data = $data;        
         $this->id = (string) $this->attributes['id'];
+        $this->parent = $parent;
+        
+        $this->postLoad();
+        
+        $this->init();
     }
 
     public function getId()
@@ -70,4 +78,23 @@ abstract class Base
     {
         return $this->data->asXML();
     }
+    
+    public function getParent()
+    {
+        return $this->parent;
+    }
+    
+    protected function getElementById($id)
+    {
+        return \MwbExporter\Core\Registry::get($id);
+    }
+    
+    public function preLoad()
+    {}
+    
+    public function postLoad()
+    {}
+    
+    public function init()
+    {}
 }

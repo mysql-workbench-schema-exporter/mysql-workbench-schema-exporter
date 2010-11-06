@@ -29,9 +29,9 @@ class Table extends \MwbExporter\Core\Model\Table
 {
     protected $manyToManyRelations = array();
 
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
     }
 
     public function display()

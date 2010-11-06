@@ -29,12 +29,12 @@ class PhysicalModel extends Base
 {
     protected $catalog = null;
 
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
 
         $tmp = $this->data->xpath("value[@key='catalog']");
-        $this->catalog = \MwbExporter\Core\Registry::get('formatter')->createCatalog($tmp[0]);
+        $this->catalog = \MwbExporter\Core\Registry::get('formatter')->createCatalog($tmp[0], $this);
 
         \MwbExporter\Core\Registry::set($this->id, $this);
     }

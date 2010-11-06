@@ -29,12 +29,12 @@ abstract class Catalog extends Base
 {
     protected $schemas = null;
     
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
     
         $tmp = $this->data->xpath("value[@key='schemata']");
-        $this->schemas = \MwbExporter\Core\Registry::get('formatter')->createSchemas($tmp[0]);
+        $this->schemas = \MwbExporter\Core\Registry::get('formatter')->createSchemas($tmp[0], $this);
         
         \MwbExporter\Core\Registry::set($this->id, $this);
     }

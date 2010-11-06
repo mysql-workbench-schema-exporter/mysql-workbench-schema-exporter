@@ -34,9 +34,9 @@ abstract class Column extends Base
     protected $local;
     protected $foreign;
 
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
 
         // iterate on column configuration
         foreach($this->data->xpath("value") as $key => $node){

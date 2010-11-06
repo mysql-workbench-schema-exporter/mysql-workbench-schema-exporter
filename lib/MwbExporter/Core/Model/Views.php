@@ -29,13 +29,13 @@ abstract class Views extends Base
 {
     protected $views = array();
     
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
         
         // iterate on views
         foreach($data->value as $key => $node){
-            $this->views[] = \MwbExporter\Core\Registry::get('formatter')->createView($node);
+            $this->views[] = \MwbExporter\Core\Registry::get('formatter')->createView($node, $this);
         }
         
         \MwbExporter\Core\Registry::set($this->id, $this);

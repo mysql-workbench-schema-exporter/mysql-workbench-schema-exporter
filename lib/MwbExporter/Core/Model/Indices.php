@@ -29,12 +29,12 @@ abstract class Indices extends Base
 {
     protected $indices = array();
     
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
         
         foreach($data->value as $key => $node){
-            $this->indices[] = \MwbExporter\Core\Registry::get('formatter')->createIndex($node);
+            $this->indices[] = \MwbExporter\Core\Registry::get('formatter')->createIndex($node, $this);
         }
         
         \MwbExporter\Core\Registry::set($this->id, $this);

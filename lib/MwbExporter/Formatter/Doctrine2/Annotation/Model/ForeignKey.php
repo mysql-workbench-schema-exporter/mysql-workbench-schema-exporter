@@ -27,9 +27,9 @@ namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
 class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
 {
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
         
         $referencedColumn = $this->data->xpath("value[@key='referencedColumns']");
         $local = \MwbExporter\Core\Registry::get((string) $referencedColumn[0]->link);

@@ -27,8 +27,8 @@ namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
 class ForeignKeys extends \MwbExporter\Core\Model\ForeignKeys
 {
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
     }
 }

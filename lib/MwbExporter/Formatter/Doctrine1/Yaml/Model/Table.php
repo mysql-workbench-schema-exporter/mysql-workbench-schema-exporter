@@ -27,9 +27,9 @@ namespace MwbExporter\Formatter\Doctrine1\Yaml\Model;
 
 class Table extends \MwbExporter\Core\Model\Table
 {
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
     }
 
     public function checkActAsBehaviour()
@@ -52,9 +52,18 @@ class Table extends \MwbExporter\Core\Model\Table
             $return[] = '  ' . trim($actAs);
         }
 
-        // add table name
-        if($this->getModelName() !== ucfirst($this->getRawTableName())){
-            $return[] = '  tableName: ' . $this->getRawTableName();
+        // check if schema name has to be included
+        $config = \MwbExporter\Core\Registry::get('config');
+        if(isset($config['extendTableNameWithSchemaName']) && $config['extendTableNameWithSchemaName']){
+            // $schemaname = table->tables->schema->getName()
+            $schemaName = $this->getParent()->getParent()->getName();
+            $return[] = '  tableName: ' . $schemaName . '.' . $this->getRawTableName();
+        } else {
+            
+            // add table name if necessary
+            if($this->getModelName() !== ucfirst($this->getRawTableName())){
+                $return[] = '  tableName: ' . $this->getRawTableName();
+            }
         }
 
         $return[] = $this->columns->display();

@@ -27,9 +27,9 @@ namespace MwbExporter\Formatter\Doctrine1\Yaml\Model;
 
 class Column extends \MwbExporter\Core\Model\Column
 {
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
     }
 
     public function display()

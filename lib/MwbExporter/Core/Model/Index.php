@@ -29,9 +29,9 @@ abstract class Index extends Base
 {
     protected $referencedColumn = array();
 
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
 
         //iterate on column configuration
         foreach($this->data->value as $key => $node){

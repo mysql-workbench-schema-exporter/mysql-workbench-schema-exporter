@@ -29,13 +29,13 @@ abstract class Tables extends Base
 {
     protected $tables = array();
     
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
         
         // collect tables
         foreach($this->data->xpath("value") as $key => $node){
-            $tmp = \MwbExporter\Core\Registry::get('formatter')->createTable($node);
+            $tmp = \MwbExporter\Core\Registry::get('formatter')->createTable($node, $this);
             
             if($tmp->isTranslationTable()){
                 // skip translation tables

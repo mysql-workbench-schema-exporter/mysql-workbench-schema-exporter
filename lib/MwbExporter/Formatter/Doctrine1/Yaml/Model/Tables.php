@@ -27,9 +27,9 @@ namespace MwbExporter\Formatter\Doctrine1\Yaml\Model;
 
 class Tables extends \MwbExporter\Core\Model\Tables
 {
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
 
         foreach($this->tables as $table){
             $table->checkForIndices();

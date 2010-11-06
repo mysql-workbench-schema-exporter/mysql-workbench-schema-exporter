@@ -32,9 +32,9 @@ abstract class ForeignKey extends Base
     protected $referencedTable = null;
     protected $owningTable = null;
     
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
         
         // iterate on foreign key configuration
         foreach($this->data->value as $key => $node){

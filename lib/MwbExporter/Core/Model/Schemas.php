@@ -29,12 +29,12 @@ abstract class Schemas extends Base
 {
     protected $schemas = array();
     
-    public function __construct($data)
+    public function __construct($data, $parent)
     {
-        parent::__construct($data);
+        parent::__construct($data, $parent);
         
         foreach($this->data->xpath("value") as $key => $node){
-            $this->schemas[] = \MwbExporter\Core\Registry::get('formatter')->createSchema($node);
+            $this->schemas[] = \MwbExporter\Core\Registry::get('formatter')->createSchema($node, $this);
         }
         
         \MwbExporter\Core\Registry::set($this->id, $this);
