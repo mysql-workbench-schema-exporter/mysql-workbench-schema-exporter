@@ -61,6 +61,7 @@ class Column extends \MwbExporter\Core\Model\Column
 
             $return[] = '     */';
             $return[] = '    private $' . $this->config['name'] . ';';
+            $return[] = '';
         }
 
         // one to many references
@@ -68,7 +69,8 @@ class Column extends \MwbExporter\Core\Model\Column
             $return[] = '    /**';
             $return[] = '     * @OneToMany(targetEntity="' . $this->foreign->getOwningTable()->getModelName() . '", mappedBy="' . $this->foreign->getReferencedTable()->getModelName() . '")';
             $return[] = '     */';
-            $return[] = '    private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($this->foreign->getOwningTable()->getModelName())) . ';';
+            $return[] = '    private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($this->foreign->getOwningTable()->getModelName())) . ' = array();';
+            $return[] = '';
         }
 
         // many to references
@@ -77,6 +79,7 @@ class Column extends \MwbExporter\Core\Model\Column
             $return[] = '     * @ManyToOne(targetEntity="' . $this->local->getReferencedTable()->getModelName() . '", inversedBy="' . $this->local->getOwningTable()->getModelName() . '")';
             $return[] = '     */';
             $return[] = '    private $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
+            $return[] = '';
         }
         
         /*

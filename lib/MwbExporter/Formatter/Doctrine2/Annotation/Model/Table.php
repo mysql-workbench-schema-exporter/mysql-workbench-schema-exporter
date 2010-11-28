@@ -100,7 +100,7 @@ class Table extends \MwbExporter\Core\Model\Table
             $return[] = '    /**';
             $return[] = '     * @ManyToMany(targetEntity="' . $relation['refTable']->getModelName() . '")';
             $return[] = '     */';
-            $return[] = '    private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
+            $return[] = '    private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ' = array();';
         }
         
         return implode("\n", $return);
