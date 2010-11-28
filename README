@@ -28,11 +28,11 @@ Doctrine behaviours
 Support for behaviours is implemented for Doctrine1. Use the comment fields in
 tables.
 
-{d:actAs}
-  actAs:
-    timestampable:
-      [..]
-{/d:actAs}
+    {d:actAs}
+      actAs:
+        timestampable:
+          [..]
+    {/d:actAs}
 
 Requirements
 ------------
@@ -49,20 +49,20 @@ Links
 Example
 -------
 
-<?php
-
-// enable autoloading of classes
-require_once('lib/MwbExporter/Core/SplClassLoader.php');
-$classLoader = new SplClassLoader();
-$classLoader->setIncludePath('lib');
-$classLoader->register();
-
-// define a formatter
-$formatter = new \MwbExporter\Formatter\Doctrine2\Annotation\Loader();
-
-// parse the mwb file
-$mwb = new \MwbExporter\Core\Workbench\Document('myDatabaseModel.mwb', $formatter);
-
-// show the output
-echo $mwb->display();
-?>
+    <?php
+    
+    // enable autoloading of classes
+    require_once('lib/MwbExporter/Core/SplClassLoader.php');
+    $classLoader = new SplClassLoader();
+    $classLoader->setIncludePath('lib');
+    $classLoader->register();
+    
+    // define a formatter
+    $formatter = new \MwbExporter\Formatter\Doctrine2\Annotation\Loader();
+    
+    // parse the mwb file
+    $mwb = new \MwbExporter\Core\Workbench\Document('myDatabaseModel.mwb', $formatter);
+    
+    // show the output
+    echo $mwb->display();
+    ?>

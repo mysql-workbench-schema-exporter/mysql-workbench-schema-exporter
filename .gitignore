@@ -1,5 +1,6 @@
 nbproject/
 example/data/
+tests/
 .buildpath
 .project
 .settings/
