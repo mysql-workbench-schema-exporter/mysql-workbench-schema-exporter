@@ -35,14 +35,14 @@ abstract class Base
     public function __construct($data, Base $parent)
     {
         $this->preLoad();
-    
+
         $this->attributes = $data->attributes();
-        $this->data = $data;        
+        $this->data = $data;
         $this->id = (string) $this->attributes['id'];
         $this->parent = $parent;
-        
+
         $this->postLoad();
-        
+
         $this->init();
     }
 
@@ -50,12 +50,12 @@ abstract class Base
     {
         return $this->id;
     }
-    
+
     public function getAttributes()
     {
         return $this->attributes;
     }
-    
+
     public function getData()
     {
         return $this->data;
@@ -66,35 +66,39 @@ abstract class Base
         return isset($this->config['comment']) ? $this->config['comment'] : '';
     }
 
-    protected function parseComment($needle, $comment)
+    protected function parseComment($needle, $comment=null)
     {
+        if($comment === null){
+            $comment = $this->getComment();
+        }
+
         $x = preg_quote($needle);
         $pattern = '@\{(d|doctrine):' . $x . '\}(.+)\{\/(d|doctrine):' . $x . '\}@s';
         preg_match($pattern, $comment, $matches);
         return isset($matches[2]) ? $matches[2] : false;
     }
-    
+
     public function debug()
     {
         return $this->data->asXML();
     }
-    
+
     public function getParent()
     {
         return $this->parent;
     }
-    
+
     protected function getElementById($id)
     {
         return \MwbExporter\Core\Registry::get($id);
     }
-    
+
     public function preLoad()
     {}
-    
+
     public function postLoad()
     {}
-    
+
     public function init()
     {}
 }

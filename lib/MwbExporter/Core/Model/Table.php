@@ -118,11 +118,21 @@ abstract class Table extends Base
 
     public function injectIndex( \MwbExporter\Core\Model\Index $index)
     {
+        foreach($this->indexes as $_index){
+            if($_index->getId() === $index->getId()){
+                return;
+            }
+        }
         $this->indexes[] = $index;
     }
 
     public function injectRelation( \MwbExporter\Core\Model\ForeignKey $foreignKey)
     {
+        foreach($this->relations as $_relation){
+            if($_relation->getId() === $foreignKey->getId()){
+                return;
+            }
+        }
         $this->relations[] = $foreignKey;
     }
 }
