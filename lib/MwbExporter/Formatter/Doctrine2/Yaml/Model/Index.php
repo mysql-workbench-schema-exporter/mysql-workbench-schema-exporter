@@ -41,7 +41,12 @@ class Index extends \MwbExporter\Core\Model\Index
             $tmp .= $refColumn->getColumnName() . ',';
         }
         $return[] = substr($tmp, 0, -1) . ']';
-        $return[] = '      type: ' . strtolower($this->config['indexType']);
+
+        // disable type: index for foreign key indexes
+        if(strtolower($this->config['indexType']) !== 'index') {
+            $return[] = '      type: ' . strtolower($this->config['indexType']);
+        }
+
         return implode("\n", $return);
     }
 }
