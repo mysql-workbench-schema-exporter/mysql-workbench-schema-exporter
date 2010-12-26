@@ -41,10 +41,10 @@ Works with PHP 5.3 and up.
 
 Links
 -----
-
-[1]: http://www.doctrine-project.org/
-[2]: http://wb.mysql.com/
-[3]: http://code.google.com/p/mysql-workbench-doctrine-plugin/
+  * [Doctrine Project](http://www.doctrine-project.org/)
+  * [MySQL Workbench](http://wb.mysql.com/)
+  * [Symfony Project](http://www.symfony-project.org/)
+  * [MySQL Workbench Doctrine Plugin - google code project](http://code.google.com/p/mysql-workbench-doctrine-plugin/)
 
 Example
 -------
