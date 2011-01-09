@@ -77,12 +77,28 @@ class Table extends \MwbExporter\Core\Model\Table
 
         $return[] = $this->columns->display();
         $return[] = $this->displayManyToMany();
+        $return[] = $this->displayConstructor();
         $return[] = '';
         $return[] = $this->columns->displayGetterAndSetter();
         $return[] = $this->displayManyToManyGetterAndSetter();
 
         $return[] = '}';
         $return[] = '?>';
+        return implode("\n", $return);
+    }
+    
+    public function displayConstructor()
+    {
+        $return = array();
+        $return[] = '    public function __construct()';
+        $return[] = '    {';
+        $return[] = $this->columns->displayArrayCollections();
+        foreach($this->manyToManyRelations as $relation){
+            $return[] = '        $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ' = new ArrayCollection();';
+        }
+        $return[] = '    }';
+        $return[] = '';
+        
         return implode("\n", $return);
     }
     
@@ -100,9 +116,9 @@ class Table extends \MwbExporter\Core\Model\Table
             $return[] = '    /**';
             $return[] = '     * @ManyToMany(targetEntity="' . $relation['refTable']->getModelName() . '")';
             $return[] = '     */';
-            $return[] = '    private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ' = array();';
+            $return[] = '    private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
         }
-        
+        $return[] = '';
         return implode("\n", $return);
     }
     

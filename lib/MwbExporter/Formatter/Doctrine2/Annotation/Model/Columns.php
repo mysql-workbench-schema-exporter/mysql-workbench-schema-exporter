@@ -43,6 +43,19 @@ class Columns extends \MwbExporter\Core\Model\Columns
         return implode("\n", $return);
     }
     
+    public function displayArrayCollections()
+    {
+        $return = array();
+        
+        foreach($this->columns as $column){
+            if (true == $arrayCollection = $column->displayArrayCollection()){
+                $return[] = $arrayCollection;
+            }
+        }
+        
+        return implode("\n", $return);
+    }
+    
     public function displayGetterAndSetter()
     {
         $return = array();

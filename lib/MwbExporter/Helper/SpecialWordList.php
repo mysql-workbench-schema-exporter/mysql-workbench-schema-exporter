@@ -37,11 +37,11 @@ class SpecialWordList extends \MwbExporter\Core\Helper\SpecialWordList
         // ***************************************************
         // **        add special words here
         // ***************************************************
-         array('s' => 'cache', 'p' => 'caches')
-        ,array('s' => 'status', 'p' => 'statuses') // real plural of status is status
+         array('s' => 'cache',   'p' => 'caches')
+        ,array('s' => 'status',  'p' => 'statuses') // real plural of status is status
         ,array('s' => 'profile', 'p' => 'profiles')
         ,array('s' => 'address', 'p' => 'addresses')
-        ,array('s' => 'bureau', 'p' => 'bureaus')
+        ,array('s' => 'bureau',  'p' => 'bureaus')
     );
 
 }

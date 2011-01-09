@@ -69,7 +69,7 @@ class Column extends \MwbExporter\Core\Model\Column
             $return[] = '    /**';
             $return[] = '     * @OneToMany(targetEntity="' . $this->foreign->getOwningTable()->getModelName() . '", mappedBy="' . $this->foreign->getReferencedTable()->getModelName() . '")';
             $return[] = '     */';
-            $return[] = '    private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($this->foreign->getOwningTable()->getModelName())) . ' = array();';
+            $return[] = '    private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($this->foreign->getOwningTable()->getModelName())) . ';';
             $return[] = '';
         }
 
@@ -98,6 +98,15 @@ class Column extends \MwbExporter\Core\Model\Column
         return implode("\n", $return);
     }
 
+    public function displayArrayCollection()
+    {
+        if(!is_null($this->foreign)){
+            return '        $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($this->foreign->getOwningTable()->getModelName())) . ' = new ArrayCollection();';
+        }
+        
+        return false;
+    }
+    
     public function displayGetterAndSetter()
     {
         $return = array();
