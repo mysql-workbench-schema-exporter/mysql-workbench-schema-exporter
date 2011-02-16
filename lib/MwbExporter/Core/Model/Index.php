@@ -46,17 +46,24 @@ abstract class Index extends Base
             $key                = (string) $attributes['key'];
         }
 
+        $isPrimary = false;
         // check for primary columns, to notify column
         foreach($this->data->xpath("value[@key='columns']/value/link[@key='referencedColumn']") as $node){
             // for primary indexes ignore external index
             // definition and set column to primary instead
             if($this->config['name'] == 'PRIMARY'){
+                $isPrimary = true;
                 \MwbExporter\Core\Registry::get((string) $node)->markAsPrimary();
-                return;
+            } else {
+                if($this->config['indexType'] == 'UNIQUE'){
+                    \MwbExporter\Core\Registry::get((string) $node)->markAsUnique();
+                }
+                $this->referencedColumn[] = \MwbExporter\Core\Registry::get((string) $node);
             }
-            $this->referencedColumn[] = \MwbExporter\Core\Registry::get((string) $node);
         }
-
+        if($isPrimary) {
+            return;
+        }
         \MwbExporter\Core\Registry::get((string)$this->data->link)->injectIndex($this);
         \MwbExporter\Core\Registry::set($this->id, $this);
     }

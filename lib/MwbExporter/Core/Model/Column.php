@@ -30,6 +30,7 @@ abstract class Column extends Base
     protected $config = array();
     protected $link   = array();
     protected $isPrimary = false;
+    protected $isUnique = false;
     
     protected $local;
     protected $foreign;
@@ -70,6 +71,11 @@ abstract class Column extends Base
     public function markAsPrimary()
     {
         $this->isPrimary = true;
+    }
+    
+    public function markAsUnique()
+    {
+        $this->isUnique = true;
     }
     
     public function markAsLocalReference( \MwbExporter\Core\Model\ForeignKey $local)
