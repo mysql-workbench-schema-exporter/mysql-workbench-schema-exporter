@@ -30,10 +30,10 @@ abstract class Column extends Base
     protected $config = array();
     protected $link   = array();
     protected $isPrimary = false;
-    protected $isUnique = false;
+    protected $isUnique  = false;
     
-    protected $local;
-    protected $foreigns;
+    protected $local    = null;
+    protected $foreigns = null;
 
     public function __construct($data, $parent)
     {
@@ -88,7 +88,8 @@ abstract class Column extends Base
         if($this->foreigns == null) {
             $this->foreigns = array();
         }
-        $this->foreigns[] = $foreign;
+        $this->foreigns[($foreign->getId())] = $foreign;
+        // $this->foreigns[] = $foreign; // unfortunately this code doubles the references
     }
 
     public function getColumnName()

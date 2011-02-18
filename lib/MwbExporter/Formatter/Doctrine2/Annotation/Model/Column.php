@@ -65,12 +65,14 @@ class Column extends \MwbExporter\Core\Model\Column
         }
 
         // one to many references
-        if(!is_null($this->foreign)){
-            $return[] = '    /**';
-            $return[] = '     * @OneToMany(targetEntity="' . $this->foreign->getOwningTable()->getModelName() . '", mappedBy="' . $this->foreign->getReferencedTable()->getModelName() . '")';
-            $return[] = '     */';
-            $return[] = '    private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($this->foreign->getOwningTable()->getModelName())) . ';';
-            $return[] = '';
+        if(is_array($this->foreigns)){
+            foreach($this->foreigns as $foreign){
+                $return[] = '    /**';
+                $return[] = '     * @OneToMany(targetEntity="' . $foreign->getOwningTable()->getModelName() . '", mappedBy="' . $foreign->getReferencedTable()->getModelName() . '")';
+                $return[] = '     */';
+                $return[] = '    private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
+                $return[] = '';
+            }
         }
 
         // many to references
@@ -100,8 +102,10 @@ class Column extends \MwbExporter\Core\Model\Column
 
     public function displayArrayCollection()
     {
-        if(!is_null($this->foreign)){
-            return '        $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($this->foreign->getOwningTable()->getModelName())) . ' = new ArrayCollection();';
+        if(is_array($this->foreigns)){
+            foreach($this->foreigns as $foreign){
+                return '        $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ' = new ArrayCollection();';
+            }
         }
         
         return false;
@@ -128,19 +132,21 @@ class Column extends \MwbExporter\Core\Model\Column
         }
 
         // one to many references
-        if(!is_null($this->foreign)){
-            $return[] = '    public function add' . $this->columnNameBeautifier($this->foreign->getOwningTable()->getModelName()) . '(' . $this->foreign->getOwningTable()->getModelName() . ' $' . lcfirst($this->foreign->getOwningTable()->getModelName()) . ')';
-            $return[] = '    {';
-            $return[] = '         $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($this->foreign->getOwningTable()->getModelName())) . '[] = $' . lcfirst($this->foreign->getOwningTable()->getModelName()) . ';';
-            $return[] = '         return $this; // fluent interface';
-            $return[] = '    }';
-            $return[] = '';
+        if(is_array($this->foreigns)){
+            foreach($this->foreigns as $foreign){
+                $return[] = '    public function add' . $this->columnNameBeautifier($foreign->getOwningTable()->getModelName()) . '(' . $foreign->getOwningTable()->getModelName() . ' $' . lcfirst($foreign->getOwningTable()->getModelName()) . ')';
+                $return[] = '    {';
+                $return[] = '         $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . '[] = $' . lcfirst($foreign->getOwningTable()->getModelName()) . ';';
+                $return[] = '         return $this; // fluent interface';
+                $return[] = '    }';
+                $return[] = '';
 
-            $return[] = '    public function get' . $this->columnNameBeautifier(\MwbExporter\Helper\Pluralizer::pluralize($this->foreign->getOwningTable()->getModelName())) . '()';
-            $return[] = '    {';
-            $return[] = '         return $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($this->foreign->getOwningTable()->getModelName())) . ';';
-            $return[] = '    }';
-            $return[] = '';
+                $return[] = '    public function get' . $this->columnNameBeautifier(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . '()';
+                $return[] = '    {';
+                $return[] = '         return $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
+                $return[] = '    }';
+                $return[] = '';
+            }
         }
 
         // many to one references
