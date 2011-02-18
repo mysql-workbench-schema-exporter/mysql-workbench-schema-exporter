@@ -33,7 +33,7 @@ abstract class Column extends Base
     protected $isUnique = false;
     
     protected $local;
-    protected $foreign;
+    protected $foreigns;
 
     public function __construct($data, $parent)
     {
@@ -85,7 +85,10 @@ abstract class Column extends Base
     
     public function markAsForeignReference( \MwbExporter\Core\Model\ForeignKey $foreign)
     {
-        $this->foreign = $foreign;
+        if($this->foreigns == null) {
+            $this->foreigns = array();
+        }
+        $this->foreigns[] = $foreign;
     }
 
     public function getColumnName()
