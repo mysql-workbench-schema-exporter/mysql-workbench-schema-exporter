@@ -35,7 +35,8 @@ class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
     public function display()
     {
         $return = array();
-        $return[] = '    ' . $this->referencedTable->getModelName() . ':';
+        $relation_name = (strpos($this->config['name'],'d:') === 0)?substr($this->config['name'],2):$this->referencedTable->getModelName();
+        $return[] = '    ' . $relation_name . ':';
         $return[] = '      class: ' . $this->referencedTable->getModelName();
 
         $ownerColumn = $this->data->xpath("value[@key='columns']");
