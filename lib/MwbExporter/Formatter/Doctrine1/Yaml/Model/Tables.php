@@ -42,7 +42,9 @@ class Tables extends \MwbExporter\Core\Model\Tables
         $return = array();
 
         foreach($this->tables as $table){
-            $return[] = $table->display();
+            if (!$table->isExternal()) {
+                $return[] = $table->display();
+            }
         }
 
         return implode("\n", $return);

@@ -40,6 +40,15 @@ class Table extends \MwbExporter\Core\Model\Table
         return $this->parseComment('actAs', $this->getComment());
     }
 
+    public function isExternal()
+    {
+        $external = trim($this->parseComment('external', $this->getComment()));
+        if ($external === 'true') {
+            return true;
+        }
+        return false;
+    }
+
     public function display()
     {
         $return = array();
@@ -59,7 +68,7 @@ class Table extends \MwbExporter\Core\Model\Table
             $schemaName = $this->getParent()->getParent()->getName();
             $return[] = '  tableName: ' . $schemaName . '.' . $this->getRawTableName();
         } else {
-            
+
             // add table name if necessary
             if($this->getModelName() !== ucfirst($this->getRawTableName())){
                 $return[] = '  tableName: ' . $this->getRawTableName();
@@ -94,5 +103,14 @@ class Table extends \MwbExporter\Core\Model\Table
         $return[] = '';
 
         return implode("\n", $return);
+    }
+
+    public function getModelName()
+    {
+        if ($this->isExternal()) {
+            return $this->getRawTableName();
+        } else {
+            return parent::getModelName();
+        }
     }
 }
