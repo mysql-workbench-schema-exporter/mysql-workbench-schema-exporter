@@ -35,7 +35,8 @@ class DatatypeConverter extends \MwbExporter\Core\DatatypeConverter
         self::$datatypes['com.mysql.rdbms.mysql.datatype.int']       = 'integer';
         self::$datatypes['com.mysql.rdbms.mysql.datatype.bigint']    = 'bigint';
         self::$datatypes['com.mysql.rdbms.mysql.datatype.year']      = 'smallint';
-
+        self::$datatypes['com.mysql.rdbms.mysql.datatype.timestamp'] = 'datetime';
+        
         self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int1']      = 'tinyint';
         self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int2']      = 'smallint';
         self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int3']      = 'mediumint';
