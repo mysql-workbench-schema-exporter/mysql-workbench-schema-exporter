@@ -27,6 +27,11 @@ namespace MwbExporter\Formatter\Doctrine2\Yaml;
 
 class DatatypeConverter extends \MwbExporter\Core\DatatypeConverter
 {
+    public static function setUp()
+    {
+        self::$datatypes['com.mysql.rdbms.mysql.datatype.timestamp'] = 'datetime';
+    }
+
     public static function getType($key, \MwbExporter\Core\Model\Column $column)
     {
         $return = isset(self::$datatypes[$key]) ? self::$datatypes[$key] : 'unknown';
