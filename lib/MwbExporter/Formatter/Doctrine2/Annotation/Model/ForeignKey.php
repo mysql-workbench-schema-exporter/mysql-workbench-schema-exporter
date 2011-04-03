@@ -37,6 +37,9 @@ class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
         $ownerColumn = $this->data->xpath("value[@key='columns']");
         $foreign = \MwbExporter\Core\Registry::get((string) $ownerColumn[0]->link);
         
+        $this->local   = $local;   // local column object
+        $this->foreign = $foreign; // foreign column object
+        
         // for doctrine2 annotations switch the local and the foreign
         // reference for a proper output
         $local->markAsForeignReference($this);
@@ -44,7 +47,7 @@ class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
         
         // many to many
         if($fk = $this->getOwningTable()->getForeignKeys()){
-            // only > 2 foreign keys implicate an n:m relation
+            // only two or more foreign keys implicate an m2m relation
             // of the current table
             if(count($fk) > 1){
                 foreach($fk as $foreignKey1){

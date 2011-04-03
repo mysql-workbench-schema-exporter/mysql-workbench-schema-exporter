@@ -27,13 +27,13 @@ namespace MwbExporter\Core\Model;
 
 abstract class Table extends Base
 {
-    protected $config = null;
+    protected $config      = null;
 
-    protected $columns = null;     // workbench object
-    protected $indices = null;     // workbench object
-    protected $foreignKeys = null; // workbench object
-    protected $indexes = array();   // collection of indexes
-    protected $relations = array(); // collection of relations
+    protected $columns     = null;     // workbench object
+    protected $indices     = null;     // workbench object
+    protected $foreignKeys = null;     // workbench object
+    protected $indexes     = array();  // collection of indexes
+    protected $relations   = array();  // collection of relations
 
 
     public function __construct($data, $parent)
@@ -134,5 +134,20 @@ abstract class Table extends Base
             }
         }
         $this->relations[] = $foreignKey;
+    }
+    
+    public function getRelations()
+    {
+        return $this->relations;
+    }
+    
+    public function getRelationToTable($rawTableName)
+    {
+        foreach($this->relations as $relation){
+            if($relation->getReferencedTable()->getRawTableName() === $rawTableName){
+                return $relation;
+            }
+        }
+        return null;
     }
 }

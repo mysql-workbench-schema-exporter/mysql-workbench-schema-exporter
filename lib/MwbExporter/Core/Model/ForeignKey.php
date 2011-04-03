@@ -32,6 +32,9 @@ abstract class ForeignKey extends Base
     protected $referencedTable = null;
     protected $owningTable = null;
     
+    public $local   = null;
+    public $foreign = null;
+    
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
