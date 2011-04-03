@@ -110,11 +110,16 @@ class Table extends \MwbExporter\Core\Model\Table
     
     protected function displayManyToMany()
     {
+        // @TODO ManyToMany relation
         $return = array();
         
         foreach($this->manyToManyRelations as $relation){
             $return[] = '    /**';
             $return[] = '     * @ManyToMany(targetEntity="' . $relation['refTable']->getModelName() . '")';
+            $return[] = '     * @JoinTable(name="' . $relation['reference']->getOwningTable()->getRawTableName() . '",';
+            $return[] = '     *      joinColumns={@JoinColumn(name="' . $relation['reference']->foreign->getColumnName() . '", referencedColumnName="' . $relation['reference']->local->getColumnName() . '")},';
+            $return[] = '     *      inverseJoinColumns={@JoinColumn(name="' . $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->foreign->getColumnName() . '", referencedColumnName="id")}';
+            $return[] = '     *      )';
             $return[] = '     */';
             $return[] = '    private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
         }
