@@ -34,6 +34,11 @@ tables.
           [..]
     {/d:actAs}
 
+Foreign key name
+-------------
+
+To replace relations name by the name of the foreign key, start the foreign key name with "d:".
+
 Requirements
 ------------
 
