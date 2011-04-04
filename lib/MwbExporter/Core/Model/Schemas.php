@@ -34,7 +34,7 @@ abstract class Schemas extends Base
         parent::__construct($data, $parent);
         
         foreach($this->data->xpath("value") as $key => $node){
-            $this->schemas[] = self::$parser->createSchema($node, $this);
+            $this->schemas[] = \MwbExporter\Core\Registry::get('formatter')->createSchema($node, $this);
         }
         
         \MwbExporter\Core\Registry::set($this->id, $this);

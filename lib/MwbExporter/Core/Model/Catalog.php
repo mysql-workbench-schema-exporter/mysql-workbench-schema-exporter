@@ -34,7 +34,7 @@ abstract class Catalog extends Base
         parent::__construct($data, $parent);
     
         $tmp = $this->data->xpath("value[@key='schemata']");
-        $this->schemas = self::$parser->createSchemas($tmp[0], $this);
+        $this->schemas = \MwbExporter\Core\Registry::get('formatter')->createSchemas($tmp[0], $this);
         
         \MwbExporter\Core\Registry::set($this->id, $this);
     }

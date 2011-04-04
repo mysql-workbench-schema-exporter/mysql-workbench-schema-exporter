@@ -39,10 +39,10 @@ abstract class Schema extends Base
         $this->name = (string) $tmp[0];
         
         $tmp = $this->data->xpath("value[@key='tables']");
-        $this->tables = self::$parser->createTables($tmp[0], $this);
+        $this->tables = \MwbExporter\Core\Registry::get('formatter')->createTables($tmp[0], $this);
 
         $tmp = $this->data->xpath("value[@key='views']");
-        $this->views  = self::$parser->createViews($tmp[0], $this);
+        $this->views  = \MwbExporter\Core\Registry::get('formatter')->createViews($tmp[0], $this);
         
         \MwbExporter\Core\Registry::set($this->id, $this);
     }

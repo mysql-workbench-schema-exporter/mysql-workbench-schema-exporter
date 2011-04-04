@@ -27,9 +27,15 @@ namespace MwbExporter\Core\Workbench;
 
 class Document extends \MwbExporter\Core\Model\Document
 {
+<<<<<<< HEAD
     public function __construct($mwbFile, \MwbExporter\Core\IParser $parser)
     {
         self::$parser = $parser;
         parent::__construct($mwbFile);
+=======
+    public function __construct($mwbFile, \MwbExporter\Core\IFormatter $formatter)
+    {
+        parent::__construct($mwbFile, $formatter);
+>>>>>>> parent of 26fb631... Implementation of a visitor Based formatter approch.
     }
 }
