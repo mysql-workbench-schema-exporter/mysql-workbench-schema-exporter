@@ -22,22 +22,21 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
+ 
+namespace MwbExporter\Core;
 
-namespace MwbExporter\Core\Model;
-
-abstract class Schemas extends Base
-{
-    protected $schemas = array();
-    
-    public function __construct($data, $parent)
-    {
-        parent::__construct($data, $parent);
-        
-        foreach($this->data->xpath("value") as $key => $node){
-            $this->schemas[] = self::$parser->createSchema($node, $this);
-        }
-        
-        \MwbExporter\Core\Registry::set($this->id, $this);
-    }
-
+interface IParser {
+    public function createCatalog($parameter, Model\Base $parent);
+    public function createColumn($parameter, Model\Base $parent);
+    public function createColumns($parameter, Model\Base $parent);
+    public function createForeignKey($parameter, Model\Base $parent);
+    public function createForeignKeys($parameter, Model\Base $parent);
+    public function createIndex($parameter, Model\Base $parent);
+    public function createIndices($parameter, Model\Base $parent);
+    public function createSchema($parameter, Model\Base $parent);
+    public function createSchemas($parameter, Model\Base $parent);
+    public function createTable($parameter, Model\Base $parent);
+    public function createTables($parameter, Model\Base $parent);
+    public function createView($parameter, Model\Base $parent);
+    public function createViews($parameter, Model\Base $parent);
 }

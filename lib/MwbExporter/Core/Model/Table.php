@@ -41,7 +41,7 @@ abstract class Table extends Base
         parent::__construct($data, $parent);
 
         $tmp = $this->data->xpath("value[@key='columns']");
-        $this->columns = \MwbExporter\Core\Registry::get('formatter')->createColumns($tmp[0], $this);
+        $this->columns = self::$parser->createColumns($tmp[0], $this);
 
         // iterate on column configuration
         foreach($this->data->value as $key => $node){
@@ -57,14 +57,14 @@ abstract class Table extends Base
     public function checkForIndices()
     {
         foreach($this->data->xpath("value[@key='indices']") as $key => $node){
-            $this->indices = \MwbExporter\Core\Registry::get('formatter')->createIndices($node, $this);
+            $this->indices = self::$parser->createIndices($node, $this);
         }
     }
 
     public function checkForForeignKeys()
     {
         foreach($this->data->xpath("value[@key='foreignKeys']") as $key => $node){
-            $this->foreignKeys = \MwbExporter\Core\Registry::get('formatter')->createForeignKeys($node, $this);
+            $this->foreignKeys = self::$parser->createForeignKeys($node, $this);
         }
     }
     

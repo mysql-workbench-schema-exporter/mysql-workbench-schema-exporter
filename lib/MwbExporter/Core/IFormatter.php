@@ -26,18 +26,21 @@
 namespace MwbExporter\Core;
 
 interface IFormatter {
-    public function createCatalog($parameter, Model\Base $parent);
-    public function createColumn($parameter, Model\Base $parent);
-    public function createColumns($parameter, Model\Base $parent);
-    public function createForeignKey($parameter, Model\Base $parent);
-    public function createForeignKeys($parameter, Model\Base $parent);
-    public function createIndex($parameter, Model\Base $parent);
-    public function createIndices($parameter, Model\Base $parent);
-    public function createSchema($parameter, Model\Base $parent);
-    public function createSchemas($parameter, Model\Base $parent);
-    public function createTable($parameter, Model\Base $parent);
-    public function createTables($parameter, Model\Base $parent);
-    public function createView($parameter, Model\Base $parent);
-    public function createViews($parameter, Model\Base $parent);
+
     public function useDatatypeConverter($type, \MwbExporter\Core\Model\Column $column);
+
+    public function visitDocument(Workbench\Document $node);
+    public function visitCatalog(Model\Catalog $node);
+    public function visitColumn(Model\Column $node);
+    public function visitColumns(Model\Columns $node);
+    public function visitForeignKey(Model\ForeignKey $node);
+    public function visitForeignKeys(Model\ForeignKeys $node);
+    public function visitIndex(Model\Index $node);
+    public function visitIndices(Model\Indices $node);
+    public function visitSchema(Model\Schema $node);
+    public function visitSchemas(Model\Schemas $node);
+    public function visitTable(Model\Table $node);
+    public function visitTables(Model\Tables $node);
+    public function visitView(Model\View $node);
+    public function visitViews(Model\Views $node);
 }

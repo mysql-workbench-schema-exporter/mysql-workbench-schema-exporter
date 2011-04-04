@@ -35,7 +35,7 @@ abstract class View extends Base
         parent::__construct($data, $parent);
 
         $tmp = $this->data->xpath("value[@key='columns']");
-        $this->columns = \MwbExporter\Core\Registry::get('formatter')->createColumns($tmp[0], $this);
+        $this->columns = self::$parser->createColumns($tmp[0], $this);
         
         // iterate on column configuration
         foreach($this->data->value as $key => $node){

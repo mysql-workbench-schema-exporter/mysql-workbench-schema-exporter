@@ -34,7 +34,7 @@ class PhysicalModel extends Base
         parent::__construct($data, $parent);
 
         $tmp = $this->data->xpath("value[@key='catalog']");
-        $this->catalog = \MwbExporter\Core\Registry::get('formatter')->createCatalog($tmp[0], $this);
+        $this->catalog = self::$parser->createCatalog($tmp[0], $this);
 
         \MwbExporter\Core\Registry::set($this->id, $this);
     }

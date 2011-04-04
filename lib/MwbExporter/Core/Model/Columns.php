@@ -34,7 +34,7 @@ abstract class Columns extends Base
         parent::__construct($data, $parent);
        
         foreach($this->data as $key => $node){
-            $this->columns[] = \MwbExporter\Core\Registry::get('formatter')->createColumn($node, $this);
+            $this->columns[] = self::$parser->createColumn($node, $this);
         }
         
         \MwbExporter\Core\Registry::set($this->id, $this);

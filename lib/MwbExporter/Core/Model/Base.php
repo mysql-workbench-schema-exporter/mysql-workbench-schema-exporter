@@ -31,7 +31,8 @@ abstract class Base
     protected $attributes;
     protected $data;
     protected $parent;
-
+    protected static $parser;
+    
     public function __construct($data, Base $parent)
     {
         $this->preLoad();
@@ -101,4 +102,10 @@ abstract class Base
 
     public function init()
     {}
+    
+    public function visit($formatter)
+    {
+        $class = get_called_class();
+        return $formatter->visit.$class($this);
+    }
 }

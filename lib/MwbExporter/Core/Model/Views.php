@@ -35,7 +35,7 @@ abstract class Views extends Base
         
         // iterate on views
         foreach($data->value as $key => $node){
-            $this->views[] = \MwbExporter\Core\Registry::get('formatter')->createView($node, $this);
+            $this->views[] = self::$parser->createView($node, $this);
         }
         
         \MwbExporter\Core\Registry::set($this->id, $this);

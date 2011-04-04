@@ -34,7 +34,7 @@ abstract class Indices extends Base
         parent::__construct($data, $parent);
         
         foreach($data->value as $key => $node){
-            $this->indices[] = \MwbExporter\Core\Registry::get('formatter')->createIndex($node, $this);
+            $this->indices[] = self::$parser->createIndex($node, $this);
         }
         
         \MwbExporter\Core\Registry::set($this->id, $this);

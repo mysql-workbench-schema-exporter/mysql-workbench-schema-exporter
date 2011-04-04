@@ -35,7 +35,7 @@ abstract class Tables extends Base
         
         // collect tables
         foreach($this->data->xpath("value") as $key => $node){
-            $tmp = \MwbExporter\Core\Registry::get('formatter')->createTable($node, $this);
+            $tmp = self::$parser->createTable($node, $this);
             
             if($tmp->isTranslationTable()){
                 // skip translation tables

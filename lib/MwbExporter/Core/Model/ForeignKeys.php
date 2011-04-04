@@ -34,7 +34,7 @@ abstract class ForeignKeys extends Base
         parent::__construct($data, $parent);
         
         foreach($data->value as $key => $node){
-            $this->foreignKeys[] = \MwbExporter\Core\Registry::get('formatter')->createForeignKey($node, $this);
+            $this->foreignKeys[] = self::$parser->createForeignKey($node, $this);
         }
         
         \MwbExporter\Core\Registry::set($this->id, $this);

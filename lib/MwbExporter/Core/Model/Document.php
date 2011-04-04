@@ -34,13 +34,10 @@ class Document extends Base
     
     protected $physicalModel = null;
     
-    public function __construct($mwbFile, \MwbExporter\Core\IFormatter $formatter)
+    public function __construct($mwbFile)
     {
         // load mwb simple_xml object
         $this->data = \MwbExporter\Core\Helper\Mwb::readXML($mwbFile);
-
-        // save formatter in registry
-        \MwbExporter\Core\Registry::set('formatter', $formatter);
 
         // save document in registry
         \MwbExporter\Core\Registry::set('document', $this);
@@ -54,7 +51,7 @@ class Document extends Base
     {
         $this->attributes = $this->data->value->attributes();
         $this->data       = $this->data->value;
-        
+
         $this->id = (string) $this->attributes['id'];
 
         $tmp = $this->data->xpath("value[@key='physicalModels']/value");
