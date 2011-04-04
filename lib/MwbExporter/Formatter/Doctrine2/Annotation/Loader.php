@@ -25,7 +25,7 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Annotation;
 
-class Loader implements \MwbExporter\Core\IParser
+class Loader implements \MwbExporter\Core\IFormatter
 {
     public function __construct(array $setup=array()){
         \MwbExporter\Core\Registry::set('config', $setup);
