@@ -4,7 +4,7 @@ README
 ATTENTION
 ---------
 
-This software is EXPERIMENTAL and not ready for production use.
+This software is EXPERIMENTAL and not ready for production.
 It is just a proof of concept.
 
 
