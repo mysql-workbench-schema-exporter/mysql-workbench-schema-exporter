@@ -32,6 +32,14 @@ class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
         parent::__construct($data, $parent);
     }
 
+    public function getForeignAlias()
+    {
+        if($this->getComment() === ''){
+            return false;
+        }
+        return $this->parseComment('foreignAlias', $this->getComment());
+    }
+
     public function display()
     {
         $return = array();
@@ -41,14 +49,20 @@ class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
 
         $ownerColumn = $this->data->xpath("value[@key='columns']");
         $return[] = '      local: ' . \MwbExporter\Core\Registry::get((string) $ownerColumn[0]->link)->getColumnName();
-        
+
         $referencedColumn = $this->data->xpath("value[@key='referencedColumns']");
         $return[] = '      foreign: ' . \MwbExporter\Core\Registry::get((string) $referencedColumn[0]->link)->getColumnName();
 
-        if((int)$this->config['many'] === 1){
-            $return[] = '      foreignAlias: ' . \MwbExporter\Helper\Pluralizer::pluralize($this->owningTable->getModelName());
+        $foreignAlias = trim($this->getForeignAlias());
+
+        if (!empty($foreignAlias)) {
+            $return[] = '      foreignAlias: ' . $foreignAlias;
         } else {
-            $return[] = '      foreignAlias: ' . $this->owningTable->getModelName();
+            if((int)$this->config['many'] === 1){
+                $return[] = '      foreignAlias: ' . \MwbExporter\Helper\Pluralizer::pluralize($this->owningTable->getModelName());
+            } else {
+                $return[] = '      foreignAlias: ' . $this->owningTable->getModelName();
+            }
         }
 
         $return[] = '      onDelete: ' . strtolower($this->config['deleteRule']);
