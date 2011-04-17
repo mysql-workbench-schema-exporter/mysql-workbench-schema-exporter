@@ -94,7 +94,7 @@ class Table extends \MwbExporter\Core\Model\Table
         $return[] = '    {';
         $return[] = $this->columns->displayArrayCollections();
         foreach($this->manyToManyRelations as $relation){
-            $return[] = '        $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ' = new ArrayCollection();';
+            $return[] = '        $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ' = new ArrayCollection();';
         }
         $return[] = '    }';
         $return[] = '';

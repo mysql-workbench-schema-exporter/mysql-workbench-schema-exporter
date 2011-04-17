@@ -104,7 +104,7 @@ class Column extends \MwbExporter\Core\Model\Column
     {
         if(is_array($this->foreigns)){
             foreach($this->foreigns as $foreign){
-                return '        $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ' = new ArrayCollection();';
+                return '        $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ' = new ArrayCollection();';
             }
         }
         
