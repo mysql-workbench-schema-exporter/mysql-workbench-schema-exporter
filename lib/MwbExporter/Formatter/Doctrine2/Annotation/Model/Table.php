@@ -110,7 +110,7 @@ class Table extends \MwbExporter\Core\Model\Table
     
     protected function displayManyToMany()
     {
-        // @TODO ManyToMany relation
+        // @TODO D2A ManyToMany relation
         $return = array();
         
         foreach($this->manyToManyRelations as $relation){

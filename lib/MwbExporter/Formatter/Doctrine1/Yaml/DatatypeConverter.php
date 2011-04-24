@@ -50,7 +50,7 @@ class DatatypeConverter extends \MwbExporter\Core\DatatypeConverter
         }
 
         // handle sets
-        // @TODO sets are not supported by doctrine
+        // @TODO D1Y sets are not supported by Doctrine
         if($key === 'com.mysql.rdbms.mysql.datatype.set'){
             $return .= "\n";
             $return .= "      values: " . str_replace(array('(',')'), array('[',']'), $config['datatypeExplicitParams']);
