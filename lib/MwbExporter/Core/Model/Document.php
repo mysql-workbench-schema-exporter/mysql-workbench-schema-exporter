@@ -72,6 +72,8 @@ class Document extends Base
             throw new Exception('missing path for zip export');
         }
         
+        $path = realpath($path);
+        
         $zip = new \MwbExporter\Core\Helper\ZipFileExporter($path);
         $zip->setSaveFormat($format);
         
@@ -79,6 +81,6 @@ class Document extends Base
         
         $zip->save();
         
-        return 'document zipped';
+        return 'document zipped as ' . $zip->getFileName();
     }
 }

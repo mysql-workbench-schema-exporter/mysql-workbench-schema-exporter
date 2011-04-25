@@ -52,8 +52,9 @@ echo '<textarea cols="100" rows="50">';
  
 echo "</textarea>";
 
-// save as zip file
-$mwb->zipExport(realpath(__DIR__), 'php');
+// save as zip file in current directory
+echo "<br><br>";
+echo $mwb->zipExport(__DIR__, 'php');
 
 // show some information about used memory
 echo "<br><br>";

@@ -28,6 +28,8 @@ namespace MwbExporter\Core\Helper;
 class ZipFileExporter
 {
     protected $zip              = null;
+    protected $fileName         = null;
+    protected $filePath         = null;
 
     protected $savePath         = null;
     protected $availableFormats = array('yml' => '.yml', 'php' => '.php');
@@ -37,8 +39,11 @@ class ZipFileExporter
     {
         $this->savePath = realpath($savePath);
         
+        $this->fileName = date('Y-m-d_h-i-s') . '_' . sprintf('%03d', mt_rand(1,999)) . '.zip';
+        $this->filePath = $this->savePath . DIRECTORY_SEPARATOR . $this->fileName;
+                
         $this->zip = new \ZipArchive();
-        $res = $this->zip->open($this->savePath . DIRECTORY_SEPARATOR . date('Y-m-d_h-i-s') . '_' . sprintf('%03d', mt_rand(1,999)) . '.zip', \ZipArchive::CREATE);
+        $res = $this->zip->open($this->filePath, \ZipArchive::CREATE);
         
         if($res !== true){
             throw new \Exception('error while creating zip in file ' . __FILE__ . ' on line ' . __LINE__);
@@ -61,6 +66,16 @@ class ZipFileExporter
         $fileName   = $schemaName . '.' . $tableName . $this->saveFormat;
     
         $this->zip->addFromString($fileName, $table->display());
+    }
+    
+    public function getFileName()
+    {
+        return $this->fileName;
+    }
+    
+    public function getFilePath()
+    {
+        return $this->filePath;
     }
     
     public function save()
