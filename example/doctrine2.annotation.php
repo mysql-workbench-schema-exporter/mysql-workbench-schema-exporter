@@ -52,7 +52,7 @@ echo '<textarea cols="100" rows="50">';
  
 echo "</textarea>";
 
-// save as zip file in current directory
+// save as zip file in current directory and use .php as file endings
 echo "<br><br>";
 echo $mwb->zipExport(__DIR__, 'php');
 
