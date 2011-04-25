@@ -61,5 +61,4 @@ abstract class Tables extends Base
         
         \MwbExporter\Core\Registry::set($this->id, $this);
     }
-
 }

@@ -40,4 +40,10 @@ class Schema extends \MwbExporter\Core\Model\Schema
 
         return implode("\n", $return);
     }
+    
+    public function zipExport(\MwbExporter\Core\Helper\ZipFileExporter $zip)
+    {
+        $zip = $this->tables->zipExport($zip);
+        return $zip;
+    }
 }

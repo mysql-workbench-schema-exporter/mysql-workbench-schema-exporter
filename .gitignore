@@ -4,3 +4,4 @@ tests/
 .buildpath
 .project
 .settings/
+*.zip

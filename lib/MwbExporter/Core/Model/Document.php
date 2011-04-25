@@ -65,4 +65,20 @@ class Document extends Base
     {
         return $this->physicalModel->display();
     }
+    
+    public function zipExport($path = null, $format = 'yml')
+    {
+        if($path === null){
+            throw new Exception('missing path for zip export');
+        }
+        
+        $zip = new \MwbExporter\Core\Helper\ZipFileExporter($path);
+        $zip->setSaveFormat($format);
+        
+        $zip = $this->physicalModel->zipExport($zip);
+        
+        $zip->save();
+        
+        return 'document zipped';
+    }
 }

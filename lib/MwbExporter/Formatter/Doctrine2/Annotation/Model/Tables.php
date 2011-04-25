@@ -47,4 +47,13 @@ class Tables extends \MwbExporter\Core\Model\Tables
 
         return implode("\n", $return);
     }
+    
+    public function zipExport(\MwbExporter\Core\Helper\ZipFileExporter $zip)
+    {
+        foreach($this->tables as $table){
+            $zip->addTable($table);
+        }
+        
+        return $zip;
+    }
 }

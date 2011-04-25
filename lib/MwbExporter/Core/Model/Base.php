@@ -63,17 +63,18 @@ abstract class Base
 
     public function getComment()
     {
-        return isset($this->config['comment']) ? $this->config['comment'] : '';
+        return isset($this->config['comment']) ? trim($this->config['comment']) : '';
     }
 
-    protected function parseComment($needle, $comment=null)
+    protected function parseComment($needle_raw, $comment=null)
     {
         if($comment === null){
             $comment = $this->getComment();
         }
 
-        $x = preg_quote($needle);
-        $pattern = '@\{(d|doctrine):' . $x . '\}(.+)\{\/(d|doctrine):' . $x . '\}@s';
+        $needle_quoted = preg_quote($needle_raw);
+        $pattern = '@\{(d|doctrine):' . $needle_quoted . '\}(.+)\{\/(d|doctrine):' . $needle_quoted . '\}@si';
+        
         preg_match($pattern, $comment, $matches);
         return isset($matches[2]) ? $matches[2] : false;
     }

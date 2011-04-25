@@ -43,4 +43,9 @@ class PhysicalModel extends Base
     {
         return $this->catalog->display();
     }
+    
+    public function zipExport(\MwbExporter\Core\Helper\ZipFileExporter $zip)
+    {
+        return $this->catalog->zipExport($zip);
+    }
 }

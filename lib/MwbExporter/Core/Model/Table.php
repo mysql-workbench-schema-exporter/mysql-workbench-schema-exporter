@@ -150,4 +150,14 @@ abstract class Table extends Base
         }
         return null;
     }
+    
+    public function getSchemaName()
+    {
+        return $this->getSchema()->getName();
+    }
+    
+    public function getSchema()
+    {
+        return $this->getParent()->getParent();
+    }
 }

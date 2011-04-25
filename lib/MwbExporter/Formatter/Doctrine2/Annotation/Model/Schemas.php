@@ -42,4 +42,13 @@ class Schemas extends \MwbExporter\Core\Model\Schemas
 
         return implode("\n", $return);
     }
+    
+    public function zipExport(\MwbExporter\Core\Helper\ZipFileExporter $zip)
+    {
+        foreach($this->schemas as $schema){
+            $zip = $schema->zipExport($zip);
+        }
+        
+        return $zip;
+    }
 }
