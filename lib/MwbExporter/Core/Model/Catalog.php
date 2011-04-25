@@ -38,4 +38,14 @@ abstract class Catalog extends Base
         
         \MwbExporter\Core\Registry::set($this->id, $this);
     }
+    
+    public function display()
+    {
+        return $this->schemas->display();
+    }
+    
+    public function zipExport(\MwbExporter\Core\Helper\ZipFileExporter $zip)
+    {
+        return $this->schemas->zipExport($zip);
+    }
 }

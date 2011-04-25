@@ -31,14 +31,4 @@ class Catalog extends \MwbExporter\Core\Model\Catalog
     {
         parent::__construct($data, $parent);
     }
-
-    public function display()
-    {
-        return $this->schemas->display();
-    }
-    
-    public function zipExport(\MwbExporter\Core\Helper\ZipFileExporter $zip)
-    {
-        return $this->schemas->zipExport($zip);
-    }
 }

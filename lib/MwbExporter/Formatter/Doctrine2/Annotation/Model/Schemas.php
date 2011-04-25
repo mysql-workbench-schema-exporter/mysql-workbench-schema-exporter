@@ -31,24 +31,4 @@ class Schemas extends \MwbExporter\Core\Model\Schemas
     {
         parent::__construct($data, $parent);
     }
-
-    public function display()
-    {
-        $return = array();
-
-        foreach($this->schemas as $schema){
-            $return[] = $schema->display();
-        }
-
-        return implode("\n", $return);
-    }
-    
-    public function zipExport(\MwbExporter\Core\Helper\ZipFileExporter $zip)
-    {
-        foreach($this->schemas as $schema){
-            $zip = $schema->zipExport($zip);
-        }
-        
-        return $zip;
-    }
 }

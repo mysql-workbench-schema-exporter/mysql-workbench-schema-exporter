@@ -39,5 +39,25 @@ abstract class Schemas extends Base
         
         \MwbExporter\Core\Registry::set($this->id, $this);
     }
+    
+    public function display()
+    {
+        $return = array();
 
+        foreach($this->schemas as $schema){
+            $return[] = $schema->display();
+        }
+
+        return implode("\n", $return);
+    }
+    
+    public function zipExport(\MwbExporter\Core\Helper\ZipFileExporter $zip)
+    {
+        foreach($this->schemas as $schema){
+            $zip = $schema->zipExport($zip);
+        }
+        
+        return $zip;
+    }
+    
 }

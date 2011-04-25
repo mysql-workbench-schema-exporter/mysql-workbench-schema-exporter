@@ -55,6 +55,10 @@ echo '<textarea cols="100" rows="50">';
  
 echo "</textarea>";
 
+// save as zip file in current directory and use .yml as file endings
+echo "<br><br>";
+echo $mwb->zipExport(__DIR__, 'yml');
+
 // show some information about used memory
 echo "<br><br>";
 echo (memory_get_peak_usage(true) / 1024 / 1024) . " MB used";

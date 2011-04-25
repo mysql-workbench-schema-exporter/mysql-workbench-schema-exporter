@@ -28,8 +28,8 @@ namespace MwbExporter\Core\Model;
 abstract class Schema extends Base
 {
     protected $tables = null;
-    protected $views = null;
-    protected $name = null;
+    protected $views  = null;
+    protected $name   = null;
     
     public function __construct($data, $parent)
     {
@@ -46,7 +46,22 @@ abstract class Schema extends Base
         
         \MwbExporter\Core\Registry::set($this->id, $this);
     }
+    
+    public function display()
+    {
+        $return = array();
+        $return[] = $this->tables->display();
+        //$return[] = $this->views->display();
 
+        return implode("\n", $return);
+    }
+    
+    public function zipExport(\MwbExporter\Core\Helper\ZipFileExporter $zip)
+    {
+        $zip = $this->tables->zipExport($zip);
+        return $zip;
+    }
+    
     public function getName()
     {
         return $this->name;

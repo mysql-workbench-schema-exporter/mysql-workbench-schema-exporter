@@ -160,4 +160,13 @@ abstract class Table extends Base
     {
         return $this->getParent()->getParent();
     }
+    
+    public function isExternal()
+    {
+        $external = trim($this->parseComment('external', $this->getComment()));
+        if ($external === 'true') {
+            return true;
+        }
+        return false;
+    }
 }

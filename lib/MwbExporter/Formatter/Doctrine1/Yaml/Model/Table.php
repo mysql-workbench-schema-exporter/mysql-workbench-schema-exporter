@@ -40,15 +40,6 @@ class Table extends \MwbExporter\Core\Model\Table
         return $this->parseComment('actAs', $this->getComment());
     }
 
-    public function isExternal()
-    {
-        $external = trim($this->parseComment('external', $this->getComment()));
-        if ($external === 'true') {
-            return true;
-        }
-        return false;
-    }
-
     public function display()
     {
         $return = array();

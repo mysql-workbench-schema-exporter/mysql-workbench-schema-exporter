@@ -31,14 +31,4 @@ class Schema extends \MwbExporter\Core\Model\Schema
     {
         parent::__construct($data, $parent);
     }
-
-    public function display()
-    {
-        $return = array();
-        $return[] = $this->tables->display();
-        // views are not supported
-        // $return[] = $this->views->display();
-
-        return implode("\n", $return);
-    }
 }

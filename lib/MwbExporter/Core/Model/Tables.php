@@ -61,4 +61,26 @@ abstract class Tables extends Base
         
         \MwbExporter\Core\Registry::set($this->id, $this);
     }
+    
+    public function display()
+    {
+        $return = array();
+
+        foreach($this->tables as $table){
+            if (!$table->isExternal()) {
+                $return[] = $table->display();
+            }
+        }
+
+        return implode("\n", $return);
+    }
+    
+    public function zipExport(\MwbExporter\Core\Helper\ZipFileExporter $zip)
+    {
+        foreach($this->tables as $table){
+            $zip->addTable($table);
+        }
+        
+        return $zip;
+    }
 }

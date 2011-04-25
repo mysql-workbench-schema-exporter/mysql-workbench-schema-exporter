@@ -36,17 +36,4 @@ class Tables extends \MwbExporter\Core\Model\Tables
             $table->checkForForeignKeys();
         }
     }
-
-    public function display()
-    {
-        $return = array();
-
-        foreach($this->tables as $table){
-            if (!$table->isExternal()) {
-                $return[] = $table->display();
-            }
-        }
-
-        return implode("\n", $return);
-    }
 }
