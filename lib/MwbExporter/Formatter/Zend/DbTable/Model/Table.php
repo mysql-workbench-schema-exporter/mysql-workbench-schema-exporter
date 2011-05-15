@@ -131,31 +131,23 @@ class Table extends \MwbExporter\Core\Model\Table
     
     protected function displayDependances()
     {
+        //TODO: Find a way to prind dependance without change the core.
         $return = array();
-        $dependentTables = $this->getRelationToTable('users');
-        var_dump($this->getRawTableName());
-        var_dump(count($dependentTables));
-        var_dump($dependentTables);
-        $return[] = '    /* @var array $_dependentTables ';
-        if (count($dependentTables) > 0) {
-            $return[] = '    protected $_dependentTables     = array(';
-
-            foreach($dependentTables as $table){
-//                $return[] = $table->getRawTableName();
-            }
-
-            $return[] = '    );';
-        } else {
-            $return[] = '    protected $_dependentTables    = array();';
-        }
         
+//        $dependentTables = $this->getRelationToTable('users');
+//        var_dump($this->getRawTableName());
+//        var_dump(count($dependentTables));
+//        var_dump($dependentTables);
+        
+        
+        $return[] = '    /* @var array $_dependentTables ';
+        $return[] = '    protected $_dependentTables    = array();';
         $return[] = '';
         return implode("\n", $return);
     }
     
     protected function displayReferences()
     {
-        // @TODO D2A ManyToMany relation
         $return = array();
         
         $return[] = '    /* @var array $_referenceMap';
@@ -178,7 +170,6 @@ class Table extends \MwbExporter\Core\Model\Table
     
     protected function displayManyToMany()
     {
-        // @TODO D2A ManyToMany relation
         $return = array();
         
         $return[] = '    /* @var array $_referenceMap';
