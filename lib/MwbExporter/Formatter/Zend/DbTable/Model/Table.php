@@ -132,13 +132,12 @@ class Table extends \MwbExporter\Core\Model\Table
     protected function displayDependances()
     {
         $return = array();
-        $dependentTables = $this->getRelations();
-        
+        $dependentTables = $this->getRelationToTable('users');
+        var_dump($this->getRawTableName());
+        var_dump(count($dependentTables));
+        var_dump($dependentTables);
         $return[] = '    /* @var array $_dependentTables ';
         if (count($dependentTables) > 0) {
-            var_dump($this->getRawTableName());
-//            var_dump($dependentTables);
-            var_dump(count($dependentTables));
             $return[] = '    protected $_dependentTables     = array(';
 
             foreach($dependentTables as $table){

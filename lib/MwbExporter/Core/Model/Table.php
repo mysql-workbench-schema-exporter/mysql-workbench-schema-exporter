@@ -36,6 +36,11 @@ abstract class Table extends Base
     protected $relations   = array();  // collection of relations
 
 
+    /**
+     *
+     * @param SimpleXMLElement $data
+     * @param \MwbExporter\Core\Model\Tables $parent 
+     */
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
@@ -54,6 +59,9 @@ abstract class Table extends Base
         \MwbExporter\Core\Registry::set($this->id, $this);
     }
 
+    /**
+     * 
+     */
     public function checkForIndices()
     {
         foreach($this->data->xpath("value[@key='indices']") as $key => $node){
@@ -61,6 +69,9 @@ abstract class Table extends Base
         }
     }
 
+    /**
+     * 
+     */
     public function checkForForeignKeys()
     {
         foreach($this->data->xpath("value[@key='foreignKeys']") as $key => $node){
@@ -68,6 +79,10 @@ abstract class Table extends Base
         }
     }
     
+    /**
+     *
+     * @return boolean
+     */
     public function hasForeignKeys()
     {
         if($this->foreignKeys){
@@ -76,6 +91,10 @@ abstract class Table extends Base
         return false;
     }
     
+    /**
+     *
+     * @return array|false
+     */
     public function getForeignKeys()
     {
         if(!$this->hasForeignKeys()){
@@ -84,6 +103,10 @@ abstract class Table extends Base
         return $this->foreignKeys->getForeignKeys();
     }
 
+    /**
+     *
+     * @return type 
+     */
     public function isTranslationTable()
     {
         $return = preg_match('@^(.*)\_translation$@', $this->getRawTableName(), $matches);
@@ -93,11 +116,19 @@ abstract class Table extends Base
         return $return;
     }
 
+    /**
+     *
+     * @return string
+     */
     public function getRawTableName()
     {
         return $this->config['name'];
     }
 
+    /**
+     *
+     * @return string
+     */
     public function getModelName()
     {
         $tablename = $this->getRawTableName();
@@ -111,11 +142,19 @@ abstract class Table extends Base
         return ucfirst(preg_replace('@\_(\w)@e', 'ucfirst("$1")', $tablename));
     }
 
+    /**
+     *
+     * @return string
+     */
     public function getModelNameInPlural()
     {
         return Helper\Pluralizer::pluralize($this->getModelName());
     }
 
+    /**
+     *
+     * @param \MwbExporter\Core\Model\Index $index
+     */
     public function injectIndex( \MwbExporter\Core\Model\Index $index)
     {
         foreach($this->indexes as $_index){
@@ -126,6 +165,10 @@ abstract class Table extends Base
         $this->indexes[] = $index;
     }
 
+    /**
+     *
+     * @param \MwbExporter\Core\Model\ForeignKey $foreignKey
+     */
     public function injectRelation( \MwbExporter\Core\Model\ForeignKey $foreignKey)
     {
         foreach($this->relations as $_relation){
@@ -136,11 +179,21 @@ abstract class Table extends Base
         $this->relations[] = $foreignKey;
     }
     
+    /**
+     *
+     * @return array
+     */
     public function getRelations()
     {
         return $this->relations;
     }
     
+    /**
+     * Return relation betweens the current table and the $rawTableName table
+     * 
+     * @param string $rawTableName
+     * @return MwbExporter\Core\Model\ForeignKey|null
+     */
     public function getRelationToTable($rawTableName)
     {
         foreach($this->relations as $relation){
@@ -151,16 +204,28 @@ abstract class Table extends Base
         return null;
     }
     
+    /**
+     *
+     * @return string 
+     */
     public function getSchemaName()
     {
         return $this->getSchema()->getName();
     }
     
+    /**
+     *
+     * @return MwbExporter\Core\Model\Schema 
+     */
     public function getSchema()
     {
         return $this->getParent()->getParent();
     }
     
+    /**
+     *
+     * @return boolean 
+     */
     public function isExternal()
     {
         $external = trim($this->parseComment('external', $this->getComment()));

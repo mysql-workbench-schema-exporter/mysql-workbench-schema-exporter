@@ -29,6 +29,11 @@ abstract class Catalog extends Base
 {
     protected $schemas = null;
     
+    /**
+     *
+     * @param type $data
+     * @param type $parent 
+     */
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);

@@ -27,12 +27,28 @@ namespace MwbExporter\Core\Helper;
 
 abstract class WordTransform
 {
+    /**
+     * Check if the $word string is ending by the $ending string.
+     * 
+     * @param string $word
+     * @param string $ending
+     * @return boolean 
+     */
     protected static function wordEndsWith($word, $ending)
     {
         $ending = preg_quote($ending);
         return preg_match('@' . $ending . '$@', $word);
     }
     
+    /**
+     * Cut the $word string to remove the $ending string.
+     * 
+     * Warning: this method do not check if $ending is inding the string $word.
+     * 
+     * @param string $word
+     * @param string $ending
+     * @return string 
+     */
     protected static function stripWordEnd($word, $ending)
     {
         return substr($word, 0, -strlen($ending));
