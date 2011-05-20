@@ -34,19 +34,24 @@ class Table extends \MwbExporter\Core\Model\Table
 
     public function display()
     {
+        $config = \MwbExporter\Core\Registry::get('config');
+
         $return = array();
         $return[] = '\\Entity\\' . $this->getModelName() . ':';
 
         $return[] = '  type: Entity';
 
+        if(isset($config['useAutomaticRepository']) && $config['useAutomaticRepository']) {
+            $return[] = '  repositoryClass: ' . $this->getModelName() . 'Repository';
+        }
+
         // check if schema name has to be included
-        $config = \MwbExporter\Core\Registry::get('config');
         if(isset($config['extendTableNameWithSchemaName']) && $config['extendTableNameWithSchemaName']){
             // $schemaname = table->tables->schema->getName()
             $schemaName = $this->getParent()->getParent()->getName();
             $return[] = '  table: ' . $schemaName . '.' . $this->getRawTableName();
         } else {
-            
+
             // add table name if necessary
             if($this->getModelName() !== ucfirst($this->getRawTableName())){
                 $return[] = '  table: ' . $this->getRawTableName();
