@@ -35,23 +35,23 @@ class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
     public function display()
     {
         $return = array();
-        $return[] = '    ' . $this->referencedTable->getModelName() . ':';
-        $return[] = '      class: ' . $this->referencedTable->getModelName();
+        $return[] = $this->indentation(2) . $this->referencedTable->getModelName() . ':';
+        $return[] = $this->indentation(3) . 'class: ' . $this->referencedTable->getModelName();
 
         $ownerColumn = $this->data->xpath("value[@key='columns']");
-        $return[] = '      local: ' . \MwbExporter\Core\Registry::get((string) $ownerColumn[0]->link)->getColumnName();
-        
+        $return[] = $this->indentation(3) . 'local: ' . \MwbExporter\Core\Registry::get((string) $ownerColumn[0]->link)->getColumnName();
+
         $referencedColumn = $this->data->xpath("value[@key='referencedColumns']");
-        $return[] = '      foreign: ' . \MwbExporter\Core\Registry::get((string) $referencedColumn[0]->link)->getColumnName();
+        $return[] = $this->indentation(3) . 'foreign: ' . \MwbExporter\Core\Registry::get((string) $referencedColumn[0]->link)->getColumnName();
 
         if((int)$this->config['many'] === 1){
-            $return[] = '      foreignAlias: ' . \MwbExporter\Helper\Pluralizer::pluralize($this->owningTable->getModelName());
+            $return[] = $this->indentation(3) . 'foreignAlias: ' . \MwbExporter\Helper\Pluralizer::pluralize($this->owningTable->getModelName());
         } else {
-            $return[] = '      foreignAlias: ' . $this->owningTable->getModelName();
+            $return[] = $this->indentation(3) . 'foreignAlias: ' . $this->owningTable->getModelName();
         }
 
-        $return[] = '      onDelete: ' . strtolower($this->config['deleteRule']);
-        $return[] = '      onUpdate: ' . strtolower($this->config['updateRule']);
+        $return[] = $this->indentation(3) . 'onDelete: ' . strtolower($this->config['deleteRule']);
+        $return[] = $this->indentation(3) . 'onUpdate: ' . strtolower($this->config['updateRule']);
 
         return implode("\n", $return);
     }

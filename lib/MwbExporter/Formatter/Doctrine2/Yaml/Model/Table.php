@@ -39,22 +39,22 @@ class Table extends \MwbExporter\Core\Model\Table
         $return = array();
         $return[] = '\\Entity\\' . $this->getModelName() . ':';
 
-        $return[] = '  type: Entity';
+        $return[] = $this->indentation() . 'type: Entity';
 
         if(isset($config['useAutomaticRepository']) && $config['useAutomaticRepository']) {
-            $return[] = '  repositoryClass: ' . $this->getModelName() . 'Repository';
+            $return[] = $this->indentation() . 'repositoryClass: ' . $this->getModelName() . 'Repository';
         }
 
         // check if schema name has to be included
         if(isset($config['extendTableNameWithSchemaName']) && $config['extendTableNameWithSchemaName']){
             // $schemaname = table->tables->schema->getName()
             $schemaName = $this->getParent()->getParent()->getName();
-            $return[] = '  table: ' . $schemaName . '.' . $this->getRawTableName();
+            $return[] = $this->indentation(1) . 'table: ' . $schemaName . '.' . $this->getRawTableName();
         } else {
 
             // add table name if necessary
             if($this->getModelName() !== ucfirst($this->getRawTableName())){
-                $return[] = '  table: ' . $this->getRawTableName();
+                $return[] = $this->indentation(2) . 'table: ' . $this->getRawTableName();
             }
         }
 
@@ -62,7 +62,7 @@ class Table extends \MwbExporter\Core\Model\Table
 
         // add relations
         if(count($this->relations) > 0){
-            $return[] = '  relations:';
+            $return[] = $this->indentation() . 'relations:';
 
             foreach($this->relations as $relation){
                 $return[] = $relation->display();
@@ -71,16 +71,16 @@ class Table extends \MwbExporter\Core\Model\Table
 
         // add indices
         if(count($this->indexes) > 0){
-            $return[] = '  indexes:';
+            $return[] = $this->indentation() . 'indexes:';
 
             foreach($this->indexes as $index){
                 $return[] = $index->display();
             }
         }
 
-        $return[] = '  options:';
-        $return[] = '    charset: ' . $this->config['defaultCharacterSetName'];
-        $return[] = '    type: ' . $this->config['tableEngine'];
+        $return[] = $this->indentation(1) . 'options:';
+        $return[] = $this->indentation(2) . 'charset: ' . $this->config['defaultCharacterSetName'];
+        $return[] = $this->indentation(2) . 'type: ' . $this->config['tableEngine'];
 
         // add empty line behind table
         $return[] = '';

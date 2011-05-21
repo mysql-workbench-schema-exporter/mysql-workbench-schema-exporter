@@ -37,33 +37,33 @@ class Column extends \MwbExporter\Core\Model\Column
         $return = array();
 
         // set name of column
-        $return[] = '    ' . $this->config['name'] . ':';
+        $return[] = $this->indentation(2) . $this->config['name'] . ':';
 
         // set datatype of column
-        $return[] = '      type: ' . \MwbExporter\Core\Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
+        $return[] = $this->indentation(3) . 'type: ' . \MwbExporter\Core\Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
 
         if($this->isPrimary){
-            $return[] = '      primary: true';
+            $return[] = $this->indentation(3) . 'primary: true';
         }
 
         // check for not null column
         if(isset($this->config['isNotNull']) && $this->config['isNotNull'] == 1){
-            $return[] = '      notnull: true';
+            $return[] = $this->indentation(3) . 'notnull: true';
         }
-        
+
         // check for auto increment column
         if(isset($this->config['autoIncrement']) && $this->config['autoIncrement'] == 1){
-            $return[] = '      autoincrement: true';
+            $return[] = $this->indentation(3) . 'autoincrement: true';
         }
 
         // set default value
         if(isset($this->config['defaultValue']) && $this->config['defaultValue'] != '' && $this->config['defaultValue'] != 'NULL'){
-            $return[] = '      default: ' . $this->config['defaultValue'];
+            $return[] = $this->indentation(3) . 'default: ' . $this->config['defaultValue'];
         }
 
         // iterate on column flags
         foreach($this->data->xpath("value[@key='flags']/value") as $flag){
-            $return[] = '      ' . strtolower($flag) . ': true';
+            $return[] = $this->indentation(3) . strtolower($flag) . ': true';
         }
 
         // return yaml representation of column
