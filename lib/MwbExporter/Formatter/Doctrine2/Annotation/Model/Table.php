@@ -36,6 +36,8 @@ class Table extends \MwbExporter\Core\Model\Table
 
     public function display()
     {
+        $config = \MwbExporter\Core\Registry::get('config');
+
         // add relations
         if(count($this->relations) > 0){
             foreach($this->relations as $relation){
@@ -57,7 +59,13 @@ class Table extends \MwbExporter\Core\Model\Table
         $return[] = 'namespace Models;';
         $return[] = '';
         $return[] = '/**';
-        $return[] = ' * @Entity';
+
+        $entity = ' * @Entity';
+        if(isset($config['useAutomaticRepository']) && $config['useAutomaticRepository']) {
+            $entity .= '(repositoryClass="Entity\\' . $this->getModelName() . 'Repository")';
+        }
+        $return[] = $entity;
+
         $tmp = ' * @Table(name="' . $this->getRawTableName() . '"';
 
         if(count($this->indexes) > 0){
@@ -86,7 +94,7 @@ class Table extends \MwbExporter\Core\Model\Table
         $return[] = '?>';
         return implode("\n", $return);
     }
-    
+
     public function displayConstructor()
     {
         $return = array();
@@ -98,21 +106,21 @@ class Table extends \MwbExporter\Core\Model\Table
         }
         $return[] = '    }';
         $return[] = '';
-        
+
         return implode("\n", $return);
     }
-    
+
     public function setManyToManyRelation(Array $rel)
     {
         $key = $rel['refTable']->getModelName();
         $this->manyToManyRelations[$key] = $rel;
     }
-    
+
     protected function displayManyToMany()
     {
         // @TODO D2A ManyToMany relation
         $return = array();
-        
+
         foreach($this->manyToManyRelations as $relation){
             $return[] = '    /**';
             $return[] = '     * @ManyToMany(targetEntity="' . $relation['refTable']->getModelName() . '")';
@@ -126,11 +134,11 @@ class Table extends \MwbExporter\Core\Model\Table
         $return[] = '';
         return implode("\n", $return);
     }
-    
+
     protected function displayManyToManyGetterAndSetter()
     {
         $return = array();
-        
+
         foreach($this->manyToManyRelations as $relation){
             $return[] = '    public function add' . $relation['refTable']->getModelName() . '(' . $relation['refTable']->getModelName() . ' $' . lcfirst($relation['refTable']->getModelName()) . ')';
             $return[] = '    {';
