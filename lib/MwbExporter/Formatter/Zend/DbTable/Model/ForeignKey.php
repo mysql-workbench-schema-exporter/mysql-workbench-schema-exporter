@@ -70,10 +70,10 @@ class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
     {
         $return = array();
 
-        $return[] = '        "'. $this->getReferencedTable()->getRawTableName() .'" => array(';
-        $return[] = '            \'columns\'       => '. $this->foreign->getColumnName();
-        $return[] = '            \'refTableClass\' => '. $this->getReferencedTable()->getRawTableName();
-        $return[] = '            \'refColumns\'    => '. $this->local->getColumnName();
+        $return[] = '            "'. $this->getReferencedTable()->getRawTableName() .'" => array(';
+        $return[] = '               \'columns\'       => '. $this->foreign->getColumnName();
+        $return[] = '               \'refTableClass\' => '. $this->getReferencedTable()->getRawTableName();
+        $return[] = '               \'refColumns\'    => '. $this->local->getColumnName();
         $this->getReferencedTable()->getRawTableName() .'>'. $this->getOwningTable()->getRawTableName();
 
         

@@ -155,11 +155,22 @@ class Table extends \MwbExporter\Core\Model\Table
         if (count($this->getForeignKeys()) > 0) {
             $return[] = '    protected $_referenceMap    = array(';
 
-            foreach($this->getForeignKeys() as $foreignKey){
+            $foreignKeys = $this->getForeignKeys();
+            
+            $lastKey = end($foreignKeys);
+            reset($foreignKeys);
+            
+            foreach($foreignKeys as $foreignKey){
                 $return[] = $foreignKey->display();
+                
+                if ($foreignKey != $lastKey) {
+                    $return[] = '            ),';
+                } else {
+                    $return[] = '            )';
+                }
             }
 
-            $return[] = '    );';
+            $return[] = '        );';
         } else {
             $return[] = '    protected $_referenceMap    = array();';
         }
