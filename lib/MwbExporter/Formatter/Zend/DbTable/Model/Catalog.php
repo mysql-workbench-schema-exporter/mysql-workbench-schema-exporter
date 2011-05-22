@@ -27,6 +27,11 @@ namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
 class Catalog extends \MwbExporter\Core\Model\Catalog
 {
+    /**
+     *
+     * @param SimpleXMLElement $data
+     * @param type $parent 
+     */
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);

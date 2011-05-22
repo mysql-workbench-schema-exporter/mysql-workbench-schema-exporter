@@ -27,11 +27,22 @@ namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
 class Column extends \MwbExporter\Core\Model\Column
 {
+    /**
+     *
+     * @param tySimpleXMLElementpe $data
+     * @param type $parent 
+     */
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
     }
 
+    
+    
+    /**
+     *
+     * @return string 
+     */
     public function display()
     {
         $return = array();
@@ -100,6 +111,12 @@ class Column extends \MwbExporter\Core\Model\Column
         return implode("\n", $return);
     }
 
+    
+    
+    /**
+     *
+     * @return string|boolean 
+     */
     public function displayArrayCollection()
     {
         if(is_array($this->foreigns)){
@@ -111,6 +128,12 @@ class Column extends \MwbExporter\Core\Model\Column
         return false;
     }
     
+    
+    
+    /**
+     *
+     * @return string 
+     */
     public function displayGetterAndSetter()
     {
         $return = array();
@@ -169,6 +192,13 @@ class Column extends \MwbExporter\Core\Model\Column
         return implode("\n", $return);
     }
 
+    
+    
+    /**
+     *
+     * @param string $columnName
+     * @return string 
+     */
     protected function columnNameBeautifier($columnName)
     {
         return ucfirst(preg_replace('@\_(\w)@e', 'ucfirst("$1")', $columnName));

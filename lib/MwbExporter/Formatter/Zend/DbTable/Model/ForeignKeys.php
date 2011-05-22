@@ -27,6 +27,11 @@ namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
 class ForeignKeys extends \MwbExporter\Core\Model\ForeignKeys
 {
+    /**
+     *
+     * @param SimpleXMLElement $data
+     * @param type $parent 
+     */
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);

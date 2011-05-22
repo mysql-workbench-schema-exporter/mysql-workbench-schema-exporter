@@ -27,11 +27,24 @@ namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
 class Table extends \MwbExporter\Core\Model\Table
 {
+    /**
+     * @var array 
+     */
     protected $manyToManyRelations = array();
 
     
+    /**
+     * @var string 
+     */
     protected $tablePrefix = '';
     
+    
+    
+    /**
+     *
+     * @param SimpleXMLElement $data
+     * @param type $parent 
+     */
     public function __construct($data, $parent)
     {
         $config = \MwbExporter\Core\Registry::get('config');
@@ -41,97 +54,62 @@ class Table extends \MwbExporter\Core\Model\Table
         parent::__construct($data, $parent);
     }
 
+    
+    
+    /**
+     *
+     * @return string 
+     */
     public function display()
-    {
-               
-        
-        // add relations
-        if(count($this->relations) > 0){
-            foreach($this->relations as $relation){
-                $relation->display();
-            }
-        }
-
-        // add indices
-        if(count($this->indexes) > 0){
-            foreach($this->indexes as $index){
-                $index->display();
-            }
-        }
-        
+    {   
         $return = array();
 
         $return[] = '<?php';
         $return[] = '';
-//        $return[] = '#-namespace Models;';
-//        $return[] = '';
         $return[] = '/**';
-        $return[] = ' * @Entity';
-        $tmp = ' * @Table(name="' . $this->getRawTableName() . '"';
-
-        if(count($this->indexes) > 0){
-            $tmp .= ',indexes={';
-
-            foreach($this->indexes as $index){
-                $tmp .= '@index(' . $index->display() . '),';
-            }
-            $tmp = substr($tmp, 0, -1);
-            $tmp .= '}';
-        }
-
-        $return[] = $tmp . ')';
+        $return[] = ' * ';
         $return[] = ' */';
         $return[] = 'class ' . $this->tablePrefix . $this->getModelName() . ' extends ' . $this->parentTable;
         $return[] = '{';
-        
         $return[] = '    /* @var string $_shema */';
         $return[] = '    protected $_shema           = \''. $this->getSchemaName() .'\';';
         $return[] = '';
         $return[] = '    /* @var string $_name */';
         $return[] = '    protected $_name            = \''. $this->getRawTableName() .'\';';
         $return[] = '';
-
         
         $return[] = $this->displayDependances();
         $return[] = $this->displayReferences();
         
-//        $return[] = $this->columns->display();
-//        $return[] = $this->displayConstructor();
         $return[] = '';
-//        $return[] = $this->columns->displayGetterAndSetter();
-//        $return[] = $this->displayManyToManyGetterAndSetter();
-
         $return[] = '}';
         $return[] = '?>';
         $return[] = '';
         $return[] = '';
-        return implode("\n", $return);
-    }
-    
-    public function displayConstructor()
-    {
-        $return = array();
-        $return[] = '    public function __construct()';
-        $return[] = '    {';
-        $return[] = $this->columns->displayArrayCollections();
-        foreach($this->manyToManyRelations as $relation){
-            $return[] = '        $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ' = new ArrayCollection();';
-        }
-        $return[] = '    }';
-        $return[] = '';
         
         return implode("\n", $return);
     }
+        
     
-    public function setManyToManyRelation(Array $rel)
+    /**
+     *
+     * @param array $rel 
+     */
+    public function setManyToManyRelation(array $rel)
     {
         $key = $rel['refTable']->getModelName();
         $this->manyToManyRelations[$key] = $rel;
     }
     
+    
+    
+    /**
+     *
+     * @return string 
+     */
     protected function displayDependances()
     {
-        //TODO: Find a way to prind dependance without change the core.
+        //TODO: Find a way to print dependance without change the core.
         $return = array();
         
 //        $dependentTables = $this->getRelationToTable('users');
@@ -141,11 +119,17 @@ class Table extends \MwbExporter\Core\Model\Table
         
         
         $return[] = '    /* @var array $_dependentTables ';
-        $return[] = '    protected $_dependentTables    = array();';
+        $return[] = '    protected $_dependentTables = array();';
         $return[] = '';
         return implode("\n", $return);
     }
     
+    
+    
+    /**
+     *
+     * @return string 
+     */
     protected function displayReferences()
     {
         $return = array();
@@ -176,52 +160,6 @@ class Table extends \MwbExporter\Core\Model\Table
         }
         
         $return[] = '';
-        return implode("\n", $return);
-    }
-    
-    protected function displayManyToMany()
-    {
-        $return = array();
-        
-        $return[] = '    /* @var array $_referenceMap';
-        $return[] = '    protected $_referenceMap    = array(';
-        
-        foreach($this->manyToManyRelations as $relation){
-            $return[] = '        \''. $relation['reference']->getOwningTable()->getRawTableName() .'\' => array(';
-            $return[] = '        ),';
-            
-            $return[] = '    /**';
-            $return[] = '     * @ManyToMany(targetEntity="' . $relation['refTable']->getModelName() . '")';
-            $return[] = '     * @JoinTable(name="' . $relation['reference']->getOwningTable()->getRawTableName() . '",';
-            $return[] = '     *      joinColumns={@JoinColumn(name="' . $relation['reference']->foreign->getColumnName() . '", referencedColumnName="' . $relation['reference']->local->getColumnName() . '")},';
-            $return[] = '     *      inverseJoinColumns={@JoinColumn(name="' . $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->foreign->getColumnName() . '", referencedColumnName="id")}';
-            $return[] = '     *      )';
-            $return[] = '     */';
-            $return[] = '    private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
-        }
-        $return[] = '    );';
-        $return[] = '';
-        return implode("\n", $return);
-    }
-    
-    protected function displayManyToManyGetterAndSetter()
-    {
-        $return = array();
-        
-        foreach($this->manyToManyRelations as $relation){
-            $return[] = '    public function add' . $relation['refTable']->getModelName() . '(' . $relation['refTable']->getModelName() . ' $' . lcfirst($relation['refTable']->getModelName()) . ')';
-            $return[] = '    {';
-            $return[] = '        $' . lcfirst($relation['refTable']->getModelName()) . '->add' . $this->getModelName() . '($this);';
-            $return[] = '        $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . '[] = $' . lcfirst($relation['refTable']->getModelName()) . ';';
-            $return[] = '        return $this;';
-            $return[] = '    }';
-            $return[] = '';
-            $return[] = '    public function get' . \MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName()) . '()';
-            $return[] = '    {';
-            $return[] = '        return $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
-            $return[] = '    }';
-        }
-
         return implode("\n", $return);
     }
 }

@@ -27,6 +27,11 @@ namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
 class Schemas extends \MwbExporter\Core\Model\Schemas
 {
+    /**
+     *
+     * @param SimpleXMLElement $data
+     * @param type $parent 
+     */
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
