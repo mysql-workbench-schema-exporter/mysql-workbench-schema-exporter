@@ -29,7 +29,7 @@ class Column extends \MwbExporter\Core\Model\Column
 {
     /**
      *
-     * @param tySimpleXMLElementpe $data
+     * @param SimpleXMLElement $data
      * @param type $parent 
      */
     public function __construct($data, $parent)
