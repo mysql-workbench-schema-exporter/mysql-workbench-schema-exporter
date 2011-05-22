@@ -29,7 +29,7 @@ class Catalog extends \MwbExporter\Core\Model\Catalog
 {
     /**
      *
-     * @param type $data
+     * @param SimpleXMLElement $data
      * @param type $parent 
      */
     public function __construct($data, $parent)

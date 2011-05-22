@@ -29,7 +29,7 @@ class Tables extends \MwbExporter\Core\Model\Tables
 {
     /**
      *
-     * @param type $data
+     * @param SimpleXMLElement $data
      * @param type $parent 
      */
     public function __construct($data, $parent)

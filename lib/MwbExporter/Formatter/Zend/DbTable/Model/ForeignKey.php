@@ -29,7 +29,7 @@ class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
 {
     /**
      *
-     * @param type $data
+     * @param SimpleXMLElement $data
      * @param type $parent 
      */
     public function __construct($data, $parent)

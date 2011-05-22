@@ -29,7 +29,7 @@ class Schema extends \MwbExporter\Core\Model\Schema
 {
     /**
      *
-     * @param type $data
+     * @param SimpleXMLElement $data
      * @param type $parent 
      */
     public function __construct($data, $parent)
