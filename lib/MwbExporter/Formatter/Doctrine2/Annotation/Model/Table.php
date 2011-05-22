@@ -28,6 +28,7 @@ namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 class Table extends \MwbExporter\Core\Model\Table
 {
     protected $manyToManyRelations = array();
+    protected $ormPrefix = '@';
 
     public function __construct($data, $parent)
     {
@@ -37,6 +38,8 @@ class Table extends \MwbExporter\Core\Model\Table
     public function display()
     {
         $config = \MwbExporter\Core\Registry::get('config');
+
+        $this->ormPrefix = '@' . ((isset($config['useAnnotationPrefix']) && $config['useAnnotationPrefix']) ? $config['useAnnotationPrefix'] : '');
 
         // add relations
         if(count($this->relations) > 0){
@@ -60,19 +63,19 @@ class Table extends \MwbExporter\Core\Model\Table
         $return[] = '';
         $return[] = '/**';
 
-        $entity = ' * @Entity';
+        $entity = ' * ' . $this->ormPrefix . 'Entity';
         if(isset($config['useAutomaticRepository']) && $config['useAutomaticRepository']) {
             $entity .= '(repositoryClass="Entity\\' . $this->getModelName() . 'Repository")';
         }
         $return[] = $entity;
 
-        $tmp = ' * @Table(name="' . $this->getRawTableName() . '"';
+        $tmp = ' * ' . $this->ormPrefix . 'Table(name="' . $this->getRawTableName() . '"';
 
         if(count($this->indexes) > 0){
             $tmp .= ',indexes={';
 
             foreach($this->indexes as $index){
-                $tmp .= '@index(' . $index->display() . '),';
+                $tmp .= $this->ormPrefix . 'index(' . $index->display() . '),';
             }
             $tmp = substr($tmp, 0, -1);
             $tmp .= '}';
@@ -91,20 +94,20 @@ class Table extends \MwbExporter\Core\Model\Table
         $return[] = $this->displayManyToManyGetterAndSetter();
 
         $return[] = '}';
-        $return[] = '?>';
+        $return[] = '';
         return implode("\n", $return);
     }
 
     public function displayConstructor()
     {
         $return = array();
-        $return[] = '    public function __construct()';
-        $return[] = '    {';
+        $return[] = $this->indentation() . 'public function __construct()';
+        $return[] = $this->indentation() . '{';
         $return[] = $this->columns->displayArrayCollections();
         foreach($this->manyToManyRelations as $relation){
-            $return[] = '        $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ' = new ArrayCollection();';
+            $return[] = $this->indentation(2) . '$this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ' = new ArrayCollection();';
         }
-        $return[] = '    }';
+        $return[] = $this->indentation() . '}';
         $return[] = '';
 
         return implode("\n", $return);
@@ -122,14 +125,14 @@ class Table extends \MwbExporter\Core\Model\Table
         $return = array();
 
         foreach($this->manyToManyRelations as $relation){
-            $return[] = '    /**';
-            $return[] = '     * @ManyToMany(targetEntity="' . $relation['refTable']->getModelName() . '")';
-            $return[] = '     * @JoinTable(name="' . $relation['reference']->getOwningTable()->getRawTableName() . '",';
-            $return[] = '     *      joinColumns={@JoinColumn(name="' . $relation['reference']->foreign->getColumnName() . '", referencedColumnName="' . $relation['reference']->local->getColumnName() . '")},';
-            $return[] = '     *      inverseJoinColumns={@JoinColumn(name="' . $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->foreign->getColumnName() . '", referencedColumnName="id")}';
-            $return[] = '     *      )';
-            $return[] = '     */';
-            $return[] = '    private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
+            $return[] = $this->indentation() . '/**';
+            $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToMany(targetEntity="' . $relation['refTable']->getModelName() . '")';
+            $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'JoinTable(name="' . $relation['reference']->getOwningTable()->getRawTableName() . '",';
+            $return[] = $this->indentation() . ' *      joinColumns={' . $this->ormPrefix . 'JoinColumn(name="' . $relation['reference']->foreign->getColumnName() . '", referencedColumnName="' . $relation['reference']->local->getColumnName() . '")},';
+            $return[] = $this->indentation() . ' *      inverseJoinColumns={' . $this->ormPrefix . 'JoinColumn(name="' . $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->foreign->getColumnName() . '", referencedColumnName="id")}';
+            $return[] = $this->indentation() . ' *      )';
+            $return[] = $this->indentation() . ' */';
+            $return[] = $this->indentation() . 'private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
         }
         $return[] = '';
         return implode("\n", $return);
@@ -140,17 +143,17 @@ class Table extends \MwbExporter\Core\Model\Table
         $return = array();
 
         foreach($this->manyToManyRelations as $relation){
-            $return[] = '    public function add' . $relation['refTable']->getModelName() . '(' . $relation['refTable']->getModelName() . ' $' . lcfirst($relation['refTable']->getModelName()) . ')';
-            $return[] = '    {';
-            $return[] = '        $' . lcfirst($relation['refTable']->getModelName()) . '->add' . $this->getModelName() . '($this);';
-            $return[] = '        $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . '[] = $' . lcfirst($relation['refTable']->getModelName()) . ';';
-            $return[] = '        return $this;';
-            $return[] = '    }';
+            $return[] = $this->indentation() . 'public function add' . $relation['refTable']->getModelName() . '(' . $relation['refTable']->getModelName() . ' $' . lcfirst($relation['refTable']->getModelName()) . ')';
+            $return[] = $this->indentation() . '{';
+            $return[] = $this->indentation(2) . '$' . lcfirst($relation['refTable']->getModelName()) . '->add' . $this->getModelName() . '($this);';
+            $return[] = $this->indentation(2) . '$this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . '[] = $' . lcfirst($relation['refTable']->getModelName()) . ';';
+            $return[] = $this->indentation(2) . 'return $this;';
+            $return[] = $this->indentation() . '}';
             $return[] = '';
-            $return[] = '    public function get' . \MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName()) . '()';
-            $return[] = '    {';
-            $return[] = '        return $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
-            $return[] = '    }';
+            $return[] = $this->indentation() . 'public function get' . \MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName()) . '()';
+            $return[] = $this->indentation() . '{';
+            $return[] = $this->indentation(2) . 'return $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
+            $return[] = $this->indentation() . '}';
         }
 
         return implode("\n", $return);
