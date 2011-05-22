@@ -27,6 +27,11 @@ namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
 class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
 {
+    /**
+     *
+     * @param type $data
+     * @param type $parent 
+     */
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
@@ -66,6 +71,12 @@ class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
         }
     }
 
+    
+    
+    /**
+     *
+     * @return string 
+     */
     public function display()
     {
         $return = array();

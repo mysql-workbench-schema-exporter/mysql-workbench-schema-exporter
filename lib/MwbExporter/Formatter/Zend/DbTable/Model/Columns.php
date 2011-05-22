@@ -27,11 +27,22 @@ namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
 class Columns extends \MwbExporter\Core\Model\Columns
 {
+    /**
+     *
+     * @param type $data
+     * @param type $parent 
+     */
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
     }
 
+    
+    
+    /**
+     *
+     * @return string 
+     */
     public function display()
     {
         $return = array();
@@ -43,6 +54,12 @@ class Columns extends \MwbExporter\Core\Model\Columns
         return implode("\n", $return);
     }
     
+    
+    
+    /**
+     *
+     * @return string 
+     */
     public function displayArrayCollections()
     {
         $return = array();
@@ -56,6 +73,12 @@ class Columns extends \MwbExporter\Core\Model\Columns
         return implode("\n", $return);
     }
     
+    
+    
+    /**
+     *
+     * @return string 
+     */
     public function displayGetterAndSetter()
     {
         $return = array();

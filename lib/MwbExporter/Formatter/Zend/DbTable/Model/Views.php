@@ -27,11 +27,22 @@ namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
 class Views extends \MwbExporter\Core\Model\Views
 {
+    /**
+     *
+     * @param type $data
+     * @param type $parent 
+     */
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
     }
 
+    
+    
+    /**
+     *
+     * @return string 
+     */
     public function display()
     {
         $return = array();
