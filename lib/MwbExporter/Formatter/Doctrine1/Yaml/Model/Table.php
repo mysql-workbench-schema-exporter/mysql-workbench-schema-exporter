@@ -40,6 +40,33 @@ class Table extends \MwbExporter\Core\Model\Table
         return $this->parseComment('actAs', $this->getComment());
     }
 
+    public function hasExternalRelations()
+    {
+        if($this->getExternalRelations() === false){
+            return false;
+        }
+
+        return true;
+    }
+
+    public function getExternalRelations()
+    {
+        // processing external Relation
+        // {d:externalRelations}[..]{/d:externalRelations}
+        $externalRelations = $this->parseComment('externalRelations', $this->getComment());
+        if($externalRelations === false){
+            return false;
+        }
+
+        $externalRelations = trim($externalRelations);
+
+        if(empty($externalRelations)){
+            return false;
+        }
+
+        return $externalRelations;
+    }
+
     public function display()
     {
         $return = array();
@@ -69,11 +96,15 @@ class Table extends \MwbExporter\Core\Model\Table
         $return[] = $this->columns->display();
 
         // add relations
-        if(count($this->relations) > 0){
+        if(count($this->relations) > 0 or $this->hasExternalRelations()){
             $return[] = '  relations:';
 
             foreach($this->relations as $relation){
                 $return[] = $relation->display();
+            }
+            
+            if ($this->hasExternalRelations()) {
+                $return[] = '    ' . $this->getExternalRelations();
             }
         }
 
