@@ -87,12 +87,9 @@ abstract class Base
     protected function indentation($level = 1)
     {
         $config = \MwbExporter\Core\Registry::get('config');
-        if (isset($config['indentation']) && $config['indentation'])
-        {
+        if(isset($config['indentation']) && $config['indentation']){
             $indentation = $config['indentation'];
-        }
-        else
-        {
+        } else {
             $indentation = 2;
         }
         return str_repeat(' ', $indentation * $level);

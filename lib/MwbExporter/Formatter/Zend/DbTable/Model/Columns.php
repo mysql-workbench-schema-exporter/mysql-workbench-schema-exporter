@@ -23,30 +23,70 @@
  *  THE SOFTWARE.
  */
 
-namespace MwbExporter\Core;
+namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
-class Registry
+class Columns extends \MwbExporter\Core\Model\Columns
 {
-    protected static $register = array();
+    /**
+     *
+     * @param SimpleXMLElement $data
+     * @param type $parent 
+     */
+    public function __construct($data, $parent)
+    {
+        parent::__construct($data, $parent);
+    }
+
     
     
     /**
      *
-     * @param string $key
-     * @param mixed $obj 
+     * @return string 
      */
-    public static function set($key, $obj)
+    public function display()
     {
-        self::$register[$key] = $obj;
+        $return = array();
+        
+        foreach($this->columns as $column){
+            $return[] = $column->display();
+        }
+
+        return implode("\n", $return);
     }
     
+    
+    
     /**
      *
-     * @param string $key
-     * @return mixed
+     * @return string 
      */
-    public static function get($key)
+    public function displayArrayCollections()
     {
-        return isset(self::$register[$key]) ? self::$register[$key] : false;
+        $return = array();
+        
+        foreach($this->columns as $column){
+            if (true == $arrayCollection = $column->displayArrayCollection()){
+                $return[] = $arrayCollection;
+            }
+        }
+        
+        return implode("\n", $return);
+    }
+    
+    
+    
+    /**
+     *
+     * @return string 
+     */
+    public function displayGetterAndSetter()
+    {
+        $return = array();
+
+        foreach($this->columns as $column){
+            $return[] = $column->displayGetterAndSetter();
+        }
+        
+        return implode("\n", $return);
     }
 }

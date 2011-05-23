@@ -23,30 +23,36 @@
  *  THE SOFTWARE.
  */
 
-namespace MwbExporter\Core;
+namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
-class Registry
+class Index extends \MwbExporter\Core\Model\Index
 {
-    protected static $register = array();
-    
-    
     /**
      *
-     * @param string $key
-     * @param mixed $obj 
+     * @param SimpleXMLElement $data
+     * @param type $parent 
      */
-    public static function set($key, $obj)
+    public function __construct($data, $parent)
     {
-        self::$register[$key] = $obj;
+        parent::__construct($data, $parent);
     }
+
+    
     
     /**
      *
-     * @param string $key
-     * @return mixed
+     * @return string
      */
-    public static function get($key)
+    public function display()
     {
-        return isset(self::$register[$key]) ? self::$register[$key] : false;
+        $return = array();
+        $return[] = 'name="' . $this->config['name'] . '",';
+        $tmp = 'columns={';
+        foreach($this->referencedColumn as $refColumn){
+            $tmp .= '"' . $refColumn->getColumnName() . '",';
+        }
+        $return[] = substr($tmp, 0, -1) . '}';
+        //$return[] = '      type: ' . strtolower($this->config['indexType']);
+        return implode("", $return);
     }
 }

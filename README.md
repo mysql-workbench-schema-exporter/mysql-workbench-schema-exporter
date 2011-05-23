@@ -50,7 +50,7 @@ Option list for doctrine 2
   * indentation
   * useAutomaticRepository
   * extendTableNameWithSchemaName
-
+  * bundleNamespace
 
 
 Requirements

@@ -23,30 +23,34 @@
  *  THE SOFTWARE.
  */
 
-namespace MwbExporter\Core;
+namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
-class Registry
+class Views extends \MwbExporter\Core\Model\Views
 {
-    protected static $register = array();
-    
-    
     /**
      *
-     * @param string $key
-     * @param mixed $obj 
+     * @param SimpleXMLElement $data
+     * @param type $parent 
      */
-    public static function set($key, $obj)
+    public function __construct($data, $parent)
     {
-        self::$register[$key] = $obj;
+        parent::__construct($data, $parent);
     }
+
+    
     
     /**
      *
-     * @param string $key
-     * @return mixed
+     * @return string 
      */
-    public static function get($key)
+    public function display()
     {
-        return isset(self::$register[$key]) ? self::$register[$key] : false;
+        $return = array();
+
+        foreach($this->views as $view){
+            $return[] = $view->display();
+        }
+
+        return implode("\n", $return);
     }
 }

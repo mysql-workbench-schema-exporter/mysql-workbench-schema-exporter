@@ -23,30 +23,44 @@
  *  THE SOFTWARE.
  */
 
-namespace MwbExporter\Core;
+// show errors
+error_reporting(E_ALL);
 
-class Registry
-{
-    protected static $register = array();
+// lets stop the time
+$start = microtime(true);
+
+
+// enable autoloading of classes
+require_once('../lib/MwbExporter/Core/SplClassLoader.php');
+$classLoader = new SplClassLoader();
+$classLoader->setIncludePath('../lib');
+$classLoader->register();
+
+// show a simple text box with the output
+echo '<pre cols="80" rows="50">';
+
+    $setup = array();
+
+    // create a formatter
+    $formatter = new \MwbExporter\Formatter\Zend\DbTable\Loader($setup);
     
+    // parse the mwb file
+    $mwb = new \MwbExporter\Core\Workbench\Document('data/test.mwb', $formatter);
     
-    /**
-     *
-     * @param string $key
-     * @param mixed $obj 
-     */
-    public static function set($key, $obj)
-    {
-        self::$register[$key] = $obj;
-    }
-    
-    /**
-     *
-     * @param string $key
-     * @return mixed
-     */
-    public static function get($key)
-    {
-        return isset(self::$register[$key]) ? self::$register[$key] : false;
-    }
-}
+    // show the export output of the mwb file
+    echo htmlentities($mwb->display());
+ 
+echo "</pre>";
+
+// save as zip file in current directory and use .php as file endings
+echo "<br><br>";
+echo $mwb->zipExport(__DIR__ .'/export', 'php');
+
+// show some information about used memory
+echo "<br><br>";
+echo (memory_get_peak_usage(true) / 1024 / 1024) . " MB used";
+echo "<br>";
+
+// show the time needed to parse the mwb file
+$end = microtime(true);
+echo  sprintf('%0.3f', $end-$start) . " sec needed";

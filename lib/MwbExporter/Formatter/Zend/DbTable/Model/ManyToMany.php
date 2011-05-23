@@ -23,30 +23,28 @@
  *  THE SOFTWARE.
  */
 
-namespace MwbExporter\Core;
+namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
-class Registry
+class ManyToMany
 {
-    protected static $register = array();
+
+    // checks if a relation indicates a many to many relation
+
+    // public static function isRelationManyToMany(MwbExporter_Core_Model_ForeignKey $relation)
+    // {
+        // echo $relation->getOwningTable()->getModelName() . "\n";
+        // /*
+        // if($fk = $relation->getOwningTable()->hasForeignKeys()){
+            // $fk = $relation->getOwningTable()->getForeignKeys();
+            
+            // foreach($fk as $foreignKey){
+                // return $foreignKey->getReferencedTable();
+            // }
+            // return true;
+        // }
+        // return false;
+        // */
+        // return false;
+    // }
     
-    
-    /**
-     *
-     * @param string $key
-     * @param mixed $obj 
-     */
-    public static function set($key, $obj)
-    {
-        self::$register[$key] = $obj;
-    }
-    
-    /**
-     *
-     * @param string $key
-     * @return mixed
-     */
-    public static function get($key)
-    {
-        return isset(self::$register[$key]) ? self::$register[$key] : false;
-    }
 }

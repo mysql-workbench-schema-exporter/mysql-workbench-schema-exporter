@@ -57,7 +57,7 @@ echo "</textarea>";
 
 // save as zip file in current directory and use .yml as file endings
 echo "<br><br>";
-echo $mwb->zipExport(__DIR__, 'yml');
+echo $mwb->zipExport(__DIR__ .'/export', 'yml');
 
 // show some information about used memory
 echo "<br><br>";

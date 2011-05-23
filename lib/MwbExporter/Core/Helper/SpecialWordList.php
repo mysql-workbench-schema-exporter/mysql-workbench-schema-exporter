@@ -34,6 +34,11 @@ abstract class SpecialWordList
 {
     protected static $specialWordList = array();
 
+    /**
+     * 
+     * @param string $singular
+     * @return string|false 
+     */
     public static function getPluralOf($singular)
     {
         // late static binding requires PHP > 5.3
@@ -45,6 +50,11 @@ abstract class SpecialWordList
         return false;
     }
 
+    /**
+     * 
+     * @param type $plural
+     * @return type 
+     */
     public static function getSingularOf($plural)
     {
         // late static binding requires PHP > 5.3

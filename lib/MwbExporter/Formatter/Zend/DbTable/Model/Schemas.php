@@ -23,30 +23,17 @@
  *  THE SOFTWARE.
  */
 
-namespace MwbExporter\Core;
+namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
-class Registry
+class Schemas extends \MwbExporter\Core\Model\Schemas
 {
-    protected static $register = array();
-    
-    
     /**
      *
-     * @param string $key
-     * @param mixed $obj 
+     * @param SimpleXMLElement $data
+     * @param type $parent 
      */
-    public static function set($key, $obj)
+    public function __construct($data, $parent)
     {
-        self::$register[$key] = $obj;
-    }
-    
-    /**
-     *
-     * @param string $key
-     * @return mixed
-     */
-    public static function get($key)
-    {
-        return isset(self::$register[$key]) ? self::$register[$key] : false;
+        parent::__construct($data, $parent);
     }
 }
