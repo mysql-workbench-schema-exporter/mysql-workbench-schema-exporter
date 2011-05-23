@@ -58,7 +58,7 @@ class Table extends \MwbExporter\Core\Model\Table
 
             // add table name if necessary
             if($this->getModelName() !== ucfirst($this->getRawTableName())){
-                $return[] = $this->indentation(2) . 'table: ' . $this->getRawTableName();
+                $return[] = $this->indentation(1) . 'table: ' . $this->getRawTableName();
             }
         }
 
