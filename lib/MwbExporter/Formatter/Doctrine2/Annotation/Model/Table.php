@@ -59,7 +59,14 @@ class Table extends \MwbExporter\Core\Model\Table
 
         $return[] = '<?php';
         $return[] = '';
-        $return[] = 'namespace Models;';
+        $namespace = '';
+        if(isset($config['bundleNamespace']) && $config['bundleNamespace'])
+        {
+            $namespace = $config['bundleNamespace'] . '\\';
+        }
+        $namespace .= 'Entity';
+
+        $return[] = sprintf('namespace %s;', $namespace);
         $return[] = '';
         $return[] = '/**';
 

@@ -37,7 +37,11 @@ class Table extends \MwbExporter\Core\Model\Table
         $config = \MwbExporter\Core\Registry::get('config');
 
         $return = array();
-        $return[] = '\\Entity\\' . $this->getModelName() . ':';
+        $return[] = sprintf('%s\\%s\\%s:',
+            $config['bundleNamespace'],
+            'Entity',
+            $this->getModelName()
+        );
 
         $return[] = $this->indentation() . 'type: Entity';
 
