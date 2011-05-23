@@ -39,6 +39,20 @@ Foreign key name
 
 To replace relations name by the name of the foreign key, start the foreign key name with "d:".
 
+
+Option list for doctrine 1
+--------------------------
+  * extendTableNameWithSchemaName
+
+Option list for doctrine 2
+--------------------------
+  * useAnnotationPrefix
+  * indentation
+  * useAutomaticRepository
+  * extendTableNameWithSchemaName
+
+
+
 Requirements
 ------------
 
@@ -55,19 +69,19 @@ Example
 -------
 
     <?php
-    
+
     // enable autoloading of classes
     require_once('lib/MwbExporter/Core/SplClassLoader.php');
     $classLoader = new SplClassLoader();
     $classLoader->setIncludePath('lib');
     $classLoader->register();
-    
+
     // define a formatter
     $formatter = new \MwbExporter\Formatter\Doctrine2\Annotation\Loader();
-    
+
     // parse the mwb file
     $mwb = new \MwbExporter\Core\Workbench\Document('myDatabaseModel.mwb', $formatter);
-    
+
     // show the output
     echo $mwb->display();
     ?>
