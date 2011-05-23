@@ -32,19 +32,23 @@ class ZipFileExporter
     protected $filePath         = null;
 
     protected $savePath         = null;
-    protected $availableFormats = array('yml' => '.yml', 'php' => '.php');
-    protected $saveFormat       = '.yml';
-    
+    protected $availableFormats = array('yml' => 'yml', 'php' => 'php', 'yaml' => 'yml');
+    protected $saveFormat       = 'yml';
+
+    protected $config           = null;
+
     public function __construct($savePath)
     {
+        $this->config = \MwbExporter\Core\Registry::get('config');
+
         $this->savePath = realpath($savePath);
-        
+
         $this->fileName = date('Y-m-d_h-i-s') . '_' . sprintf('%03d', mt_rand(1,999)) . '.zip';
         $this->filePath = $this->savePath . DIRECTORY_SEPARATOR . $this->fileName;
-                
+
         $this->zip = new \ZipArchive();
         $res = $this->zip->open($this->filePath, \ZipArchive::CREATE);
-        
+
         if($res !== true){
             throw new \Exception('error while creating zip in file ' . __FILE__ . ' on line ' . __LINE__);
         }
@@ -58,26 +62,44 @@ class ZipFileExporter
         }
         return false;
     }
-    
+
     public function addTable(\MwbExporter\Core\Model\Table $table)
     {
         $schemaName = $table->getSchemaName();
         $tableName  = $table->getRawTableName();
-        $fileName   = $schemaName . '.' . $tableName . $this->saveFormat;
-    
+        if (isset($this->config['filename']) && $this->config['filename'])
+        {
+            $searched = array('%schema%', '%table%', '%entity%', '%extension%');
+            $replaced = array($schemaName, $tableName, $table->getModelName(), $this->saveFormat);
+            $fileName = str_replace(
+                $searched,
+                $replaced,
+                $this->config['filename']
+            );
+
+            if (false !== strpos($fileName, '%'))
+            {
+                throw new \Exception(sprintf('All filename variable where not converted. Perhaps a misstyped name (%s) ?', substr($fileName, strpos($fileName, '%'), strrpos($fileName, '%'))));
+            }
+        }
+        else
+        {
+            $fileName   = $schemaName . '.' . $tableName . $this->saveFormat;
+        }
+
         $this->zip->addFromString($fileName, $table->display());
     }
-    
+
     public function getFileName()
     {
         return $this->fileName;
     }
-    
+
     public function getFilePath()
     {
         return $this->filePath;
     }
-    
+
     public function save()
     {
         $this->zip->close();
