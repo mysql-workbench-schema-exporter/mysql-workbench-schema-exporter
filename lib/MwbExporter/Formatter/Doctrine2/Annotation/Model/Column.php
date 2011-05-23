@@ -27,6 +27,8 @@ namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
 class Column extends \MwbExporter\Core\Model\Column
 {
+    protected $ormPrefix = '@';
+
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
@@ -37,17 +39,23 @@ class Column extends \MwbExporter\Core\Model\Column
         $return = array();
 
         // do not include columns that reflect references
-        if(is_null($this->local)){
+        if(is_null($this->local))
+        {
+            $config = \MwbExporter\Core\Registry::get('config');
+            $this->ormPrefix = '@' . ((isset($config['useAnnotationPrefix']) && $config['useAnnotationPrefix']) ? $config['useAnnotationPrefix'] : '');
+
             // generate private $<column> class vars
             $return[] = $this->indentation() . '/** ';
 
             $tmp = $this->indentation() . ' * ';
             if($this->isPrimary){
-                $tmp .= '@Id ';
+                $tmp .= $this->ormPrefix . 'Id ';
             }
+            $return[] = $tmp;
 
             // set name of column
-            $tmp  .= '@Column(type=' . \MwbExporter\Core\Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
+            $tmp = $this->indentation() . ' * ';
+            $tmp  .= $this->ormPrefix . 'Column(type=' . \MwbExporter\Core\Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
 
             if(!isset($this->config['isNotNull']) || $this->config['isNotNull'] != 1){
                 $tmp .= ',nullable=true';
@@ -56,7 +64,7 @@ class Column extends \MwbExporter\Core\Model\Column
             $return[] = $tmp;
 
             if(isset($this->config['autoIncrement']) && $this->config['autoIncrement'] == 1){
-                $return[] = $this->indentation() . ' * @GeneratedValue(strategy="AUTO")';
+                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'GeneratedValue(strategy="AUTO")';
             }
 
             $return[] = $this->indentation() . ' */';
@@ -68,7 +76,7 @@ class Column extends \MwbExporter\Core\Model\Column
         if(is_array($this->foreigns)){
             foreach($this->foreigns as $foreign){
                 $return[] = $this->indentation() . '/**';
-                $return[] = $this->indentation() . ' * @OneToMany(targetEntity="' . $foreign->getOwningTable()->getModelName() . '", mappedBy="' . $foreign->getReferencedTable()->getModelName() . '")';
+                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'OneToMany(targetEntity="' . $foreign->getOwningTable()->getModelName() . '", mappedBy="' . $foreign->getReferencedTable()->getModelName() . '")';
                 $return[] = $this->indentation() . ' */';
                 $return[] = $this->indentation() . 'private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
                 $return[] = '';
@@ -78,7 +86,7 @@ class Column extends \MwbExporter\Core\Model\Column
         // many to references
         if(!is_null($this->local)){
             $return[] = $this->indentation() . '/**';
-            $return[] = $this->indentation() . ' * @ManyToOne(targetEntity="' . $this->local->getReferencedTable()->getModelName() . '", inversedBy="' . $this->local->getOwningTable()->getModelName() . '")';
+            $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToOne(targetEntity="' . $this->local->getReferencedTable()->getModelName() . '", inversedBy="' . $this->local->getOwningTable()->getModelName() . '")';
             $return[] = $this->indentation() . ' */';
             $return[] = $this->indentation() . 'private $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
             $return[] = '';
