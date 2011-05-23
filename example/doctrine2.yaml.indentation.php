@@ -23,30 +23,47 @@
  *  THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
+// show errors
+error_reporting(E_ALL);
 
-class Index extends \MwbExporter\Core\Model\Index
-{
-    public function __construct($data, $parent)
-    {
-        parent::__construct($data, $parent);
-    }
+// lets stop the time
+$start = microtime(true);
 
-    public function display()
-    {
-        $return = array();
-        $return[] = $this->indentation(2) . $this->config['name'] . ':';
-        $tmp = $this->indentation(3) . 'fields: [';
-        foreach($this->referencedColumn as $refColumn){
-            $tmp .= $refColumn->getColumnName() . ',';
-        }
-        $return[] = substr($tmp, 0, -1) . ']';
 
-        // disable type: index for foreign key indexes
-        if(strtolower($this->config['indexType']) !== 'index') {
-            $return[] = $this->indentation(3) . 'type: ' . strtolower($this->config['indexType']);
-        }
+// enable autoloading of classes
+require_once('../lib/MwbExporter/Core/SplClassLoader.php');
+$classLoader = new SplClassLoader();
+$classLoader->setIncludePath('../lib');
+$classLoader->register();
 
-        return implode("\n", $return);
-    }
-}
+// show a simple text box with the output
+echo '<textarea cols="100" rows="50">';
+
+    $setup = array(
+        'extendTableNameWithSchemaName' => true,
+        'indentation'                   => 4,
+    );
+
+    // create a formatter
+    $formatter = new \MwbExporter\Formatter\Doctrine2\Yaml\Loader($setup);
+
+    // parse the mwb file
+    $mwb = new \MwbExporter\Core\Workbench\Document('data/test.mwb', $formatter);
+
+    // show the export output of the mwb file
+    echo $mwb->display();
+
+echo "</textarea>";
+
+// save as zip file in current directory and use .yml as file endings
+echo "<br><br>";
+echo $mwb->zipExport(__DIR__, 'yml');
+
+// show some information about used memory
+echo "<br><br>";
+echo (memory_get_peak_usage(true) / 1024 / 1024) . " MB used";
+echo "<br>";
+
+// show the time needed to parse the mwb file
+$end = microtime(true);
+echo  sprintf('%0.3f', $end-$start) . " sec needed";

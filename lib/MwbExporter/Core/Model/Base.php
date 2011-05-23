@@ -74,7 +74,7 @@ abstract class Base
 
         $needle_quoted = preg_quote($needle_raw);
         $pattern = '@\{(d|doctrine):' . $needle_quoted . '\}(.+)\{\/(d|doctrine):' . $needle_quoted . '\}@si';
-        
+
         preg_match($pattern, $comment, $matches);
         return isset($matches[2]) ? $matches[2] : false;
     }
@@ -82,6 +82,20 @@ abstract class Base
     public function debug()
     {
         return $this->data->asXML();
+    }
+
+    protected function indentation($level = 1)
+    {
+        $config = \MwbExporter\Core\Registry::get('config');
+        if (isset($config['indentation']) && $config['indentation'])
+        {
+            $indentation = $config['indentation'];
+        }
+        else
+        {
+            $indentation = 2;
+        }
+        return str_repeat(' ', $indentation * $level);
     }
 
     public function getParent()
