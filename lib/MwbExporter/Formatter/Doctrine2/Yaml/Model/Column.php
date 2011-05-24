@@ -52,8 +52,10 @@ class Column extends \MwbExporter\Core\Model\Column
         }
 
         // check for auto increment column
-        if(isset($this->config['autoIncrement']) && $this->config['autoIncrement'] == 1){
-            $return[] = $this->indentation(3) . 'autoincrement: true';
+        if(isset($this->config['autoIncrement']) && $this->config['autoIncrement'] == 1)
+        {
+            $return[] = $this->indentation(3) . 'generator:';
+            $return[] = $this->indentation(4) . 'strategy: AUTO';
         }
 
         // set default value

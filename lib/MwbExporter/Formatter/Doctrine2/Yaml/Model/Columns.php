@@ -34,13 +34,23 @@ class Columns extends \MwbExporter\Core\Model\Columns
 
     public function display()
     {
-        $return = array();
+        $returnIds = array();
+        $returnFields = array();
 
-        $return[] = $this->indentation() . 'columns:';
-        foreach($this->columns as $column){
-            $return[] = $column->display();
+        $returnIds[] = $this->indentation() . 'id:';
+        $returnFields[] = $this->indentation() . 'fields:';
+        foreach($this->columns as $column)
+        {
+            if($column->isPrimary())
+            {
+                $returnIds[] = $column->display();
+            }
+            else
+            {
+                $returnFields[] = $column->display();
+            }
         }
 
-        return implode("\n", $return);
+        return implode("\n", array_merge($returnIds, $returnFields));
     }
 }
