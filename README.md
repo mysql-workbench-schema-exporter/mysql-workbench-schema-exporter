@@ -16,6 +16,7 @@ The application is intended to create:
   * Doctrine1
   * Doctrine2
   * Propel
+  * Zend DbTable
   * CakePHP
   * ...
 
