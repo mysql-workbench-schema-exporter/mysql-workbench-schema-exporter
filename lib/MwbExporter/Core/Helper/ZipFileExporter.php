@@ -84,7 +84,7 @@ class ZipFileExporter
         }
         else
         {
-            $fileName   = $schemaName . '.' . $tableName . $this->saveFormat;
+            $fileName   = $schemaName . '.' . $tableName . '.' . $this->saveFormat;
         }
 
         $this->zip->addFromString($fileName, $table->display());
