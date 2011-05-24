@@ -31,7 +31,7 @@ abstract class Column extends Base
     protected $link   = array();
     protected $isPrimary = false;
     protected $isUnique  = false;
-    
+
     protected $local    = null;
     protected $foreigns = null;
 
@@ -72,17 +72,28 @@ abstract class Column extends Base
     {
         $this->isPrimary = true;
     }
-    
+
+    /**
+     * description
+     *
+     * @param void
+     * @return void
+     */
+    public function isPrimary()
+    {
+        return $this->isPrimary;
+    }
+
     public function markAsUnique()
     {
         $this->isUnique = true;
     }
-    
+
     public function markAsLocalReference( \MwbExporter\Core\Model\ForeignKey $local)
     {
         $this->local = $local;
     }
-    
+
     public function markAsForeignReference( \MwbExporter\Core\Model\ForeignKey $foreign)
     {
         if($this->foreigns == null) {
