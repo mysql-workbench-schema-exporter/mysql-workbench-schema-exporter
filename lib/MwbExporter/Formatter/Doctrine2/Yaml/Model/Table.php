@@ -43,7 +43,7 @@ class Table extends \MwbExporter\Core\Model\Table
             $this->getModelName()
         );
 
-        $return[] = $this->indentation() . 'type: Entity';
+        $return[] = $this->indentation() . 'type: entity';
 
         if(isset($config['useAutomaticRepository']) && $config['useAutomaticRepository']) {
             $return[] = $this->indentation() . 'repositoryClass: ' . $this->getModelName() . 'Repository';
