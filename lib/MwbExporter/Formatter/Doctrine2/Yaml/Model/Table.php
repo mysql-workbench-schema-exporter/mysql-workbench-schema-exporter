@@ -39,7 +39,7 @@ class Table extends \MwbExporter\Core\Model\Table
         $return = array();
         $return[] = sprintf('%s\\%s\\%s:',
             (isset($config['bundleNamespace']) && $config['bundleNamespace']) ? $config['bundleNamespace'] : '',
-            'Entity',
+            (isset($config['entityNamespace']) && $config['entityNamespace']) ? $config['entityNamespace'] : 'Entity',
             $this->getModelName()
         );
 

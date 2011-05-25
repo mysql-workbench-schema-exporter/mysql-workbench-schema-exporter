@@ -64,7 +64,15 @@ class Table extends \MwbExporter\Core\Model\Table
         {
             $namespace = $config['bundleNamespace'] . '\\';
         }
-        $namespace .= 'Entity';
+
+        if(isset($config['entityNamespace']) && $config['entityNamespace'])
+        {
+            $namespace .= $config['entityNamespace'];
+        }
+        else
+        {
+            $namespace .= 'Entity';
+        }
 
         $return[] = sprintf('namespace %s;', $namespace);
         $return[] = '';
