@@ -44,6 +44,7 @@ To replace relations name by the name of the foreign key, start the foreign key 
 Option list for doctrine 1
 --------------------------
   * extendTableNameWithSchemaName
+  * {d:externalRelations}
 
 Option list for doctrine 2
 --------------------------
