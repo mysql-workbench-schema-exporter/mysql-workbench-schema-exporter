@@ -41,6 +41,14 @@ class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
     public function display()
     {
         $return = array();
+
+        /**
+         * sometimes the link between to tables is broken
+         */
+        if($this->referencedTable == null){
+            return $this->indentation(2) . '# There is another foreign key declaration but it seems broken.';
+        }
+
         $return[] = $this->indentation(2) . $this->referencedTable->getModelName() . ':';
         $return[] = $this->indentation(3) . 'class: ' . $this->referencedTable->getModelName();
 
