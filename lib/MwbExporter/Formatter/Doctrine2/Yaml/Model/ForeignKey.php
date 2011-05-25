@@ -32,6 +32,12 @@ class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
         parent::__construct($data, $parent);
     }
 
+    /**
+     * Return the foreign key definition
+     * Yaml format
+     *
+     * @return string
+     */
     public function display()
     {
         $return = array();

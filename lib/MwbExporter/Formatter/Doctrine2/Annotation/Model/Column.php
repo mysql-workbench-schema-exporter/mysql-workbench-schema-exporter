@@ -34,6 +34,12 @@ class Column extends \MwbExporter\Core\Model\Column
         parent::__construct($data, $parent);
     }
 
+    /**
+     * Return the column definition
+     * Annotation format
+     *
+     * @return string
+     */
     public function display()
     {
         $return = array();
@@ -42,11 +48,20 @@ class Column extends \MwbExporter\Core\Model\Column
         if(is_null($this->local))
         {
             $config = \MwbExporter\Core\Registry::get('config');
+
+            /**
+             * if needed, use a prefix (like @ORM\ or @orm:
+             * for symfony2
+             * @ by default
+             */
             $this->ormPrefix = '@' . ((isset($config['useAnnotationPrefix']) && $config['useAnnotationPrefix']) ? $config['useAnnotationPrefix'] : '');
 
             // generate private $<column> class vars
             $return[] = $this->indentation() . '/** ';
 
+            /**
+             * checking if the current column is a primary key
+             */
             $tmp = $this->indentation() . ' * ';
             if($this->isPrimary){
                 $tmp .= $this->ormPrefix . 'Id ';
@@ -63,6 +78,9 @@ class Column extends \MwbExporter\Core\Model\Column
             $tmp .= ')'; // column definition ending bracket
             $return[] = $tmp;
 
+            /**
+             * adding the auto increment statement
+             */
             if(isset($this->config['autoIncrement']) && $this->config['autoIncrement'] == 1){
                 $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'GeneratedValue(strategy="AUTO")';
             }
@@ -119,6 +137,11 @@ class Column extends \MwbExporter\Core\Model\Column
         return false;
     }
 
+    /**
+     * Getters and setters for the entity attributes
+     *
+     * @return string
+     */
     public function displayGetterAndSetter()
     {
         $return = array();

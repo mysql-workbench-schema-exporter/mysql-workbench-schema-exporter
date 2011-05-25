@@ -32,6 +32,12 @@ class Column extends \MwbExporter\Core\Model\Column
         parent::__construct($data, $parent);
     }
 
+    /**
+     * Return the column definition
+     * Yaml format
+     *
+     * @return string
+     */
     public function display()
     {
         $return = array();
@@ -42,6 +48,7 @@ class Column extends \MwbExporter\Core\Model\Column
         // set datatype of column
         $return[] = $this->indentation(3) . 'type: ' . \MwbExporter\Core\Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
 
+        // check if the column is a primary key
         if($this->isPrimary){
             $return[] = $this->indentation(3) . 'primary: true';
         }
@@ -52,8 +59,7 @@ class Column extends \MwbExporter\Core\Model\Column
         }
 
         // check for auto increment column
-        if(isset($this->config['autoIncrement']) && $this->config['autoIncrement'] == 1)
-        {
+        if(isset($this->config['autoIncrement']) && $this->config['autoIncrement'] == 1){
             $return[] = $this->indentation(3) . 'generator:';
             $return[] = $this->indentation(4) . 'strategy: AUTO';
         }
