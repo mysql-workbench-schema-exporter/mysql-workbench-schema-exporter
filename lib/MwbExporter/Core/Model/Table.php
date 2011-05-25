@@ -39,7 +39,7 @@ abstract class Table extends Base
     /**
      *
      * @param SimpleXMLElement $data
-     * @param \MwbExporter\Core\Model\Tables $parent 
+     * @param \MwbExporter\Core\Model\Tables $parent
      */
     public function __construct($data, $parent)
     {
@@ -60,7 +60,7 @@ abstract class Table extends Base
     }
 
     /**
-     * 
+     *
      */
     public function checkForIndices()
     {
@@ -70,7 +70,7 @@ abstract class Table extends Base
     }
 
     /**
-     * 
+     *
      */
     public function checkForForeignKeys()
     {
@@ -78,7 +78,7 @@ abstract class Table extends Base
             $this->foreignKeys = \MwbExporter\Core\Registry::get('formatter')->createForeignKeys($node, $this);
         }
     }
-    
+
     /**
      *
      * @return boolean
@@ -90,7 +90,7 @@ abstract class Table extends Base
         }
         return false;
     }
-    
+
     /**
      *
      * @return array|false
@@ -105,7 +105,7 @@ abstract class Table extends Base
 
     /**
      *
-     * @return type 
+     * @return type
      */
     public function isTranslationTable()
     {
@@ -143,6 +143,7 @@ abstract class Table extends Base
     }
 
     /**
+     * Return the model in the plural form
      *
      * @return string
      */
@@ -178,7 +179,7 @@ abstract class Table extends Base
         }
         $this->relations[] = $foreignKey;
     }
-    
+
     /**
      *
      * @return array
@@ -187,10 +188,10 @@ abstract class Table extends Base
     {
         return $this->relations;
     }
-    
+
     /**
      * Return relation betweens the current table and the $rawTableName table
-     * 
+     *
      * @param string $rawTableName
      * @return MwbExporter\Core\Model\ForeignKey|null
      */
@@ -203,28 +204,28 @@ abstract class Table extends Base
         }
         return null;
     }
-    
+
     /**
      *
-     * @return string 
+     * @return string
      */
     public function getSchemaName()
     {
         return $this->getSchema()->getName();
     }
-    
+
     /**
      *
-     * @return MwbExporter\Core\Model\Schema 
+     * @return MwbExporter\Core\Model\Schema
      */
     public function getSchema()
     {
         return $this->getParent()->getParent();
     }
-    
+
     /**
      *
-     * @return boolean 
+     * @return boolean
      */
     public function isExternal()
     {

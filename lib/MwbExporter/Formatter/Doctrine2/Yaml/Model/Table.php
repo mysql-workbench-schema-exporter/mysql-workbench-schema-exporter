@@ -32,11 +32,20 @@ class Table extends \MwbExporter\Core\Model\Table
         parent::__construct($data, $parent);
     }
 
+    /**
+     * return the table definition
+     * Yaml format
+     *
+     * @return string the table definition
+     */
     public function display()
     {
         $config = \MwbExporter\Core\Registry::get('config');
 
         $return = array();
+        /**
+         * formatting the entity's namespace
+         */
         $return[] = sprintf('%s\\%s\\%s:',
             (isset($config['bundleNamespace']) && $config['bundleNamespace']) ? $config['bundleNamespace'] : '',
             (isset($config['entityNamespace']) && $config['entityNamespace']) ? $config['entityNamespace'] : 'Entity',
@@ -45,7 +54,10 @@ class Table extends \MwbExporter\Core\Model\Table
 
         $return[] = $this->indentation() . 'type: entity';
 
-        if(isset($config['useAutomaticRepository']) && $config['useAutomaticRepository']) {
+        /**
+         * Adding the repository class if necessary
+         */
+        if(isset($config['useAutomaticRepository']) && $config['useAutomaticRepository']){
             $return[] = $this->indentation() . 'repositoryClass: ' . $this->getModelName() . 'Repository';
         }
 
@@ -55,7 +67,6 @@ class Table extends \MwbExporter\Core\Model\Table
             $schemaName = $this->getParent()->getParent()->getName();
             $return[] = $this->indentation(1) . 'table: ' . $schemaName . '.' . $this->getRawTableName();
         } else {
-
             // add table name if necessary
             if($this->getModelName() !== ucfirst($this->getRawTableName())){
                 $return[] = $this->indentation(1) . 'table: ' . $this->getRawTableName();
