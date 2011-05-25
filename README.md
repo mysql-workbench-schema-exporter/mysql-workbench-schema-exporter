@@ -53,6 +53,7 @@ Option list for doctrine 2
   * useAutomaticRepository
   * extendTableNameWithSchemaName
   * bundleNamespace
+  * entityNamespace
 
 
 Requirements
