@@ -35,6 +35,12 @@ class Table extends \MwbExporter\Core\Model\Table
         parent::__construct($data, $parent);
     }
 
+    /**
+     * Return the table definition
+     * Annotation format
+     *
+     * @return string
+     */
     public function display()
     {
         $config = \MwbExporter\Core\Registry::get('config');
@@ -60,17 +66,13 @@ class Table extends \MwbExporter\Core\Model\Table
         $return[] = '<?php';
         $return[] = '';
         $namespace = '';
-        if(isset($config['bundleNamespace']) && $config['bundleNamespace'])
-        {
+        if(isset($config['bundleNamespace']) && $config['bundleNamespace']){
             $namespace = $config['bundleNamespace'] . '\\';
         }
 
-        if(isset($config['entityNamespace']) && $config['entityNamespace'])
-        {
+        if(isset($config['entityNamespace']) && $config['entityNamespace']){
             $namespace .= $config['entityNamespace'];
-        }
-        else
-        {
+        } else {
             $namespace .= 'Entity';
         }
 
@@ -79,7 +81,7 @@ class Table extends \MwbExporter\Core\Model\Table
         $return[] = '/**';
 
         $entity = ' * ' . $this->ormPrefix . 'Entity';
-        if(isset($config['useAutomaticRepository']) && $config['useAutomaticRepository']) {
+        if(isset($config['useAutomaticRepository']) && $config['useAutomaticRepository']){
             $entity .= '(repositoryClass="Entity\\' . $this->getModelName() . 'Repository")';
         }
         $return[] = $entity;

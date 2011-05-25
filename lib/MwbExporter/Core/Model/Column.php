@@ -58,32 +58,51 @@ abstract class Column extends Base
         \MwbExporter\Core\Registry::set($this->id, $this);
     }
 
+    /**
+     * Return the current column's configuration
+     *
+     * @return array
+     */
     public function getConfig()
     {
         return $this->config;
     }
 
+    /**
+     * Return the current SimpleXMLElement
+     *
+     * @return SimpleXMLElement
+     */
     public function getData()
     {
         return $this->data;
     }
 
+    /**
+     * Set the column as primary key
+     *
+     * @return null
+     */
     public function markAsPrimary()
     {
         $this->isPrimary = true;
     }
 
     /**
-     * description
+     * return true if the column is a primary key
      *
-     * @param void
-     * @return void
+     * @return boolean
      */
     public function isPrimary()
     {
         return $this->isPrimary;
     }
 
+    /**
+     * Set the column as unique
+     *
+     * @return null
+     */
     public function markAsUnique()
     {
         $this->isUnique = true;

@@ -32,6 +32,12 @@ class Index extends \MwbExporter\Core\Model\Index
         parent::__construct($data, $parent);
     }
 
+    /**
+     * Return the index definition
+     * Yaml format
+     *
+     * @return string
+     */
     public function display()
     {
         $return = array();
