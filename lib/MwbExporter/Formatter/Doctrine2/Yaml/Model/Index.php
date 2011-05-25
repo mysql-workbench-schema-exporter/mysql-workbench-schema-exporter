@@ -42,7 +42,7 @@ class Index extends \MwbExporter\Core\Model\Index
     {
         $return = array();
         $return[] = $this->indentation(2) . $this->config['name'] . ':';
-        $tmp = $this->indentation(3) . 'fields: [';
+        $tmp = $this->indentation(3) . 'columns: [';
         foreach($this->referencedColumn as $refColumn){
             $tmp .= $refColumn->getColumnName() . ',';
         }
