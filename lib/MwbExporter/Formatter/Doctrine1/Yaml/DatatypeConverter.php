@@ -25,11 +25,12 @@
 
 namespace MwbExporter\Formatter\Doctrine1\Yaml;
 
-class DatatypeConverter extends \MwbExporter\Core\DatatypeConverter
+class DatatypeConverter extends \MwbExporter\Formatter\Doctrine1\DatatypeConverter
 {
     public static function getType($key, \MwbExporter\Core\Model\Column $column)
     {
         $return = isset(self::$datatypes[$key]) ? self::$datatypes[$key] : 'unknown';
+
         $config = $column->getConfig();
         if (   isset($config['scale'])
             && $config['scale'] != -1
@@ -38,7 +39,7 @@ class DatatypeConverter extends \MwbExporter\Core\DatatypeConverter
 
             $return = $return . '(' . $config['scale'] . ',' . $config['precision'] . ')';
         }
-        
+
         if( isset($config['length']) && $config['length'] != -1 ){
             $return = $return . '(' . $config['length'] . ')';
         }
@@ -55,7 +56,7 @@ class DatatypeConverter extends \MwbExporter\Core\DatatypeConverter
             $return .= "\n";
             $return .= "      values: " . str_replace(array('(',')'), array('[',']'), $config['datatypeExplicitParams']);
         }
-        
+
         return $return;
     }
 }

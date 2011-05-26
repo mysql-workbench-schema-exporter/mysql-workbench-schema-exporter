@@ -29,8 +29,9 @@ class Loader implements \MwbExporter\Core\IFormatter
 {
     public function __construct(array $setup = array()){
         \MwbExporter\Core\Registry::set('config', $setup);
+        DatatypeConverter::setUp();
     }
-    
+
     public function createCatalog($parameter, \MwbExporter\Core\Model\Base $parent){
         return new Model\Catalog($parameter, $parent);
     }
@@ -82,7 +83,7 @@ class Loader implements \MwbExporter\Core\IFormatter
     public function createViews($parameter, \MwbExporter\Core\Model\Base $parent){
         return new Model\Views($parameter, $parent);
     }
-    
+
     public function useDatatypeConverter($type, \MwbExporter\Core\Model\Column $column){
         return DatatypeConverter::getType($type, $column);
     }
