@@ -28,7 +28,7 @@ class DatatypeConverter extends \MwbExporter\Core\DatatypeConverter
             'com.mysql.rdbms.mysql.datatype.blob'               => 'blob(65535)',
             'com.mysql.rdbms.mysql.datatype.mediumblob'         => 'blob(16777215)',
             'com.mysql.rdbms.mysql.datatype.longblob'           => 'blob',
-            'com.mysql.rdbms.mysql.datatype.datetime'           => 'timestamp',
+            'com.mysql.rdbms.mysql.datatype.datetime'           => 'datetime',
             'com.mysql.rdbms.mysql.datatype.date'               => 'date',
             'com.mysql.rdbms.mysql.datatype.time'               => 'time',
             //'com.mysql.rdbms.mysql.datatype.year'               => 'integer(2)',
