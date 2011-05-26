@@ -25,31 +25,11 @@
 
 namespace MwbExporter\Formatter\Zend\DbTable;
 
-class DatatypeConverter extends \MwbExporter\Core\DatatypeConverter
+class DatatypeConverter extends \MwbExporter\Formatter\Zend\DatatypeConverter
 {
-    public static function setUp()
-    {
-        self::$datatypes['com.mysql.rdbms.mysql.datatype.tinyint']   = 'tinyint';
-        self::$datatypes['com.mysql.rdbms.mysql.datatype.smallint']  = 'smallint';
-        self::$datatypes['com.mysql.rdbms.mysql.datatype.mediumint'] = 'mediumint';
-        self::$datatypes['com.mysql.rdbms.mysql.datatype.int']       = 'integer';
-        self::$datatypes['com.mysql.rdbms.mysql.datatype.bigint']    = 'bigint';
-        self::$datatypes['com.mysql.rdbms.mysql.datatype.year']      = 'smallint';
-        self::$datatypes['com.mysql.rdbms.mysql.datatype.timestamp'] = 'datetime';
-
-        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int1']      = 'tinyint';
-        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int2']      = 'smallint';
-        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int3']      = 'mediumint';
-        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int4']      = 'integer';
-        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int8']      = 'bigint';
-        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.integer']   = 'integer';
-        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.middleint'] = 'mediumint';
-    }
 
     public static function getType($key, \MwbExporter\Core\Model\Column $column)
     {
-        self::setUp();
-
         $return = '"' . (isset(self::$datatypes[$key]) ? self::$datatypes[$key] : 'unknown') . '"';
         $config = $column->getConfig();
         if (   isset($config['scale'])
@@ -59,7 +39,7 @@ class DatatypeConverter extends \MwbExporter\Core\DatatypeConverter
 
             $return = $return . ',scale=' . $config['scale'] . ',precision=' . $config['precision'];
         }
-        
+
         if( isset($config['length']) && $config['length'] != -1 && self::$datatypes[$key] == 'string'){
             $return = $return . ',length=' . $config['length'];
         }
@@ -76,7 +56,7 @@ class DatatypeConverter extends \MwbExporter\Core\DatatypeConverter
             $return .= "\n";
             $return .= "      values: " . str_replace(array('(',')'), array('[',']'), $config['datatypeExplicitParams']);
         }
-        
+
         return $return;
     }
 }
