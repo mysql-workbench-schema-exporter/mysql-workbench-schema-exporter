@@ -25,7 +25,7 @@
 
 namespace MwbExporter\Core;
 
-abstract class DatatypeConverter implements IDatatypeConverter
+interface IDatatypeConverter
 {
-    protected static $datatypes = array();
+    public static function setUp();
 }
