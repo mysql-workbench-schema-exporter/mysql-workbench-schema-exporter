@@ -33,7 +33,7 @@ class ZipFileExporter
 
     protected $savePath         = null;
     protected $availableFormats = array('yml' => 'yml', 'php' => 'php', 'yaml' => 'yml');
-    protected $saveFormat       = 'yml';
+    protected $saveFormat       = 'php';
 
     protected $config           = null;
 
@@ -54,7 +54,7 @@ class ZipFileExporter
         }
     }
 
-    public function setSaveFormat($format = 'yml')
+    public function setSaveFormat($format = 'php')
     {
         if(array_key_exists($format, $this->availableFormats)){
             $this->saveFormat = $this->availableFormats[$format];
