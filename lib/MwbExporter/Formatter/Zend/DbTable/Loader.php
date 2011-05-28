@@ -27,18 +27,20 @@ namespace MwbExporter\Formatter\Zend\DbTable;
 
 class Loader implements \MwbExporter\Core\IFormatter
 {
+    protected $_defaultZendConfig = array(
+            'tablePrefix'           => 'Application_Model_DbTable_',
+            'parentTable'           => 'Zend_Db_Table_Abstract',
+            'generateGetterSetter'  => false,
+            'indentation'           => 4,
+            'filename'              => 'DbTable/%schema%/%entity%.%extension%',
+        );
+    
     /**
      *
      * @param array $setup 
      */
     public function __construct(array $setup=array()){
-        $defaultConfig = array(
-            'tablePrefix'     => 'Application_Model_DbTable_',
-            'parentTable'           => 'Zend_Db_Table_Abstract',
-            'generateGetterSetter'  => false,
-        );
-        
-        $setup = array_merge($defaultConfig, $setup);
+        $setup = array_merge($this->_defaultZendConfig, $setup);
         
         \MwbExporter\Core\Registry::set('config', $setup);
     }

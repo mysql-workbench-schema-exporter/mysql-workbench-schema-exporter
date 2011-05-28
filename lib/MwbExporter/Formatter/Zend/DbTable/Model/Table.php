@@ -69,13 +69,20 @@ class Table extends \MwbExporter\Core\Model\Table
         $return[] = '/**';
         $return[] = ' * ';
         $return[] = ' */';
-        $return[] = 'class ' . $this->tablePrefix . $this->getModelName() . ' extends ' . $this->parentTable;
+        
+        /* FIXME: Table name is one time in singular form, one time in plural form. 
+         *        All table occurence need to be at the original form.
+         * 
+         *        $this->getModelName() return singular form with correct camel case
+         *        $this->getRawTableName() return original form with no camel case
+         */
+        $return[] = 'class ' . $this->tablePrefix . $this->getSchemaName() .'_'. $this->getModelName() . ' extends ' . $this->parentTable;
         $return[] = '{';
-        $return[] = '    /* @var string $_shema */';
-        $return[] = '    protected $_shema           = \''. $this->getSchemaName() .'\';';
+        $return[] = $this->indentation(1) .'/* @var string $_shema */';
+        $return[] = $this->indentation(1) .'protected $_shema           = \''. $this->getSchemaName() .'\';';
         $return[] = '';
-        $return[] = '    /* @var string $_name */';
-        $return[] = '    protected $_name            = \''. $this->getRawTableName() .'\';';
+        $return[] = $this->indentation(1) .'/* @var string $_name */';
+        $return[] = $this->indentation(1) .'protected $_name            = \''. $this->getRawTableName() .'\';';
         $return[] = '';
         
         $return[] = $this->displayDependances();
@@ -118,9 +125,10 @@ class Table extends \MwbExporter\Core\Model\Table
 //        var_dump($dependentTables);
         
         
-        $return[] = '    /* @var array $_dependentTables */';
-        $return[] = '    protected $_dependentTables = array();';
+        $return[] = $this->indentation(1) .'/* @var array $_dependentTables */';
+        $return[] = $this->indentation(1) .'protected $_dependentTables = array();';
         $return[] = '';
+        
         return implode("\n", $return);
     }
     
@@ -134,19 +142,18 @@ class Table extends \MwbExporter\Core\Model\Table
     {
         $return = array();
         
-        $return[] = '    /* @var array $_referenceMap */';
+        $return[] = $this->indentation(1) .'/* @var array $_referenceMap */';
         
         if (count($this->getForeignKeys()) > 0) {
-            $return[] = '    protected $_referenceMap    = array(';
+            $return[] = $this->indentation(1) .'protected $_referenceMap    = array(';
        
             foreach($this->getForeignKeys() as $foreignKey){
                 $return[] = $foreignKey->display();
-                $return[] = '            ),';
             }
 
-            $return[] = '        );';
+            $return[] = $this->indentation(2) .');';
         } else {
-            $return[] = '    protected $_referenceMap    = array();';
+            $return[] = $this->indentation(1) .'protected $_referenceMap    = array();';
         }
         
         $return[] = '';

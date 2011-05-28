@@ -81,11 +81,11 @@ class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
     {
         $return = array();
 
-        $return[] = '            \''. $this->getReferencedTable()->getRawTableName() .'\' => array(';
-        $return[] = '               \'columns\'       => \''. $this->foreign->getColumnName() .'\',';
-        $return[] = '               \'refTableClass\' => \''. $this->getReferencedTable()->getRawTableName() .'\',';
-        $return[] = '               \'refColumns\'    => \''. $this->local->getColumnName() .'\',';
-        $this->getReferencedTable()->getRawTableName() .'>'. $this->getOwningTable()->getRawTableName();
+        $return[] = $this->indentation(3) .'\''. $this->getReferencedTable()->getRawTableName() .'\' => array(';
+        $return[] = $this->indentation(4) .'\'columns\'       => \''. $this->foreign->getColumnName() .'\',';
+        $return[] = $this->indentation(4) .'\'refTableClass\' => \''. $this->getReferencedTable()->getRawTableName() .'\',';
+        $return[] = $this->indentation(4) .'\'refColumns\'    => \''. $this->local->getColumnName() .'\',';
+        $return[] = $this->indentation(3) .'),';
 
         
         return implode("\n", $return);
