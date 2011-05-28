@@ -55,6 +55,11 @@ Option list for doctrine 2
   * bundleNamespace
   * entityNamespace
 
+Option list for Zend DbTable
+--------------------------
+  * tablePrefix 
+  * parentTable 
+  * indentation
 
 Requirements
 ------------
