@@ -66,7 +66,7 @@ class Document extends Base
         return $this->physicalModel->display();
     }
     
-    public function zipExport($path = null, $format = 'yml')
+    public function zipExport($path = null, $format = 'php')
     {
         if($path === null){
             throw new Exception('missing path for zip export');
