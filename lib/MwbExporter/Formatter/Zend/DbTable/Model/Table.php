@@ -138,20 +138,10 @@ class Table extends \MwbExporter\Core\Model\Table
         
         if (count($this->getForeignKeys()) > 0) {
             $return[] = '    protected $_referenceMap    = array(';
-
-            $foreignKeys = $this->getForeignKeys();
-            
-            $lastKey = end($foreignKeys);
-            reset($foreignKeys);
-            
-            foreach($foreignKeys as $foreignKey){
+       
+            foreach($this->getForeignKeys() as $foreignKey){
                 $return[] = $foreignKey->display();
-                
-                if ($foreignKey != $lastKey) {
-                    $return[] = '            ),';
-                } else {
-                    $return[] = '            )';
-                }
+                $return[] = '            ),';
             }
 
             $return[] = '        );';
