@@ -118,7 +118,7 @@ class Table extends \MwbExporter\Core\Model\Table
 //        var_dump($dependentTables);
         
         
-        $return[] = '    /* @var array $_dependentTables ';
+        $return[] = '    /* @var array $_dependentTables */';
         $return[] = '    protected $_dependentTables = array();';
         $return[] = '';
         return implode("\n", $return);
@@ -134,7 +134,7 @@ class Table extends \MwbExporter\Core\Model\Table
     {
         $return = array();
         
-        $return[] = '    /* @var array $_referenceMap';
+        $return[] = '    /* @var array $_referenceMap */';
         
         if (count($this->getForeignKeys()) > 0) {
             $return[] = '    protected $_referenceMap    = array(';
