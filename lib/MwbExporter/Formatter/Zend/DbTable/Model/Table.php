@@ -78,8 +78,8 @@ class Table extends \MwbExporter\Core\Model\Table
          */
         $return[] = 'class ' . $this->tablePrefix . $this->getSchemaName() .'_'. $this->getModelName() . ' extends ' . $this->parentTable;
         $return[] = '{';
-        $return[] = $this->indentation(1) .'/* @var string $_shema */';
-        $return[] = $this->indentation(1) .'protected $_shema           = \''. $this->getSchemaName() .'\';';
+        $return[] = $this->indentation(1) .'/* @var string $_schema */';
+        $return[] = $this->indentation(1) .'protected $_schema           = \''. $this->getSchemaName() .'\';';
         $return[] = '';
         $return[] = $this->indentation(1) .'/* @var string $_name */';
         $return[] = $this->indentation(1) .'protected $_name            = \''. $this->getRawTableName() .'\';';
