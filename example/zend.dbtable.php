@@ -37,7 +37,7 @@ $classLoader->setIncludePath('../lib');
 $classLoader->register();
 
 // show a simple text box with the output
-echo '<pre cols="80" rows="50">';
+echo '<textarea cols="100" rows="50">';
 
     $setup = array();
 
@@ -48,13 +48,13 @@ echo '<pre cols="80" rows="50">';
     $mwb = new \MwbExporter\Core\Workbench\Document('data/test.mwb', $formatter);
     
     // show the export output of the mwb file
-    echo htmlentities($mwb->display());
+    echo $mwb->display();
  
-echo "</pre>";
+echo "</textarea>";
 
 // save as zip file in current directory and use .php as file endings
 echo "<br><br>";
-echo $mwb->zipExport(__DIR__ .'/export', 'php');
+echo $mwb->zipExport(__DIR__, 'php');
 
 // show some information about used memory
 echo "<br><br>";
