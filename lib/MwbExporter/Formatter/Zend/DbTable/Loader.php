@@ -28,11 +28,26 @@ namespace MwbExporter\Formatter\Zend\DbTable;
 class Loader implements \MwbExporter\Core\IFormatter
 {
     protected $_defaultZendConfig = array(
+            /* */
             'tablePrefix'               => 'Application_Model_DbTable_',
+        
+            /* If you want to use your personnal Zend_Db_Table_Abstract,
+             * you need to specifie here his name
+             */
             'parentTable'               => 'Zend_Db_Table_Abstract',
+        
+            /* If true, the script will generate the $_dependentTables. 
+             * Before active this option please read: 
+             * http://framework.zend.com/manual/en/zend.db.table.relationships.html#zend.db.table.relationships.cascading */
             'generateDRI'               => false,
+        
+            /* */
             'generateGetterSetter'      => false,
+        
+            /* */
             'indentation'               => 4,
+        
+            /* */
             'filename'                  => 'DbTable/%schema%/%entity%.%extension%',
         );
     

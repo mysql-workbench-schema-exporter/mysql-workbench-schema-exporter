@@ -72,7 +72,7 @@ class Table extends \MwbExporter\Core\Model\Table
         $return[] = ' * ';
         $return[] = ' */';
         
-        /* FIXME: Table name is one time in singular form, one time in plural form. 
+        /* FIXME: [Zend] Table name is one time in singular form, one time in plural form. 
          *        All table occurence need to be at the original form.
          * 
          *        $this->getModelName() return singular form with correct camel case
@@ -122,7 +122,7 @@ class Table extends \MwbExporter\Core\Model\Table
      */
     protected function displayDependances()
     {
-        //TODO: Find a way to print dependance without change the core.
+        //TODO: [Zend] Find a way to print dependance without change the core.
         $return = array();
         
 //        $dependentTables = $this->getRelationToTable('users');
