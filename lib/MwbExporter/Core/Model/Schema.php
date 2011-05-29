@@ -51,7 +51,7 @@ abstract class Schema extends Base
     {
         $return = array();
         $return[] = $this->tables->display();
-        //$return[] = $this->views->display();
+        $return[] = $this->views->display();
 
         return implode("\n", $return);
     }
