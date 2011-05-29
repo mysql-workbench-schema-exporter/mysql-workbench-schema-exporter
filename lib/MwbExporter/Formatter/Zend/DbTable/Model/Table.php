@@ -62,6 +62,8 @@ class Table extends \MwbExporter\Core\Model\Table
      */
     public function display()
     {   
+        $config = \MwbExporter\Core\Registry::get('config');
+        
         $return = array();
 
         $return[] = '<?php';
@@ -85,7 +87,11 @@ class Table extends \MwbExporter\Core\Model\Table
         $return[] = $this->indentation(1) .'protected $_name            = \''. $this->getRawTableName() .'\';';
         $return[] = '';
         
-        $return[] = $this->displayDependances();
+        
+        if (true === $config['generateDRI']) {
+            $return[] = $this->displayDependances();
+        }
+        
         $return[] = $this->displayReferences();
         
         $return[] = '';
@@ -96,7 +102,7 @@ class Table extends \MwbExporter\Core\Model\Table
         
         return implode("\n", $return);
     }
-        
+    
     
     /**
      *

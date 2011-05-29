@@ -28,11 +28,12 @@ namespace MwbExporter\Formatter\Zend\DbTable;
 class Loader implements \MwbExporter\Core\IFormatter
 {
     protected $_defaultZendConfig = array(
-            'tablePrefix'           => 'Application_Model_DbTable_',
-            'parentTable'           => 'Zend_Db_Table_Abstract',
-            'generateGetterSetter'  => false,
-            'indentation'           => 4,
-            'filename'              => 'DbTable/%schema%/%entity%.%extension%',
+            'tablePrefix'               => 'Application_Model_DbTable_',
+            'parentTable'               => 'Zend_Db_Table_Abstract',
+            'generateDRI'               => false,
+            'generateGetterSetter'      => false,
+            'indentation'               => 4,
+            'filename'                  => 'DbTable/%schema%/%entity%.%extension%',
         );
     
     /**
