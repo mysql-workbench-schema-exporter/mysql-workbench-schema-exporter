@@ -131,6 +131,8 @@ class Table extends \MwbExporter\Core\Model\Table
 //        var_dump($dependentTables);
         
         
+        $return[] = $this->indentation(1) .'/* Note: this feature isn\'t implement yet */';
+        
         $return[] = $this->indentation(1) .'/* @var array $_dependentTables */';
         $return[] = $this->indentation(1) .'protected $_dependentTables = array();';
         $return[] = '';
