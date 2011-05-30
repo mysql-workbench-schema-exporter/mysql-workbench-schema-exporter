@@ -78,6 +78,13 @@ class Table extends \MwbExporter\Core\Model\Table
 
         $return[] = sprintf('namespace %s;', $namespace);
         $return[] = '';
+
+        // Dirty fix, only in one case we need a use statement
+        if($this->ormPrefix == '@ORM\\'){
+            $return[] = 'use Doctrine\ORM\Mapping as ORM;';
+            $return[] = '';
+        }
+
         $return[] = '/**';
 
         $entity = ' * ' . $this->ormPrefix . 'Entity';
