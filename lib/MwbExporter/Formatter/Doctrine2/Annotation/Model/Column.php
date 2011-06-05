@@ -43,19 +43,19 @@ class Column extends \MwbExporter\Core\Model\Column
     public function display()
     {
         $return = array();
+        
+        $config = \MwbExporter\Core\Registry::get('config');
+        
+        /**
+         * if needed, use a prefix (like @ORM\ or @orm:
+         * for symfony2
+         * @ by default
+         */
+        $this->ormPrefix = '@' . ((isset($config['useAnnotationPrefix']) && $config['useAnnotationPrefix']) ? $config['useAnnotationPrefix'] : '');
 
         // do not include columns that reflect references
         if(is_null($this->local))
         {
-            $config = \MwbExporter\Core\Registry::get('config');
-
-            /**
-             * if needed, use a prefix (like @ORM\ or @orm:
-             * for symfony2
-             * @ by default
-             */
-            $this->ormPrefix = '@' . ((isset($config['useAnnotationPrefix']) && $config['useAnnotationPrefix']) ? $config['useAnnotationPrefix'] : '');
-
             // generate private $<column> class vars
             $return[] = $this->indentation() . '/** ';
 
