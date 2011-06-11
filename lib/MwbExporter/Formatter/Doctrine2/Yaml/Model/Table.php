@@ -51,6 +51,14 @@ class Table extends \MwbExporter\Core\Model\Table
             (isset($config['entityNamespace']) && $config['entityNamespace']) ? $config['entityNamespace'] : 'Entity',
             $this->getModelName()
         );
+        
+        /**
+         * formatting repository's Namespace
+         */
+		$repositoryNamespace = '';
+        if(isset($config['repositoryNamespace']) && $config['repositoryNamespace']){
+        	$repositoryNamespace = $config['repositoryNamespace'] . '\\';
+        }
 
         $return[] = $this->indentation() . 'type: entity';
 
@@ -58,7 +66,7 @@ class Table extends \MwbExporter\Core\Model\Table
          * Adding the repository class if necessary
          */
         if(isset($config['useAutomaticRepository']) && $config['useAutomaticRepository']){
-            $return[] = $this->indentation() . 'repositoryClass: ' . $this->getModelName() . 'Repository';
+            $return[] = $this->indentation() . 'repositoryClass: '.$repositoryNamespace . $this->getModelName() . 'Repository';
         }
 
         // check if schema name has to be included

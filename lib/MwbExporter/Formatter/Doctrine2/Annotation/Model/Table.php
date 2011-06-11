@@ -66,6 +66,7 @@ class Table extends \MwbExporter\Core\Model\Table
         $return[] = '<?php';
         $return[] = '';
         $namespace = '';
+        $repositoryNamespace = '';
         if(isset($config['bundleNamespace']) && $config['bundleNamespace']){
             $namespace = $config['bundleNamespace'] . '\\';
         }
@@ -74,6 +75,10 @@ class Table extends \MwbExporter\Core\Model\Table
             $namespace .= $config['entityNamespace'];
         } else {
             $namespace .= 'Entity';
+        }
+        
+    	if(isset($config['repositoryNamespace']) && $config['repositoryNamespace']){
+            $repositoryNamespace = $config['repositoryNamespace'] . '\\';
         }
 
         $return[] = sprintf('namespace %s;', $namespace);
@@ -89,7 +94,7 @@ class Table extends \MwbExporter\Core\Model\Table
 
         $entity = ' * ' . $this->ormPrefix . 'Entity';
         if(isset($config['useAutomaticRepository']) && $config['useAutomaticRepository']){
-            $entity .= '(repositoryClass="Entity\\' . $this->getModelName() . 'Repository")';
+            $entity .= '(repositoryClass="' . $repositoryNamespace . $this->getModelName() . 'Repository")';
         }
         $return[] = $entity;
 

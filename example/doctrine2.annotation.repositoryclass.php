@@ -41,6 +41,7 @@ echo '<textarea cols="100" rows="50">';
 
     $setup = array(
         'useAutomaticRepository'        => true,
+    	'repositoryNamespace'			=> 'Repo\Namespace'
     );
 
     // create a formatter
