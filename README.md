@@ -54,6 +54,7 @@ Option list for doctrine 2
   * extendTableNameWithSchemaName
   * bundleNamespace
   * entityNamespace
+  * repositoryNamespace
 
 Option list for Zend DbTable
 --------------------------

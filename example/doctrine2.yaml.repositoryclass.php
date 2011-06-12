@@ -42,7 +42,7 @@ echo '<textarea cols="100" rows="50">';
     $setup = array(
         'extendTableNameWithSchemaName' => true,
         'useAutomaticRepository'        => true,
-    	'repositoryNamespace'			=> 'Repo\Namespace'
+        'repositoryNamespace'           => 'Repo\Namespace'
     );
 
     // create a formatter

@@ -55,9 +55,9 @@ class Table extends \MwbExporter\Core\Model\Table
         /**
          * formatting repository's Namespace
          */
-		$repositoryNamespace = '';
+        $repositoryNamespace = '';
         if(isset($config['repositoryNamespace']) && $config['repositoryNamespace']){
-        	$repositoryNamespace = $config['repositoryNamespace'] . '\\';
+            $repositoryNamespace = $config['repositoryNamespace'] . '\\';
         }
 
         $return[] = $this->indentation() . 'type: entity';

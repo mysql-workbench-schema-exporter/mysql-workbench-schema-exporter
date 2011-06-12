@@ -77,7 +77,7 @@ class Table extends \MwbExporter\Core\Model\Table
             $namespace .= 'Entity';
         }
         
-    	if(isset($config['repositoryNamespace']) && $config['repositoryNamespace']){
+        if(isset($config['repositoryNamespace']) && $config['repositoryNamespace']){
             $repositoryNamespace = $config['repositoryNamespace'] . '\\';
         }
 
