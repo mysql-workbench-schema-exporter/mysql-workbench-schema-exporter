@@ -93,4 +93,7 @@ Example
 
     // show the output
     echo $mwb->display();
+    
+    // save as zip file in current directory and use .php as file endings
+    echo $mwb->zipExport(__DIR__, 'php');
     ?>
