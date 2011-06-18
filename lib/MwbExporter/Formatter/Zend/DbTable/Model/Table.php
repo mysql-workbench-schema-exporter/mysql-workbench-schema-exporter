@@ -89,7 +89,7 @@ class Table extends \MwbExporter\Core\Model\Table
         
         
         if (true === $config['generateDRI']) {
-            $return[] = $this->displayDependances();
+            $return[] = $this->displayDependencies();
         }
         
         $return[] = $this->displayReferences();
@@ -120,7 +120,7 @@ class Table extends \MwbExporter\Core\Model\Table
      *
      * @return string 
      */
-    protected function displayDependances()
+    protected function displayDependencies()
     {
         //TODO: [Zend] Find a way to print dependance without change the core.
         $return = array();
