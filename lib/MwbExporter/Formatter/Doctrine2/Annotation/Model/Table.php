@@ -150,17 +150,26 @@ class Table extends \MwbExporter\Core\Model\Table
 
     protected function displayManyToMany()
     {
-        // @TODO D2A ManyToMany relation
+        // @TODO D2A ManyToMany relation joinColumns and inverseColumns
+        // referencing wrong column names
         $return = array();
 
         foreach($this->manyToManyRelations as $relation){
-            $return[] = $this->indentation() . '/**';
-            $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToMany(targetEntity="' . $relation['refTable']->getModelName() . '")';
-            $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'JoinTable(name="' . $relation['reference']->getOwningTable()->getRawTableName() . '",';
-            $return[] = $this->indentation() . ' *      joinColumns={' . $this->ormPrefix . 'JoinColumn(name="' . $relation['reference']->foreign->getColumnName() . '", referencedColumnName="' . $relation['reference']->local->getColumnName() . '")},';
-            $return[] = $this->indentation() . ' *      inverseJoinColumns={' . $this->ormPrefix . 'JoinColumn(name="' . $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->foreign->getColumnName() . '", referencedColumnName="id")}';
-            $return[] = $this->indentation() . ' *      )';
-            $return[] = $this->indentation() . ' */';
+            // if relation is not mapped yet define relation
+            // otherwise use "mappedBy" feature
+            if($relation['reference']->local->getColumnName() != $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->local->getColumnName()){
+                $return[] = $this->indentation() . '/**';
+                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToMany(targetEntity="' . $relation['refTable']->getModelName() . '")';
+                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'JoinTable(name="' . $relation['reference']->getOwningTable()->getRawTableName() . '",';
+                $return[] = $this->indentation() . ' *      joinColumns={'        . $this->ormPrefix . 'JoinColumn(name="' . $relation['reference']->foreign->getColumnName() . '", referencedColumnName="' . $relation['reference']->local->getColumnName() . '")},';
+                $return[] = $this->indentation() . ' *      inverseJoinColumns={' . $this->ormPrefix . 'JoinColumn(name="' . $relation['reference']->getOwningTable()    ->getRelationToTable($relation['refTable']->getRawTableName())->foreign->getColumnName() . '", referencedColumnName="' . $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->local->getColumnName() . '")}';
+                $return[] = $this->indentation() . ' *      )';
+                $return[] = $this->indentation() . ' */';
+            } else {
+                $return[] = $this->indentation() . '/**';
+                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToMany(targetEntity="' . $relation['refTable']->getModelName() . '", mappedBy="' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($this->getModelName())) . '")';
+                $return[] = $this->indentation() . ' */';
+            }
             $return[] = $this->indentation() . 'private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
         }
         $return[] = '';

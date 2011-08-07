@@ -46,26 +46,53 @@ abstract class Base
         $this->init();
     }
 
+    /**
+     * Return the internal ID of the MySQL Workbench object
+     * 
+     * @return string
+     */
     public function getId()
     {
         return $this->id;
     }
 
+    /**
+     * Returns the attributes of the current MySQL Workbench object
+     * 
+     * @return SimpleXmlElement
+     */
     public function getAttributes()
     {
         return $this->attributes;
     }
 
+    /**
+     * Returns current MySQL Workbench object
+     * 
+     * @return SimpleXmlElement
+     */
     public function getData()
     {
         return $this->data;
     }
 
+    /**
+     * Returns the comment of the current MySQL Workbench object
+     * 
+     * @return string
+     */
     public function getComment()
     {
         return isset($this->config['comment']) ? trim($this->config['comment']) : '';
     }
 
+    /**
+     * Filters given comment for embedded code by a given keyword
+     * 
+     * @param string $needle_raw
+     * @param string $comment
+     * @return string
+     */
     protected function parseComment($needle_raw, $comment=null)
     {
         if($comment === null){
@@ -79,11 +106,22 @@ abstract class Base
         return isset($matches[2]) ? $matches[2] : false;
     }
 
+    /**
+     * Returns XML of the current MySQL Workbench object
+     * 
+     * @return string
+     */
     public function debug()
     {
         return $this->data->asXML();
     }
 
+    /**
+     * Returns spaces for Yaml by a given indentation level
+     * 
+     * @param int $level
+     * @return string
+     */
     protected function indentation($level = 1)
     {
         $config = \MwbExporter\Core\Registry::get('config');
@@ -95,11 +133,22 @@ abstract class Base
         return str_repeat(' ', $indentation * $level);
     }
 
+    /**
+     * Returns the parent object
+     * 
+     * @return object
+     */
     public function getParent()
     {
         return $this->parent;
     }
 
+    /**
+     * Returns object by MySQL Workbench object ID
+     * 
+     * @param string $id
+     * @return object
+     */
     protected function getElementById($id)
     {
         return \MwbExporter\Core\Registry::get($id);
