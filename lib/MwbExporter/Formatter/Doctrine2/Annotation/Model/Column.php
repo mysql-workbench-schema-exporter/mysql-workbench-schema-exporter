@@ -94,7 +94,7 @@ class Column extends \MwbExporter\Core\Model\Column
         if(is_array($this->foreigns)){
             foreach($this->foreigns as $foreign){
                 $return[] = $this->indentation() . '/**';
-                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'OneToMany(targetEntity="' . $foreign->getOwningTable()->getModelName() . '", mappedBy="' . $foreign->getReferencedTable()->getModelName() . '")';
+                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'OneToMany(targetEntity="' . $foreign->getOwningTable()->getModelName() . '", mappedBy="' . lcfirst($foreign->getReferencedTable()->getModelName()) . '")';
                 $return[] = $this->indentation() . ' */';
                 $return[] = $this->indentation() . 'private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
                 $return[] = '';
@@ -104,7 +104,7 @@ class Column extends \MwbExporter\Core\Model\Column
         // many to references
         if(!is_null($this->local)){
             $return[] = $this->indentation() . '/**';
-            $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToOne(targetEntity="' . $this->local->getReferencedTable()->getModelName() . '", inversedBy="' . $this->local->getOwningTable()->getModelName() . '")';
+            $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToOne(targetEntity="' . $this->local->getReferencedTable()->getModelName() . '", inversedBy="' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($this->local->getOwningTable()->getModelName())) . '")';
             $return[] = $this->indentation() . ' */';
             $return[] = $this->indentation() . 'private $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
             $return[] = '';
