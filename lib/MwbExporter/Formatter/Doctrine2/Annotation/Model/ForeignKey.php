@@ -45,13 +45,14 @@ class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
         $local->markAsForeignReference($this);
         $foreign->markAsLocalReference($this);
 
-        // many to many
+        // many to many -> assignment in if-clause is intended
         if($fk = $this->getOwningTable()->getForeignKeys()){
             // only two or more foreign keys implicate an m2m relation
             // of the current table
             if(count($fk) > 1){
                 foreach($fk as $foreignKey1){
                     foreach($fk as $foreignKey2){
+                        // avoid circling m2m relationships
                         if($foreignKey1->getReferencedTable()->getId() != $foreignKey2->getReferencedTable()->getId()){
                             $foreignKey1->getReferencedTable()->setManyToManyRelation(
                                 array(
