@@ -74,6 +74,13 @@ Links
   * [Symfony Project](http://www.symfony-project.org/)
   * [MySQL Workbench Doctrine Plugin - google code project](http://code.google.com/p/mysql-workbench-doctrine-plugin/)
 
+Test-Database
+-------------
+
+[Sakila DB *.mwb](http://downloads.mysql.com/docs/sakila-db.zip) 
+[Sakila DB docs](http://dev.mysql.com/doc/sakila/en/sakila.html)
+
+
 Example
 -------
 

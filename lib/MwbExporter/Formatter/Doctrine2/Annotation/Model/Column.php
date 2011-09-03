@@ -96,6 +96,7 @@ class Column extends \MwbExporter\Core\Model\Column
                 $return[] = $this->indentation() . '/**';
                 $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'OneToMany(targetEntity="' . $foreign->getOwningTable()->getModelName() . '", mappedBy="' . lcfirst($foreign->getReferencedTable()->getModelName()) . '")';
                 $return[] = $this->indentation() . ' */';
+                //$return[] = $this->indentation() . 'private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize(preg_replace('~\_id$~', '', $this->config['name']))) . ';';
                 $return[] = $this->indentation() . 'private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
                 $return[] = '';
             }
@@ -106,6 +107,7 @@ class Column extends \MwbExporter\Core\Model\Column
             $return[] = $this->indentation() . '/**';
             $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToOne(targetEntity="' . $this->local->getReferencedTable()->getModelName() . '", inversedBy="' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($this->local->getOwningTable()->getModelName())) . '")';
             $return[] = $this->indentation() . ' */';
+            //$return[] = $this->indentation() . 'private $' . preg_replace('~\_id$~', '', $this->config['name']) . ';';
             $return[] = $this->indentation() . 'private $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
             $return[] = '';
         }
