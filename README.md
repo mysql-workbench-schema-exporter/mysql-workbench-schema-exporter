@@ -76,10 +76,8 @@ Links
 
 Test-Database
 -------------
-
-[Sakila DB *.mwb](http://downloads.mysql.com/docs/sakila-db.zip) 
-[Sakila DB docs](http://dev.mysql.com/doc/sakila/en/sakila.html)
-
+  * [Sakila DB *.mwb](http://downloads.mysql.com/docs/sakila-db.zip)
+  * [Sakila DB docs](http://dev.mysql.com/doc/sakila/en/sakila.html)
 
 Example
 -------
