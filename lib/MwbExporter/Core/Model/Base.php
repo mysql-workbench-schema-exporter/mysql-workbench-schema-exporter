@@ -65,6 +65,17 @@ abstract class Base
     {
         return $this->attributes;
     }
+    
+    /**
+     * Returns an attribute by $key or null
+     * 
+     * @param String $key
+     * @return String
+     */
+    public function getAttribute($key=null)
+    {
+        return isset($this->config[$key]) ? $this->config[$key] : null;
+    }
 
     /**
      * Returns current MySQL Workbench object

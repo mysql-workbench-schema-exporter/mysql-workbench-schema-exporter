@@ -64,9 +64,6 @@ abstract class ForeignKey extends Base
             }
         }
         
-        //print_r($this->debug());
-        //die();
-        
         \MwbExporter\Core\Registry::set($this->id, $this);
     }
     
@@ -79,5 +76,4 @@ abstract class ForeignKey extends Base
     {
         return $this->owningTable;
     }
-
 }

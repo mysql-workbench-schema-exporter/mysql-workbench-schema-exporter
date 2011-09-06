@@ -93,8 +93,14 @@ class Column extends \MwbExporter\Core\Model\Column
         // one to many references
         if(is_array($this->foreigns)){
             foreach($this->foreigns as $foreign){
+                //check for OneToOne or OneToMany relationship
+                if(intval($foreign->getAttribute('many')) == 1){
+                    $relation = 'OneToMany';
+                } else {
+                    $relation = 'OneToOne';
+                }
                 $return[] = $this->indentation() . '/**';
-                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'OneToMany(targetEntity="' . $foreign->getOwningTable()->getModelName() . '", mappedBy="' . lcfirst($foreign->getReferencedTable()->getModelName()) . '")';
+                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . $relation . '(targetEntity="' . $foreign->getOwningTable()->getModelName() . '", mappedBy="' . lcfirst($foreign->getReferencedTable()->getModelName()) . '")';
                 $return[] = $this->indentation() . ' */';
                 //$return[] = $this->indentation() . 'private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize(preg_replace('~\_id$~', '', $this->config['name']))) . ';';
                 $return[] = $this->indentation() . 'private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
