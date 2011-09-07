@@ -94,28 +94,42 @@ class Column extends \MwbExporter\Core\Model\Column
         if(is_array($this->foreigns)){
             foreach($this->foreigns as $foreign){
                 //check for OneToOne or OneToMany relationship
-                if(intval($foreign->getAttribute('many')) == 1){
-                    $relation = 'OneToMany';
-                } else {
-                    $relation = 'OneToOne';
+                if(intval($foreign->getAttribute('many')) == 1){ // is OneToMany
+                    $return[] = $this->indentation() . '/**';
+                    $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'OneToMany(targetEntity="' . $foreign->getOwningTable()->getModelName() . '", mappedBy="' . lcfirst($foreign->getReferencedTable()->getModelName()) . '")';
+                    $return[] = $this->indentation() . ' */';
+                    //$return[] = $this->indentation() . 'private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize(preg_replace('~\_id$~', '', $this->config['name']))) . ';';
+                    $return[] = $this->indentation() . 'private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
+                    $return[] = '';
+                } else { // is OneToOne
+                    $return[] = $this->indentation() . '/**';
+                    $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'OneToOne(targetEntity="' . $foreign->getOwningTable()->getModelName() . '", mappedBy="' . lcfirst($foreign->getReferencedTable()->getModelName()) . '")';
+                    $return[] = $this->indentation() . ' */';
+                    //$return[] = $this->indentation() . 'private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize(preg_replace('~\_id$~', '', $this->config['name']))) . ';';
+                    $return[] = $this->indentation() . 'private $' . lcfirst($foreign->getOwningTable()->getModelName()) . ';';
+                    $return[] = '';
                 }
-                $return[] = $this->indentation() . '/**';
-                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . $relation . '(targetEntity="' . $foreign->getOwningTable()->getModelName() . '", mappedBy="' . lcfirst($foreign->getReferencedTable()->getModelName()) . '")';
-                $return[] = $this->indentation() . ' */';
-                //$return[] = $this->indentation() . 'private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize(preg_replace('~\_id$~', '', $this->config['name']))) . ';';
-                $return[] = $this->indentation() . 'private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
-                $return[] = '';
             }
         }
 
         // many to references
         if(!is_null($this->local)){
-            $return[] = $this->indentation() . '/**';
-            $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToOne(targetEntity="' . $this->local->getReferencedTable()->getModelName() . '", inversedBy="' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($this->local->getOwningTable()->getModelName())) . '")';
-            $return[] = $this->indentation() . ' */';
-            //$return[] = $this->indentation() . 'private $' . preg_replace('~\_id$~', '', $this->config['name']) . ';';
-            $return[] = $this->indentation() . 'private $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
-            $return[] = '';
+            //check for OneToOne or ManyToOne relationship
+            if(intval($this->local->getAttribute('many')) == 1){ // is ManyToOne
+                $return[] = $this->indentation() . '/**';
+                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToOne(targetEntity="' . $this->local->getReferencedTable()->getModelName() . '", inversedBy="' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($this->local->getOwningTable()->getModelName())) . '")';
+                $return[] = $this->indentation() . ' */';
+                //$return[] = $this->indentation() . 'private $' . preg_replace('~\_id$~', '', $this->config['name']) . ';';
+                $return[] = $this->indentation() . 'private $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
+                $return[] = '';
+            } else { // is OneToOne
+                $return[] = $this->indentation() . '/**';
+                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'OneToOne(targetEntity="' . $this->local->getReferencedTable()->getModelName() . '", inversedBy="' . lcfirst($this->local->getOwningTable()->getModelName()) . '")';
+                $return[] = $this->indentation() . ' */';
+                //$return[] = $this->indentation() . 'private $' . preg_replace('~\_id$~', '', $this->config['name']) . ';';
+                $return[] = $this->indentation() . 'private $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
+                $return[] = '';
+            }
         }
 
         /*
