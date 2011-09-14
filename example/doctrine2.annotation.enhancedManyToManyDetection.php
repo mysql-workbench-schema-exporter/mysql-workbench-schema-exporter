@@ -23,25 +23,46 @@
  *  THE SOFTWARE.
  */
 
-namespace MwbExporter\Core\Model;
+// show errors
+error_reporting(E_ALL);
 
-abstract class Columns extends Base
-{
-    protected $columns = array();
+// lets stop the time
+$start = microtime(true);
+
+
+// enable autoloading of classes
+require_once('../lib/MwbExporter/Core/SplClassLoader.php');
+$classLoader = new SplClassLoader();
+$classLoader->setIncludePath('../lib');
+$classLoader->register();
+
+// show a simple text box with the output
+echo '<textarea cols="100" rows="50">';
+
+    $setup = array(
+        'enhancedManyToManyDetection' => true,
+    );
+
+    // create a formatter
+    $formatter = new \MwbExporter\Formatter\Doctrine2\Annotation\Loader($setup);
     
-    public function __construct($data, $parent)
-    {
-        parent::__construct($data, $parent);
-       
-        foreach($this->data as $key => $node){
-            $this->columns[] = \MwbExporter\Core\Registry::get('formatter')->createColumn($node, $this);
-        }
-        
-        \MwbExporter\Core\Registry::set($this->id, $this);
-    }
+    // parse the mwb file
+    $mwb = new \MwbExporter\Core\Workbench\Document('data/test.mwb', $formatter);
+    
+    // show the export output of the mwb file
+    echo $mwb->display();
+ 
+echo "</textarea>";
 
-    public function countColumns()
-    {
-        return count($this->columns);
-    }
-}
+// save as zip file in current directory and use .php as file endings
+echo "<br><br>";
+echo $mwb->zipExport(__DIR__, 'php');
+
+// show some information about used memory
+echo "<br><br>";
+echo (memory_get_peak_usage(true) / 1024 / 1024) . " MB used";
+echo "<br>";
+
+// show the time needed to parse the mwb file
+$end = microtime(true);
+echo  sprintf('%0.3f', $end-$start) . " sec needed";

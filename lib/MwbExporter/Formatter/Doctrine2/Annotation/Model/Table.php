@@ -76,7 +76,7 @@ class Table extends \MwbExporter\Core\Model\Table
         } else {
             $namespace .= 'Entity';
         }
-        
+
         if(isset($config['repositoryNamespace']) && $config['repositoryNamespace']){
             $repositoryNamespace = $config['repositoryNamespace'] . '\\';
         }
@@ -134,6 +134,11 @@ class Table extends \MwbExporter\Core\Model\Table
         $return[] = $this->indentation() . '{';
         $return[] = $this->columns->displayArrayCollections();
         foreach($this->manyToManyRelations as $relation){
+
+            if($this->isEnhancedManyToManyRelationDetection($relation)){
+                continue;
+            }
+
             $return[] = $this->indentation(2) . '$this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ' = new ArrayCollection();';
         }
         $return[] = $this->indentation() . '}';
@@ -155,6 +160,11 @@ class Table extends \MwbExporter\Core\Model\Table
         $return = array();
 
         foreach($this->manyToManyRelations as $relation){
+
+            if($this->isEnhancedManyToManyRelationDetection($relation)){
+                continue;
+            }
+
             // if relation is not mapped yet define relation
             // otherwise use "mappedBy" feature
             if($relation['reference']->local->getColumnName() != $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->local->getColumnName()){
@@ -162,7 +172,7 @@ class Table extends \MwbExporter\Core\Model\Table
                 $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToMany(targetEntity="' . $relation['refTable']->getModelName() . '")';
                 $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'JoinTable(name="' . $relation['reference']->getOwningTable()->getRawTableName() . '",';
                 $return[] = $this->indentation() . ' *      joinColumns={'        . $this->ormPrefix . 'JoinColumn(name="' . $relation['reference']->foreign->getColumnName() . '", referencedColumnName="' . $relation['reference']->local->getColumnName() . '")},';
-                $return[] = $this->indentation() . ' *      inverseJoinColumns={' . $this->ormPrefix . 'JoinColumn(name="' . $relation['reference']->getOwningTable()    ->getRelationToTable($relation['refTable']->getRawTableName())->foreign->getColumnName() . '", referencedColumnName="' . $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->local->getColumnName() . '")}';
+                $return[] = $this->indentation() . ' *      inverseJoinColumns={' . $this->ormPrefix . 'JoinColumn(name="' . $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->foreign->getColumnName() . '", referencedColumnName="' . $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->local->getColumnName() . '")}';
                 $return[] = $this->indentation() . ' *      )';
                 $return[] = $this->indentation() . ' */';
             } else {
@@ -181,6 +191,11 @@ class Table extends \MwbExporter\Core\Model\Table
         $return = array();
 
         foreach($this->manyToManyRelations as $relation){
+
+            if($this->isEnhancedManyToManyRelationDetection($relation)){
+                continue;
+            }
+
             $return[] = $this->indentation() . 'public function add' . $relation['refTable']->getModelName() . '(' . $relation['refTable']->getModelName() . ' $' . lcfirst($relation['refTable']->getModelName()) . ')';
             $return[] = $this->indentation() . '{';
             $return[] = $this->indentation(2) . '$' . lcfirst($relation['refTable']->getModelName()) . '->add' . $this->getModelName() . '($this);';
@@ -195,5 +210,34 @@ class Table extends \MwbExporter\Core\Model\Table
         }
 
         return implode("\n", $return);
+    }
+
+    /**
+     *
+     * @param array $relation
+     * @return bool
+     */
+    protected function isEnhancedManyToManyRelationDetection($relation)
+    {
+        $config = \MwbExporter\Core\Registry::get('config');
+
+        $enhancedManyToManyDetection = false;
+
+        if(isset($config['enhancedManyToManyDetection']) && $config['enhancedManyToManyDetection']){
+            $enhancedManyToManyDetection = (bool) $config['enhancedManyToManyDetection'];
+        }
+
+        if($enhancedManyToManyDetection == false){
+            return false;
+        }
+
+        // ignore relation tables with more than two columns
+        // if enhancedManyToMany config is set true
+        // (it is most likely not an intended m2m relation)
+        if($relation['reference']->getOwningTable()->countColumns() > 2){
+            return true;
+        }
+
+        return false;
     }
 }
