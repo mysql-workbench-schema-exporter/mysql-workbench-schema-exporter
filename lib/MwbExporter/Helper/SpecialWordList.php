@@ -42,6 +42,7 @@ class SpecialWordList extends \MwbExporter\Core\Helper\SpecialWordList
         ,array('s' => 'profile', 'p' => 'profiles')
         ,array('s' => 'address', 'p' => 'addresses')
         ,array('s' => 'bureau',  'p' => 'bureaus')
+        ,array('s' => 'bonus',   'p' => 'bonuses')
     );
 
 }
