@@ -16,7 +16,7 @@ class DatatypeConverter extends \MwbExporter\Core\DatatypeConverter
             'com.mysql.rdbms.mysql.datatype.float'              => 'float',
             'com.mysql.rdbms.mysql.datatype.double'             => 'double',
             'com.mysql.rdbms.mysql.datatype.decimal'            => 'decimal',
-            'com.mysql.rdbms.mysql.datatype.char'               => 'char',
+            'com.mysql.rdbms.mysql.datatype.char'               => 'string',
             'com.mysql.rdbms.mysql.datatype.varchar'            => 'string',
             'com.mysql.rdbms.mysql.datatype.binary'             => 'binary',
             'com.mysql.rdbms.mysql.datatype.varbinary'          => 'varbinary',
@@ -62,22 +62,22 @@ class DatatypeConverter extends \MwbExporter\Core\DatatypeConverter
             //'com.mysql.rdbms.mysql.userdatatype.middleint'      => 'integer(3)',
             'com.mysql.rdbms.mysql.userdatatype.numeric'        => 'decimal',
             'com.mysql.rdbms.mysql.userdatatype.dec'            => 'decimal',
-            'com.mysql.rdbms.mysql.userdatatype.character'      => 'char'
+            'com.mysql.rdbms.mysql.userdatatype.character'      => 'string'
         );
-        self::$datatypes['com.mysql.rdbms.mysql.datatype.tinyint']   = 'tinyint';
+        self::$datatypes['com.mysql.rdbms.mysql.datatype.tinyint']   = 'integer';
         self::$datatypes['com.mysql.rdbms.mysql.datatype.smallint']  = 'smallint';
-        self::$datatypes['com.mysql.rdbms.mysql.datatype.mediumint'] = 'mediumint';
+        self::$datatypes['com.mysql.rdbms.mysql.datatype.mediumint'] = 'integer';
         self::$datatypes['com.mysql.rdbms.mysql.datatype.int']       = 'integer';
         self::$datatypes['com.mysql.rdbms.mysql.datatype.bigint']    = 'bigint';
         self::$datatypes['com.mysql.rdbms.mysql.datatype.year']      = 'smallint';
         self::$datatypes['com.mysql.rdbms.mysql.datatype.timestamp'] = 'datetime';
 
-        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int1']      = 'tinyint';
+        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int1']      = 'integer';
         self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int2']      = 'smallint';
-        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int3']      = 'mediumint';
+        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int3']      = 'integer';
         self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int4']      = 'integer';
         self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int8']      = 'bigint';
         self::$datatypes['com.mysql.rdbms.mysql.userdatatype.integer']   = 'integer';
-        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.middleint'] = 'mediumint';
+        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.middleint'] = 'integer';
     }
 }
