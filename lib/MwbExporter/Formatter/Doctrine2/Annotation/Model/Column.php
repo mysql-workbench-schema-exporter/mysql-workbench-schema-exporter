@@ -223,13 +223,23 @@ class Column extends \MwbExporter\Core\Model\Column
 
         // many to one references
         if(!is_null($this->local)){
-            $return[] = $this->indentation() . 'public function set' . $this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()) . '(' . $this->local->getReferencedTable()->getModelName() . ' $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ')';
-            $return[] = $this->indentation() . '{';
-            $return[] = $this->indentation(2) . '$' . lcfirst($this->local->getReferencedTable()->getModelName()) . '->add' . $this->columnNameBeautifier($this->local->getOwningTable()->getModelName()) . '($this);';
-            $return[] = $this->indentation(2) . '$this->' . lcfirst($this->local->getReferencedTable()->getModelName()) . ' = $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
-            $return[] = $this->indentation(2) . 'return $this; // fluent interface';
-            $return[] = $this->indentation() . '}';
-            $return[] = '';
+            if(intval($this->local->getAttribute('many')) == 1){ // is ManyToOne
+                $return[] = $this->indentation() . 'public function set' . $this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()) . '(' . $this->local->getReferencedTable()->getModelName() . ' $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ')';
+                $return[] = $this->indentation() . '{';
+                $return[] = $this->indentation(2) . '$' . lcfirst($this->local->getReferencedTable()->getModelName()) . '->add' . $this->columnNameBeautifier($this->local->getOwningTable()->getModelName()) . '($this);';
+                $return[] = $this->indentation(2) . '$this->' . lcfirst($this->local->getReferencedTable()->getModelName()) . ' = $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
+                $return[] = $this->indentation(2) . 'return $this; // fluent interface';
+                $return[] = $this->indentation() . '}';
+                $return[] = '';
+            } else { // OneToOne
+                $return[] = $this->indentation() . 'public function set' . $this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()) . '(' . $this->local->getReferencedTable()->getModelName() . ' $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ')';
+                $return[] = $this->indentation() . '{';
+                $return[] = $this->indentation(2) . '$' . lcfirst($this->local->getReferencedTable()->getModelName()) . '->set' . $this->columnNameBeautifier($this->local->getOwningTable()->getModelName()) . '($this);';
+                $return[] = $this->indentation(2) . '$this->' . lcfirst($this->local->getReferencedTable()->getModelName()) . ' = $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
+                $return[] = $this->indentation(2) . 'return $this; // fluent interface';
+                $return[] = $this->indentation() . '}';
+                $return[] = '';
+            }
 
             $return[] = $this->indentation() . 'public function get' . $this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()) . '()';
             $return[] = $this->indentation() . '{';
