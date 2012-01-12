@@ -37,7 +37,7 @@ class DatatypeConverter extends \MwbExporter\Formatter\Doctrine1\DatatypeConvert
             && isset($config['precision'])
             && $config['precision'] != -1 ){
 
-            $return = $return . '(' . $config['scale'] . ',' . $config['precision'] . ')';
+            $return = $return . '(' . $config['precision'] . ',' . $config['scale'] . ')';
         }
 
         if( isset($config['length']) && $config['length'] != -1 ){
