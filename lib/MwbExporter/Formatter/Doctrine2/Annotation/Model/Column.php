@@ -97,15 +97,15 @@ class Column extends \MwbExporter\Core\Model\Column
                 if(intval($foreign->getAttribute('many')) == 1){ // is OneToMany
                     $return[] = $this->indentation() . '/**';
                     $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'OneToMany(targetEntity="' . $foreign->getOwningTable()->getModelName() . '", mappedBy="' . lcfirst($foreign->getReferencedTable()->getModelName()) . '")';
+                    $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'JoinColumn(name="' . $foreign->foreign->getColumnName() . '", referencedColumnName="' . $foreign->local->getColumnName() . '")';
                     $return[] = $this->indentation() . ' */';
-                    //$return[] = $this->indentation() . 'private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize(preg_replace('~\_id$~', '', $this->config['name']))) . ';';
                     $return[] = $this->indentation() . 'private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
                     $return[] = '';
                 } else { // is OneToOne
                     $return[] = $this->indentation() . '/**';
                     $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'OneToOne(targetEntity="' . $foreign->getOwningTable()->getModelName() . '", mappedBy="' . lcfirst($foreign->getReferencedTable()->getModelName()) . '")';
+                    $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'JoinColumn(name="' . $foreign->foreign->getColumnName() . '", referencedColumnName="' . $foreign->local->getColumnName() . '")';
                     $return[] = $this->indentation() . ' */';
-                    //$return[] = $this->indentation() . 'private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize(preg_replace('~\_id$~', '', $this->config['name']))) . ';';
                     $return[] = $this->indentation() . 'private $' . lcfirst($foreign->getOwningTable()->getModelName()) . ';';
                     $return[] = '';
                 }
@@ -118,15 +118,15 @@ class Column extends \MwbExporter\Core\Model\Column
             if(intval($this->local->getAttribute('many')) == 1){ // is ManyToOne
                 $return[] = $this->indentation() . '/**';
                 $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToOne(targetEntity="' . $this->local->getReferencedTable()->getModelName() . '", inversedBy="' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($this->local->getOwningTable()->getModelName())) . '")';
+                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'JoinColumn(name="' . $this->local->foreign->getColumnName() . '", referencedColumnName="' . $this->local->local->getColumnName() . '")';
                 $return[] = $this->indentation() . ' */';
-                //$return[] = $this->indentation() . 'private $' . preg_replace('~\_id$~', '', $this->config['name']) . ';';
                 $return[] = $this->indentation() . 'private $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
                 $return[] = '';
             } else { // is OneToOne
                 $return[] = $this->indentation() . '/**';
                 $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'OneToOne(targetEntity="' . $this->local->getReferencedTable()->getModelName() . '", inversedBy="' . lcfirst($this->local->getOwningTable()->getModelName()) . '")';
+                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'JoinColumn(name="' . $this->local->foreign->getColumnName() . '", referencedColumnName="' . $this->local->local->getColumnName() . '")';
                 $return[] = $this->indentation() . ' */';
-                //$return[] = $this->indentation() . 'private $' . preg_replace('~\_id$~', '', $this->config['name']) . ';';
                 $return[] = $this->indentation() . 'private $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
                 $return[] = '';
             }
