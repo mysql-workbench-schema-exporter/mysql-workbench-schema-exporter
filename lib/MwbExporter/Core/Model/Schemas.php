@@ -28,18 +28,18 @@ namespace MwbExporter\Core\Model;
 abstract class Schemas extends Base
 {
     protected $schemas = array();
-    
+
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
-        
+
         foreach($this->data->xpath("value") as $key => $node){
             $this->schemas[] = \MwbExporter\Core\Registry::get('formatter')->createSchema($node, $this);
         }
-        
+
         \MwbExporter\Core\Registry::set($this->id, $this);
     }
-    
+
     public function display()
     {
         $return = array();
@@ -50,14 +50,12 @@ abstract class Schemas extends Base
 
         return implode("\n", $return);
     }
-    
-    public function zipExport(\MwbExporter\Core\Helper\ZipFileExporter $zip)
+
+    public function export(\MwbExporter\Core\Helper\FileExporter $exporter)
     {
         foreach($this->schemas as $schema){
-            $zip = $schema->zipExport($zip);
+            $schema->export($exporter);
         }
-        
-        return $zip;
     }
     
 }
