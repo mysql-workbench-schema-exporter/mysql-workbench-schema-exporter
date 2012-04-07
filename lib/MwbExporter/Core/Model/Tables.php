@@ -28,27 +28,27 @@ namespace MwbExporter\Core\Model;
 abstract class Tables extends Base
 {
     protected $tables = array();
-    
+
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
-        
+
         // collect tables
         foreach($this->data->xpath("value") as $key => $node){
             $tmp = \MwbExporter\Core\Registry::get('formatter')->createTable($node, $this);
-            
+
             if($tmp->isTranslationTable()){
                 // skip translation tables
                 continue;
             }
-            
+
             $this->tables[] = $tmp;
         }
-        
+
         usort($this->tables, function($a, $b) {
-           return strcmp($a->getModelName(), $b->getModelName()); 
+           return strcmp($a->getModelName(), $b->getModelName());
         });
-        
+
         /*
          * before you can check for foreign keys
          * you have to store at first all tables in the
@@ -58,10 +58,10 @@ abstract class Tables extends Base
             $table->checkForIndices();
             $table->checkForForeignKeys();
         }
-        
+
         \MwbExporter\Core\Registry::set($this->id, $this);
     }
-    
+
     public function display()
     {
         $return = array();
@@ -74,13 +74,11 @@ abstract class Tables extends Base
 
         return implode("\n", $return);
     }
-    
-    public function zipExport(\MwbExporter\Core\Helper\ZipFileExporter $zip)
+
+    public function export(\MwbExporter\Core\Helper\FileExporter $exporter)
     {
         foreach($this->tables as $table){
-            $zip->addTable($table);
+            $exporter->addTable($table);
         }
-        
-        return $zip;
     }
 }

@@ -25,24 +25,15 @@
 
 namespace MwbExporter\Core\Helper;
 
-class ZipFileExporter
+class ZipFileExporter extends FileExporter
 {
     protected $zip              = null;
     protected $fileName         = null;
     protected $filePath         = null;
 
-    protected $savePath         = null;
-    protected $availableFormats = array('yml' => 'yml', 'php' => 'php', 'yaml' => 'yml');
-    protected $saveFormat       = 'php';
-
-    protected $config           = null;
-
     public function __construct($savePath)
     {
-        $this->config = \MwbExporter\Core\Registry::get('config');
-
-        $this->savePath = realpath($savePath);
-
+        parent::__construct($savePath);
         $this->fileName = date('Y-m-d_h-i-s') . '_' . sprintf('%03d', mt_rand(1,999)) . '.zip';
         $this->filePath = $this->savePath . DIRECTORY_SEPARATOR . $this->fileName;
 
@@ -54,40 +45,9 @@ class ZipFileExporter
         }
     }
 
-    public function setSaveFormat($format = 'php')
-    {
-        if(array_key_exists($format, $this->availableFormats)){
-            $this->saveFormat = $this->availableFormats[$format];
-            return true;
-        }
-        return false;
-    }
-
     public function addTable(\MwbExporter\Core\Model\Table $table)
     {
-        $schemaName = $table->getSchemaName();
-        $tableName  = $table->getRawTableName();
-        if (isset($this->config['filename']) && $this->config['filename'])
-        {
-            $searched = array('%schema%', '%table%', '%entity%', '%extension%');
-            $replaced = array($schemaName, $tableName, $table->getModelName(), $this->saveFormat);
-            $fileName = str_replace(
-                $searched,
-                $replaced,
-                $this->config['filename']
-            );
-
-            if (false !== strpos($fileName, '%'))
-            {
-                throw new \Exception(sprintf('All filename variable where not converted. Perhaps a misstyped name (%s) ?', substr($fileName, strpos($fileName, '%'), strrpos($fileName, '%'))));
-            }
-        }
-        else
-        {
-            $fileName   = $schemaName . '.' . $tableName . '.' . $this->saveFormat;
-        }
-
-        $this->zip->addFromString($fileName, $table->display());
+        $this->zip->addFromString($this->getTableFileName($table), $table->display());
     }
 
     public function getFileName()

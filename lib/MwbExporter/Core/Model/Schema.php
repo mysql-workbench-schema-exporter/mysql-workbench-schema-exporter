@@ -30,7 +30,7 @@ abstract class Schema extends Base
     protected $tables = null;
     protected $views  = null;
     protected $name   = null;
-    
+
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
@@ -43,10 +43,10 @@ abstract class Schema extends Base
 
         $tmp = $this->data->xpath("value[@key='views']");
         $this->views  = \MwbExporter\Core\Registry::get('formatter')->createViews($tmp[0], $this);
-        
+
         \MwbExporter\Core\Registry::set($this->id, $this);
     }
-    
+
     public function display()
     {
         $return = array();
@@ -55,13 +55,12 @@ abstract class Schema extends Base
 
         return implode("\n", $return);
     }
-    
-    public function zipExport(\MwbExporter\Core\Helper\ZipFileExporter $zip)
+
+    public function export(\MwbExporter\Core\Helper\FileExporter $exporter)
     {
-        $zip = $this->tables->zipExport($zip);
-        return $zip;
+        $this->tables->export($exporter);
     }
-    
+
     public function getName()
     {
         return $this->name;

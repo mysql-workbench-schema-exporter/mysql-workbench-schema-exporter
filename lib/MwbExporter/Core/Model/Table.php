@@ -134,7 +134,9 @@ abstract class Table extends Base
         $tablename = $this->getRawTableName();
 
         // check if table name is plural --> convert to singular
-        if(\MwbExporter\Helper\Pluralizer::wordIsPlural($tablename)){
+        $config = \MwbExporter\Core\Registry::get('config');
+        $skip = isset($config['skipPluralNameChecking']) && $config['skipPluralNameChecking'] ? true : false;
+        if(!$skip && \MwbExporter\Helper\Pluralizer::wordIsPlural($tablename)){
             $tablename = \MwbExporter\Helper\Singularizer::singularize($tablename);
         }
 

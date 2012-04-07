@@ -28,7 +28,7 @@ namespace MwbExporter\Core\Model;
 abstract class Catalog extends Base
 {
     protected $schemas = null;
-    
+
     /**
      *
      * @param type $data
@@ -37,20 +37,20 @@ abstract class Catalog extends Base
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
-    
+
         $tmp = $this->data->xpath("value[@key='schemata']");
         $this->schemas = \MwbExporter\Core\Registry::get('formatter')->createSchemas($tmp[0], $this);
-        
+
         \MwbExporter\Core\Registry::set($this->id, $this);
     }
-    
+
     public function display()
     {
         return $this->schemas->display();
     }
-    
-    public function zipExport(\MwbExporter\Core\Helper\ZipFileExporter $zip)
+
+    public function export(\MwbExporter\Core\Helper\FileExporter $exporter)
     {
-        return $this->schemas->zipExport($zip);
+        return $this->schemas->export($exporter);
     }
 }

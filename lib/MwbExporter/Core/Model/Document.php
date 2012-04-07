@@ -29,11 +29,11 @@ class Document extends Base
 {
     protected $data = null;
     protected $attributes = null;
-    
+
     protected $id = null;
-    
+
     protected $physicalModel = null;
-    
+
     public function __construct($mwbFile, \MwbExporter\Core\IFormatter $formatter)
     {
         // load mwb simple_xml object
@@ -49,38 +49,44 @@ class Document extends Base
         // save this object in registry by workebench id
         \MwbExporter\Core\Registry::set($this->id, $this);
     }
-    
+
     protected function parse()
     {
         $this->attributes = $this->data->value->attributes();
         $this->data       = $this->data->value;
-        
+
         $this->id = (string) $this->attributes['id'];
 
         $tmp = $this->data->xpath("value[@key='physicalModels']/value");
         $this->physicalModel = new \MwbExporter\Core\Model\PhysicalModel($tmp[0], $this);
     }
-    
+
     public function display()
     {
         return $this->physicalModel->display();
     }
-    
+
+    public function export(\MwbExporter\Core\Helper\FileExporter $exporter, $format = 'php')
+    {
+        if($exporter === null){
+            throw new \Exception('You need the exporter object to do the export.');
+        }
+
+        $exporter->setSaveFormat($format);
+        $this->physicalModel->export($exporter);
+        $exporter->save();
+    }
+
     public function zipExport($path = null, $format = 'php')
     {
         if($path === null){
-            throw new Exception('missing path for zip export');
+            throw new \Exception('missing path for zip export');
         }
-        
+
         $path = realpath($path);
-        
         $zip = new \MwbExporter\Core\Helper\ZipFileExporter($path);
-        $zip->setSaveFormat($format);
-        
-        $zip = $this->physicalModel->zipExport($zip);
-        
-        $zip->save();
-        
+        $this->export($zip, $format);
+
         return 'document zipped as ' . $zip->getFileName();
     }
 }
