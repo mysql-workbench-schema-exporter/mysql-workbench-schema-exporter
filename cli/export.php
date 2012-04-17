@@ -228,9 +228,9 @@ function main($filename, $dir, $params, $options)
   $start = microtime(true);
 
   // enable autoloading of classes
-  require_once('../lib/MwbExporter/Core/SplClassLoader.php');
+  require_once(__DIR__ . '/../lib/MwbExporter/Core/SplClassLoader.php');
   $classLoader = new SplClassLoader();
-  $classLoader->setIncludePath('../lib');
+  $classLoader->setIncludePath(__DIR__ . '/../lib');
   $classLoader->register();
 
   // create a formatter
