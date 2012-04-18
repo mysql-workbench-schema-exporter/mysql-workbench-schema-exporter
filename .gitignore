@@ -5,5 +5,5 @@ tests/
 .project
 .settings/
 *.zip
-.sh
+*.sh
 data/
