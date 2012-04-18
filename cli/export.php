@@ -253,6 +253,14 @@ function main($filename, $dir, $params, $options)
 
     case 'zend-dbtable':
       $title = 'Zend DbTable';
+      $setup = array(
+          'tablePrefix'               => 'Application_Model_DbTable_',
+          'parentTable'               => 'Zend_Db_Table_Abstract',
+          'generateDRI'               => false,
+          'generateGetterSetter'      => false,
+          'indentation'               => 4,
+          'filename'                  => 'DbTable/%schema%/%entity%.%extension%',
+      );
       $formatter_class = '\MwbExporter\Formatter\Zend\DbTable\Loader';
       $extension = 'php';
       break;
