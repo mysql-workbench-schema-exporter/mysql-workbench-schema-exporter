@@ -47,7 +47,7 @@ The CLI has feature to customize export configuration before exporting.
 
 The syntax of CLI:
 
-    php cli/export.php [options] file [dir]
+    php cli/export.php [options] FILE [DEST]
 
 Where:
 
@@ -57,16 +57,36 @@ Where:
       * `doctrine2-yml`, Doctrine 2.0 YAML schema
       * `doctrine2-annotation`, Doctrine 2.0 Annotation classes (default)
       * `zend-dbtable`, Zend DbTable
+    * `--config=file`, read export parameters from file (in JSON format)
+    * `--saveconfig`, save export parameters to file `export.json`, later can be used as value for `--config=file`
     * `--zip`, compress the result
     * `--help`, show the usage (or suppress any parameters)
-  * `file`, the mwb file to export
-  * `dir`, the destination directory (optional), if not specified current directory assumed
+  * `FILE`, the mwb file to export
+  * `DEST`, the destination directory (optional), if not specified current directory assumed
 
 Sample usage:
 
     php cli/export.php --export=doctrine1 example/data/test.mwb ./generated
     php cli/export.php --zip example/data/test.mwb
 
+Sample export paramaters (JSON) for doctrine2-annotation:
+
+    {
+        "export": "doctrine2-annotation",
+        "zip": false,
+        "dir": "temp",
+        "params": {
+            "skipPluralNameChecking": false,
+            "enhancedManyToManyDetection": false,
+            "bundleNamespace": "",
+            "entityNamespace": "",
+            "repositoryNamespace": "",
+            "useAnnotationPrefix": "ORM\\\\",
+            "useAutomaticRepository": true,
+            "indentation": 4,
+            "filename": "%entity%.%extension%"
+        }
+    }
 
 Exporter Options
 ----------------
@@ -79,8 +99,8 @@ General options applied to all formatter.
 
 ### Option list for doctrine 1
 
-  * extendTableNameWithSchemaName
-  * {d:externalRelations}
+  * `extendTableNameWithSchemaName`
+  * `{d:externalRelations}`
 
 ### Option list for doctrine 2
 
