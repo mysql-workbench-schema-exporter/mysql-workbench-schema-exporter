@@ -282,6 +282,6 @@ if ($options['help'] || count($values) < 1)
   usage();
 }
 
-main($values[0], count($values) > 1 ? $values[1] : __DIR__, $params, $options);
+main($values[0], count($values) > 1 ? $values[1] : getcwd(), $params, $options);
 
 // ----------------------------------------- EOF ----------------------------------------------------- //
