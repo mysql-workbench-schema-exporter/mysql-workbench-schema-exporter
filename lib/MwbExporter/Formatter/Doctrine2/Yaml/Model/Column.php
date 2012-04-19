@@ -25,7 +25,10 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
-class Column extends \MwbExporter\Core\Model\Column
+use MwbExporter\Core\Registry;
+use MwbExporter\Core\Model\Column as Base;
+
+class Column extends Base
 {
     public function __construct($data, $parent)
     {
@@ -46,7 +49,7 @@ class Column extends \MwbExporter\Core\Model\Column
         $return[] = $this->indentation(2) . $this->config['name'] . ':';
 
         // set datatype of column
-        $return[] = $this->indentation(3) . 'type: ' . \MwbExporter\Core\Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
+        $return[] = $this->indentation(3) . 'type: ' . Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
 
         // check if the column is a primary key
         if($this->isPrimary){

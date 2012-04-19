@@ -25,6 +25,10 @@
 
 namespace MwbExporter\Core\Model;
 
+use MwbExporter\Core\Registry;
+use MwbExporter\Helper\Pluralizer;
+use MwbExporter\Helper\Singularizer;
+
 abstract class Table extends Base
 {
     protected $config      = null;
@@ -46,7 +50,7 @@ abstract class Table extends Base
         parent::__construct($data, $parent);
 
         $tmp = $this->data->xpath("value[@key='columns']");
-        $this->columns = \MwbExporter\Core\Registry::get('formatter')->createColumns($tmp[0], $this);
+        $this->columns = Registry::get('formatter')->createColumns($tmp[0], $this);
 
         // iterate on column configuration
         foreach($this->data->value as $key => $node){
@@ -56,7 +60,7 @@ abstract class Table extends Base
             $this->config[$key] = (string) $node[0];           // assign value
         }
 
-        \MwbExporter\Core\Registry::set($this->id, $this);
+        Registry::set($this->id, $this);
     }
 
     /**
@@ -65,7 +69,7 @@ abstract class Table extends Base
     public function checkForIndices()
     {
         foreach($this->data->xpath("value[@key='indices']") as $key => $node){
-            $this->indices = \MwbExporter\Core\Registry::get('formatter')->createIndices($node, $this);
+            $this->indices = Registry::get('formatter')->createIndices($node, $this);
         }
     }
 
@@ -75,7 +79,7 @@ abstract class Table extends Base
     public function checkForForeignKeys()
     {
         foreach($this->data->xpath("value[@key='foreignKeys']") as $key => $node){
-            $this->foreignKeys = \MwbExporter\Core\Registry::get('formatter')->createForeignKeys($node, $this);
+            $this->foreignKeys = Registry::get('formatter')->createForeignKeys($node, $this);
         }
     }
 
@@ -134,10 +138,10 @@ abstract class Table extends Base
         $tablename = $this->getRawTableName();
 
         // check if table name is plural --> convert to singular
-        $config = \MwbExporter\Core\Registry::get('config');
+        $config = Registry::get('config');
         $skip = isset($config['skipPluralNameChecking']) && $config['skipPluralNameChecking'] ? true : false;
-        if(!$skip && \MwbExporter\Helper\Pluralizer::wordIsPlural($tablename)){
-            $tablename = \MwbExporter\Helper\Singularizer::singularize($tablename);
+        if(!$skip && Pluralizer::wordIsPlural($tablename)){
+            $tablename = Singularizer::singularize($tablename);
         }
 
         // camleCase under scores for model names
@@ -151,14 +155,14 @@ abstract class Table extends Base
      */
     public function getModelNameInPlural()
     {
-        return Helper\Pluralizer::pluralize($this->getModelName());
+        return Pluralizer::pluralize($this->getModelName());
     }
 
     /**
      *
      * @param \MwbExporter\Core\Model\Index $index
      */
-    public function injectIndex( \MwbExporter\Core\Model\Index $index)
+    public function injectIndex(Index $index)
     {
         foreach($this->indexes as $_index){
             if($_index->getId() === $index->getId()){
@@ -172,7 +176,7 @@ abstract class Table extends Base
      *
      * @param \MwbExporter\Core\Model\ForeignKey $foreignKey
      */
-    public function injectRelation( \MwbExporter\Core\Model\ForeignKey $foreignKey)
+    public function injectRelation(ForeignKey $foreignKey)
     {
         foreach($this->relations as $_relation){
             if($_relation->getId() === $foreignKey->getId()){

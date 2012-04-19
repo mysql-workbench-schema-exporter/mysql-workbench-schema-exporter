@@ -25,6 +25,8 @@
 
 namespace MwbExporter\Core\Model;
 
+use MwbExporter\Core\Registry;
+
 abstract class Base
 {
     protected $id;
@@ -135,7 +137,7 @@ abstract class Base
      */
     protected function indentation($level = 1)
     {
-        $config = \MwbExporter\Core\Registry::get('config');
+        $config = Registry::get('config');
         if(isset($config['indentation']) && $config['indentation']){
             $indentation = $config['indentation'];
         } else {
@@ -162,7 +164,7 @@ abstract class Base
      */
     protected function getElementById($id)
     {
-        return \MwbExporter\Core\Registry::get($id);
+        return Registry::get($id);
     }
 
     public function preLoad()

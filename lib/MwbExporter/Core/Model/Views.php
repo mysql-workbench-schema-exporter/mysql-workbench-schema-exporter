@@ -25,19 +25,21 @@
 
 namespace MwbExporter\Core\Model;
 
+use MwbExporter\Core\Registry;
+
 abstract class Views extends Base
 {
     protected $views = array();
-    
+
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
-        
+
         // iterate on views
         foreach($data->value as $key => $node){
-            $this->views[] = \MwbExporter\Core\Registry::get('formatter')->createView($node, $this);
+            $this->views[] = Registry::get('formatter')->createView($node, $this);
         }
-        
-        \MwbExporter\Core\Registry::set($this->id, $this);
+
+        Registry::set($this->id, $this);
     }
 }

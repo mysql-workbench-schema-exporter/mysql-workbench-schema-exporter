@@ -25,6 +25,8 @@
 
 namespace MwbExporter\Core\Model;
 
+use MwbExporter\Core\Registry;
+
 abstract class Index extends Base
 {
     protected $referencedColumn = array();
@@ -55,19 +57,19 @@ abstract class Index extends Base
                 // definition and set column to primary instead
                 if($this->config['name'] == 'PRIMARY'){
                     $isPrimary = true;
-                    \MwbExporter\Core\Registry::get((string) $node)->markAsPrimary();
+                    Registry::get((string) $node)->markAsPrimary();
                 } else {
                     if($this->config['indexType'] == 'UNIQUE'){
-                        \MwbExporter\Core\Registry::get((string) $node)->markAsUnique();
+                        Registry::get((string) $node)->markAsUnique();
                     }
-                    $this->referencedColumn[] = \MwbExporter\Core\Registry::get((string) $node);
+                    $this->referencedColumn[] = Registry::get((string) $node);
                 }
             }
         }
         if($isPrimary) {
             return;
         }
-        \MwbExporter\Core\Registry::get((string)$this->data->link)->injectIndex($this);
-        \MwbExporter\Core\Registry::set($this->id, $this);
+        Registry::get((string)$this->data->link)->injectIndex($this);
+        Registry::set($this->id, $this);
     }
 }

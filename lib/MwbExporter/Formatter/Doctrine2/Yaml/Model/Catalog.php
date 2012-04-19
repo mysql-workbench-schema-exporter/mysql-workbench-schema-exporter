@@ -25,7 +25,9 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
-class Catalog extends \MwbExporter\Core\Model\Catalog
+use MwbExporter\Core\Model\Catalog as Base;
+
+class Catalog extends Base
 {
     public function __construct($data, $parent)
     {

@@ -25,6 +25,8 @@
 
 namespace MwbExporter\Core\Model;
 
+use MwbExporter\Core\Registry;
+
 abstract class ForeignKeys extends Base
 {
     protected $foreignKeys = array();
@@ -34,10 +36,10 @@ abstract class ForeignKeys extends Base
         parent::__construct($data, $parent);
         
         foreach($data->value as $key => $node){
-            $this->foreignKeys[] = \MwbExporter\Core\Registry::get('formatter')->createForeignKey($node, $this);
+            $this->foreignKeys[] = Registry::get('formatter')->createForeignKey($node, $this);
         }
         
-        \MwbExporter\Core\Registry::set($this->id, $this);
+        Registry::set($this->id, $this);
     }
     
     public function getForeignKeys()

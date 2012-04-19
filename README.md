@@ -81,7 +81,7 @@ Sample export paramaters (JSON) for doctrine2-annotation:
             "bundleNamespace": "",
             "entityNamespace": "",
             "repositoryNamespace": "",
-            "useAnnotationPrefix": "ORM\\\\",
+            "useAnnotationPrefix": "ORM\\",
             "useAutomaticRepository": true,
             "indentation": 4,
             "filename": "%entity%.%extension%"

@@ -25,6 +25,8 @@
 
 namespace MwbExporter\Core\Model;
 
+use MwbExporter\Core\Registry;
+
 abstract class Column extends Base
 {
     protected $config = array();
@@ -55,7 +57,7 @@ abstract class Column extends Base
             $this->link[$key]   = (string) $node[0];
         }
 
-        \MwbExporter\Core\Registry::set($this->id, $this);
+        Registry::set($this->id, $this);
     }
 
     /**
@@ -108,12 +110,12 @@ abstract class Column extends Base
         $this->isUnique = true;
     }
 
-    public function markAsLocalReference( \MwbExporter\Core\Model\ForeignKey $local)
+    public function markAsLocalReference(ForeignKey $local)
     {
         $this->local = $local;
     }
 
-    public function markAsForeignReference( \MwbExporter\Core\Model\ForeignKey $foreign)
+    public function markAsForeignReference(ForeignKey $foreign)
     {
         if($this->foreigns == null) {
             $this->foreigns = array();
@@ -127,4 +129,13 @@ abstract class Column extends Base
         return $this->config['name'];
     }
 
+    /**
+     *
+     * @param string $columnName
+     * @return string
+     */
+    protected function columnNameBeautifier($columnName)
+    {
+        return ucfirst(preg_replace('@\_(\w)@e', 'ucfirst("$1")', $columnName));
+    }
 }

@@ -25,7 +25,10 @@
 
 namespace MwbExporter\Formatter\Doctrine1\Yaml\Model;
 
-class Table extends \MwbExporter\Core\Model\Table
+use MwbExporter\Core\Registry;
+use MwbExporter\Core\Model\Table as Base;
+
+class Table extends Base
 {
     public function __construct($data, $parent)
     {
@@ -80,7 +83,7 @@ class Table extends \MwbExporter\Core\Model\Table
         }
 
         // check if schema name has to be included
-        $config = \MwbExporter\Core\Registry::get('config');
+        $config = Registry::get('config');
         if(isset($config['extendTableNameWithSchemaName']) && $config['extendTableNameWithSchemaName']){
             // $schemaname = table->tables->schema->getName()
             $schemaName = $this->getParent()->getParent()->getName();

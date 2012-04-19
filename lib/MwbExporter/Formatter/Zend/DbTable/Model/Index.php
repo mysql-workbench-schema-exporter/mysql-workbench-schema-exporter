@@ -25,20 +25,20 @@
 
 namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
-class Index extends \MwbExporter\Core\Model\Index
+use MwbExporter\Core\Model\Index as Base;
+
+class Index extends Base
 {
     /**
      *
      * @param SimpleXMLElement $data
-     * @param type $parent 
+     * @param type $parent
      */
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
     }
 
-    
-    
     /**
      *
      * @return string

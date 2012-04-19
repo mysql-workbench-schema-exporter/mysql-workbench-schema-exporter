@@ -2,7 +2,9 @@
 
 namespace MwbExporter\Formatter\Doctrine1;
 
-class DatatypeConverter extends \MwbExporter\Core\DatatypeConverter
+use MwbExporter\Core\DatatypeConverter as Base;
+
+class DatatypeConverter extends Base
 {
     public static function setUp()
     {

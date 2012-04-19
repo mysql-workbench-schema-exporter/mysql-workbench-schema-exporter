@@ -25,59 +25,55 @@
 
 namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
-class Columns extends \MwbExporter\Core\Model\Columns
+use MwbExporter\Core\Model\Columns as Base;
+
+class Columns extends Base
 {
     /**
      *
      * @param SimpleXMLElement $data
-     * @param type $parent 
+     * @param type $parent
      */
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
     }
 
-    
-    
     /**
      *
-     * @return string 
+     * @return string
      */
     public function display()
     {
         $return = array();
-        
+
         foreach($this->columns as $column){
             $return[] = $column->display();
         }
 
         return implode("\n", $return);
     }
-    
-    
-    
+
     /**
      *
-     * @return string 
+     * @return string
      */
     public function displayArrayCollections()
     {
         $return = array();
-        
+
         foreach($this->columns as $column){
             if (true == $arrayCollection = $column->displayArrayCollection()){
                 $return[] = $arrayCollection;
             }
         }
-        
+
         return implode("\n", $return);
     }
-    
-    
-    
+
     /**
      *
-     * @return string 
+     * @return string
      */
     public function displayGetterAndSetter()
     {
@@ -86,7 +82,7 @@ class Columns extends \MwbExporter\Core\Model\Columns
         foreach($this->columns as $column){
             $return[] = $column->displayGetterAndSetter();
         }
-        
+
         return implode("\n", $return);
     }
 }

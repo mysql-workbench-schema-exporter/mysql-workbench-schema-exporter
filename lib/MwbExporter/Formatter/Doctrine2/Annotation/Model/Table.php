@@ -25,7 +25,11 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
-class Table extends \MwbExporter\Core\Model\Table
+use MwbExporter\Core\Registry;
+use MwbExporter\Core\Model\Table as Base;
+use MwbExporter\Helper\Pluralizer;
+
+class Table extends Base
 {
     protected $manyToManyRelations = array();
     protected $ormPrefix = '@';
@@ -43,7 +47,7 @@ class Table extends \MwbExporter\Core\Model\Table
      */
     public function display()
     {
-        $config = \MwbExporter\Core\Registry::get('config');
+        $config = Registry::get('config');
 
         $this->ormPrefix = '@' . ((isset($config['useAnnotationPrefix']) && $config['useAnnotationPrefix']) ? $config['useAnnotationPrefix'] : '');
 
@@ -139,7 +143,7 @@ class Table extends \MwbExporter\Core\Model\Table
                 continue;
             }
 
-            $return[] = $this->indentation(2) . '$this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ' = new ArrayCollection();';
+            $return[] = $this->indentation(2) . '$this->' . lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())) . ' = new ArrayCollection();';
         }
         $return[] = $this->indentation() . '}';
         $return[] = '';
@@ -177,10 +181,10 @@ class Table extends \MwbExporter\Core\Model\Table
                 $return[] = $this->indentation() . ' */';
             } else {
                 $return[] = $this->indentation() . '/**';
-                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToMany(targetEntity="' . $relation['refTable']->getModelName() . '", mappedBy="' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($this->getModelName())) . '")';
+                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToMany(targetEntity="' . $relation['refTable']->getModelName() . '", mappedBy="' . lcfirst(Pluralizer::pluralize($this->getModelName())) . '")';
                 $return[] = $this->indentation() . ' */';
             }
-            $return[] = $this->indentation() . 'private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
+            $return[] = $this->indentation() . 'private $' . lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
         }
         $return[] = '';
         return implode("\n", $return);
@@ -199,13 +203,13 @@ class Table extends \MwbExporter\Core\Model\Table
             $return[] = $this->indentation() . 'public function add' . $relation['refTable']->getModelName() . '(' . $relation['refTable']->getModelName() . ' $' . lcfirst($relation['refTable']->getModelName()) . ')';
             $return[] = $this->indentation() . '{';
             $return[] = $this->indentation(2) . '$' . lcfirst($relation['refTable']->getModelName()) . '->add' . $this->getModelName() . '($this);';
-            $return[] = $this->indentation(2) . '$this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . '[] = $' . lcfirst($relation['refTable']->getModelName()) . ';';
+            $return[] = $this->indentation(2) . '$this->' . lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())) . '[] = $' . lcfirst($relation['refTable']->getModelName()) . ';';
             $return[] = $this->indentation(2) . 'return $this;';
             $return[] = $this->indentation() . '}';
             $return[] = '';
-            $return[] = $this->indentation() . 'public function get' . \MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName()) . '()';
+            $return[] = $this->indentation() . 'public function get' . Pluralizer::pluralize($relation['refTable']->getModelName()) . '()';
             $return[] = $this->indentation() . '{';
-            $return[] = $this->indentation(2) . 'return $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
+            $return[] = $this->indentation(2) . 'return $this->' . lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
             $return[] = $this->indentation() . '}';
         }
 
@@ -219,7 +223,7 @@ class Table extends \MwbExporter\Core\Model\Table
      */
     protected function isEnhancedManyToManyRelationDetection($relation)
     {
-        $config = \MwbExporter\Core\Registry::get('config');
+        $config = Registry::get('config');
 
         $enhancedManyToManyDetection = false;
 

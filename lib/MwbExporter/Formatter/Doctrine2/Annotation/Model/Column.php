@@ -25,7 +25,11 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
-class Column extends \MwbExporter\Core\Model\Column
+use MwbExporter\Core\Registry;
+use MwbExporter\Core\Model\Column as Base;
+use MwbExporter\Helper\Pluralizer;
+
+class Column extends Base
 {
     protected $ormPrefix = '@';
 
@@ -44,7 +48,7 @@ class Column extends \MwbExporter\Core\Model\Column
     {
         $return = array();
 
-        $config = \MwbExporter\Core\Registry::get('config');
+        $config = Registry::get('config');
 
         /**
          * if needed, use a prefix (like @ORM\ or @orm:
@@ -70,7 +74,7 @@ class Column extends \MwbExporter\Core\Model\Column
 
             // set name of column
             $tmp = $this->indentation() . ' * ';
-            $tmp  .= $this->ormPrefix . 'Column(type=' . \MwbExporter\Core\Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
+            $tmp  .= $this->ormPrefix . 'Column(type=' . Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
 
             if(!isset($this->config['isNotNull']) || $this->config['isNotNull'] != 1){
                 $tmp .= ',nullable=true';
@@ -99,7 +103,7 @@ class Column extends \MwbExporter\Core\Model\Column
                     $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'OneToMany(targetEntity="' . $foreign->getOwningTable()->getModelName() . '", mappedBy="' . lcfirst($foreign->getReferencedTable()->getModelName()) . '")';
                     $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'JoinColumn(name="' . $foreign->foreign->getColumnName() . '", referencedColumnName="' . $foreign->local->getColumnName() . '")';
                     $return[] = $this->indentation() . ' */';
-                    $return[] = $this->indentation() . 'private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
+                    $return[] = $this->indentation() . 'private $' . lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
                     $return[] = '';
                 } else { // is OneToOne
                     $return[] = $this->indentation() . '/**';
@@ -117,7 +121,7 @@ class Column extends \MwbExporter\Core\Model\Column
             //check for OneToOne or ManyToOne relationship
             if(intval($this->local->getAttribute('many')) == 1){ // is ManyToOne
                 $return[] = $this->indentation() . '/**';
-                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToOne(targetEntity="' . $this->local->getReferencedTable()->getModelName() . '", inversedBy="' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($this->local->getOwningTable()->getModelName())) . '")';
+                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToOne(targetEntity="' . $this->local->getReferencedTable()->getModelName() . '", inversedBy="' . lcfirst(Pluralizer::pluralize($this->local->getOwningTable()->getModelName())) . '")';
                 $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'JoinColumn(name="' . $this->local->foreign->getColumnName() . '", referencedColumnName="' . $this->local->local->getColumnName() . '")';
                 $return[] = $this->indentation() . ' */';
                 $return[] = $this->indentation() . 'private $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
@@ -153,7 +157,7 @@ class Column extends \MwbExporter\Core\Model\Column
         if(is_array($this->foreigns)){
             foreach($this->foreigns as $foreign){
                 if(!is_null($this->local) && intval($this->local->getAttribute('many')) == 1){ // is ManyToOne
-                    return $this->indentation(2) . '$this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ' = new ArrayCollection();';
+                    return $this->indentation(2) . '$this->' . lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ' = new ArrayCollection();';
                 } else { // is OneToOne
                     return '';
                 }
@@ -197,7 +201,7 @@ class Column extends \MwbExporter\Core\Model\Column
                     $return[] = $this->indentation() . '//one to many relation';
                     $return[] = $this->indentation() . 'public function add' . $this->columnNameBeautifier($foreign->getOwningTable()->getModelName()) . '(' . $foreign->getOwningTable()->getModelName() . ' $' . lcfirst($foreign->getOwningTable()->getModelName()) . ')';
                     $return[] = $this->indentation() . '{';
-                    $return[] = $this->indentation(2) . '$this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . '[] = $' . lcfirst($foreign->getOwningTable()->getModelName()) . ';';
+                    $return[] = $this->indentation(2) . '$this->' . lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . '[] = $' . lcfirst($foreign->getOwningTable()->getModelName()) . ';';
                     $return[] = $this->indentation(2) . 'return $this; // fluent interface';
                     $return[] = $this->indentation() . '}';
                 } else { // OneToOne
@@ -212,9 +216,9 @@ class Column extends \MwbExporter\Core\Model\Column
 
                 if(intval($foreign->getAttribute('many')) == 1){ // is ManyToOne
                     $return[] = $this->indentation() . '//one to many relation';
-                    $return[] = $this->indentation() . 'public function get' . $this->columnNameBeautifier(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . '()';
+                    $return[] = $this->indentation() . 'public function get' . $this->columnNameBeautifier(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . '()';
                     $return[] = $this->indentation() . '{';
-                    $return[] = $this->indentation(2) . 'return $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
+                    $return[] = $this->indentation(2) . 'return $this->' . lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
                     $return[] = $this->indentation() . '}';
                 } else { // OneToOne
                     $return[] = $this->indentation() . '//one to one relation';
@@ -258,10 +262,5 @@ class Column extends \MwbExporter\Core\Model\Column
         }
 
         return implode("\n", $return);
-    }
-
-    protected function columnNameBeautifier($columnName)
-    {
-        return ucfirst(preg_replace('@\_(\w)@e', 'ucfirst("$1")', $columnName));
     }
 }

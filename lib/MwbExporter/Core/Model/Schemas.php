@@ -25,6 +25,9 @@
 
 namespace MwbExporter\Core\Model;
 
+use MwbExporter\Core\Registry;
+use MwbExporter\Core\Helper\FileExporter;
+
 abstract class Schemas extends Base
 {
     protected $schemas = array();
@@ -34,10 +37,10 @@ abstract class Schemas extends Base
         parent::__construct($data, $parent);
 
         foreach($this->data->xpath("value") as $key => $node){
-            $this->schemas[] = \MwbExporter\Core\Registry::get('formatter')->createSchema($node, $this);
+            $this->schemas[] = Registry::get('formatter')->createSchema($node, $this);
         }
 
-        \MwbExporter\Core\Registry::set($this->id, $this);
+        Registry::set($this->id, $this);
     }
 
     public function display()
@@ -51,11 +54,10 @@ abstract class Schemas extends Base
         return implode("\n", $return);
     }
 
-    public function export(\MwbExporter\Core\Helper\FileExporter $exporter)
+    public function export(FileExporter $exporter)
     {
         foreach($this->schemas as $schema){
             $schema->export($exporter);
         }
     }
-    
 }

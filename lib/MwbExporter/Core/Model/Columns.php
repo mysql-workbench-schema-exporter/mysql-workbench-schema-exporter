@@ -25,6 +25,8 @@
 
 namespace MwbExporter\Core\Model;
 
+use MwbExporter\Core\Registry;
+
 abstract class Columns extends Base
 {
     protected $columns = array();
@@ -34,10 +36,10 @@ abstract class Columns extends Base
         parent::__construct($data, $parent);
        
         foreach($this->data as $key => $node){
-            $this->columns[] = \MwbExporter\Core\Registry::get('formatter')->createColumn($node, $this);
+            $this->columns[] = Registry::get('formatter')->createColumn($node, $this);
         }
-        
-        \MwbExporter\Core\Registry::set($this->id, $this);
+
+        Registry::set($this->id, $this);
     }
 
     public function countColumns()

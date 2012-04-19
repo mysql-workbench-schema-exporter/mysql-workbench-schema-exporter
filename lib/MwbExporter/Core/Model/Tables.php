@@ -25,6 +25,9 @@
 
 namespace MwbExporter\Core\Model;
 
+use MwbExporter\Core\Registry;
+use MwbExporter\Core\Helper\FileExporter;
+
 abstract class Tables extends Base
 {
     protected $tables = array();
@@ -35,7 +38,7 @@ abstract class Tables extends Base
 
         // collect tables
         foreach($this->data->xpath("value") as $key => $node){
-            $tmp = \MwbExporter\Core\Registry::get('formatter')->createTable($node, $this);
+            $tmp = Registry::get('formatter')->createTable($node, $this);
 
             if($tmp->isTranslationTable()){
                 // skip translation tables
@@ -59,7 +62,7 @@ abstract class Tables extends Base
             $table->checkForForeignKeys();
         }
 
-        \MwbExporter\Core\Registry::set($this->id, $this);
+        Registry::set($this->id, $this);
     }
 
     public function display()
@@ -75,7 +78,7 @@ abstract class Tables extends Base
         return implode("\n", $return);
     }
 
-    public function export(\MwbExporter\Core\Helper\FileExporter $exporter)
+    public function export(FileExporter $exporter)
     {
         foreach($this->tables as $table){
             $exporter->addTable($table);

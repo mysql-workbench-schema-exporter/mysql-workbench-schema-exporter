@@ -25,11 +25,13 @@
 
 namespace MwbExporter\Helper;
 
-class Pluralizer extends \MwbExporter\Core\Helper\WordTransform
+use MwbExporter\Core\Helper\WordTransform;
+
+class Pluralizer extends WordTransform
 {
     public static function pluralize($word)
     {
-        if($tmpWord = \MwbExporter\Helper\SpecialWordList::getPluralOf($word)){
+        if($tmpWord = SpecialWordList::getPluralOf($word)){
             return ucfirst($tmpWord);
         }
 
@@ -66,10 +68,9 @@ class Pluralizer extends \MwbExporter\Core\Helper\WordTransform
     public static function wordIsPlural($word)
     {
         // check if plural is in special word list
-        if( \MwbExporter\Helper\SpecialWordList::getSingularOf($word)){
+        if(SpecialWordList::getSingularOf($word)){
             return true;
         }
         return strlen($word) > 1 && self::wordEndsWith($word, 's') && !self::wordEndsWith($word, 'ss') && !self::wordEndsWith($word, 'us');
     }
-
 }

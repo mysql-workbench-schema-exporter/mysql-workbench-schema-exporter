@@ -25,6 +25,9 @@
 
 namespace MwbExporter\Core\Model;
 
+use MwbExporter\Core\Registry;
+use MwbExporter\Core\Helper\FileExporter;
+
 abstract class Schema extends Base
 {
     protected $tables = null;
@@ -39,12 +42,12 @@ abstract class Schema extends Base
         $this->name = (string) $tmp[0];
         
         $tmp = $this->data->xpath("value[@key='tables']");
-        $this->tables = \MwbExporter\Core\Registry::get('formatter')->createTables($tmp[0], $this);
+        $this->tables = Registry::get('formatter')->createTables($tmp[0], $this);
 
         $tmp = $this->data->xpath("value[@key='views']");
-        $this->views  = \MwbExporter\Core\Registry::get('formatter')->createViews($tmp[0], $this);
+        $this->views  = Registry::get('formatter')->createViews($tmp[0], $this);
 
-        \MwbExporter\Core\Registry::set($this->id, $this);
+        Registry::set($this->id, $this);
     }
 
     public function display()
@@ -56,7 +59,7 @@ abstract class Schema extends Base
         return implode("\n", $return);
     }
 
-    public function export(\MwbExporter\Core\Helper\FileExporter $exporter)
+    public function export(FileExporter $exporter)
     {
         $this->tables->export($exporter);
     }

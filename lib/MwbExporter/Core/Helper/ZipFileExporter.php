@@ -25,6 +25,8 @@
 
 namespace MwbExporter\Core\Helper;
 
+use MwbExporter\Core\Model\Table;
+
 class ZipFileExporter extends FileExporter
 {
     protected $zip              = null;
@@ -45,7 +47,7 @@ class ZipFileExporter extends FileExporter
         }
     }
 
-    public function addTable(\MwbExporter\Core\Model\Table $table)
+    public function addTable(Table $table)
     {
         $this->zip->addFromString($this->getTableFileName($table), $table->display());
     }

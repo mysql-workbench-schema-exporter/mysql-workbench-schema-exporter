@@ -25,7 +25,9 @@
 
 namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
-class ForeignKeys extends \MwbExporter\Core\Model\ForeignKeys
+use MwbExporter\Core\Model\ForeignKeys as Base;
+
+class ForeignKeys extends Base
 {
     /**
      *

@@ -25,14 +25,16 @@
 
 namespace MwbExporter\Helper;
 
-class Singularizer extends \MwbExporter\Core\Helper\WordTransform
+use MwbExporter\Core\Helper\WordTransform;
+
+class Singularizer extends WordTransform
 {
     public static function singularize($word)
     {
-        if($tmpWord = \MwbExporter\Helper\SpecialWordList::getSingularOf($word)){
+        if($tmpWord = SpecialWordList::getSingularOf($word)){
             return ucfirst($tmpWord);
         }
-        
+
         $word = self::stripWordEnd($word, 's');
 
         // we can't just strip the s without looking at the remaining English plural endings
@@ -65,12 +67,12 @@ class Singularizer extends \MwbExporter\Core\Helper\WordTransform
             // that word however basically stems from French and might be considered a special case anyway
             // also collective names like "Personnel", "Cast" (caution: SQL keyword!) can't be singularized
         }
-        
+
         return $word;
     }
-    
+
     public static function wordIsSingular($word)
     {
-        return !( \MwbExporter\Helper\Pluralizer::wordIsPlural($word) );
+        return !Pluralizer::wordIsPlural($word);
     }
 }

@@ -25,7 +25,9 @@
 
 namespace MwbExporter\Formatter\Doctrine1\Yaml\Model;
 
-class Schemas extends \MwbExporter\Core\Model\Schemas
+use MwbExporter\Core\Model\Schemas as Base;
+
+class Schemas extends Base
 {
     public function __construct($data, $parent)
     {

@@ -25,14 +25,14 @@
 
 namespace MwbExporter\Helper;
 
+use MwbExporter\Core\Helper\SpecialWordList as Base;
+
 /**
  * simple word list to handle exceptions
  * of singularization and pluralization rule
  */
-
-class SpecialWordList extends \MwbExporter\Core\Helper\SpecialWordList
+class SpecialWordList extends Base
 {
-
     protected static $specialWordList = array(
         // ***************************************************
         // **        add special words here
@@ -44,5 +44,4 @@ class SpecialWordList extends \MwbExporter\Core\Helper\SpecialWordList
         ,array('s' => 'bureau',  'p' => 'bureaus')
         ,array('s' => 'bonus',   'p' => 'bonuses')
     );
-
 }

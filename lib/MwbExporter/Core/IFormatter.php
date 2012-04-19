@@ -25,19 +25,22 @@
 
 namespace MwbExporter\Core;
 
+use MwbExporter\Core\Model\Base;
+use MwbExporter\Core\Model\Column;
+
 interface IFormatter {
-    public function createCatalog($parameter, Model\Base $parent);
-    public function createColumn($parameter, Model\Base $parent);
-    public function createColumns($parameter, Model\Base $parent);
-    public function createForeignKey($parameter, Model\Base $parent);
-    public function createForeignKeys($parameter, Model\Base $parent);
-    public function createIndex($parameter, Model\Base $parent);
-    public function createIndices($parameter, Model\Base $parent);
-    public function createSchema($parameter, Model\Base $parent);
-    public function createSchemas($parameter, Model\Base $parent);
-    public function createTable($parameter, Model\Base $parent);
-    public function createTables($parameter, Model\Base $parent);
-    public function createView($parameter, Model\Base $parent);
-    public function createViews($parameter, Model\Base $parent);
-    public function useDatatypeConverter($type, \MwbExporter\Core\Model\Column $column);
+    public function createCatalog($parameter, Base $parent);
+    public function createColumn($parameter, Base $parent);
+    public function createColumns($parameter, Base $parent);
+    public function createForeignKey($parameter, Base $parent);
+    public function createForeignKeys($parameter, Base $parent);
+    public function createIndex($parameter, Base $parent);
+    public function createIndices($parameter, Base $parent);
+    public function createSchema($parameter, Base $parent);
+    public function createSchemas($parameter, Base $parent);
+    public function createTable($parameter, Base $parent);
+    public function createTables($parameter, Base $parent);
+    public function createView($parameter, Base $parent);
+    public function createViews($parameter, Base $parent);
+    public function useDatatypeConverter($type, Column $column);
 }

@@ -25,9 +25,12 @@
 
 namespace MwbExporter\Core\Workbench;
 
-class Document extends \MwbExporter\Core\Model\Document
+use MwbExporter\Core\IFormatter;
+use MwbExporter\Core\Model\Document as Base;
+
+class Document extends Base
 {
-    public function __construct($mwbFile, \MwbExporter\Core\IFormatter $formatter)
+    public function __construct($mwbFile, IFormatter $formatter)
     {
         parent::__construct($mwbFile, $formatter);
     }
