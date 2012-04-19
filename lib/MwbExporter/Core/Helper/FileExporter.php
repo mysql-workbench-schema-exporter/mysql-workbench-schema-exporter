@@ -39,11 +39,15 @@ class FileExporter
     public function __construct($savePath)
     {
         $this->config = Registry::get('config');
-        if (!file_exists($savePath))
-        {
-            @mkdir($savePath);
-        }
+        $this->mkdir($savePath);
         $this->savePath = realpath($savePath);
+    }
+
+    protected function mkdir($path)
+    {
+        if (!is_readable($path)) {
+            @mkdir($path, null, true);
+        }
     }
 
     public function setSaveFormat($format = 'php')
@@ -84,7 +88,9 @@ class FileExporter
 
     public function addTable(Table $table)
     {
-        file_put_contents($this->savePath.DIRECTORY_SEPARATOR.$this->getTableFileName($table), $table->display());
+        $filename = $this->savePath.DIRECTORY_SEPARATOR.$this->getTableFileName($table);
+        $this->mkdir(dirname($filename));
+        file_put_contents($filename, $table->display());
     }
 
     public function getFileName()
