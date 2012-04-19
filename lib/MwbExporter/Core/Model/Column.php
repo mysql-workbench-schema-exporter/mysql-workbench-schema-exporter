@@ -128,4 +128,14 @@ abstract class Column extends Base
     {
         return $this->config['name'];
     }
+
+    /**
+     *
+     * @param string $columnName
+     * @return string
+     */
+    protected function columnNameBeautifier($columnName)
+    {
+        return ucfirst(preg_replace('@\_(\w)@e', 'ucfirst("$1")', $columnName));
+    }
 }
