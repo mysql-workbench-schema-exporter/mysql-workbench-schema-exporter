@@ -265,6 +265,18 @@ function main($filename, $dir, $params, $options)
       $extension = 'php';
       break;
 
+    case 'js-sencha3model':
+      $title = 'JS Sencha3Model';
+      $setup = array(
+          'classPrefix'               => 'SysX.App',
+          'parentClass'               => 'SysX.Ui.App',
+          'indentation'               => 4,
+          'filename'                  => 'JS/%schema%/%entity%.%extension%',
+      );
+      $formatter_class = '\MwbExporter\Formatter\JS\Sencha3Model\Loader';
+      $extension = 'js';
+         	break;
+
     default:
       echo "Unknown export type: $export, use --help to show more option.\n\n";
       die(0);
@@ -336,7 +348,7 @@ function main($filename, $dir, $params, $options)
 
 // ----------------------------------------- MAIN ---------------------------------------------------- //
 
-// default values 
+// default values
 $arguments = $_SERVER['argv'];
 $options = array(
   'help'          => false,

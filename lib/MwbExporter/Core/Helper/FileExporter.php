@@ -28,7 +28,7 @@ namespace MwbExporter\Core\Helper;
 class FileExporter
 {
     protected $savePath         = null;
-    protected $availableFormats = array('yml' => 'yml', 'php' => 'php', 'yaml' => 'yml');
+    protected $availableFormats = array('yml' => 'yml', 'php' => 'php', 'yaml' => 'yml', 'js' => 'js');
     protected $saveFormat       = 'php';
 
     protected $config           = null;
