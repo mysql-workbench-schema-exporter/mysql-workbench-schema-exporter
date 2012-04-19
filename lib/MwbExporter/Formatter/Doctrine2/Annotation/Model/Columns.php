@@ -25,7 +25,9 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
-class Columns extends \MwbExporter\Core\Model\Columns
+use MwbExporter\Core\Model\Columns as Base;
+
+class Columns extends Base
 {
     public function __construct($data, $parent)
     {
@@ -35,27 +37,27 @@ class Columns extends \MwbExporter\Core\Model\Columns
     public function display()
     {
         $return = array();
-        
+
         foreach($this->columns as $column){
             $return[] = $column->display();
         }
 
         return implode("\n", $return);
     }
-    
+
     public function displayArrayCollections()
     {
         $return = array();
-        
+
         foreach($this->columns as $column){
             if (true == $arrayCollection = $column->displayArrayCollection()){
                 $return[] = $arrayCollection;
             }
         }
-        
+
         return implode("\n", $return);
     }
-    
+
     public function displayGetterAndSetter()
     {
         $return = array();
@@ -63,7 +65,7 @@ class Columns extends \MwbExporter\Core\Model\Columns
         foreach($this->columns as $column){
             $return[] = $column->displayGetterAndSetter();
         }
-        
+
         return implode("\n", $return);
     }
 }

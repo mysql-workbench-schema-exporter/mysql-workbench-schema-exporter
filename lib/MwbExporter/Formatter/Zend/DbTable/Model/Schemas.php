@@ -25,7 +25,9 @@
 
 namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
-class Schemas extends \MwbExporter\Core\Model\Schemas
+use MwbExporter\Core\Model\Schemas as Base;
+
+class Schemas extends Base
 {
     /**
      *

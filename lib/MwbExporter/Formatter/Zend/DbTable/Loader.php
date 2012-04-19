@@ -25,49 +25,54 @@
 
 namespace MwbExporter\Formatter\Zend\DbTable;
 
-class Loader implements \MwbExporter\Core\IFormatter
+use MwbExporter\Core\IFormatter;
+use MwbExporter\Core\Registry;
+use MwbExporter\Core\Model\Base;
+use MwbExporter\Core\Model\Column;
+
+class Loader implements IFormatter
 {
     protected $_defaultZendConfig = array(
             /* */
             'tablePrefix'               => 'Application_Model_DbTable_',
-        
+
             /* If you want to use your personnal Zend_Db_Table_Abstract,
              * you need to specifie here his name
              */
             'parentTable'               => 'Zend_Db_Table_Abstract',
-        
-            /* If true, the script will generate the $_dependentTables. 
-             * Before active this option please read: 
+
+            /* If true, the script will generate the $_dependentTables.
+             * Before active this option please read:
              * http://framework.zend.com/manual/en/zend.db.table.relationships.html#zend.db.table.relationships.cascading */
             'generateDRI'               => false,
-        
+
             /* */
             'generateGetterSetter'      => false,
-        
+
             /* */
             'indentation'               => 4,
-        
+
             /* */
             'filename'                  => 'DbTable/%schema%/%entity%.%extension%',
         );
-    
+
     /**
      *
-     * @param array $setup 
+     * @param array $setup
      */
     public function __construct(array $setup=array()){
         $setup = array_merge($this->_defaultZendConfig, $setup);
-        
-        \MwbExporter\Core\Registry::set('config', $setup);
+
+        Registry::set('config', $setup);
     }
- 
+
     /**
      *
      * @param array $parameter
      * @param \MwbExporter\Core\Model\Base $parent
-     * @return Model\Catalog 
+     * @return Model\Catalog
      */
-    public function createCatalog($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createCatalog($parameter, Base $parent){
         return new Model\Catalog($parameter, $parent);
     }
 
@@ -75,9 +80,9 @@ class Loader implements \MwbExporter\Core\IFormatter
      *
      * @param array $parameter
      * @param \MwbExporter\Core\Model\Base $parent
-     * @return Model\Column 
+     * @return Model\Column
      */
-    public function createColumn($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createColumn($parameter, Base $parent){
         return new Model\Column($parameter, $parent);
     }
 
@@ -85,9 +90,9 @@ class Loader implements \MwbExporter\Core\IFormatter
      *
      * @param array $parameter
      * @param \MwbExporter\Core\Model\Base $parent
-     * @return Model\Columns 
+     * @return Model\Columns
      */
-    public function createColumns($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createColumns($parameter, Base $parent){
         return new Model\Columns($parameter, $parent);
     }
 
@@ -95,9 +100,9 @@ class Loader implements \MwbExporter\Core\IFormatter
      *
      * @param array $parameter
      * @param \MwbExporter\Core\Model\Base $parent
-     * @return Model\ForeignKey 
+     * @return Model\ForeignKey
      */
-    public function createForeignKey($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createForeignKey($parameter, Base $parent){
         return new Model\ForeignKey($parameter, $parent);
     }
 
@@ -105,9 +110,9 @@ class Loader implements \MwbExporter\Core\IFormatter
      *
      * @param array $parameter
      * @param \MwbExporter\Core\Model\Base $parent
-     * @return Model\ForeignKeys 
+     * @return Model\ForeignKeys
      */
-    public function createForeignKeys($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createForeignKeys($parameter, Base $parent){
         return new Model\ForeignKeys($parameter, $parent);
     }
 
@@ -115,9 +120,9 @@ class Loader implements \MwbExporter\Core\IFormatter
      *
      * @param array $parameter
      * @param \MwbExporter\Core\Model\Base $parent
-     * @return Model\Index 
+     * @return Model\Index
      */
-    public function createIndex($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createIndex($parameter, Base $parent){
         return new Model\Index($parameter, $parent);
     }
 
@@ -125,9 +130,9 @@ class Loader implements \MwbExporter\Core\IFormatter
      *
      * @param array $parameter
      * @param \MwbExporter\Core\Model\Base $parent
-     * @return Model\Indices 
+     * @return Model\Indices
      */
-    public function createIndices($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createIndices($parameter, Base $parent){
         return new Model\Indices($parameter, $parent);
     }
 
@@ -135,9 +140,9 @@ class Loader implements \MwbExporter\Core\IFormatter
      *
      * @param array $parameter
      * @param \MwbExporter\Core\Model\Base $parent
-     * @return Model\Schema 
+     * @return Model\Schema
      */
-    public function createSchema($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createSchema($parameter, Base $parent){
         return new Model\Schema($parameter, $parent);
     }
 
@@ -145,9 +150,9 @@ class Loader implements \MwbExporter\Core\IFormatter
      *
      * @param array $parameter
      * @param \MwbExporter\Core\Model\Base $parent
-     * @return Model\Schemas 
+     * @return Model\Schemas
      */
-    public function createSchemas($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createSchemas($parameter, Base $parent){
         return new Model\Schemas($parameter, $parent);
     }
 
@@ -155,9 +160,9 @@ class Loader implements \MwbExporter\Core\IFormatter
      *
      * @param array $parameter
      * @param \MwbExporter\Core\Model\Base $parent
-     * @return Model\Table 
+     * @return Model\Table
      */
-    public function createTable($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createTable($parameter, Base $parent){
         return new Model\Table($parameter, $parent);
     }
 
@@ -165,9 +170,9 @@ class Loader implements \MwbExporter\Core\IFormatter
      *
      * @param array $parameter
      * @param \MwbExporter\Core\Model\Base $parent
-     * @return Model\Tables 
+     * @return Model\Tables
      */
-    public function createTables($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createTables($parameter, Base $parent){
         return new Model\Tables($parameter, $parent);
     }
 
@@ -175,9 +180,9 @@ class Loader implements \MwbExporter\Core\IFormatter
      *
      * @param array $parameter
      * @param \MwbExporter\Core\Model\Base $parent
-     * @return Model\View 
+     * @return Model\View
      */
-    public function createView($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createView($parameter, Base $parent){
         return new Model\View($parameter, $parent);
     }
 
@@ -185,19 +190,19 @@ class Loader implements \MwbExporter\Core\IFormatter
      *
      * @param array $parameter
      * @param \MwbExporter\Core\Model\Base $parent
-     * @return Model\Views 
+     * @return Model\Views
      */
-    public function createViews($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createViews($parameter, Base $parent){
         return new Model\Views($parameter, $parent);
     }
-    
+
     /**
      *
      * @param type $type
      * @param \MwbExporter\Core\Model\Column $column
-     * @return type 
+     * @return type
      */
-    public function useDatatypeConverter($type, \MwbExporter\Core\Model\Column $column){
+    public function useDatatypeConverter($type, Column $column){
         return DatatypeConverter::getType($type, $column);
     }
 }

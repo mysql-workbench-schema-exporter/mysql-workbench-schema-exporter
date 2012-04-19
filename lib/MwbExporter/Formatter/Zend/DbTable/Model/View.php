@@ -25,23 +25,23 @@
 
 namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
-class View extends \MwbExporter\Core\Model\View
+use MwbExporter\Core\Model\View as Base;
+
+class View extends Base
 {
     /**
      *
      * @param SimpleXMLElement $data
-     * @param type $parent 
+     * @param type $parent
      */
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
     }
 
-    
-    
     /**
      *
-     * @return string 
+     * @return string
      */
     public function display()
     {

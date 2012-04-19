@@ -25,10 +25,12 @@
 
 namespace MwbExporter\Formatter\Zend\DbTable;
 
-class DatatypeConverter extends \MwbExporter\Formatter\Zend\DatatypeConverter
-{
+use MwbExporter\Core\Model\Column;
+use MwbExporter\Formatter\Zend\DatatypeConverter as Base;
 
-    public static function getType($key, \MwbExporter\Core\Model\Column $column)
+class DatatypeConverter extends Base
+{
+    public static function getType($key, Column $column)
     {
         $return = '"' . (isset(self::$datatypes[$key]) ? self::$datatypes[$key] : 'unknown') . '"';
         $config = $column->getConfig();

@@ -25,7 +25,9 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
-class Views extends \MwbExporter\Core\Model\Views
+use MwbExporter\Core\Model\Views as Base;
+
+class Views extends Base
 {
     public function __construct($data, $parent)
     {

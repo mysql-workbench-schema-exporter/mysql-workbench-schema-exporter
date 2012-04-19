@@ -25,6 +25,9 @@
 
 namespace MwbExporter\Core\Model;
 
+use MwbExporter\Core\Registry;
+use MwbExporter\Core\Helper\FileExporter;
+
 class PhysicalModel extends Base
 {
     protected $catalog = null;
@@ -34,9 +37,9 @@ class PhysicalModel extends Base
         parent::__construct($data, $parent);
 
         $tmp = $this->data->xpath("value[@key='catalog']");
-        $this->catalog = \MwbExporter\Core\Registry::get('formatter')->createCatalog($tmp[0], $this);
+        $this->catalog = Registry::get('formatter')->createCatalog($tmp[0], $this);
 
-        \MwbExporter\Core\Registry::set($this->id, $this);
+        Registry::set($this->id, $this);
     }
 
     public function display()
@@ -44,7 +47,7 @@ class PhysicalModel extends Base
         return $this->catalog->display();
     }
 
-    public function export(\MwbExporter\Core\Helper\FileExporter $exporter)
+    public function export(FileExporter $exporter)
     {
         return $this->catalog->export($exporter);
     }

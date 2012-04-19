@@ -25,7 +25,9 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
-class Columns extends \MwbExporter\Core\Model\Columns
+use MwbExporter\Core\Model\Columns as Base;
+
+class Columns extends Base
 {
     public function __construct($data, $parent)
     {

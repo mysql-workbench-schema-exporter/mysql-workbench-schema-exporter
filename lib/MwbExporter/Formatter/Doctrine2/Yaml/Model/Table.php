@@ -25,7 +25,10 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
-class Table extends \MwbExporter\Core\Model\Table
+use MwbExporter\Core\Registry;
+use MwbExporter\Core\Model\Table as Base;
+
+class Table extends Base
 {
     public function __construct($data, $parent)
     {
@@ -40,7 +43,7 @@ class Table extends \MwbExporter\Core\Model\Table
      */
     public function display()
     {
-        $config = \MwbExporter\Core\Registry::get('config');
+        $config = Registry::get('config');
 
         $return = array();
         /**

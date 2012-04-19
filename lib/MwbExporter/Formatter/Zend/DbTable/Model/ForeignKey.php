@@ -25,31 +25,34 @@
 
 namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
-class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
+use MwbExporter\Core\Registry;
+use MwbExporter\Core\Model\ForeignKey as Base;
+
+class ForeignKey extends Base
 {
     /**
      *
      * @param SimpleXMLElement $data
-     * @param type $parent 
+     * @param type $parent
      */
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
-        
+
         $referencedColumn = $this->data->xpath("value[@key='referencedColumns']");
-        $local = \MwbExporter\Core\Registry::get((string) $referencedColumn[0]->link);
+        $local = Registry::get((string) $referencedColumn[0]->link);
 
         $ownerColumn = $this->data->xpath("value[@key='columns']");
-        $foreign = \MwbExporter\Core\Registry::get((string) $ownerColumn[0]->link);
-        
+        $foreign = Registry::get((string) $ownerColumn[0]->link);
+
         $this->local   = $local;   // local column object
         $this->foreign = $foreign; // foreign column object
-        
+
         // for doctrine2 annotations switch the local and the foreign
         // reference for a proper output
         $local->markAsForeignReference($this);
         $foreign->markAsLocalReference($this);
-        
+
         // many to many
         if($fk = $this->getOwningTable()->getForeignKeys()){
             // only two or more foreign keys implicate an m2m relation
@@ -71,11 +74,9 @@ class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
         }
     }
 
-    
-    
     /**
      *
-     * @return string 
+     * @return string
      */
     public function display()
     {
@@ -87,7 +88,6 @@ class ForeignKey extends \MwbExporter\Core\Model\ForeignKey
         $return[] = $this->indentation(4) .'\'refColumns\'    => \''. $this->local->getColumnName() .'\',';
         $return[] = $this->indentation(3) .'),';
 
-        
         return implode("\n", $return);
     }
 }

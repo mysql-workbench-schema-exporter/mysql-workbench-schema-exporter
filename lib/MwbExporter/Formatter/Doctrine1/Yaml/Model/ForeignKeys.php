@@ -25,7 +25,9 @@
 
 namespace MwbExporter\Formatter\Doctrine1\Yaml\Model;
 
-class ForeignKeys extends \MwbExporter\Core\Model\ForeignKeys
+use MwbExporter\Core\Model\ForeignKeys as Base;
+
+class ForeignKeys extends Base
 {
     public function __construct($data, $parent)
     {

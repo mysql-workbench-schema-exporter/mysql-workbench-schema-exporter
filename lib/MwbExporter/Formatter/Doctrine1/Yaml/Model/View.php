@@ -25,7 +25,9 @@
 
 namespace MwbExporter\Formatter\Doctrine1\Yaml\Model;
 
-class View extends \MwbExporter\Core\Model\View
+use MwbExporter\Core\Model\View as Base;
+
+class View extends Base
 {
     public function __construct($data, $parent)
     {

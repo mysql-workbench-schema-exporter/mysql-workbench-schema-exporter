@@ -25,7 +25,9 @@
 
 namespace MwbExporter\Formatter\Doctrine1\Yaml\Model;
 
-class Indices extends \MwbExporter\Core\Model\Indices
+use MwbExporter\Core\Model\Indices as Base;
+
+class Indices extends Base
 {
     public function __construct($data, $parent)
     {

@@ -25,18 +25,21 @@
 
 namespace MwbExporter\Core\Model;
 
+use MwbExporter\Core\Registry;
+use MwbExporter\Helper\Pluralizer;
+
 abstract class View extends Base
 {
     protected $config = null;
     protected $columns = null;
-    
+
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
 
         $tmp = $this->data->xpath("value[@key='columns']");
-        $this->columns = \MwbExporter\Core\Registry::get('formatter')->createColumns($tmp[0], $this);
-        
+        $this->columns = Registry::get('formatter')->createColumns($tmp[0], $this);
+
         // iterate on column configuration
         foreach($this->data->value as $key => $node){
             $attributes         = $node->attributes();         // read attributes
@@ -44,23 +47,22 @@ abstract class View extends Base
             $key                = (string) $attributes['key']; // assign key
             $this->config[$key] = (string) $node[0];           // assign value
         }
-        
-        \MwbExporter\Core\Registry::set($this->id, $this);
+
+        Registry::set($this->id, $this);
     }
-    
+
     public function getRawTableName()
     {
         return $this->config['name'];
     }
-    
+
     public function getModelName()
     {
         return ucfirst(preg_replace('@\_(\w)@e', 'ucfirst("$1")', $this->getRawTableName()));
     }
-    
+
     public function getModelNameInPlural()
     {
-        return Helper_Pluralizer::pluralize($this->getModelName());
+        return Pluralizer::pluralize($this->getModelName());
     }
-
 }

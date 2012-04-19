@@ -25,66 +25,71 @@
 
 namespace MwbExporter\Formatter\Doctrine1\Yaml;
 
-class Loader implements \MwbExporter\Core\IFormatter
+use MwbExporter\Core\IFormatter;
+use MwbExporter\Core\Registry;
+use MwbExporter\Core\Model\Base;
+use MwbExporter\Core\Model\Column;
+
+class Loader implements IFormatter
 {
     public function __construct(array $setup = array()){
-        \MwbExporter\Core\Registry::set('config', $setup);
+        Registry::set('config', $setup);
         DatatypeConverter::setUp();
     }
 
-    public function createCatalog($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createCatalog($parameter, Base $parent){
         return new Model\Catalog($parameter, $parent);
     }
 
-    public function createColumn($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createColumn($parameter, Base $parent){
         return new Model\Column($parameter, $parent);
     }
 
-    public function createColumns($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createColumns($parameter, Base $parent){
         return new Model\Columns($parameter, $parent);
     }
 
-    public function createForeignKey($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createForeignKey($parameter, Base $parent){
         return new Model\ForeignKey($parameter, $parent);
     }
 
-    public function createForeignKeys($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createForeignKeys($parameter, Base $parent){
         return new Model\ForeignKeys($parameter, $parent);
     }
 
-    public function createIndex($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createIndex($parameter, Base $parent){
         return new Model\Index($parameter, $parent);
     }
 
-    public function createIndices($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createIndices($parameter, Base $parent){
         return new Model\Indices($parameter, $parent);
     }
 
-    public function createSchema($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createSchema($parameter, Base $parent){
         return new Model\Schema($parameter, $parent);
     }
 
-    public function createSchemas($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createSchemas($parameter, Base $parent){
         return new Model\Schemas($parameter, $parent);
     }
 
-    public function createTable($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createTable($parameter, Base $parent){
         return new Model\Table($parameter, $parent);
     }
 
-    public function createTables($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createTables($parameter, Base $parent){
         return new Model\Tables($parameter, $parent);
     }
 
-    public function createView($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createView($parameter, Base $parent){
         return new Model\View($parameter, $parent);
     }
 
-    public function createViews($parameter, \MwbExporter\Core\Model\Base $parent){
+    public function createViews($parameter, Base $parent){
         return new Model\Views($parameter, $parent);
     }
 
-    public function useDatatypeConverter($type, \MwbExporter\Core\Model\Column $column){
+    public function useDatatypeConverter($type, Column $column){
         return DatatypeConverter::getType($type, $column);
     }
 }

@@ -25,45 +25,43 @@
 
 namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
-class Table extends \MwbExporter\Core\Model\Table
+use MwbExporter\Core\Registry;
+use MwbExporter\Core\Model\Table as Base;
+
+class Table extends Base
 {
     /**
-     * @var array 
+     * @var array
      */
     protected $manyToManyRelations = array();
 
-    
     /**
-     * @var string 
+     * @var string
      */
     protected $tablePrefix = '';
-    
-    
-    
+
     /**
      *
      * @param SimpleXMLElement $data
-     * @param type $parent 
+     * @param type $parent
      */
     public function __construct($data, $parent)
     {
-        $config = \MwbExporter\Core\Registry::get('config');
+        $config = Registry::get('config');
         $this->tablePrefix = $config['tablePrefix'];
         $this->parentTable = $config['parentTable'];
-        
+
         parent::__construct($data, $parent);
     }
 
-    
-    
     /**
      *
-     * @return string 
+     * @return string
      */
     public function display()
-    {   
-        $config = \MwbExporter\Core\Registry::get('config');
-        
+    {
+        $config = Registry::get('config');
+
         $return = array();
 
         $return[] = '<?php';
@@ -71,10 +69,10 @@ class Table extends \MwbExporter\Core\Model\Table
         $return[] = '/**';
         $return[] = ' * ';
         $return[] = ' */';
-        
-        /* FIXME: [Zend] Table name is one time in singular form, one time in plural form. 
+
+        /* FIXME: [Zend] Table name is one time in singular form, one time in plural form.
          *        All table occurence need to be at the original form.
-         * 
+         *
          *        $this->getModelName() return singular form with correct camel case
          *        $this->getRawTableName() return original form with no camel case
          */
@@ -86,75 +84,68 @@ class Table extends \MwbExporter\Core\Model\Table
         $return[] = $this->indentation(1) .'/* @var string $_name */';
         $return[] = $this->indentation(1) .'protected $_name            = \''. $this->getRawTableName() .'\';';
         $return[] = '';
-        
-        
+
         if (true === $config['generateDRI']) {
             $return[] = $this->displayDependencies();
         }
-        
+
         $return[] = $this->displayReferences();
-        
+
         $return[] = '';
         $return[] = '}';
         $return[] = '?>';
         $return[] = '';
         $return[] = '';
-        
+
         return implode("\n", $return);
     }
-    
-    
+
     /**
      *
-     * @param array $rel 
+     * @param array $rel
      */
     public function setManyToManyRelation(array $rel)
     {
         $key = $rel['refTable']->getModelName();
         $this->manyToManyRelations[$key] = $rel;
     }
-    
-    
-    
+
     /**
      *
-     * @return string 
+     * @return string
      */
     protected function displayDependencies()
     {
         //TODO: [Zend] Find a way to print dependance without change the core.
         $return = array();
-        
+
 //        $dependentTables = $this->getRelationToTable('users');
 //        var_dump($this->getRawTableName());
 //        var_dump(count($dependentTables));
 //        var_dump($dependentTables);
-        
-        
+
         $return[] = $this->indentation(1) .'/* Note: this feature isn\'t implement yet */';
-        
+
         $return[] = $this->indentation(1) .'/* @var array $_dependentTables */';
         $return[] = $this->indentation(1) .'protected $_dependentTables = array();';
         $return[] = '';
-        
+
         return implode("\n", $return);
     }
-    
-    
-    
+
     /**
      *
-     * @return string 
+     * @return string
      */
     protected function displayReferences()
     {
         $return = array();
-        
+
         $return[] = $this->indentation(1) .'/* @var array $_referenceMap */';
-        
+
         if (count($this->getForeignKeys()) > 0) {
             $return[] = $this->indentation(1) .'protected $_referenceMap    = array(';
-       
+
             foreach($this->getForeignKeys() as $foreignKey){
                 $return[] = $foreignKey->display();
             }
@@ -163,7 +154,7 @@ class Table extends \MwbExporter\Core\Model\Table
         } else {
             $return[] = $this->indentation(1) .'protected $_referenceMap    = array();';
         }
-        
+
         $return[] = '';
         return implode("\n", $return);
     }

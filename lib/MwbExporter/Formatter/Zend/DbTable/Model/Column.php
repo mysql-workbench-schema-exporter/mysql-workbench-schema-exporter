@@ -25,30 +25,32 @@
 
 namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
-class Column extends \MwbExporter\Core\Model\Column
+use MwbExporter\Core\Registry;
+use MwbExporter\Core\Model\Column as Base;
+use MwbExporter\Helper\Pluralizer;
+
+class Column extends Base
 {
     /**
      *
      * @param SimpleXMLElement $data
-     * @param type $parent 
+     * @param type $parent
      */
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
     }
 
-    
-    
     /**
      *
-     * @return string 
+     * @return string
      */
     public function display()
     {
         $return = array();
 
         // do not include columns that reflect references
-        if(is_null($this->local)){
+        if(null === $this->local){
             // generate private $<column> class vars
             $return[] = '    /** ';
 
@@ -58,7 +60,7 @@ class Column extends \MwbExporter\Core\Model\Column
             }
 
             // set name of column
-            $tmp  .= '@Column(type=' . \MwbExporter\Core\Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
+            $tmp  .= '@Column(type=' . Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
 
             if(!isset($this->config['isNotNull']) || $this->config['isNotNull'] != 1){
                 $tmp .= ',nullable=true';
@@ -81,20 +83,20 @@ class Column extends \MwbExporter\Core\Model\Column
                 $return[] = '    /**';
                 $return[] = '     * @OneToMany(targetEntity="' . $foreign->getOwningTable()->getModelName() . '", mappedBy="' . $foreign->getReferencedTable()->getModelName() . '")';
                 $return[] = '     */';
-                $return[] = '    private $' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
+                $return[] = '    private $' . lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
                 $return[] = '';
             }
         }
 
         // many to references
-        if(!is_null($this->local)){
+        if(!null === $this->local){
             $return[] = '    /**';
             $return[] = '     * @ManyToOne(targetEntity="' . $this->local->getReferencedTable()->getModelName() . '", inversedBy="' . $this->local->getOwningTable()->getModelName() . '")';
             $return[] = '     */';
             $return[] = '    private $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
             $return[] = '';
         }
-        
+
         /*
         // set default value
         if(isset($this->config['defaultValue']) && $this->config['defaultValue'] != '' && $this->config['defaultValue'] != 'NULL'){
@@ -106,40 +108,36 @@ class Column extends \MwbExporter\Core\Model\Column
             $return[] = '      ' . strtolower($flag) . ': true';
         }
         */
-        
+
         // return yaml representation of column
         return implode("\n", $return);
     }
 
-    
-    
     /**
      *
-     * @return string|boolean 
+     * @return string|boolean
      */
     public function displayArrayCollection()
     {
         if(is_array($this->foreigns)){
             foreach($this->foreigns as $foreign){
-                return '        $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ' = new ArrayCollection();';
+                return '        $this->' . lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ' = new ArrayCollection();';
             }
         }
-        
+
         return false;
     }
-    
-    
-    
+
     /**
      *
-     * @return string 
+     * @return string
      */
     public function displayGetterAndSetter()
     {
         $return = array();
 
         // do not include getter and setter for columns that reflect references
-        if(is_null($this->local)){
+        if(null === $this->local){
             $return[] = '    public function set' . $this->columnNameBeautifier($this->config['name']) . '($' . $this->config['name'] . ')';
             $return[] = '    {';
             $return[] = '         $this->' . $this->config['name'] . ' = $' . $this->config['name'] . ';';
@@ -159,21 +157,21 @@ class Column extends \MwbExporter\Core\Model\Column
             foreach($this->foreigns as $foreign){
                 $return[] = '    public function add' . $this->columnNameBeautifier($foreign->getOwningTable()->getModelName()) . '(' . $foreign->getOwningTable()->getModelName() . ' $' . lcfirst($foreign->getOwningTable()->getModelName()) . ')';
                 $return[] = '    {';
-                $return[] = '         $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . '[] = $' . lcfirst($foreign->getOwningTable()->getModelName()) . ';';
+                $return[] = '         $this->' . lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . '[] = $' . lcfirst($foreign->getOwningTable()->getModelName()) . ';';
                 $return[] = '         return $this; // fluent interface';
                 $return[] = '    }';
                 $return[] = '';
 
-                $return[] = '    public function get' . $this->columnNameBeautifier(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . '()';
+                $return[] = '    public function get' . $this->columnNameBeautifier(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . '()';
                 $return[] = '    {';
-                $return[] = '         return $this->' . lcfirst(\MwbExporter\Helper\Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
+                $return[] = '         return $this->' . lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
                 $return[] = '    }';
                 $return[] = '';
             }
         }
 
         // many to one references
-        if(!is_null($this->local)){
+        if(!null === $this->local){
             $return[] = '    public function set' . $this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()) . '(' . $this->local->getReferencedTable()->getModelName() . ' $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ')';
             $return[] = '    {';
             $return[] = '         $' . lcfirst($this->local->getReferencedTable()->getModelName()) . '->add' . $this->columnNameBeautifier($this->local->getOwningTable()->getModelName()) . '($this);';
@@ -192,8 +190,6 @@ class Column extends \MwbExporter\Core\Model\Column
         return implode("\n", $return);
     }
 
-    
-    
     /**
      *
      * @param string $columnName

@@ -25,6 +25,9 @@
 
 namespace MwbExporter\Core\Helper;
 
+use MwbExporter\Core\Registry;
+use MwbExporter\Core\Model\Table;
+
 class FileExporter
 {
     protected $savePath         = null;
@@ -35,7 +38,7 @@ class FileExporter
 
     public function __construct($savePath)
     {
-        $this->config = \MwbExporter\Core\Registry::get('config');
+        $this->config = Registry::get('config');
         if (!file_exists($savePath))
         {
             @mkdir($savePath);
@@ -52,7 +55,7 @@ class FileExporter
         return false;
     }
 
-    protected function getTableFileName(\MwbExporter\Core\Model\Table $table)
+    protected function getTableFileName(Table $table)
     {
         $schemaName = $table->getSchemaName();
         $tableName  = $table->getRawTableName();
@@ -79,7 +82,7 @@ class FileExporter
         return $fileName;
     }
 
-    public function addTable(\MwbExporter\Core\Model\Table $table)
+    public function addTable(Table $table)
     {
         file_put_contents($this->savePath.DIRECTORY_SEPARATOR.$this->getTableFileName($table), $table->display());
     }

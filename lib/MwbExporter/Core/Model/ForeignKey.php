@@ -25,6 +25,8 @@
 
 namespace MwbExporter\Core\Model;
 
+use MwbExporter\Core\Registry;
+
 abstract class ForeignKey extends Base
 {
     protected $config = null;
@@ -54,17 +56,17 @@ abstract class ForeignKey extends Base
             
             if($key == 'referencedTable'){
                 $referencedTableId = (string) $node;
-                $this->referencedTable = \MwbExporter\Core\Registry::get($referencedTableId);
+                $this->referencedTable = Registry::get($referencedTableId);
             }
             
             if($key == 'owner'){
                 $owningTableId = (string) $node;
-                $this->owningTable = \MwbExporter\Core\Registry::get($owningTableId);
+                $this->owningTable = Registry::get($owningTableId);
                 $this->owningTable->injectRelation($this);
             }
         }
         
-        \MwbExporter\Core\Registry::set($this->id, $this);
+        Registry::set($this->id, $this);
     }
     
     public function getReferencedTable()

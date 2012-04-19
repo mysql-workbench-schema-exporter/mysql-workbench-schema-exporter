@@ -25,7 +25,10 @@
 
 namespace MwbExporter\Formatter\Doctrine1\Yaml\Model;
 
-class Column extends \MwbExporter\Core\Model\Column
+use MwbExporter\Core\Registry;
+use MwbExporter\Core\Model\Column as Base;
+
+class Column extends Base
 {
     public function __construct($data, $parent)
     {
@@ -40,7 +43,7 @@ class Column extends \MwbExporter\Core\Model\Column
         $return[] = '    ' . $this->config['name'] . ':';
 
         // set datatype of column
-        $return[] = '      type: ' . \MwbExporter\Core\Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
+        $return[] = '      type: ' . Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
 
         if($this->isPrimary){
             $return[] = '      primary: true';
@@ -50,7 +53,7 @@ class Column extends \MwbExporter\Core\Model\Column
         if(isset($this->config['isNotNull']) && $this->config['isNotNull'] == 1){
             $return[] = '      notnull: true';
         }
-        
+
         // check for auto increment column
         if(isset($this->config['autoIncrement']) && $this->config['autoIncrement'] == 1){
             $return[] = '      autoincrement: true';

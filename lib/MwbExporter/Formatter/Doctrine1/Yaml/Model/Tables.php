@@ -25,7 +25,9 @@
 
 namespace MwbExporter\Formatter\Doctrine1\Yaml\Model;
 
-class Tables extends \MwbExporter\Core\Model\Tables
+use MwbExporter\Core\Model\Tables as Base;
+
+class Tables extends Base
 {
     public function __construct($data, $parent)
     {
