@@ -47,7 +47,7 @@ class Columns extends \MwbExporter\Core\Model\Columns
       foreach($this->columns as $column){
         $return[] = $this->indentation($in+1).$column->displayField();
       }
-      $return[count($return)-1] = substr($return[count($return)-1], 0, strlen($return[count($return)])-1); // Remove the last comma from the loop above
+      $return[count($return)-1] = substr($return[count($return)-1], 0, strlen($return[count($return)-1])-1); // Remove the last comma from the loop above
       $return[] = $this->indentation($in+0).']';
       return implode("\n",$return);
     }
@@ -62,7 +62,7 @@ class Columns extends \MwbExporter\Core\Model\Columns
       foreach($this->columns as $column){
         $return[] = $this->indentation($in+1).$column->displayColumn();
       }
-      $return[count($return)-1] = substr($return[count($return)-1], 0, strlen($return[count($return)])-1); // Remove the last comma from the loop above
+      $return[count($return)-1] = substr($return[count($return)-1], 0, strlen($return[count($return)-1])-1); // Remove the last comma from the loop above
       $return[] = $this->indentation($in+0).']';
       return implode("\n",$return);
     }
@@ -77,7 +77,7 @@ class Columns extends \MwbExporter\Core\Model\Columns
       foreach($this->columns as $column){
         $return[] = $column->displayFormItem($in+1);
       }
-      $return[count($return)-1] = substr($return[count($return)-1], 0, strlen($return[count($return)])-1); // Remove the last comma from the loop above
+      $return[count($return)-1] = substr($return[count($return)-1], 0, strlen($return[count($return)-1])-1); // Remove the last comma from the loop above
       $return[] = $this->indentation($in+0).']';
       return implode("\n",$return);
     }

@@ -141,7 +141,7 @@ class Column extends Base
             $return[] = '    public function set' . $this->columnNameBeautifier($this->config['name']) . '($' . $this->config['name'] . ')';
             $return[] = '    {';
             $return[] = '         $this->' . $this->config['name'] . ' = $' . $this->config['name'] . ';';
-            $return[] = '         return $this; // fluent interface';
+            $return[] = '         return $this;';
             $return[] = '    }';
             $return[] = '';
 
@@ -158,7 +158,7 @@ class Column extends Base
                 $return[] = '    public function add' . $this->columnNameBeautifier($foreign->getOwningTable()->getModelName()) . '(' . $foreign->getOwningTable()->getModelName() . ' $' . lcfirst($foreign->getOwningTable()->getModelName()) . ')';
                 $return[] = '    {';
                 $return[] = '         $this->' . lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . '[] = $' . lcfirst($foreign->getOwningTable()->getModelName()) . ';';
-                $return[] = '         return $this; // fluent interface';
+                $return[] = '         return $this;';
                 $return[] = '    }';
                 $return[] = '';
 
@@ -176,7 +176,7 @@ class Column extends Base
             $return[] = '    {';
             $return[] = '         $' . lcfirst($this->local->getReferencedTable()->getModelName()) . '->add' . $this->columnNameBeautifier($this->local->getOwningTable()->getModelName()) . '($this);';
             $return[] = '         $this->' . lcfirst($this->local->getReferencedTable()->getModelName()) . ' = $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
-            $return[] = '         return $this; // fluent interface';
+            $return[] = '         return $this;';
             $return[] = '    }';
             $return[] = '';
 

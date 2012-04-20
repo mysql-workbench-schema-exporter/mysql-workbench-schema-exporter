@@ -182,7 +182,7 @@ class Column extends Base
             $return[] = $this->indentation() . 'public function set' . $this->columnNameBeautifier($this->config['name']) . '($' . $this->config['name'] . ')';
             $return[] = $this->indentation() . '{';
             $return[] = $this->indentation(2) . '$this->' . $this->config['name'] . ' = $' . $this->config['name'] . ';';
-            $return[] = $this->indentation(2) . 'return $this; // fluent interface';
+            $return[] = $this->indentation(2) . 'return $this;';
             $return[] = $this->indentation() . '}';
             $return[] = '';
 
@@ -202,14 +202,14 @@ class Column extends Base
                     $return[] = $this->indentation() . 'public function add' . $this->columnNameBeautifier($foreign->getOwningTable()->getModelName()) . '(' . $foreign->getOwningTable()->getModelName() . ' $' . lcfirst($foreign->getOwningTable()->getModelName()) . ')';
                     $return[] = $this->indentation() . '{';
                     $return[] = $this->indentation(2) . '$this->' . lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . '[] = $' . lcfirst($foreign->getOwningTable()->getModelName()) . ';';
-                    $return[] = $this->indentation(2) . 'return $this; // fluent interface';
+                    $return[] = $this->indentation(2) . 'return $this;';
                     $return[] = $this->indentation() . '}';
                 } else { // OneToOne
                     $return[] = $this->indentation() . '//one to one relation';
                     $return[] = $this->indentation() . 'public function set' . $this->columnNameBeautifier($foreign->getOwningTable()->getModelName()) . '(' . $foreign->getOwningTable()->getModelName() . ' $' . lcfirst($foreign->getOwningTable()->getModelName()) . ')';
                     $return[] = $this->indentation() . '{';
                     $return[] = $this->indentation(2) . '$this->' . lcfirst($foreign->getOwningTable()->getModelName()) . ' = $' . lcfirst($foreign->getOwningTable()->getModelName()) . ';';
-                    $return[] = $this->indentation(2) . 'return $this; // fluent interface';
+                    $return[] = $this->indentation(2) . 'return $this;';
                     $return[] = $this->indentation() . '}';
                 }
                 $return[] = '';
@@ -239,7 +239,7 @@ class Column extends Base
                 $return[] = $this->indentation() . '{';
                 $return[] = $this->indentation(2) . '$' . lcfirst($this->local->getReferencedTable()->getModelName()) . '->add' . $this->columnNameBeautifier($this->local->getOwningTable()->getModelName()) . '($this);';
                 $return[] = $this->indentation(2) . '$this->' . lcfirst($this->local->getReferencedTable()->getModelName()) . ' = $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
-                $return[] = $this->indentation(2) . 'return $this; // fluent interface';
+                $return[] = $this->indentation(2) . 'return $this;';
                 $return[] = $this->indentation() . '}';
                 $return[] = '';
             } else { // OneToOne
@@ -248,7 +248,7 @@ class Column extends Base
                 $return[] = $this->indentation() . '{';
                 $return[] = $this->indentation(2) . '$' . lcfirst($this->local->getReferencedTable()->getModelName()) . '->set' . $this->columnNameBeautifier($this->local->getOwningTable()->getModelName()) . '($this);';
                 $return[] = $this->indentation(2) . '$this->' . lcfirst($this->local->getReferencedTable()->getModelName()) . ' = $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
-                $return[] = $this->indentation(2) . 'return $this; // fluent interface';
+                $return[] = $this->indentation(2) . 'return $this;';
                 $return[] = $this->indentation() . '}';
                 $return[] = '';
             }
