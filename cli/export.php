@@ -265,6 +265,19 @@ function main($filename, $dir, $params, $options)
       $extension = 'php';
       break;
 
+    case 'zend-restcontroller':
+      $title = 'Zend Rest Controller';
+      $setup = array(
+          'tablePrefix'               => '',
+          'parentTable'               => 'Zend_Rest_Controller',
+          'indentation'               => 4,
+          'filename'                  => 'RestController/%entity%Controller.%extension%',
+      );
+      $formatter_class = '\MwbExporter\Formatter\Zend\Controller\Loader';
+      $extension = 'php';
+      break;
+
+
     case 'js-sencha3model':
       $title = 'JS Sencha3Model';
       $setup = array(

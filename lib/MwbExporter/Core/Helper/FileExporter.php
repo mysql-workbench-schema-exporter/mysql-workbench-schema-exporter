@@ -46,7 +46,7 @@ class FileExporter
     protected function mkdir($path)
     {
         if (!is_readable($path)) {
-            @mkdir($path, null, true);
+            @mkdir($path, 0777, true);
         }
     }
 
