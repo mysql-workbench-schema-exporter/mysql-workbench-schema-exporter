@@ -228,7 +228,7 @@ abstract class Table extends Base
     {
         return $this->getParent()->getParent();
     }
-    
+
     /**
      *
      * @return int
@@ -236,6 +236,13 @@ abstract class Table extends Base
     public function countColumns()
     {
         return $this->columns->countColumns();
+    }
+
+    /**
+     * Return columns
+     */
+    public function getColumns(){
+        return $this->columns;
     }
 
     /**

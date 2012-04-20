@@ -23,10 +23,31 @@
  *  THE SOFTWARE.
  */
 
-namespace MwbExporter\Core;
+namespace MwbExporter\Helper;
 
-abstract class DatatypeConverter implements IDatatypeConverter
+class ZendURLFormatter extends \MwbExporter\Core\Helper\WordTransform
 {
-    protected static $datatypes = array();
+    /**
+     * Format a CamelCase word into Camel-Case format
+     * @param string $word
+     */
+    public static function fromCamelCaseToDashConnection($string)
+    {
+      $return = preg_replace('/([A-Z])/e', "'-' . ucwords(strtolower('\\1'))", $string);
+      if(substr($return, 0,1) == '-')
+        $return = substr($return, 1, strlen($return));
+      return $return;
+    }
 
+    /**
+     * Format a underscore connected word into Camel-Case format
+     * @param string $word
+     */
+    public static function fromUnderscoreConnectionToDashConnection($string)
+    {
+      $return = str_replace(' ','-',ucwords(str_replace('_',' ',$string)));
+      if(substr($return, 0,1) == '-')
+        $return = substr($return, 1, strlen($return));
+      return $return;
+    }
 }

@@ -2,7 +2,7 @@
 /*
  *  The MIT License
  *
- *  Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
+ *  Copyright (c) 2012 Allan Sun <sunajia@gmail.com>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,22 +23,22 @@
  *  THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Zend\DbTable\Model;
+namespace MwbExporter\Formatter\JS\Sencha3Model\Model;
 
-use MwbExporter\Core\Registry;
-use MwbExporter\Core\Model\Table as Base;
-
-class Table extends Base
+class Table extends \MwbExporter\Core\Model\Table
 {
     /**
-     * @var array
+     * @var string
      */
-    protected $manyToManyRelations = array();
+    protected $parentClass = '';
+
 
     /**
      * @var string
      */
-    protected $tablePrefix = '';
+    protected $classPrefix = '';
+
+
 
     /**
      *
@@ -48,18 +48,20 @@ class Table extends Base
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
-        $config = Registry::get('config');
-        $this->tablePrefix = str_replace(
+        $config = \MwbExporter\Core\Registry::get('config');
+        $this->classPrefix = str_replace(
             array('%schema%', '%table%', '%entity%'),
             array($this->getSchemaName(), $this->getRawTableName(), $this->getModelName()),
-            $config['tablePrefix']
+            $config['classPrefix']
         );
-        $this->parentTable = str_replace(
+        $this->parentClass = str_replace(
             array('%schema%', '%table%', '%entity%'),
             array($this->getSchemaName(), $this->getRawTableName(), $this->getModelName()),
-            $config['parentTable']
+            $config['parentClass']
         );
     }
+
+
 
     /**
      *
@@ -67,44 +69,49 @@ class Table extends Base
      */
     public function display()
     {
-        $config = Registry::get('config');
+        $config = \MwbExporter\Core\Registry::get('config');
 
         $return = array();
 
-        $return[] = '<?php';
-        $return[] = '';
-        $return[] = '/**';
-        $return[] = ' * ';
-        $return[] = ' */';
-
-        /* FIXME: [Zend] Table name is one time in singular form, one time in plural form.
-         *        All table occurence need to be at the original form.
-         *
-         *        $this->getModelName() return singular form with correct camel case
-         *        $this->getRawTableName() return original form with no camel case
-         */
-        $return[] = 'class ' . $this->tablePrefix . $this->getSchemaName() .'_'. $this->getModelName() . ' extends ' . $this->parentTable;
-        $return[] = '{';
-        $return[] = $this->indentation(1) .'/* @var string $_schema */';
-        $return[] = $this->indentation(1) .'protected $_schema          = \''. $this->getSchemaName() .'\';';
-        $return[] = '';
-        $return[] = $this->indentation(1) .'/* @var string $_name */';
-        $return[] = $this->indentation(1) .'protected $_name            = \''. $this->getRawTableName() .'\';';
+        //Model
+        $return[] = $this->classPrefix . '.'. $this->getModelName() . ' = Ext.extend(' . $this->parentClass . ',{';
+        $return[] = $this->indentation(1) .'id:\''. $this->getModelName() .'\',';
+        $return[] = $this->indentation(1) .'url:\'/'. \MwbExporter\Helper\ZendURLFormatter::fromCamelCaseToDashConnection($this->getModelName()) .'\',';
+        $return[] = $this->indentation(1) .'title:\''. str_replace('-', ' ',\MwbExporter\Helper\ZendURLFormatter::fromCamelCaseToDashConnection($this->getModelName()) ).'\',';
+        $return[] = $this->getColumns()->displayFields(1);
+        $return[] = '});';
         $return[] = '';
 
-        if (true === $config['generateDRI']) {
-            $return[] = $this->displayDependencies();
-        }
-
-        $return[] = $this->displayReferences();
-
-        $return[] = '';
-        $return[] = '}';
-        $return[] = '?>';
-        $return[] = '';
+        //UI
+        $return[] = $this->classPrefix . '.'. $this->getModelName() . ' = Ext.extend(' . $this->classPrefix . '.'. $this->getModelName() . ',{';
+        $return[] = $this->getColumns()->displayColumns(1).",";
+        $return[] = $this->getColumns()->displayFormItems(1);
+        $return[] = '});';
         $return[] = '';
 
         return implode("\n", $return);
+    }
+
+
+    /**
+     *
+     * @param int $in Default number of indentation
+     */
+    protected function displayFields()
+    {
+      $return = array();
+
+      $return[] = 'fields:[';
+
+//      echo $this->getColumns()->display(); die();
+
+      foreach($this->getColumns() AS $column){
+        $return[] = $this->indentation(1) . "{name:'".$column->getColumnName()."},";
+      }
+      $return[count($return)] = substr($return[count($return)], 0, strlen($return[count($return)])-1); // Remove the last comma from the loop above
+
+      $return[] = ']';
+      return implode("\n", $return);
     }
 
     /**
@@ -116,6 +123,8 @@ class Table extends Base
         $key = $rel['refTable']->getModelName();
         $this->manyToManyRelations[$key] = $rel;
     }
+
+
 
     /**
      *
@@ -131,6 +140,7 @@ class Table extends Base
 //        var_dump(count($dependentTables));
 //        var_dump($dependentTables);
 
+
         $return[] = $this->indentation(1) .'/* Note: this feature isn\'t implement yet */';
 
         $return[] = $this->indentation(1) .'/* @var array $_dependentTables */';
@@ -139,6 +149,8 @@ class Table extends Base
 
         return implode("\n", $return);
     }
+
+
 
     /**
      *

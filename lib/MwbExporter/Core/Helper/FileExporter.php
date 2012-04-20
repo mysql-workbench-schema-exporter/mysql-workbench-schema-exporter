@@ -31,7 +31,7 @@ use MwbExporter\Core\Model\Table;
 class FileExporter
 {
     protected $savePath         = null;
-    protected $availableFormats = array('yml' => 'yml', 'php' => 'php', 'yaml' => 'yml');
+    protected $availableFormats = array('yml' => 'yml', 'php' => 'php', 'yaml' => 'yml', 'js' => 'js');
     protected $saveFormat       = 'php';
 
     protected $config           = null;
@@ -46,7 +46,7 @@ class FileExporter
     protected function mkdir($path)
     {
         if (!is_readable($path)) {
-            @mkdir($path, null, true);
+            @mkdir($path, 0777, true);
         }
     }
 
