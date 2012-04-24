@@ -55,7 +55,7 @@ echo "</textarea>";
 
 // save as zip file in current directory and use .php as file endings
 echo "<br><br>";
-echo $mwb->zipExport(__DIR__, 'php');
+echo $mwb->zipExport(__DIR__, 'js');
 
 // show some information about used memory
 echo "<br><br>";
