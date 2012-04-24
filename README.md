@@ -16,6 +16,8 @@ The application is intended to create:
   * Doctrine1
   * Doctrine2
   * Zend DbTable
+  * Zend Rest Controller
+  * JS Sencha3Model
   * Propel (not implemented)
   * CakePHP (not implemented)
 

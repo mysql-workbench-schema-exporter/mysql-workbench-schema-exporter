@@ -39,6 +39,8 @@ Options:
                 - doctrine2-annotation     Doctrine 2.0 annotation classes
                 - doctrine2-yml            Doctrine 2.0 yml schema
                 - zend-dbtable             Zend DbTable
+                - zend-restcontroller      Zend Rest Controller
+                - js-sencha3model          JS Sencha3Model
 --config=file   Read file for export parameters, in JSON format.
 --saveconfig    Save export parameters to file.
 --zip           Export as zip archive.
@@ -288,12 +290,11 @@ function main($filename, $dir, $params, $options)
       );
       $formatter_class = '\MwbExporter\Formatter\JS\Sencha3Model\Loader';
       $extension = 'js';
-         	break;
+      break;
 
     default:
       echo "Unknown export type: $export, use --help to show more option.\n\n";
       die(0);
-      break;
   }
 
   echo sprintf("Exporting %s as %s.\n\n", basename($filename), $title);
