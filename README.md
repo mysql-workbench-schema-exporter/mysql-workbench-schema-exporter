@@ -59,6 +59,8 @@ Where:
       * `doctrine2-yml`, Doctrine 2.0 YAML schema
       * `doctrine2-annotation`, Doctrine 2.0 Annotation classes (default)
       * `zend-dbtable`, Zend DbTable
+      * `zend-restcontroller`, Zend Rest Controller
+      * `js-sencha3model`, JS Sencha3Model
     * `--config=file`, read export parameters from file (in JSON format)
     * `--saveconfig`, save export parameters to file `export.json`, later can be used as value for `--config=file`
     * `--zip`, compress the result
@@ -78,6 +80,7 @@ Sample export paramaters (JSON) for doctrine2-annotation:
         "zip": false,
         "dir": "temp",
         "params": {
+            "backupExistingFile": true,
             "skipPluralNameChecking": false,
             "enhancedManyToManyDetection": false,
             "bundleNamespace": "",
@@ -98,6 +101,7 @@ Exporter Options
 General options applied to all formatter.
 
   * `skipPluralNameChecking`, skip checking the plural name of model and leave as is, useful for non English table names.
+  * `backupExistingFile`, if target already exists create a backup before replacing the content.
 
 ### Option list for doctrine 1
 

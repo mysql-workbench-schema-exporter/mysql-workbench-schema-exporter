@@ -298,21 +298,18 @@ function main($filename, $dir, $params, $options)
   }
 
   echo sprintf("Exporting %s as %s.\n\n", basename($filename), $title);
-  $setup = array_merge(array('skipPluralNameChecking' => false), $setup);
-  if (count($setup))
+  $setup = array_merge(array('backupExistingFile' => true, 'skipPluralNameChecking' => false), $setup);
+  if (count($configs))
   {
-    if (count($configs))
+    mergeFormatter($setup, $configs);
+  }
+  else
+  {
+    $ask = false;
+    askValue('Would you like to change the setup configuration before exporting', $ask);
+    if ($ask)
     {
-      mergeFormatter($setup, $configs);
-    }
-    else
-    {
-      $ask = false;
-      askValue('Would you like to change the setup configuration before exporting', $ask);
-      if ($ask)
-      {
-        setupFormatter($setup);
-      }
+      setupFormatter($setup);
     }
   }
   // save export parameters

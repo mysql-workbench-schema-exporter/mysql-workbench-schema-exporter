@@ -90,6 +90,9 @@ class FileExporter
     {
         $filename = $this->savePath.DIRECTORY_SEPARATOR.$this->getTableFileName($table);
         $this->mkdir(dirname($filename));
+        if (is_readable($filename) && isset($this->config['backupExistingFile']) && $this->config['backupExistingFile']) {
+            @rename($filename, sprintf('%s.bak', $filename));
+        }
         file_put_contents($filename, $table->display());
     }
 
