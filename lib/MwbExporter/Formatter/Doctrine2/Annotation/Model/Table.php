@@ -251,7 +251,6 @@ class Table extends Base
             $return[] = $this->indentation() . ' */';
             $return[] = $this->indentation() . 'public function add' . $relation['refTable']->getModelName() . '(' . $relation['refTable']->getModelName() . ' $' . lcfirst($relation['refTable']->getModelName()) . ')';
             $return[] = $this->indentation() . '{';
-            $return[] = $this->indentation(2) . '$' . lcfirst($relation['refTable']->getModelName()) . '->add' . $this->getModelName() . '($this);';
             $return[] = $this->indentation(2) . '$this->' . lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())) . '[] = $' . lcfirst($relation['refTable']->getModelName()) . ';';
             $return[] = '';
             $return[] = $this->indentation(2) . 'return $this;';

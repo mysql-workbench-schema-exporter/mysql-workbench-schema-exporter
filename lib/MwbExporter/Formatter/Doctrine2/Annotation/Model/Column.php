@@ -278,9 +278,8 @@ class Column extends Base
                 $return[] = $this->indentation() . ' * @param ' . $this->local->getReferencedTable()->getNamespace() . ' $' . lcfirst($this->local->getReferencedTable()->getModelName());
                 $return[] = $this->indentation() . ' * @return ' . $table->getNamespace();
                 $return[] = $this->indentation() . ' */';
-                $return[] = $this->indentation() . 'public function set' . $this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()) . $related . '(' . $this->local->getReferencedTable()->getModelName() . ' $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ')';
+                $return[] = $this->indentation() . 'public function set' . $this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()) . $related . '(' . $this->local->getReferencedTable()->getModelName() . ' $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ' = null)';
                 $return[] = $this->indentation() . '{';
-                $return[] = $this->indentation(2) . '$' . lcfirst($this->local->getReferencedTable()->getModelName()) . '->add' . $this->columnNameBeautifier($this->local->getOwningTable()->getModelName()) . $related . '($this);';
                 $return[] = $this->indentation(2) . '$this->' . lcfirst($this->local->getReferencedTable()->getModelName()) . $related . ' = $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
                 $return[] = '';
                 $return[] = $this->indentation(2) . 'return $this;';
@@ -305,7 +304,7 @@ class Column extends Base
                 $return[] = $this->indentation() . ' * @param ' . $this->local->getReferencedTable()->getNamespace() . ' $' . lcfirst($this->local->getReferencedTable()->getModelName());
                 $return[] = $this->indentation() . ' * @return ' . $table->getNamespace();
                 $return[] = $this->indentation() . ' */';
-                $return[] = $this->indentation() . 'public function set' . $this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()) . '(' . $this->local->getReferencedTable()->getModelName() . ' $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ')';
+                $return[] = $this->indentation() . 'public function set' . $this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()) . '(' . $this->local->getReferencedTable()->getModelName() . ' $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ' = null)';
                 $return[] = $this->indentation() . '{';
                 $return[] = $this->indentation(2) . '$' . lcfirst($this->local->getReferencedTable()->getModelName()) . '->set' . $this->columnNameBeautifier($this->local->getOwningTable()->getModelName()) . '($this);';
                 $return[] = $this->indentation(2) . '$this->' . lcfirst($this->local->getReferencedTable()->getModelName()) . ' = $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
