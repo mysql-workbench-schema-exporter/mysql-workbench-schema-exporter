@@ -32,6 +32,7 @@ use MwbExporter\Core\Model\Column;
 
 class Loader implements IFormatter
 {
+    protected $datatypeConverter = null;
     protected $_defaultZendConfig = array(
             /* */
             'tablePrefix'               => '',
@@ -186,13 +187,16 @@ class Loader implements IFormatter
         return new Model\Views($parameter, $parent);
     }
 
-    /**
-     *
-     * @param type $type
-     * @param \MwbExporter\Core\Model\Column $column
-     * @return type
-     */
-    public function useDatatypeConverter($type, Column $column){
-        return DatatypeConverter::getType($type, $column);
+    public function getDatatypeConverter(){
+        if (null === $this->datatypeConverter) {
+            $this->datatypeConverter = new DatatypeConverter();
+            $this->datatypeConverter->setUp();
+        }
+
+        return $this->datatypeConverter;
+    }
+
+    public function useDatatypeConverter(Column $column){
+        return $this->getDatatypeConverter()->getType($column);
     }
 }

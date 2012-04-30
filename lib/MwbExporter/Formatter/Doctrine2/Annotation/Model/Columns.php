@@ -38,8 +38,18 @@ class Columns extends Base
     {
         $return = array();
 
-        foreach($this->columns as $column){
-            $return[] = $column->display();
+        // display column
+        foreach($this->columns as $column) {
+            if ($retval = $column->display()) {
+                $return[] = $retval;
+            }
+        }
+
+        // display column relations
+        foreach($this->columns as $column) {
+            if ($retval = $column->displayRelations()) {
+                $return[] = $retval;
+            }
         }
 
         return implode("\n", $return);
@@ -50,8 +60,8 @@ class Columns extends Base
         $return = array();
 
         foreach($this->columns as $column){
-            if (true == $arrayCollection = $column->displayArrayCollection()){
-                $return[] = $arrayCollection;
+            if ($retval = $column->displayArrayCollection()){
+                $return[] = $retval;
             }
         }
 
@@ -62,8 +72,18 @@ class Columns extends Base
     {
         $return = array();
 
+        // column getter and setter
         foreach($this->columns as $column){
-            $return[] = $column->displayGetterAndSetter();
+            if ($retval = $column->displayGetterAndSetter()) {
+                $return[] = $retval;
+            }
+        }
+
+        // column getter and setter for relations
+        foreach($this->columns as $column){
+            if ($retval = $column->displayRelationsGetterAndSetter()) {
+                $return[] = $retval;
+            }
         }
 
         return implode("\n", $return);

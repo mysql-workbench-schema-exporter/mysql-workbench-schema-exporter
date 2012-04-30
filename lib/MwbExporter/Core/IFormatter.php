@@ -42,5 +42,6 @@ interface IFormatter {
     public function createTables($parameter, Base $parent);
     public function createView($parameter, Base $parent);
     public function createViews($parameter, Base $parent);
-    public function useDatatypeConverter($type, Column $column);
+    public function getDatatypeConverter();
+    public function useDatatypeConverter(Column $column);
 }

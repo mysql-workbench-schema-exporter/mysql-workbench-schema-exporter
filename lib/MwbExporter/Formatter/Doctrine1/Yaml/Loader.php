@@ -32,9 +32,10 @@ use MwbExporter\Core\Model\Column;
 
 class Loader implements IFormatter
 {
+    protected $datatypeConverter = null;
+
     public function __construct(array $setup = array()){
         Registry::set('config', $setup);
-        DatatypeConverter::setUp();
     }
 
     public function createCatalog($parameter, Base $parent){
@@ -89,7 +90,16 @@ class Loader implements IFormatter
         return new Model\Views($parameter, $parent);
     }
 
-    public function useDatatypeConverter($type, Column $column){
-        return DatatypeConverter::getType($type, $column);
+    public function getDatatypeConverter(){
+        if (null === $this->datatypeConverter) {
+            $this->datatypeConverter = new DatatypeConverter();
+            $this->datatypeConverter->setUp();
+        }
+
+        return $this->datatypeConverter;
+    }
+
+    public function useDatatypeConverter(Column $column){
+        return $this->getDatatypeConverter()->getType($column);
     }
 }

@@ -39,6 +39,29 @@ class Column extends Base
     }
 
     /**
+     * @inheritDoc
+     */
+    protected function getRelationReferenceCount($fkey, $max = null)
+    {
+        $count = 0;
+        $table = $this->getParent()->getParent();
+        if (is_array($relations = $table->getManyToManyRelations())) {
+            $tablename = $fkey->getOwningTable()->getRawTableName();
+            foreach($relations as $relation) {
+                // $relation key => reference (ForeignKey), refTable (Table)
+                if ($this->checkReferenceTableName($relation['refTable'], $tablename) && !$relation['reference']->getOwningTable()->isManyToMany()) {
+                    $count++;
+                }
+                if ($max && $count == $max) {
+                    break;
+                }
+            }
+        }
+
+        return $count;
+    }
+
+    /**
      * Return the column definition
      * Annotation format
      *
@@ -47,63 +70,55 @@ class Column extends Base
     public function display()
     {
         $return = array();
-
         $config = Registry::get('config');
-
-        /**
-         * if needed, use a prefix (like @ORM\ or @orm:
-         * for symfony2
-         * @ by default
-         */
         $this->ormPrefix = '@' . ((isset($config['useAnnotationPrefix']) && $config['useAnnotationPrefix']) ? $config['useAnnotationPrefix'] : '');
 
-        // do not include columns that reflect references
-        if(is_null($this->local))
-        {
-            // generate private $<column> class vars
-            $return[] = $this->indentation() . '/** ';
-
-            /**
-             * checking if the current column is a primary key
-             */
-            $tmp = $this->indentation() . ' * ';
-            if($this->isPrimary){
-                $tmp .= $this->ormPrefix . 'Id ';
-            }
-            $return[] = $tmp;
-
-            // set name of column
-            $tmp = $this->indentation() . ' * ';
-            $tmp  .= $this->ormPrefix . 'Column(type=' . Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
-
-            if(!isset($this->config['isNotNull']) || $this->config['isNotNull'] != 1){
-                $tmp .= ',nullable=true';
-            }
-            $tmp .= ')'; // column definition ending bracket
-            $return[] = $tmp;
-
-            /**
-             * adding the auto increment statement
-             */
-            if(isset($this->config['autoIncrement']) && $this->config['autoIncrement'] == 1){
-                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'GeneratedValue(strategy="AUTO")';
-            }
-
-            $return[] = $this->indentation() . ' */';
-            $return[] = $this->indentation() . 'private $' . $this->config['name'] . ';';
-            $return[] = '';
+        $return[] = $this->indentation() . '/**';
+        if($this->isPrimary){
+            $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'Id';
         }
+        $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'Column(type=' . Registry::get('formatter')->useDatatypeConverter($this) . (!isset($this->config['isNotNull']) || $this->config['isNotNull'] != 1 ? ', nullable=true' : '') . ')';
+        if(isset($this->config['autoIncrement']) && $this->config['autoIncrement'] == 1){
+            $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'GeneratedValue(strategy="AUTO")';
+        }
+        $return[] = $this->indentation() . ' */';
+        $return[] = $this->indentation() . 'private $' . $this->config['name'] . ';';
+        $return[] = '';
+
+        return implode("\n", $return);
+    }
+
+    public function displayArrayCollection()
+    {
+        $return = array();
+        if(is_array($this->foreigns)){
+            foreach($this->foreigns as $foreign){
+                if($foreign->isManyToOne()){ // is ManyToOne
+                    $related = $this->getRelatedName($foreign);
+                    $return[] = $this->indentation(2) . '$this->' . lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . $related . ' = new ArrayCollection();';
+                } else { // is OneToOne
+                }
+            }
+        }
+
+        return implode("\n", $return);
+    }
+
+    public function displayRelations()
+    {
+        $return = array();
 
         // one to many references
         if(is_array($this->foreigns)){
             foreach($this->foreigns as $foreign){
                 //check for OneToOne or OneToMany relationship
-                if(intval($foreign->getAttribute('many')) == 1){ // is OneToMany
+                if($foreign->isManyToOne()){ // is OneToMany
+                    $related = $this->getRelatedName($foreign);
                     $return[] = $this->indentation() . '/**';
                     $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'OneToMany(targetEntity="' . $foreign->getOwningTable()->getModelName() . '", mappedBy="' . lcfirst($foreign->getReferencedTable()->getModelName()) . '")';
                     $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'JoinColumn(name="' . $foreign->foreign->getColumnName() . '", referencedColumnName="' . $foreign->local->getColumnName() . '")';
                     $return[] = $this->indentation() . ' */';
-                    $return[] = $this->indentation() . 'private $' . lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
+                    $return[] = $this->indentation() . 'private $' . lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . $related . ';';
                     $return[] = '';
                 } else { // is OneToOne
                     $return[] = $this->indentation() . '/**';
@@ -117,14 +132,15 @@ class Column extends Base
         }
 
         // many to references
-        if(!is_null($this->local)){
+        if(null !== $this->local){
             //check for OneToOne or ManyToOne relationship
-            if(intval($this->local->getAttribute('many')) == 1){ // is ManyToOne
+            if($this->local->isManyToOne()){ // is ManyToOne
+                $related = $this->getManyToManyRelatedName($this->local->getReferencedTable()->getRawTableName(), $this->local->foreign->getColumnName());
                 $return[] = $this->indentation() . '/**';
                 $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToOne(targetEntity="' . $this->local->getReferencedTable()->getModelName() . '", inversedBy="' . lcfirst(Pluralizer::pluralize($this->local->getOwningTable()->getModelName())) . '")';
                 $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'JoinColumn(name="' . $this->local->foreign->getColumnName() . '", referencedColumnName="' . $this->local->local->getColumnName() . '")';
                 $return[] = $this->indentation() . ' */';
-                $return[] = $this->indentation() . 'private $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
+                $return[] = $this->indentation() . 'private $' . lcfirst($this->local->getReferencedTable()->getModelName()) . $related . ';';
                 $return[] = '';
             } else { // is OneToOne
                 $return[] = $this->indentation() . '/**';
@@ -136,35 +152,7 @@ class Column extends Base
             }
         }
 
-        /*
-        // set default value
-        if(isset($this->config['defaultValue']) && $this->config['defaultValue'] != '' && $this->config['defaultValue'] != 'NULL'){
-            $return[] = $this->indentation() . '  default: ' . $this->config['defaultValue'];
-        }
-
-        // iterate on column flags
-        foreach($this->data->xpath("value[@key='flags']/value") as $flag){
-            $return[] = $this->indentation() . '  ' . strtolower($flag) . ': true';
-        }
-        */
-
-        // return yaml representation of column
         return implode("\n", $return);
-    }
-
-    public function displayArrayCollection()
-    {
-        if(is_array($this->foreigns)){
-            foreach($this->foreigns as $foreign){
-                if(!is_null($this->local) && intval($this->local->getAttribute('many')) == 1){ // is ManyToOne
-                    return $this->indentation(2) . '$this->' . lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ' = new ArrayCollection();';
-                } else { // is OneToOne
-                    return '';
-                }
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -175,53 +163,100 @@ class Column extends Base
     public function displayGetterAndSetter()
     {
         $return = array();
+        $table = $this->getParent()->getParent();
+        $converter = Registry::get('formatter')->getDatatypeConverter();
+        $nativeType = $converter->getNativeType($converter->getMappedType($this));
 
-        // do not include getter and setter for columns that reflect references
-        if(is_null($this->local)){
-            $return[] = $this->indentation() . '//no relation';
-            $return[] = $this->indentation() . 'public function set' . $this->columnNameBeautifier($this->config['name']) . '($' . $this->config['name'] . ')';
-            $return[] = $this->indentation() . '{';
-            $return[] = $this->indentation(2) . '$this->' . $this->config['name'] . ' = $' . $this->config['name'] . ';';
-            $return[] = $this->indentation(2) . 'return $this;';
-            $return[] = $this->indentation() . '}';
-            $return[] = '';
+        // setter
+        $return[] = $this->indentation() . '/**';
+        $return[] = $this->indentation() . ' * Set the value of ' . $this->getColumnName() . '.';
+        $return[] = $this->indentation() . ' *';
+        $return[] = $this->indentation() . ' * @param ' . $nativeType . ' $' . $this->config['name'];
+        $return[] = $this->indentation() . ' * @return ' . $table->getNamespace();
+        $return[] = $this->indentation() . ' */';
+        $return[] = $this->indentation() . 'public function set' . $this->columnNameBeautifier($this->config['name']) . '($' . $this->config['name'] . ')';
+        $return[] = $this->indentation() . '{';
+        $return[] = $this->indentation(2) . '$this->' . $this->config['name'] . ' = $' . $this->config['name'] . ';';
+        $return[] = '';
+        $return[] = $this->indentation(2) . 'return $this;';
+        $return[] = $this->indentation() . '}';
+        $return[] = '';
+        // getter
+        $return[] = $this->indentation() . '/**';
+        $return[] = $this->indentation() . ' * Get the value of ' . $this->getColumnName() . '.';
+        $return[] = $this->indentation() . ' *';
+        $return[] = $this->indentation() . ' * @return ' . $nativeType;
+        $return[] = $this->indentation() . ' */';
+        $return[] = $this->indentation() . 'public function get' . $this->columnNameBeautifier($this->config['name']) . '()';
+        $return[] = $this->indentation() . '{';
+        $return[] = $this->indentation(2) . 'return $this->' . $this->config['name'] . ';';
+        $return[] = $this->indentation() . '}';
+        $return[] = '';
 
-            $return[] = $this->indentation() . '//no relation';
-            $return[] = $this->indentation() . 'public function get' . $this->columnNameBeautifier($this->config['name']) . '()';
-            $return[] = $this->indentation() . '{';
-            $return[] = $this->indentation(2) . 'return $this->' . $this->config['name'] . ';';
-            $return[] = $this->indentation() . '}';
-            $return[] = '';
-        }
+        return implode("\n", $return);
+    }
+
+    /**
+     * Getters and setters for relations.
+     *
+     * @return string
+     */
+    public function displayRelationsGetterAndSetter()
+    {
+        $return = array();
+        $table = $this->getParent()->getParent();
 
         // one to many references
         if(is_array($this->foreigns)){
             foreach($this->foreigns as $foreign){
-                if(intval($foreign->getAttribute('many')) == 1){ // is ManyToOne
-                    $return[] = $this->indentation() . '//one to many relation';
-                    $return[] = $this->indentation() . 'public function add' . $this->columnNameBeautifier($foreign->getOwningTable()->getModelName()) . '(' . $foreign->getOwningTable()->getModelName() . ' $' . lcfirst($foreign->getOwningTable()->getModelName()) . ')';
+                if($foreign->isManyToOne()){ // is ManyToOne
+                    $related = $this->getRelatedName($foreign);
+                    $related_text = $this->getRelatedName($foreign, false);
+                    // setter
+                    $return[] = $this->indentation() . '/**';
+                    $return[] = $this->indentation() . ' * Add ' . trim($foreign->getOwningTable()->getModelName() . ' ' . $related_text). ' entity to collection (one to many).';
+                    $return[] = $this->indentation() . ' *';
+                    $return[] = $this->indentation() . ' * @param ' . $foreign->getOwningTable()->getNamespace() . ' $' . lcfirst($foreign->getOwningTable()->getModelName());
+                    $return[] = $this->indentation() . ' * @return ' . $table->getNamespace();
+                    $return[] = $this->indentation() . ' */';
+                    $return[] = $this->indentation() . 'public function add' . $this->columnNameBeautifier($foreign->getOwningTable()->getModelName()) . $related . '(' . $foreign->getOwningTable()->getModelName() . ' $' . lcfirst($foreign->getOwningTable()->getModelName()) . ')';
                     $return[] = $this->indentation() . '{';
-                    $return[] = $this->indentation(2) . '$this->' . lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . '[] = $' . lcfirst($foreign->getOwningTable()->getModelName()) . ';';
+                    $return[] = $this->indentation(2) . '$this->' . lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . $related . '[] = $' . lcfirst($foreign->getOwningTable()->getModelName()) . ';';
+                    $return[] = '';
                     $return[] = $this->indentation(2) . 'return $this;';
                     $return[] = $this->indentation() . '}';
+                    $return[] = '';
+                    // getter
+                    $return[] = $this->indentation() . '/**';
+                    $return[] = $this->indentation() . ' * Get ' . trim($foreign->getOwningTable()->getModelName() . ' ' . $related_text) . ' entity collection (one to many).';
+                    $return[] = $this->indentation() . ' *';
+                    $return[] = $this->indentation() . ' * @return ' . $table->getArrayClass();
+                    $return[] = $this->indentation() . ' */';
+                    $return[] = $this->indentation() . 'public function get' . $this->columnNameBeautifier(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . $related . '()';
+                    $return[] = $this->indentation() . '{';
+                    $return[] = $this->indentation(2) . 'return $this->' . lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . $related . ';';
+                    $return[] = $this->indentation() . '}';
                 } else { // OneToOne
-                    $return[] = $this->indentation() . '//one to one relation';
+                    // setter
+                    $return[] = $this->indentation() . '/**';
+                    $return[] = $this->indentation() . ' * Set ' . $foreign->getOwningTable()->getModelName() . ' entity (one to one).';
+                    $return[] = $this->indentation() . ' *';
+                    $return[] = $this->indentation() . ' * @param ' . $foreign->getOwningTable()->getNamespace() . ' $' . lcfirst($foreign->getOwningTable()->getModelName());
+                    $return[] = $this->indentation() . ' * @return ' . $table->getNamespace();
+                    $return[] = $this->indentation() . ' */';
                     $return[] = $this->indentation() . 'public function set' . $this->columnNameBeautifier($foreign->getOwningTable()->getModelName()) . '(' . $foreign->getOwningTable()->getModelName() . ' $' . lcfirst($foreign->getOwningTable()->getModelName()) . ')';
                     $return[] = $this->indentation() . '{';
                     $return[] = $this->indentation(2) . '$this->' . lcfirst($foreign->getOwningTable()->getModelName()) . ' = $' . lcfirst($foreign->getOwningTable()->getModelName()) . ';';
+                    $return[] = '';
                     $return[] = $this->indentation(2) . 'return $this;';
                     $return[] = $this->indentation() . '}';
-                }
-                $return[] = '';
-
-                if(intval($foreign->getAttribute('many')) == 1){ // is ManyToOne
-                    $return[] = $this->indentation() . '//one to many relation';
-                    $return[] = $this->indentation() . 'public function get' . $this->columnNameBeautifier(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . '()';
-                    $return[] = $this->indentation() . '{';
-                    $return[] = $this->indentation(2) . 'return $this->' . lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())) . ';';
-                    $return[] = $this->indentation() . '}';
-                } else { // OneToOne
-                    $return[] = $this->indentation() . '//one to one relation';
+                    $return[] = '';
+                    // getter
+                    $return[] = $this->indentation() . '/**';
+                    $return[] = $this->indentation() . ' * Get ' . $foreign->getOwningTable()->getModelName() . ' entity (one to one).';
+                    $return[] = $this->indentation() . ' *';
+                    $return[] = $this->indentation() . ' * @return ' . $foreign->getOwningTable()->getNamespace();
+                    $return[] = $this->indentation() . ' */';
                     $return[] = $this->indentation() . 'public function get' . $this->columnNameBeautifier($foreign->getOwningTable()->getModelName()) . '()';
                     $return[] = $this->indentation() . '{';
                     $return[] = $this->indentation(2) . 'return $this->' . lcfirst($foreign->getOwningTable()->getModelName()) . ';';
@@ -232,33 +267,64 @@ class Column extends Base
         }
 
         // many to one references
-        if(!is_null($this->local)){
-            if(intval($this->local->getAttribute('many')) == 1){ // is ManyToOne
-                $return[] = $this->indentation() . '//many to one relation';
-                $return[] = $this->indentation() . 'public function set' . $this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()) . '(' . $this->local->getReferencedTable()->getModelName() . ' $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ')';
+        if(null !== $this->local){
+            if($this->local->isManyToOne()){ // is ManyToOne
+                $related = $this->getManyToManyRelatedName($this->local->getReferencedTable()->getRawTableName(), $this->local->foreign->getColumnName());
+                $related_text = $this->getManyToManyRelatedName($this->local->getReferencedTable()->getRawTableName(), $this->local->foreign->getColumnName(), false);
+                // setter
+                $return[] = $this->indentation() . '/**';
+                $return[] = $this->indentation() . ' * Set ' . trim($this->local->getReferencedTable()->getModelName() . ' ' . $related_text) . ' entity (many to one).';
+                $return[] = $this->indentation() . ' *';
+                $return[] = $this->indentation() . ' * @param ' . $this->local->getReferencedTable()->getNamespace() . ' $' . lcfirst($this->local->getReferencedTable()->getModelName());
+                $return[] = $this->indentation() . ' * @return ' . $table->getNamespace();
+                $return[] = $this->indentation() . ' */';
+                $return[] = $this->indentation() . 'public function set' . $this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()) . $related . '(' . $this->local->getReferencedTable()->getModelName() . ' $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ')';
                 $return[] = $this->indentation() . '{';
-                $return[] = $this->indentation(2) . '$' . lcfirst($this->local->getReferencedTable()->getModelName()) . '->add' . $this->columnNameBeautifier($this->local->getOwningTable()->getModelName()) . '($this);';
-                $return[] = $this->indentation(2) . '$this->' . lcfirst($this->local->getReferencedTable()->getModelName()) . ' = $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
+                $return[] = $this->indentation(2) . '$' . lcfirst($this->local->getReferencedTable()->getModelName()) . '->add' . $this->columnNameBeautifier($this->local->getOwningTable()->getModelName()) . $related . '($this);';
+                $return[] = $this->indentation(2) . '$this->' . lcfirst($this->local->getReferencedTable()->getModelName()) . $related . ' = $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
+                $return[] = '';
                 $return[] = $this->indentation(2) . 'return $this;';
                 $return[] = $this->indentation() . '}';
                 $return[] = '';
+                // getter
+                $return[] = $this->indentation() . '/**';
+                $return[] = $this->indentation() . ' * Get ' . trim($this->local->getReferencedTable()->getModelName() . ' ' . $related_text) . ' entity (many to one).';
+                $return[] = $this->indentation() . ' *';
+                $return[] = $this->indentation() . ' * @return ' . $this->local->getReferencedTable()->getNamespace();
+                $return[] = $this->indentation() . ' */';
+                $return[] = $this->indentation() . 'public function get' . $this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()) . $related . '()';
+                $return[] = $this->indentation() . '{';
+                $return[] = $this->indentation(2) . 'return $this->' . lcfirst($this->local->getReferencedTable()->getModelName()) . $related . ';';
+                $return[] = $this->indentation() . '}';
+                $return[] = '';
             } else { // OneToOne
-                $return[] = $this->indentation() . '//one to one relation';
+                // setter
+                $return[] = $this->indentation() . '/**';
+                $return[] = $this->indentation() . ' * Set ' . $this->local->getReferencedTable()->getModelName() . ' entity (one to one).';
+                $return[] = $this->indentation() . ' *';
+                $return[] = $this->indentation() . ' * @param ' . $this->local->getReferencedTable()->getNamespace() . ' $' . lcfirst($this->local->getReferencedTable()->getModelName());
+                $return[] = $this->indentation() . ' * @return ' . $table->getNamespace();
+                $return[] = $this->indentation() . ' */';
                 $return[] = $this->indentation() . 'public function set' . $this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()) . '(' . $this->local->getReferencedTable()->getModelName() . ' $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ')';
                 $return[] = $this->indentation() . '{';
                 $return[] = $this->indentation(2) . '$' . lcfirst($this->local->getReferencedTable()->getModelName()) . '->set' . $this->columnNameBeautifier($this->local->getOwningTable()->getModelName()) . '($this);';
                 $return[] = $this->indentation(2) . '$this->' . lcfirst($this->local->getReferencedTable()->getModelName()) . ' = $' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
+                $return[] = '';
                 $return[] = $this->indentation(2) . 'return $this;';
                 $return[] = $this->indentation() . '}';
                 $return[] = '';
+                // getter
+                $return[] = $this->indentation() . '/**';
+                $return[] = $this->indentation() . ' * Get ' . $this->local->getReferencedTable()->getModelName() . ' entity (one to one).';
+                $return[] = $this->indentation() . ' *';
+                $return[] = $this->indentation() . ' * @return ' . $this->local->getReferencedTable()->getNamespace();
+                $return[] = $this->indentation() . ' */';
+                $return[] = $this->indentation() . 'public function get' . $this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()) . '()';
+                $return[] = $this->indentation() . '{';
+                $return[] = $this->indentation(2) . 'return $this->' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
+                $return[] = $this->indentation() . '}';
+                $return[] = '';
             }
-
-            $return[] = $this->indentation() . '//many to one or one to one relation';
-            $return[] = $this->indentation() . 'public function get' . $this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()) . '()';
-            $return[] = $this->indentation() . '{';
-            $return[] = $this->indentation(2) . 'return $this->' . lcfirst($this->local->getReferencedTable()->getModelName()) . ';';
-            $return[] = $this->indentation() . '}';
-            $return[] = '';
         }
 
         return implode("\n", $return);

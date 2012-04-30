@@ -28,18 +28,17 @@ namespace MwbExporter\Core;
 class Registry
 {
     protected static $register = array();
-    
-    
+
     /**
      *
      * @param string $key
-     * @param mixed $obj 
+     * @param mixed $obj
      */
     public static function set($key, $obj)
     {
         self::$register[$key] = $obj;
     }
-    
+
     /**
      *
      * @param string $key

@@ -43,7 +43,7 @@ class Column extends Base
         $return[] = '    ' . $this->config['name'] . ':';
 
         // set datatype of column
-        $return[] = '      type: ' . Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
+        $return[] = '      type: ' . Registry::get('formatter')->useDatatypeConverter($this);
 
         if($this->isPrimary){
             $return[] = '      primary: true';

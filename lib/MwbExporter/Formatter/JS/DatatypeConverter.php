@@ -4,9 +4,9 @@ namespace MwbExporter\Formatter\JS;
 
 class DatatypeConverter extends \MwbExporter\Core\DatatypeConverter
 {
-    public static function setUp()
+    public function setUp()
     {
-        self::$datatypes = array(
+        $this->register(array(
             // simple datatypes
             'com.mysql.rdbms.mysql.datatype.tinyint'            => 'int',
             'com.mysql.rdbms.mysql.datatype.smallint'           => 'int',
@@ -43,7 +43,6 @@ class DatatypeConverter extends \MwbExporter\Core\DatatypeConverter
             'com.mysql.rdbms.mysql.datatype.bit'                => 'undefined',
             'com.mysql.rdbms.mysql.datatype.enum'               => 'undefined',
             'com.mysql.rdbms.mysql.datatype.set'                => 'undefined'
-        );
-
+        ));
     }
 }

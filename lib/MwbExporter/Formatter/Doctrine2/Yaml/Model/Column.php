@@ -49,7 +49,7 @@ class Column extends Base
         $return[] = $this->indentation(2) . $this->config['name'] . ':';
 
         // set datatype of column
-        $return[] = $this->indentation(3) . 'type: ' . Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
+        $return[] = $this->indentation(3) . 'type: ' . Registry::get('formatter')->useDatatypeConverter($this);
 
         // check if the column is a primary key
         if($this->isPrimary){

@@ -27,6 +27,7 @@ namespace MwbExporter\Formatter\JS\Sencha3Model;
 
 class Loader implements \MwbExporter\Core\IFormatter
 {
+    protected $datatypeConverter = null;
     protected $_defaultZendConfig = array(
             /* */
             'classPrefix'               => 'SysX.App',
@@ -181,13 +182,16 @@ class Loader implements \MwbExporter\Core\IFormatter
         return new Model\Views($parameter, $parent);
     }
 
-    /**
-     *
-     * @param type $type
-     * @param \MwbExporter\Core\Model\Column $column
-     * @return type
-     */
-    public function useDatatypeConverter($type, \MwbExporter\Core\Model\Column $column){
-        return DatatypeConverter::getType($type, $column);
+    public function getDatatypeConverter(){
+        if (null === $this->datatypeConverter) {
+            $this->datatypeConverter = new DatatypeConverter();
+            $this->datatypeConverter->setUp();
+        }
+
+        return $this->datatypeConverter;
+    }
+
+    public function useDatatypeConverter(\MwbExporter\Core\Model\Column $column){
+        return $this->getDatatypeConverter()->getType($column);
     }
 }

@@ -233,6 +233,7 @@ function main($filename, $dir, $params, $options)
         'useAutomaticRepository'        => true,
         'indentation'                   => 4,
         'filename'                      => '%entity%.%extension%',
+        'skipGetterAndSetter'           => false,
       );
       $formatter_class = '\MwbExporter\Formatter\Doctrine2\Annotation\Loader';
       $extension = 'php';

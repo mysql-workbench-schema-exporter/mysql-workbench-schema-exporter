@@ -30,29 +30,23 @@ use MwbExporter\Formatter\Doctrine1\DatatypeConverter as Base;
 
 class DatatypeConverter extends Base
 {
-    public static function getType($key, Column $column)
+    public function getType(Column $column)
     {
-        $return = isset(self::$datatypes[$key]) ? self::$datatypes[$key] : 'unknown';
-
+        $type = $this->getMappedType($column);
+        $return = $type;
+        if (($scale = $column->getConfigValue('scale')) && ($scale != -1) && ($precision = $column->getConfigValue('precision')) && ($precision != -1)) {
+            $return .= '(' . $scale . ', ' . $precision . ')';
+        }
+        if (($length = $column->getConfigValue('length')) && ($length != -1) && $type == 'string') {
+            $return .= '(' . $length . ')';
+        }
+        $key = $column->getType();
         $config = $column->getConfig();
-        if (   isset($config['scale'])
-            && $config['scale'] != -1
-            && isset($config['precision'])
-            && $config['precision'] != -1 ){
-
-            $return = $return . '(' . $config['precision'] . ',' . $config['scale'] . ')';
-        }
-
-        if( isset($config['length']) && $config['length'] != -1 ){
-            $return = $return . '(' . $config['length'] . ')';
-        }
-
         // handle enums
         if($key === 'com.mysql.rdbms.mysql.datatype.enum'){
             $return .= "\n";
             $return .= "      values: " . str_replace(array('(',')'), array('[',']'), $config['datatypeExplicitParams']);
         }
-
         // handle sets
         // @TODO D1Y sets are not supported by Doctrine
         if($key === 'com.mysql.rdbms.mysql.datatype.set'){

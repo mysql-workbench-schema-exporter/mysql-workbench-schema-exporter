@@ -25,7 +25,13 @@
 
 namespace MwbExporter\Core;
 
+use MwbExporter\Core\Model\Column;
+
 interface IDatatypeConverter
 {
-    public static function setUp();
+    public function setUp();
+    public function getDataType($key);
+    public function getNativeType($type);
+    public function getMappedType(Column $column);
+    public function getType(Column $column);
 }

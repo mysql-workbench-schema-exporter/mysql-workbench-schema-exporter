@@ -41,9 +41,7 @@ class Column extends \MwbExporter\Core\Model\Column
     {
       return "{name:'".$this->config['name'].
       	"',type:'".
-        \MwbExporter\Core\Registry::get('formatter')->useDatatypeConverter(
-          isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType'],
-          $this).
+        \MwbExporter\Core\Registry::get('formatter')->useDatatypeConverter($this).
         "'},";
     }
 
@@ -122,7 +120,7 @@ class Column extends \MwbExporter\Core\Model\Column
             }
 
             // set name of column
-            $tmp  .= '@Column(type=' . \MwbExporter\Core\Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
+            $tmp  .= '@Column(type=' . \MwbExporter\Core\Registry::get('formatter')->useDatatypeConverter($this);
 
             if(!isset($this->config['isNotNull']) || $this->config['isNotNull'] != 1){
                 $tmp .= ',nullable=true';

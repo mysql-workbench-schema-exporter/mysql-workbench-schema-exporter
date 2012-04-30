@@ -257,4 +257,18 @@ abstract class Table extends Base
         }
         return false;
     }
+
+    /**
+     * Check if this table is a many to many table.
+     *
+     * @return bool
+     */
+    public function isManyToMany()
+    {
+        if ($this->hasForeignKeys() && 2 == count($fkeys = $this->getForeignKeys()) && ($fkeys[0]->getId() !== $fkeys[1]->getId())) {
+            return true;
+        }
+
+        return false;
+    }
 }
