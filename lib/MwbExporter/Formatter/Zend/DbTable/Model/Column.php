@@ -60,7 +60,7 @@ class Column extends Base
             }
 
             // set name of column
-            $tmp  .= '@Column(type=' . Registry::get('formatter')->useDatatypeConverter((isset($this->link['simpleType']) ? $this->link['simpleType'] : $this->link['userType']), $this);
+            $tmp  .= '@Column(type=' . Registry::get('formatter')->useDatatypeConverter($this);
 
             if(!isset($this->config['isNotNull']) || $this->config['isNotNull'] != 1){
                 $tmp .= ',nullable=true';

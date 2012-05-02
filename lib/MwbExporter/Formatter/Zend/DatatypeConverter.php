@@ -6,15 +6,15 @@ use MwbExporter\Core\DatatypeConverter as Base;
 
 class DatatypeConverter extends Base
 {
-    public static function setUp()
+    public function setUp()
     {
-        self::$datatypes = array(
+        $this->register(array(
             // simple datatypes
-            //'com.mysql.rdbms.mysql.datatype.tinyint'            => 'integer(1)',
-            //'com.mysql.rdbms.mysql.datatype.smallint'           => 'integer(2)',
-            //'com.mysql.rdbms.mysql.datatype.mediumint'          => 'integer(3)',
-            //'com.mysql.rdbms.mysql.datatype.int'                => 'integer(4)',
-            //'com.mysql.rdbms.mysql.datatype.bigint'             => 'integer(8)',
+            'com.mysql.rdbms.mysql.datatype.tinyint'            => 'tinyint',
+            'com.mysql.rdbms.mysql.datatype.smallint'           => 'smallint',
+            'com.mysql.rdbms.mysql.datatype.mediumint'          => 'mediumint',
+            'com.mysql.rdbms.mysql.datatype.int'                => 'integer',
+            'com.mysql.rdbms.mysql.datatype.bigint'             => 'bigint',
             'com.mysql.rdbms.mysql.datatype.float'              => 'float',
             'com.mysql.rdbms.mysql.datatype.double'             => 'double',
             'com.mysql.rdbms.mysql.datatype.decimal'            => 'decimal',
@@ -33,8 +33,8 @@ class DatatypeConverter extends Base
             'com.mysql.rdbms.mysql.datatype.datetime'           => 'datetime',
             'com.mysql.rdbms.mysql.datatype.date'               => 'date',
             'com.mysql.rdbms.mysql.datatype.time'               => 'time',
-            //'com.mysql.rdbms.mysql.datatype.year'               => 'integer(2)',
-            //'com.mysql.rdbms.mysql.datatype.timestamp'          => 'timestamp',
+            'com.mysql.rdbms.mysql.datatype.year'               => 'smallint',
+            'com.mysql.rdbms.mysql.datatype.timestamp'          => 'datetime',
             'com.mysql.rdbms.mysql.datatype.geometry'           => 'geometry',
             'com.mysql.rdbms.mysql.datatype.linestring'         => 'linestring',
             'com.mysql.rdbms.mysql.datatype.polygon'            => 'polygon',
@@ -45,41 +45,25 @@ class DatatypeConverter extends Base
             'com.mysql.rdbms.mysql.datatype.bit'                => 'bit',
             'com.mysql.rdbms.mysql.datatype.enum'               => 'enum',
             'com.mysql.rdbms.mysql.datatype.set'                => 'set',
-
             // userdatatypes
             'com.mysql.rdbms.mysql.userdatatype.boolean'        => 'boolean',
             'com.mysql.rdbms.mysql.userdatatype.bool'           => 'boolean',
             'com.mysql.rdbms.mysql.userdatatype.fixed'          => 'decimal',
             'com.mysql.rdbms.mysql.userdatatype.float4'         => 'float',
             'com.mysql.rdbms.mysql.userdatatype.float8'         => 'double',
-            //'com.mysql.rdbms.mysql.userdatatype.int1'           => 'integer(1)',
-            //'com.mysql.rdbms.mysql.userdatatype.int2'           => 'integer(2)',
-            //'com.mysql.rdbms.mysql.userdatatype.int3'           => 'integer(3)',
-            //'com.mysql.rdbms.mysql.userdatatype.int4'           => 'integer(4)',
-            //'com.mysql.rdbms.mysql.userdatatype.int8'           => 'integer(8)',
-            //'com.mysql.rdbms.mysql.userdatatype.integer'        => 'integer(4)',
+            'com.mysql.rdbms.mysql.userdatatype.int1'           => 'tinyint',
+            'com.mysql.rdbms.mysql.userdatatype.int2'           => 'smallint',
+            'com.mysql.rdbms.mysql.userdatatype.int3'           => 'mediumint',
+            'com.mysql.rdbms.mysql.userdatatype.int4'           => 'integer',
+            'com.mysql.rdbms.mysql.userdatatype.int8'           => 'bigint',
+            'com.mysql.rdbms.mysql.userdatatype.integer'        => 'integer',
             'com.mysql.rdbms.mysql.userdatatype.longvarbinary'  => 'blob(16777215)',
             'com.mysql.rdbms.mysql.userdatatype.longvarchar'    => 'clob(16777215)',
             'com.mysql.rdbms.mysql.userdatatype.long'           => 'clob(16777215)',
-            //'com.mysql.rdbms.mysql.userdatatype.middleint'      => 'integer(3)',
+            'com.mysql.rdbms.mysql.userdatatype.middleint'      => 'mediumint',
             'com.mysql.rdbms.mysql.userdatatype.numeric'        => 'decimal',
             'com.mysql.rdbms.mysql.userdatatype.dec'            => 'decimal',
             'com.mysql.rdbms.mysql.userdatatype.character'      => 'char'
-        );
-        self::$datatypes['com.mysql.rdbms.mysql.datatype.tinyint']   = 'tinyint';
-        self::$datatypes['com.mysql.rdbms.mysql.datatype.smallint']  = 'smallint';
-        self::$datatypes['com.mysql.rdbms.mysql.datatype.mediumint'] = 'mediumint';
-        self::$datatypes['com.mysql.rdbms.mysql.datatype.int']       = 'integer';
-        self::$datatypes['com.mysql.rdbms.mysql.datatype.bigint']    = 'bigint';
-        self::$datatypes['com.mysql.rdbms.mysql.datatype.year']      = 'smallint';
-        self::$datatypes['com.mysql.rdbms.mysql.datatype.timestamp'] = 'datetime';
-
-        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int1']      = 'tinyint';
-        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int2']      = 'smallint';
-        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int3']      = 'mediumint';
-        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int4']      = 'integer';
-        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.int8']      = 'bigint';
-        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.integer']   = 'integer';
-        self::$datatypes['com.mysql.rdbms.mysql.userdatatype.middleint'] = 'mediumint';
+        ));
     }
 }

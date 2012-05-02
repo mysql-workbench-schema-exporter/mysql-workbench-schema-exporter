@@ -27,13 +27,4 @@ namespace MwbExporter\Formatter\JS\Sencha3Model;
 
 class DatatypeConverter extends \MwbExporter\Formatter\JS\DatatypeConverter
 {
-
-  public static function getType ($key,\MwbExporter\Core\Model\Column $column)
-  {
-    if (! self::$datatypes)
-      self::setUp();
-
-    $return = isset(self::$datatypes[$key]) ? self::$datatypes[$key] : 'unknown';
-    return $return;
-  }
 }

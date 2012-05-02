@@ -46,4 +46,32 @@ abstract class Columns extends Base
     {
         return count($this->columns);
     }
+
+    public function getManyToManyCount($tablename)
+    {
+        $count = 0;
+        foreach ($this->columns as $column) {
+            if (($local = $column->getLocalForeignKey()) && ($local->getReferencedTable()->getRawTableName() === $tablename)) {
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * Check if this table has an one to many relation.
+     *
+     * @return bool
+     */
+    public function hasOneToManyRelation()
+    {
+        foreach ($this->columns as $column) {
+            if ($column->hasOneToManyRelation()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

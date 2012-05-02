@@ -6,9 +6,9 @@ use MwbExporter\Core\DatatypeConverter as Base;
 
 class DatatypeConverter extends Base
 {
-    public static function setUp()
+    public function setUp()
     {
-        self::$datatypes = array(
+        $this->register(array(
             // simple datatypes
             'com.mysql.rdbms.mysql.datatype.tinyint'            => 'integer(1)',
             'com.mysql.rdbms.mysql.datatype.smallint'           => 'integer(2)',
@@ -45,7 +45,6 @@ class DatatypeConverter extends Base
             'com.mysql.rdbms.mysql.datatype.bit'                => 'bit',
             'com.mysql.rdbms.mysql.datatype.enum'               => 'enum',
             'com.mysql.rdbms.mysql.datatype.set'                => 'set',
-
             // userdatatypes
             'com.mysql.rdbms.mysql.userdatatype.boolean'        => 'boolean',
             'com.mysql.rdbms.mysql.userdatatype.bool'           => 'boolean',
@@ -65,6 +64,6 @@ class DatatypeConverter extends Base
             'com.mysql.rdbms.mysql.userdatatype.numeric'        => 'decimal',
             'com.mysql.rdbms.mysql.userdatatype.dec'            => 'decimal',
             'com.mysql.rdbms.mysql.userdatatype.character'      => 'char'
-        );
+        ));
     }
 }

@@ -36,14 +36,11 @@ class Index extends Base
 
     public function display()
     {
-        $return = array();
-        $return[] = 'name="' . $this->config['name'] . '",';
-        $tmp = 'columns={';
-        foreach($this->referencedColumn as $refColumn){
-            $tmp .= '"' . $refColumn->getColumnName() . '",';
+        $columns = array();
+        foreach($this->referencedColumn as $refColumn) {
+            $columns[] = '"' . $refColumn->getColumnName() . '"';
         }
-        $return[] = substr($tmp, 0, -1) . '}';
-        //$return[] = '      type: ' . strtolower($this->config['indexType']);
-        return implode("", $return);
+
+        return sprintf('name="%s", columns={%s}', $this->config['name'], implode(', ', $columns));
     }
 }

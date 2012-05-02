@@ -30,17 +30,17 @@ use MwbExporter\Core\Registry;
 abstract class ForeignKey extends Base
 {
     protected $config = null;
-    
+
     protected $referencedTable = null;
     protected $owningTable = null;
-    
+
     public $local   = null;
     public $foreign = null;
-    
+
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
-        
+
         // iterate on foreign key configuration
         foreach($this->data->value as $key => $node){
             $attributes         = $node->attributes();         // read attributes
@@ -48,34 +48,39 @@ abstract class ForeignKey extends Base
             $key                = (string) $attributes['key']; // assign key
             $this->config[$key] = (string) $node[0];           // assign value
         }
-        
+
         // follow references to tables
         foreach($this->data->link as $key => $node){
             $attributes         = $node->attributes();         // read attributes
             $key                = (string) $attributes['key']; // assign key
-            
+
             if($key == 'referencedTable'){
                 $referencedTableId = (string) $node;
                 $this->referencedTable = Registry::get($referencedTableId);
             }
-            
+
             if($key == 'owner'){
                 $owningTableId = (string) $node;
                 $this->owningTable = Registry::get($owningTableId);
                 $this->owningTable->injectRelation($this);
             }
         }
-        
+
         Registry::set($this->id, $this);
     }
-    
+
     public function getReferencedTable()
     {
         return $this->referencedTable;
     }
-    
+
     public function getOwningTable()
     {
         return $this->owningTable;
+    }
+
+    public function isManyToOne()
+    {
+        return (bool) $this->getAttribute('many');
     }
 }
