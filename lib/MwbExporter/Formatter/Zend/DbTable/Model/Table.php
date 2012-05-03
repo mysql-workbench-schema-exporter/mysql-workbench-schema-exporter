@@ -87,7 +87,6 @@ class Table extends \MwbExporter\Core\Model\Table
          */
         $return[] = 'class ' . $this->getTableClassName() . ' extends ' . $this->parentTable;
         $return[] = '{';
-<<<<<<< HEAD
         
         if (true === $config['generateSchema']) {
             $return[] = $this->indentation(1) .'/* @var string $_schema */';
@@ -105,25 +104,11 @@ class Table extends \MwbExporter\Core\Model\Table
             $return[] = $this->displayPrimary();
             $return[] = '';
         }
-        
-        
-=======
-        if(strlen($this->getSchemaName()) > 0){
-	        $return[] = $this->indentation(1) .'/* @var string $_schema */';
-	        $return[] = $this->indentation(1) .'protected $_schema          = \''. $this->getSchemaName() .'\';';
-	        $return[] = '';
-        }
-        $return[] = $this->indentation(1) .'/* @var string $_name */';
-        $return[] = $this->indentation(1) .'protected $_name            = \''. $this->getRawTableName() .'\';';
-        $return[] = '';
 
-
->>>>>>> Improved Sencha3Model output
         if (true === $config['generateDRI']) {
             $return[] = $this->displayDependencies();
             $return[] = '';
         }
-<<<<<<< HEAD
         
         if (true === $config['generateReferences']) {
             $return[] = $this->displayReferences();
@@ -131,15 +116,7 @@ class Table extends \MwbExporter\Core\Model\Table
         }   
 
         $return[] = '}';
-        
-=======
 
-        $return[] = $this->displayReferences();
-
-        $return[] = '';
-        $return[] = '}';
-
->>>>>>> Improved Sencha3Model output
         return implode("\n", $return);
     }
 
@@ -175,12 +152,6 @@ class Table extends \MwbExporter\Core\Model\Table
 
         $return[] = $this->indentation(1) .'/* @var array $_dependentTables */';
         $return[] = $this->indentation(1) .'protected $_dependentTables = array();';
-<<<<<<< HEAD
-        
-=======
-        $return[] = '';
-
->>>>>>> Improved Sencha3Model output
         return implode("\n", $return);
     }
 
@@ -207,7 +178,6 @@ class Table extends \MwbExporter\Core\Model\Table
         } else {
             $return[] = $this->indentation(1) .'protected $_referenceMap    = array();';
         }
-<<<<<<< HEAD
         
         return implode("\n", $return);
     }
@@ -222,10 +192,6 @@ class Table extends \MwbExporter\Core\Model\Table
         $return[] = $this->indentation(1) .'/* @var array $_primary */';
         $return[] = $this->indentation(1) .'protected $_primary    = array('.$this->getColumns()->displayPrimary().');';
 
-=======
-
-        $return[] = '';
->>>>>>> Improved Sencha3Model output
         return implode("\n", $return);
     }
 
