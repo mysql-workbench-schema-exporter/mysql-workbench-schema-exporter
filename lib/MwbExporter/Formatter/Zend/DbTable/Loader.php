@@ -54,6 +54,18 @@ class Loader implements IFormatter
 
             /* */
             'filename'                  => 'DbTable/%schema%/%entity%.%extension%',
+
+            /* */
+            'generateSchema'            => true,
+
+            /* */
+            'generateName'              => true,
+
+            /* */
+            'generateReferences'        => true,
+
+            /* */
+            'generatePrimary'           => true,
         );
 
     /**

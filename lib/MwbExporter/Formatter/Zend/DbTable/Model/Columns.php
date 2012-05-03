@@ -85,4 +85,20 @@ class Columns extends Base
 
         return implode("\n", $return);
     }
+
+        /**
+     *
+     * @return string
+     */
+    public function displayPrimary()
+    {
+        $return = '';
+
+        foreach($this->columns as $column){
+            if($column->isPrimary())
+                $return .= "'".$column->getColumnName()."',";
+        }
+
+        return $return;
+    }
 }

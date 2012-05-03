@@ -87,25 +87,36 @@ class Table extends \MwbExporter\Core\Model\Table
          */
         $return[] = 'class ' . $this->tablePrefix . $this->getSchemaName() .'_'. $this->getModelName() . ' extends ' . $this->parentTable;
         $return[] = '{';
-        $return[] = $this->indentation(1) .'/* @var string $_schema */';
-        $return[] = $this->indentation(1) .'protected $_schema          = \''. $this->getSchemaName() .'\';';
-        $return[] = '';
-        $return[] = $this->indentation(1) .'/* @var string $_name */';
-        $return[] = $this->indentation(1) .'protected $_name            = \''. $this->getRawTableName() .'\';';
-        $return[] = '';
+        
+        if (true === $config['generateSchema']) {
+            $return[] = $this->indentation(1) .'/* @var string $_schema */';
+            $return[] = $this->indentation(1) .'protected $_schema          = \''. $this->getSchemaName() .'\';';
+            $return[] = '';
+        }
+
+        if (true === $config['generateName']) {
+            $return[] = $this->indentation(1) .'/* @var string $_name */';
+            $return[] = $this->indentation(1) .'protected $_name            = \''. $this->getRawTableName() .'\';';
+            $return[] = '';
+        }
+
+        if (true === $config['generatePrimary']){
+            $return[] = $this->displayPrimary();
+            $return[] = '';
+        }
         
         
         if (true === $config['generateDRI']) {
             $return[] = $this->displayDependencies();
+            $return[] = '';
         }
         
-        $return[] = $this->displayReferences();
-        
-        $return[] = '';
+        if (true === $config['generateReferences']) {
+            $return[] = $this->displayReferences();
+            $return[] = '';
+        }   
+
         $return[] = '}';
-        $return[] = '?>';
-        $return[] = '';
-        $return[] = '';
         
         return implode("\n", $return);
     }
@@ -142,7 +153,6 @@ class Table extends \MwbExporter\Core\Model\Table
         
         $return[] = $this->indentation(1) .'/* @var array $_dependentTables */';
         $return[] = $this->indentation(1) .'protected $_dependentTables = array();';
-        $return[] = '';
         
         return implode("\n", $return);
     }
@@ -166,12 +176,24 @@ class Table extends \MwbExporter\Core\Model\Table
                 $return[] = $foreignKey->display();
             }
 
-            $return[] = $this->indentation(2) .');';
+            $return[] = $this->indentation(1) .');';
         } else {
             $return[] = $this->indentation(1) .'protected $_referenceMap    = array();';
         }
         
-        $return[] = '';
+        return implode("\n", $return);
+    }
+
+    /**
+     *
+     * @return string
+     */
+    protected function displayPrimary()
+    {
+        $return = array();
+        $return[] = $this->indentation(1) .'/* @var array $_primary */';
+        $return[] = $this->indentation(1) .'protected $_primary    = array('.$this->getColumns()->displayPrimary().');';
+
         return implode("\n", $return);
     }
 }
