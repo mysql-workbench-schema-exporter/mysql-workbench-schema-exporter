@@ -82,11 +82,19 @@ class ForeignKey extends Base
     {
         $return = array();
 
+<<<<<<< HEAD
         $return[] = $this->indentation(2) .'\''. $this->getReferencedTable()->getRawTableName() .'\' => array(';
         $return[] = $this->indentation(3) .'\'columns\'       => \''. $this->foreign->getColumnName() .'\',';
         $return[] = $this->indentation(3) .'\'refTableClass\' => \''. $this->getReferencedTable()->getRawTableName() .'\',';
         $return[] = $this->indentation(3) .'\'refColumns\'    => \''. $this->local->getColumnName() .'\',';
         $return[] = $this->indentation(2) .'),';
+=======
+        $return[] = $this->indentation(3) .'\''. $this->getReferencedTable()->getRawTableName() .'\' => array(';
+        $return[] = $this->indentation(4) .'\'columns\'       => \''. $this->foreign->getColumnName() .'\',';
+        $return[] = $this->indentation(4) .'\'refTableClass\' => \''. $this->getReferencedTable()->getTableClassName() .'\',';
+        $return[] = $this->indentation(4) .'\'refColumns\'    => \''. $this->local->getColumnName() .'\',';
+        $return[] = $this->indentation(3) .'),';
+>>>>>>> Improved Sencha3Model output
 
         return implode("\n", $return);
     }

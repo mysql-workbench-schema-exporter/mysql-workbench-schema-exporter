@@ -71,16 +71,17 @@ class Column extends \MwbExporter\Core\Model\Column
 
       $return .= "fieldLabel:'".ucwords(str_replace('_', ' ', $this->config['name']))."',";
       $return .= "allowBlank:". ((!isset($this->config['isNotNull']) || $this->config['isNotNull'] != 1) ? 'false' : 'true' ). ",";
-      $return .= "xtype:'";
+      $return .= "xtype:";
       if($this->isPrimary)
-        $return .= 'hidden';
+        $return .= "'hidden',";
       elseif('com.mysql.rdbms.mysql.datatype.datetime' == $this->link['simpleType'] || 'com.mysql.rdbms.mysql.datatype.timestamp' == $this->link['simpleType'])
-        $return .= 'xdatetime';
+        $return .= "'xdatetime',";
       elseif($this->local)
-        $return .= 'combo';
+        $return .= "'combo',";
+      elseif(in_array($this->link['simpleType'], array('com.mysql.rdbms.mysql.datatype.tinytext','com.mysql.rdbms.mysql.datatype.text','com.mysql.rdbms.mysql.datatype.mediumtext','com.mysql.rdbms.mysql.datatype.longtext')))
+        $return .= "'htmleditor',anchor:'100%',";
       else
-        $return .= 'textfield';
-      $return .= "',";
+        $return .= "'textfield',";
 
       if($this->local){
         $return .= "\n";
@@ -91,7 +92,7 @@ class Column extends \MwbExporter\Core\Model\Column
         $return .= $this->indentation($in+2)."id:'".str_replace(' ','',ucwords(str_replace('_',' ',$this->local->getReferencedTable()->getRawTableName())))."Store',\n";
         $return .= $this->indentation($in+2)."url:'/".\MwbExporter\Helper\ZendURLFormatter::fromUnderscoreConnectionToDashConnection($this->local->getReferencedTable()->getRawTableName()) ."',\n";
         $return .= $this->indentation($in+2)."root:'data',\n";
-        $return .= $this->indentation($in+2)."fileds:['".$this->local->foreign->getColumnName()."','".$this->local->getReferencedTable()->getRawTableName()."']\n";
+        $return .= $this->indentation($in+2)."fields:['id','name']\n";
         $return .= $this->indentation($in+1)."})\n";
         $return .= $this->indentation($in+0);
       }else{

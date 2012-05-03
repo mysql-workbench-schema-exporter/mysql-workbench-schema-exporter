@@ -73,12 +73,15 @@ class Columns extends \MwbExporter\Core\Model\Columns
      */
     public function displayFormItems($in=0){
       $return = array();
-      $return[] = $this->indentation($in+0).'formItems:[';
+      $return[] = $this->indentation($in+0).'formItems:[{';
+      $return[] = $this->indentation($in+1)."title: 'Basic Details',	layout: 'form',";
+      $return[] = $this->indentation($in+1)."items:[";
       foreach($this->columns as $column){
-        $return[] = $column->displayFormItem($in+1);
+        $return[] = $column->displayFormItem($in+2);
       }
       $return[count($return)-1] = substr($return[count($return)-1], 0, strlen($return[count($return)])-1); // Remove the last comma from the loop above
-      $return[] = $this->indentation($in+0).']';
+      $return[] = $this->indentation($in+1).']';
+      $return[] = $this->indentation($in+0).'}]';
       return implode("\n",$return);
     }
 
