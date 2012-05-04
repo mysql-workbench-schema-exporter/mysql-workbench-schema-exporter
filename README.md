@@ -131,10 +131,9 @@ Works with PHP 5.3 and up.
 
 Links
 -----
-  * [Doctrine Project](http://www.doctrine-project.org/)
   * [MySQL Workbench](http://wb.mysql.com/)
-  * [Symfony Project](http://www.symfony-project.org/)
-  * [MySQL Workbench Doctrine Plugin - google code project](http://code.google.com/p/mysql-workbench-doctrine-plugin/)
+  * [Doctrine Project](http://www.doctrine-project.org/)
+  * [Symfony Project](http://www.symfony.com/)
 
 Test-Database
 -------------
