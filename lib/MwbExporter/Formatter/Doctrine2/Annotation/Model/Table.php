@@ -117,7 +117,7 @@ class Table extends Base
         // indices
         $indices = array();
         foreach($this->indexes as $index){
-            $indices[] = $this->ormPrefix . 'index(' . $index->display() . ')';
+            $indices[] = $this->ormPrefix . 'Index(' . $index->display() . ')';
         }
 
         $return[] = '<?php';
