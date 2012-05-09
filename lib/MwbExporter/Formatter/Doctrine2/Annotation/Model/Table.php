@@ -116,8 +116,14 @@ class Table extends Base
         $skipGetterAndSetter = isset($config['skipGetterAndSetter']) && $config['skipGetterAndSetter'] ? true : false;
         // indices
         $indices = array();
+        $uniqueIndices = array();
         foreach($this->indexes as $index){
-            $indices[] = $this->ormPrefix . 'index(' . $index->display() . ')';
+            if($index->isIndex()){
+                $indices[] = $this->ormPrefix . 'Index(' . $index->display() . ')';
+            }
+            if ($index->isUnique()){
+                $uniqueIndices[] = $this->ormPrefix . 'UniqueConstraint(' . $index->display() . ')';
+            }
         }
 
         $return[] = '<?php';
@@ -133,7 +139,7 @@ class Table extends Base
         $return[] = ' * ' . $this->getNamespace();
         $return[] = ' *';
         $return[] = ' * ' . $this->ormPrefix . 'Entity' . (isset($config['useAutomaticRepository']) && $config['useAutomaticRepository'] ? sprintf('(repositoryClass="%sRepository")', $repositoryNamespace . $this->getModelName()) : '');
-        $return[] = ' * ' . $this->ormPrefix . 'Table(name="' . $this->getRawTableName() . '"' . (count($indices) ? ', indexes={' . implode(', ', $indices) . '}' : '') . ')';
+        $return[] = ' * ' . $this->ormPrefix . 'Table(name="' . $this->getRawTableName() . '"' . (count($indices) ? ', indexes={' . implode(', ', $indices) . '}' : '') . (count($uniqueIndices) ? ', uniqueConstraints={' . implode(', ', $uniqueIndices) . '}' : '') . ')';
         $return[] = ' */';
         $return[] = 'class ' . $this->getModelName();
         $return[] = '{';

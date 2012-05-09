@@ -48,4 +48,13 @@ class Registry
     {
         return isset(self::$register[$key]) ? self::$register[$key] : false;
     }
+
+    /**
+     *
+     * cleans up registry for testing purpose
+     */
+    public static function cleanup()
+    {
+        self::$register = array();
+    }
 }

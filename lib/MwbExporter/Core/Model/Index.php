@@ -72,4 +72,28 @@ abstract class Index extends Base
         Registry::get((string)$this->data->link)->injectIndex($this);
         Registry::set($this->id, $this);
     }
+
+    public function isPrimary()
+    {
+        if ($this->config['indexType'] == 'PRIMARY') {
+            return true;
+        }
+        return false;
+    }
+
+    public function isIndex()
+    {
+        if ($this->config['indexType'] == 'INDEX') {
+            return true;
+        }
+        return false;
+    }
+
+    public function isUnique()
+    {
+        if ($this->config['indexType'] == 'UNIQUE') {
+            return true;
+        }
+        return false;
+    }
 }
