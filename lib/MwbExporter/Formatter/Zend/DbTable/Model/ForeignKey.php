@@ -84,7 +84,7 @@ class ForeignKey extends Base
 
         $return[] = $this->indentation(3) .'\''. $this->getReferencedTable()->getRawTableName() .'\' => array(';
         $return[] = $this->indentation(4) .'\'columns\'       => \''. $this->foreign->getColumnName() .'\',';
-        $return[] = $this->indentation(4) .'\'refTableClass\' => \''. $this->getReferencedTable()->getRawTableName() .'\',';
+        $return[] = $this->indentation(4) .'\'refTableClass\' => \''. $this->getReferencedTable()->getTableClassName() .'\',';
         $return[] = $this->indentation(4) .'\'refColumns\'    => \''. $this->local->getColumnName() .'\',';
         $return[] = $this->indentation(3) .'),';
 

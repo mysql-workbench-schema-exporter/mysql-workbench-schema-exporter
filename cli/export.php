@@ -23,7 +23,7 @@
  */
 
 // ----------------------------------------- CONST --------------------------------------------------- //
-
+error_reporting(E_ALL & ~E_NOTICE);
 // ----------------------------------------- COMMAND LINE -------------------------------------------- //
 
 function usage()
@@ -263,6 +263,10 @@ function main($filename, $dir, $params, $options)
           'generateGetterSetter'      => false,
           'indentation'               => 4,
           'filename'                  => 'DbTable/%schema%/%entity%.%extension%',
+          'generateSchema'            => true,
+          'generateName'              => true,
+          'generateReferences'        => true,
+          'generatePrimary'        => true,
       );
       $formatter_class = '\MwbExporter\Formatter\Zend\DbTable\Loader';
       $extension = 'php';
