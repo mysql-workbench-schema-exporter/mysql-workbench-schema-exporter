@@ -25,10 +25,14 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
+use MwbExporter\Core\Registry;
 use MwbExporter\Core\Model\View as Base;
 
 class View extends Base
 {
+    protected $ormPrefix = '@';
+    protected $namespace = null;
+
     public function __construct($data, $parent)
     {
         parent::__construct($data, $parent);
@@ -37,10 +41,73 @@ class View extends Base
     public function display()
     {
         $return = array();
-        $return[] = $this->getModelName() . ':';
+        
+        $config              = Registry::get('config');
+        $this->ormPrefix     = '@' . ((isset($config['useAnnotationPrefix']) && $config['useAnnotationPrefix']) ? $config['useAnnotationPrefix'] : '');
+        $namespace           = $this->getEntityNamespace();
+        $repositoryNamespace = isset($config['repositoryNamespace']) && $config['repositoryNamespace'] ? $config['repositoryNamespace'] . '\\' : '';
+        
+        
+        $return[] = '<?php';
+        $return[] = '';
+        $return[] = sprintf('namespace %s;', $namespace);
+        $return[] = '';
+        $return[] = '/**';
+        $return[] = ' * ' . $this->getNamespace();
+        $return[] = ' *';
+        $return[] = ' * ' . $this->ormPrefix . 'Entity' . (isset($config['useAutomaticRepository']) && $config['useAutomaticRepository'] ? sprintf('(repositoryClass="%sRepository")', $repositoryNamespace . $this->getModelName()) : '');
+        $return[] = ' */';
+        $return[] = 'class ' . $this->getModelName();
+        $return[] = '{';
         $return[] = $this->columns->display();
+        $return[] = $this->displayConstructor();
+        $return[] = '}';
+        $return[] = '';
+        
+        return implode("\n", $return);
+    }
+    
+    public function displayConstructor()
+    {
+        $return = array();
+        $return[] = $this->indentation() . 'public function __construct()';
+        $return[] = $this->indentation() . '{';
+        $return[] = $this->indentation() . '}';
         $return[] = '';
 
         return implode("\n", $return);
+    }
+    
+    /**
+     * Get the entity namespace.
+     *
+     * @return string
+     */
+    public function getEntityNamespace()
+    {
+        if (null === $this->namespace) {
+            $config = Registry::get('config');
+            if (isset($config['bundleNamespace']) && $config['bundleNamespace']) {
+                $this->namespace = $config['bundleNamespace'] . '\\';
+            }
+            if (isset($config['entityNamespace']) && $config['entityNamespace']) {
+                $this->namespace .= $config['entityNamespace'];
+            } else {
+                $this->namespace .= 'Entity';
+            }
+        }
+
+        return $this->namespace;
+    }
+    
+    /**
+     * Get namespace of a class.
+     *
+     * @param string $class The class name
+     * @return string
+     */
+    public function getNamespace($class = null)
+    {
+        return sprintf('%s\%s', $this->getEntityNamespace(), null === $class ? $this->getModelName() : $class);
     }
 }
