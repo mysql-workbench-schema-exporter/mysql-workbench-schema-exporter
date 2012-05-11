@@ -1,133 +1,48 @@
 <?php
+
 /*
- *  The MIT License
+ * The MIT License
  *
- *  Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
+ * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
+ * Copyright (c) 2012 Toha <tohenk@yahoo.com>
  *
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *  The above copyright notice and this permission notice shall be included in
- *  all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- *  THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 
 namespace MwbExporter\Formatter\Doctrine1\Yaml\Model;
 
-use MwbExporter\Core\Registry;
-use MwbExporter\Core\Model\Table as Base;
+use MwbExporter\Model\Table as BaseTable;
+use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Formatter\Doctrine1\Yaml\Formatter;
 
-class Table extends Base
+class Table extends BaseTable
 {
-    public function __construct($data, $parent)
+    public function getActAsBehaviour()
     {
-        parent::__construct($data, $parent);
-    }
-
-    public function checkActAsBehaviour()
-    {
-        if($this->getComment() === ''){
-            return false;
-        }
-        return $this->parseComment('actAs', $this->getComment());
-    }
-
-    public function hasExternalRelations()
-    {
-        if($this->getExternalRelations() === false){
-            return false;
-        }
-
-        return true;
+        return trim($this->parseComment('actAs'));
     }
 
     public function getExternalRelations()
     {
         // processing external Relation
         // {d:externalRelations}[..]{/d:externalRelations}
-        $externalRelations = $this->parseComment('externalRelations', $this->getComment());
-        if($externalRelations === false){
-            return false;
-        }
-
-        $externalRelations = trim($externalRelations);
-
-        if(empty($externalRelations)){
-            return false;
-        }
-
-        return $externalRelations;
-    }
-
-    public function display()
-    {
-        $return = array();
-
-        // add model name
-        $return[] = $this->getModelName() . ':';
-
-        // add behaviours
-        if($actAs = $this->checkActAsBehaviour()){
-            $return[] = '  ' . trim($actAs);
-        }
-
-        // check if schema name has to be included
-        $config = Registry::get('config');
-        if(isset($config['extendTableNameWithSchemaName']) && $config['extendTableNameWithSchemaName']){
-            // $schemaname = table->tables->schema->getName()
-            $schemaName = $this->getParent()->getParent()->getName();
-            $return[] = '  tableName: ' . $schemaName . '.' . $this->getRawTableName();
-        } else {
-
-            // add table name if necessary
-            if($this->getModelName() !== ucfirst($this->getRawTableName())){
-                $return[] = '  tableName: ' . $this->getRawTableName();
-            }
-        }
-
-        $return[] = $this->columns->display();
-
-        // add relations
-        if(count($this->relations) > 0 or $this->hasExternalRelations()){
-            $return[] = '  relations:';
-
-            foreach($this->relations as $relation){
-                $return[] = $relation->display();
-            }
-            
-            if ($this->hasExternalRelations()) {
-                $return[] = '    ' . $this->getExternalRelations();
-            }
-        }
-
-        // add indices
-        if(count($this->indexes) > 0){
-            $return[] = '  indexes:';
-
-            foreach($this->indexes as $index){
-                $return[] = $index->display();
-            }
-        }
-
-        $return[] = '  options:';
-        $return[] = '    charset: ' . (($this->config['defaultCharacterSetName'] == "") ? 'utf8' : $this->config['defaultCharacterSetName']);
-        $return[] = '    type: ' . $this->config['tableEngine'];
-
-        // add empty line behind table
-        $return[] = '';
-
-        return implode("\n", $return);
+        return trim($this->parseComment('externalRelations'));
     }
 
     public function getModelName()
@@ -137,5 +52,57 @@ class Table extends Base
         } else {
             return parent::getModelName();
         }
+    }
+
+    public function write(WriterInterface $writer)
+    {
+        if (!$this->isExternal()) {
+            $writer->open($this->getTableFileName());
+            $this->writeTable($writer);
+            $writer->close();
+        }
+    }
+
+    public function writeTable(WriterInterface $writer)
+    {
+        $writer
+            ->write('%s:', $this->getModelName())
+            ->indent()
+                ->writeIf($actAs = trim($this->getActAsBehaviour()), $actAs)
+                ->write('tableName: '.($this->getDocument()->getConfig()->get(Formatter::CFG_EXTEND_TABLENAME_WITH_SCHEMA) ? $this->getSchema()->getName().'.' : '').$this->getRawTableName())
+                ->writeCallback(function($writer) {
+                    $this->columns->write($writer);
+                })
+                ->writeCallback(function($writer) {
+                    $externalRelation = $this->getExternalRelations();
+                    if (count($this->relations) || $externalRelation) {
+                        $writer->write('relations:');
+                        $writer->indent();
+                        foreach ($this->relations as $relation) {
+                            $relation->write($writer);
+                        }
+                        if ($externalRelation) {
+                            $writer->write($externalRelation);
+                        }
+                        $writer->outdent();
+                    }
+                })
+                ->writeCallback(function($writer) {
+                    if (count($this->indexes)) {
+                        $writer->write('indexes:');
+                        $writer->indent();
+                        foreach ($this->indexes as $index) {
+                            $index->write($writer);
+                        }
+                        $writer->outdent();
+                    }
+                })
+                ->write('options:')
+                ->indent()
+                    ->write('charset: '.($charset = $this->parameters->get('defaultCharacterSetName') ? $charset : 'utf8'))
+                    ->writeIf($engine = $this->parameters->get('tableEngine'), 'type: '.$engine)
+                ->outdent()
+            ->outdent()
+        ;
     }
 }

@@ -1,116 +1,114 @@
 <?php
 /*
- *  The MIT License
+ * The MIT License
  *
- *  Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
+ * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
+ * Copyright (c) 2012 Toha <tohenk@yahoo.com>
  *
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *  The above copyright notice and this permission notice shall be included in
- *  all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- *  THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
-use MwbExporter\Core\Registry;
-use MwbExporter\Core\Model\Table as Base;
+use MwbExporter\Model\Table as Base;
+use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Formatter\Doctrine2\Yaml\Formatter;
 
 class Table extends Base
 {
-    public function __construct($data, $parent)
+    /**
+     * Get the entity namespace.
+     *
+     * @return string
+     */
+    public function getEntityNamespace()
     {
-        parent::__construct($data, $parent);
+        $namespace = '';
+        if ($bundleNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_BUNDLE_NAMESPACE)) {
+            $namespace = $bundleNamespace.'\\';
+        }
+        if ($entityNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_ENTITY_NAMESPACE)) {
+            $namespace .= $entityNamespace;
+        } else {
+            $namespace .= 'Entity';
+        }
+
+        return $namespace;
     }
 
     /**
-     * return the table definition
-     * Yaml format
+     * Get namespace of a class.
      *
-     * @return string the table definition
+     * @param string $class The class name
+     * @return string
      */
-    public function display()
+    public function getNamespace($class = null, $absolute = true)
     {
-        $config = Registry::get('config');
+        return sprintf('%s%s\%s', $absolute ? '\\' : '', $this->getEntityNamespace(), null === $class ? $this->getModelName() : $class);
+    }
 
-        $return = array();
-        /**
-         * formatting the entity's namespace
-         */
-        $return[] = sprintf('%s\\%s\\%s:',
-            (isset($config['bundleNamespace']) && $config['bundleNamespace']) ? $config['bundleNamespace'] : '',
-            (isset($config['entityNamespace']) && $config['entityNamespace']) ? $config['entityNamespace'] : 'Entity',
-            $this->getModelName()
-        );
-        
-        /**
-         * formatting repository's Namespace
-         */
-        $repositoryNamespace = '';
-        if(isset($config['repositoryNamespace']) && $config['repositoryNamespace']){
-            $repositoryNamespace = $config['repositoryNamespace'] . '\\';
+    public function write(WriterInterface $writer)
+    {
+        if (!$this->isExternal()) {
+            $writer->open($this->getTableFileName());
+            $this->writeTable($writer);
+            $writer->close();
         }
+    }
 
-        $return[] = $this->indentation() . 'type: entity';
-
-        /**
-         * Adding the repository class if necessary
-         */
-        if(isset($config['useAutomaticRepository']) && $config['useAutomaticRepository']){
-            $return[] = $this->indentation() . 'repositoryClass: '.$repositoryNamespace . $this->getModelName() . 'Repository';
-        }
-
-        // check if schema name has to be included
-        if(isset($config['extendTableNameWithSchemaName']) && $config['extendTableNameWithSchemaName']){
-            // $schemaname = table->tables->schema->getName()
-            $schemaName = $this->getParent()->getParent()->getName();
-            $return[] = $this->indentation(1) . 'table: ' . $schemaName . '.' . $this->getRawTableName();
-        } else {
-            // add table name if necessary
-            if($this->getModelName() !== ucfirst($this->getRawTableName())){
-                $return[] = $this->indentation(1) . 'table: ' . $this->getRawTableName();
-            }
-        }
-
-        $return[] = $this->columns->display();
-
-        // add relations
-        if(count($this->relations) > 0){
-            $return[] = $this->indentation() . 'relations:';
-
-            foreach($this->relations as $relation){
-                $return[] = $relation->display();
-            }
-        }
-
-        // add indices
-        if(count($this->indexes) > 0){
-            $return[] = $this->indentation() . 'indexes:';
-
-            foreach($this->indexes as $index){
-                $return[] = $index->display();
-            }
-        }
-
-        $return[] = $this->indentation(1) . 'options:';
-        $return[] = $this->indentation(2) . 'charset: ' . $this->config['defaultCharacterSetName'];
-        $return[] = $this->indentation(2) . 'type: ' . $this->config['tableEngine'];
-
-        // add empty line behind table
-        $return[] = '';
-
-        return implode("\n", $return);
+    public function writeTable(WriterInterface $writer)
+    {
+        $writer
+            ->write('%s:', $this->getNamespace())
+            ->indent()
+                ->write('type: Entity')
+                ->writeIf($this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY), 'repositoryClass: %s', (($namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) ? $namespace.'\\' : '').$this->getModelName().'Repository')
+                ->write('table: %s', ($this->getDocument()->getConfig()->get(Formatter::CFG_EXTEND_TABLENAME_WITH_SCHEMA) ? $this->getSchema()->getName().'.' : '').$this->getRawTableName())
+                ->writeCallback(function($writer) {
+                    $this->columns->write($writer);
+                })
+                ->writeCallback(function($writer) {
+                    if (count($this->relations)) {
+                        $writer->write('relations:');
+                        $writer->indent();
+                        foreach ($this->relations as $relation) {
+                            $relation->write($writer);
+                        }
+                        $writer->outdent();
+                    }
+                })
+                ->writeCallback(function($writer) {
+                    if (count($this->indexes)) {
+                        $writer->write('indexes:');
+                        $writer->indent();
+                        foreach ($this->indexes as $index) {
+                            $index->write($writer);
+                        }
+                        $writer->outdent();
+                    }
+                })
+                ->write('options:')
+                ->indent()
+                    ->writeIf($charset = $this->parameters->get('defaultCharacterSetName'), 'charset: '.$charset)
+                    ->writeIf($engine = $this->parameters->get('tableEngine'), 'type: '.$engine)
+                ->outdent()
+            ->outdent()
+        ;
     }
 }
