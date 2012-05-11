@@ -35,6 +35,11 @@ class Buffer implements \ArrayAccess, \IteratorAggregate, \Countable
     protected $lines = array();
 
     /**
+     * @var string
+     */
+    protected $eol = "\n";
+
+    /**
      * Get buffer content.
      *
      * @return array
@@ -46,10 +51,37 @@ class Buffer implements \ArrayAccess, \IteratorAggregate, \Countable
 
     /**
      * Clear buffer content.
+     *
+     * @return \MwbExporter\Buffer\Buffer
      */
     public function clear()
     {
         $this->lines = array();
+
+        return $this;
+    }
+
+    /**
+     * Set EOL delimeter.
+     *
+     * @param string $eol  The EOL delimeter
+     * @return \MwbExporter\Buffer\Buffer
+     */
+    public function setEol($eol)
+    {
+        $this->eol = $eol;
+
+        return $this;
+    }
+
+    /**
+     * Get EOL delimeter.
+     *
+     * @return string
+     */
+    public function getEol()
+    {
+        return $this->eol;
     }
 
     public function offsetExists($offset)
@@ -88,6 +120,6 @@ class Buffer implements \ArrayAccess, \IteratorAggregate, \Countable
 
     public function __toString()
     {
-        return implode("\n", $this->lines);
+        return implode($this->eol, $this->lines);
     }
 }

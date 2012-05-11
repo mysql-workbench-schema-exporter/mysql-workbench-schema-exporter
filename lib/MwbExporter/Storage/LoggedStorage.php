@@ -48,6 +48,7 @@ class LoggedStorage extends Storage
         }
         $this->storage = $storage;
         $this->logs = new Buffer();
+        $this->logs->setEol("\n\n");
     }
 
     /**
