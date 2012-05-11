@@ -94,13 +94,6 @@ class JSObject
         }
 
         return $value;
-    
-        return $value;
-        $array = array_walk($array, function(&$value, $key) {
-            $value = sprintf('%s: %s', $key, $this->convertValue($value));
-        });
-    
-        return sprintf('{%s}', implode(', ', $array));
     }
 
     public function __toString()
