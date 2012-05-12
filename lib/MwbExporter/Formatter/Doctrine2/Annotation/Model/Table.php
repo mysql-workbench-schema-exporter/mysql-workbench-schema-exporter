@@ -98,29 +98,10 @@ class Table extends BaseTable
     }
 
     /**
-     *
-     * @param array $relation
-     * @return bool
-     */
-    public function isEnhancedManyToManyRelationDetection($relation)
-    {
-        if (false === $enhancedManyToManyDetection = $this->getDocument()->getConfig()->get(Formatter::CFG_ENHANCED_M2M_DETECTION)) {
-            return false;
-        }
-        // ignore relation tables with more than two columns
-        // if enhancedManyToMany config is set true
-        // (it is most likely not an intended m2m relation)
-        if ($relation['reference']->getOwningTable()->isManyToMany()) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Write document as generated code.
      *
      * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\Annotation\Model\Table
      */
     public function write(WriterInterface $writer)
     {
@@ -129,6 +110,8 @@ class Table extends BaseTable
             $this->writeTable($writer);
             $writer->close();
         }
+
+        return $this;
     }
     /**
      * Get annotation prefix.
@@ -162,8 +145,8 @@ class Table extends BaseTable
             ->write('')
             ->write('namespace %s;', $namespace)
             ->write('')
-            ->writeCallback(function($writer) {
-                $this->writeUsedClasses($writer);
+            ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                $_this->writeUsedClasses($writer);
             })
             ->write('/**')
             ->write(' * '.$this->getNamespace(null, false))
@@ -174,18 +157,20 @@ class Table extends BaseTable
             ->write('class '.$this->getModelName())
             ->write('{')
             ->indent()
-                ->writeCallback(function($writer) use ($skipGetterAndSetter) {
-                    $this->columns->write($writer);
-                    $this->writeManyToMany($writer);
-                    $this->writeConstructor($writer);
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter) {
+                    $_this->getColumns()->write($writer);
+                    $_this->writeManyToMany($writer);
+                    $_this->writeConstructor($writer);
                     if (!$skipGetterAndSetter) {
-                        $this->columns->writeGetterAndSetter($writer);
-                        $this->writeManyToManyGetterAndSetter($writer);
+                        $_this->getColumns()->writeGetterAndSetter($writer);
+                        $_this->writeManyToManyGetterAndSetter($writer);
                     }
                 })
             ->outdent()
             ->write('}')
         ;
+
+        return $this;
     }
 
     public function writeUsedClasses(WriterInterface $writer)
@@ -210,6 +195,8 @@ class Table extends BaseTable
         if ($count) {
             $writer->write('');
         }
+
+        return $this;
     }
 
     public function writeConstructor(WriterInterface $writer)
@@ -218,19 +205,21 @@ class Table extends BaseTable
             ->write('public function __construct()')
             ->write('{')
             ->indent()
-                ->writeCallback(function($writer) {
-                    $this->columns->writeArrayCollections($writer);
-                    foreach ($this->manyToManyRelations as $relation) {
-                        if ($this->isEnhancedManyToManyRelationDetection($relation)) {
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    $_this->getColumns()->writeArrayCollections($writer);
+                    foreach ($_this->getManyToManyRelations() as $relation) {
+                        if ($_this->isEnhancedManyToManyRelationDetection($relation)) {
                             continue;
                         }
-                        $writer->write('$this->%s = new %s();', lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())), $this->getCollectionClass(false));
+                        $writer->write('$this->%s = new %s();', lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())), $_this->getCollectionClass(false));
                     }
                 })
             ->outdent()
             ->write('}')
             ->write('')
         ;
+
+        return $this;
     }
 
     public function writeManyToMany(WriterInterface $writer)
@@ -265,6 +254,8 @@ class Table extends BaseTable
                 ->write('')
             ;
         }
+
+        return $this;
     }
 
     public function writeManyToManyGetterAndSetter(WriterInterface $writer)
@@ -303,5 +294,7 @@ class Table extends BaseTable
                 ->write('')
             ;
         }
+
+        return $this;
     }
 }

@@ -42,12 +42,14 @@ class Column extends BaseColumn
                 ->writeIf($this->parameters->get('isNotNull') == 1, 'notnull: true')
                 ->writeIf($this->parameters->get('autoIncrement') == 1, 'autoincrement: true')
                 ->writeIf(($default = $this->parameters->get('defaultValue')) && 'NULL' !== $default, 'default: '.$default)
-                ->writeCallback(function($writer) {
-                    foreach ($this->node->xpath("value[@key='flags']/value") as $flag) {
+                ->writeCallback(function(WriterInterface $writer, Column $_this = null) {
+                    foreach ($_this->getNode()->xpath("value[@key='flags']/value") as $flag) {
                         $writer->write(strtolower($flag).': true');
                     }
                 })
             ->outdent()
         ;
+
+        return $this;
     }
 }

@@ -78,14 +78,15 @@ class Indices extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
     }
 
     /**
-     * Write document as generated code.
-     *
-     * @param \MwbExporter\Writer\WriterInterface $writer
+     * (non-PHPdoc)
+     * @see MwbExporter\Model.Base::write()
      */
     public function write(WriterInterface $writer)
     {
         foreach ($this->indices as $indice) {
             $indice->write($writer);
         }
+
+        return $this;
     }
 }

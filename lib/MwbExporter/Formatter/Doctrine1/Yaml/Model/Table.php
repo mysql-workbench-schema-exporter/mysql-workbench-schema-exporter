@@ -61,6 +61,8 @@ class Table extends BaseTable
             $this->writeTable($writer);
             $writer->close();
         }
+
+        return $this;
     }
 
     public function writeTable(WriterInterface $writer)
@@ -70,15 +72,15 @@ class Table extends BaseTable
             ->indent()
                 ->writeIf($actAs = trim($this->getActAsBehaviour()), $actAs)
                 ->write('tableName: '.($this->getDocument()->getConfig()->get(Formatter::CFG_EXTEND_TABLENAME_WITH_SCHEMA) ? $this->getSchema()->getName().'.' : '').$this->getRawTableName())
-                ->writeCallback(function($writer) {
-                    $this->columns->write($writer);
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    $_this->getColumns()->write($writer);
                 })
-                ->writeCallback(function($writer) {
-                    $externalRelation = $this->getExternalRelations();
-                    if (count($this->relations) || $externalRelation) {
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    $externalRelation = $_this->getExternalRelations();
+                    if (count($_this->getRelations()) || $externalRelation) {
                         $writer->write('relations:');
                         $writer->indent();
-                        foreach ($this->relations as $relation) {
+                        foreach ($_this->getRelations() as $relation) {
                             $relation->write($writer);
                         }
                         if ($externalRelation) {
@@ -87,11 +89,11 @@ class Table extends BaseTable
                         $writer->outdent();
                     }
                 })
-                ->writeCallback(function($writer) {
-                    if (count($this->indexes)) {
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    if (count($_this->getIndexes())) {
                         $writer->write('indexes:');
                         $writer->indent();
-                        foreach ($this->indexes as $index) {
+                        foreach ($_this->getIndexes() as $index) {
                             $index->write($writer);
                         }
                         $writer->outdent();
@@ -104,5 +106,7 @@ class Table extends BaseTable
                 ->outdent()
             ->outdent()
         ;
+
+        return $this;
     }
 }

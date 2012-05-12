@@ -39,8 +39,8 @@ class Column extends Base
                 ->write('type: %s', $this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this))
                 ->writeIf($this->isPrimary(), 'primary: true')
                 ->writeIf($this->parameters->get('isNotNull') == 1, 'notnull: true')
-                ->writeCallback(function($writer) {
-                    if ($this->parameters->get('autoIncrement') == 1) {
+                ->writeCallback(function(WriterInterface $writer, Column $_this = null) {
+                    if ($_this->getParameters()->get('autoIncrement') == 1) {
                         $writer
                             ->write('generator:')
                             ->indent()
@@ -49,13 +49,15 @@ class Column extends Base
                         ;
                     }
                 })
-                ->writeIf(($default = $this->parameters->get('defaultValue')) && 'NULL' !== $default, 'default: '.$default)
-                ->writeCallback(function($writer) {
-                    foreach ($this->node->xpath("value[@key='flags']/value") as $flag) {
+                ->writeIf(($default = $this->getParameters()->get('defaultValue')) && 'NULL' !== $default, 'default: '.$default)
+                ->writeCallback(function(WriterInterface $writer, Column $_this = null) {
+                    foreach ($_this->getNode()->xpath("value[@key='flags']/value") as $flag) {
                         $writer->write(strtolower($flag).': true');
                     }
                 })
             ->outdent()
         ;
+
+        return $this;
     }
 }

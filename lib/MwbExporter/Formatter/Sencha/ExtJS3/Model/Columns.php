@@ -39,14 +39,17 @@ class Columns extends BaseColumns
         $writer
             ->write('fields: [')
             ->indent()
-                ->writeCallback(function($writer) {
-                    for ($i = 0; $i < count($this->columns); $i++) {
-                        $writer->write($this->columns[$i]->getAsField().($i < count($this->columns) - 1 ? ',' : ''));
+                ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
+                    $columns = $_this->getColumns();
+                    for ($i = 0; $i < count($columns); $i++) {
+                        $writer->write($columns[$i]->getAsField().($i < count($columns) - 1 ? ',' : ''));
                     }
                 })
             ->outdent()
             ->write(']')
         ;
+
+        return $this;
     }
 
     public function writeColumns(WriterInterface $writer)
@@ -54,14 +57,17 @@ class Columns extends BaseColumns
         $writer
             ->write('columns: [')
             ->indent()
-                ->writeCallback(function($writer) {
-                    for ($i = 0; $i < count($this->columns); $i++) {
-                        $writer->write($this->columns[$i]->getAsColumn().($i < count($this->columns) - 1 ? ',' : ''));
+                ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
+                    $columns = $_this->getColumns();
+                    for ($i = 0; $i < count($columns); $i++) {
+                        $writer->write($columns[$i]->getAsColumn().($i < count($columns) - 1 ? ',' : ''));
                     }
                 })
             ->outdent()
             ->write('],')
         ;
+
+        return $this;
     }
 
     public function writeFormItems(WriterInterface $writer)
@@ -69,13 +75,16 @@ class Columns extends BaseColumns
         $writer
             ->write('formItems: [')
             ->indent()
-                ->writeCallback(function($writer) {
-                    for ($i = 0; $i < count($this->columns); $i++) {
-                        $writer->write($this->columns[$i]->getAsFormItem().($i < count($this->columns) - 1 ? ',' : ''));
+                ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
+                    $columns = $_this->getColumns();
+                    for ($i = 0; $i < count($columns); $i++) {
+                        $writer->write($columns[$i]->getAsFormItem().($i < count($columns) - 1 ? ',' : ''));
                     }
                 })
             ->outdent()
             ->write(']')
         ;
+
+        return $this;
     }
 }

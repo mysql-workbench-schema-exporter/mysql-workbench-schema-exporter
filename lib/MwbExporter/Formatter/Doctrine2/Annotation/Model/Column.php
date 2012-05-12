@@ -66,7 +66,10 @@ class Column extends BaseColumn
                     ' * '.$this->getTable()->addPrefix('GeneratedValue(strategy="AUTO")'))
             ->write(' */')
             ->write('private $'.$this->getColumnName().';')
-            ->write('');
+            ->write('')
+        ;
+
+        return $this;
     }
 
     public function writeArrayCollection(WriterInterface $writer)
@@ -80,6 +83,8 @@ class Column extends BaseColumn
                 }
             }
         }
+
+        return $this;
     }
 
     public function writeRelations(WriterInterface $writer)
@@ -134,6 +139,8 @@ class Column extends BaseColumn
                 ;
             }
         }
+
+        return $this;
     }
 
     public function writeGetterAndSetter(WriterInterface $writer)
@@ -172,6 +179,8 @@ class Column extends BaseColumn
             ->write('}')
             ->write('')
         ;
+
+        return $this;
     }
 
     public function writeRelationsGetterAndSetter(WriterInterface $writer)
@@ -246,7 +255,8 @@ class Column extends BaseColumn
                     ;
                 }
                 $writer
-                    ->write('');
+                    ->write('')
+                ;
             }
         }
         // many to one references
@@ -320,5 +330,7 @@ class Column extends BaseColumn
                 ;
             }
         }
+
+        return $this;
     }
 }

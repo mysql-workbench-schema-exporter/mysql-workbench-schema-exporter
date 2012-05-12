@@ -64,4 +64,14 @@ class Index extends Base
             $table->injectIndex($this);
         }
     }
+
+    /**
+     * Get index columns.
+     *
+     * @return array
+     */
+    public function getColumns()
+    {
+        return $this->columns;
+    }
 }

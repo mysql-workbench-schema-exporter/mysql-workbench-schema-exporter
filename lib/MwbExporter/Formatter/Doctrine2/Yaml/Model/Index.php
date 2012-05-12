@@ -36,9 +36,9 @@ class Index extends Base
         $writer
             ->write('%s:', $this->parameters->get('name'))
             ->indent()
-                ->writeCallback(function($writer) {
+                ->writeCallback(function(WriterInterface $writer, Index $_this = null) {
                     $columns = array();
-                    foreach ($this->columns as $column) {
+                    foreach ($_this->getColumns() as $column) {
                         $columns[] = $column->getColumnName();
                     }
                     $writer->write('columns: [%s]', implode(', ', $columns));
@@ -46,5 +46,7 @@ class Index extends Base
                 ->writeIf(($type = strtolower($this->parameters->get('indexType'))) !== 'index', 'type: '.$type)
             ->outdent()
         ;
+
+        return $this;
     }
 }

@@ -36,8 +36,8 @@ class Columns extends Base
         $writer
             ->write('id:')
             ->indent()
-                ->writeCallback(function($writer) {
-                    foreach ($this->columns as $column) {
+                ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
+                    foreach ($_this->getColumns() as $column) {
                         if ($column->isPrimary()) {
                             $column->write($writer);
                         }
@@ -46,8 +46,8 @@ class Columns extends Base
             ->outdent()
             ->write('fields:')
             ->indent()
-                ->writeCallback(function($writer) {
-                    foreach ($this->columns as $column) {
+                ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
+                    foreach ($_this->getColumns() as $column) {
                         if (!$column->isPrimary()) {
                             $column->write($writer);
                         }
@@ -55,5 +55,7 @@ class Columns extends Base
                 })
             ->outdent()
         ;
+
+        return $this;
     }
 }

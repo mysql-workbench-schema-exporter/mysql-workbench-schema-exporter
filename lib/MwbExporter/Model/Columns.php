@@ -43,6 +43,16 @@ class Columns extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
         }
     }
 
+    /**
+     * Get columns column.
+     *
+     * @return array
+     */
+    public function getColumns()
+    {
+        return $this->columns;
+    }
+
     public function getManyToManyCount($tablename)
     {
         $count = 0;
@@ -106,14 +116,15 @@ class Columns extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
     }
 
     /**
-     * Write document as generated code.
-     *
-     * @param \MwbExporter\Writer\WriterInterface $writer
+     * (non-PHPdoc)
+     * @see MwbExporter\Model.Base::write()
      */
     public function write(WriterInterface $writer)
     {
         foreach ($this->columns as $column) {
             $column->write($writer);
         }
+
+        return $this;
     }
 }

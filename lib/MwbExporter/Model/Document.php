@@ -149,6 +149,10 @@ class Document extends Base
         $this->physicalModel = new PhysicalModel($this, $elems[0]);
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see MwbExporter\Model.Base::write()
+     */
     public function write(WriterInterface $writer)
     {
         $this->writer = $writer;
@@ -159,5 +163,7 @@ class Document extends Base
         } catch (\Exception $e) {
         }
         $writer->end();
+
+        return $this;
     }
 }

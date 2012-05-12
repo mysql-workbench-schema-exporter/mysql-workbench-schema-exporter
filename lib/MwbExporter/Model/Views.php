@@ -79,14 +79,15 @@ class Views extends Base implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * Write document as generated code.
-     *
-     * @param \MwbExporter\Writer\WriterInterface $writer
+     * (non-PHPdoc)
+     * @see MwbExporter\Model.Base::write()
      */
     public function write(WriterInterface $writer)
     {
         foreach ($this->views as $view) {
             $view->write($writer);
         }
+
+        return $this;
     }
 }

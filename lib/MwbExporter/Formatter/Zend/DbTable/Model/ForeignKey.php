@@ -43,5 +43,7 @@ class ForeignKey extends BaseForeignKey
             ->outdent()
             ->write('),')
         ;
+
+        return $this;
     }
 }

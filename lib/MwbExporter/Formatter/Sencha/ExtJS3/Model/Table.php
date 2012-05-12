@@ -51,6 +51,8 @@ class Table extends BaseTable
             $this->writeTable($writer);
             $writer->close();
         }
+
+        return $this;
     }
 
     public function writeTable(WriterInterface $writer)
@@ -62,8 +64,8 @@ class Table extends BaseTable
                 ->write("id: '%s',", $this->getModelName())
                 ->write("url: '%s',", ZendURLFormatter::fromCamelCaseToDashConnection($this->getModelName()))
                 ->write("title: '%s',", str_replace('-', ' ', ZendURLFormatter::fromCamelCaseToDashConnection($this->getModelName())))
-                ->writeCallback(function($writer) {
-                    $this->columns->writeFields($writer);
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    $_this->getColumns()->writeFields($writer);
                 })
             ->outdent()
             ->write('});')
@@ -71,13 +73,17 @@ class Table extends BaseTable
             // UI
             ->write($this->getClassPrefix().'.'. $this->getModelName().' = Ext.extend('.$this->getClassPrefix().'.'. $this->getModelName().', {')
             ->indent()
-                ->writeCallback(function($writer) {
-                    $this->columns->writeColumns($writer);
-                    $this->columns->writeFormItems($writer);
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    $_this->getColumns()
+                        ->writeColumns($writer)
+                        ->writeFormItems($writer)
+                    ;
                 })
             ->outdent()
             ->write('});')
             ->write('')
         ;
+
+        return $this;
     }
 }

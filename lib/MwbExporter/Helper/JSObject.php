@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Sencha\ExtJS3;
+namespace MwbExporter\Helper;
 
 class JSObject
 {

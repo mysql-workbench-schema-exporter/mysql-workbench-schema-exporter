@@ -78,14 +78,15 @@ class ForeignKeys extends Base implements \ArrayAccess, \IteratorAggregate, \Cou
     }
 
     /**
-     * Write document as generated code.
-     *
-     * @param \MwbExporter\Writer\WriterInterface $writer
+     * (non-PHPdoc)
+     * @see MwbExporter\Model.Base::write()
      */
     public function write(WriterInterface $writer)
     {
         foreach ($this->foreignKeys as $foreignKey) {
             $foreignKey->write($writer);
         }
+
+        return $this;
     }
 }

@@ -53,12 +53,13 @@ class PhysicalModel extends Base
     }
 
     /**
-     * Write document as generated code.
-     *
-     * @param \MwbExporter\Writer\WriterInterface $writer
+     * (non-PHPdoc)
+     * @see MwbExporter\Model.Base::write()
      */
     public function write(WriterInterface $writer)
     {
         $this->getCatalog()->write($writer);
+
+        return $this;
     }
 }

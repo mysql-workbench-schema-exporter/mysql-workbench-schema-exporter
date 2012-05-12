@@ -180,8 +180,10 @@ abstract class Base
      * Write document as generated code.
      *
      * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Model\Base
      */
     public function write(WriterInterface $writer)
     {
+        return $this;
     }
 }

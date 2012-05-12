@@ -50,6 +50,8 @@ class Table extends BaseTable
             $this->writeTable($writer);
             $writer->close();
         }
+
+        return $this;
     }
 
     public function writeTable(WriterInterface $writer)
@@ -65,5 +67,7 @@ class Table extends BaseTable
             ->write('}')
             ->write('')
         ;
+
+        return $this;
     }
 }

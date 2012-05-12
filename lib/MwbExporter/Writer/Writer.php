@@ -222,7 +222,12 @@ abstract class Writer implements WriterInterface
     public function writeCallback($callback)
     {
         if (is_callable($callback)) {
-            call_user_func($callback, $this);
+            $debugs = debug_backtrace(version_compare(PHP_VERSION, '5.3.6', '>=') ? DEBUG_BACKTRACE_PROVIDE_OBJECT : true);
+            // this is current function debug backtrace
+            $current = array_shift($debugs);
+            // this is the current function caller debug backtrace
+            $caller = array_shift($debugs);
+            call_user_func($callback, $this, isset($caller['object']) ? $caller['object'] : $this);
         }
 
         return $this;

@@ -41,6 +41,8 @@ class Columns extends BaseColumns
         foreach ($this->columns as $column) {
             $column->writeRelations($writer);
         }
+
+        return $this;
     }
 
     public function writeArrayCollections(WriterInterface $writer)
@@ -48,6 +50,8 @@ class Columns extends BaseColumns
         foreach ($this->columns as $column) {
             $column->writeArrayCollection($writer);
         }
+
+        return $this;
     }
 
     public function writeGetterAndSetter(WriterInterface $writer)
@@ -60,5 +64,7 @@ class Columns extends BaseColumns
         foreach ($this->columns as $column) {
             $column->writeRelationsGetterAndSetter($writer);
         }
+
+        return $this;
     }
 }

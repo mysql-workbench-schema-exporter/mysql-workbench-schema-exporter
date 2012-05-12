@@ -119,6 +119,16 @@ class Table extends Base
     }
 
     /**
+     * Get indexes.
+     *
+     * @return array
+     */
+    public function getIndexes()
+    {
+        return $this->indexes;
+    }
+
+    /**
      * Get foreign keys model.
      *
      * @return \MwbExporter\Model\ForeignKeys
@@ -180,10 +190,38 @@ class Table extends Base
         return $this->manyToManyRelations;
     }
 
+    /**
+     * Add a many to manu relation.
+     *
+     * @param array $rel  The relation
+     * @return \MwbExporter\Model\Table
+     */
     public function setManyToManyRelation($rel)
     {
         $key = $rel['refTable']->getModelName();
         $this->manyToManyRelations[$key] = $rel;
+
+        return $this;
+    }
+
+    /**
+     *
+     * @param array $relation
+     * @return bool
+     */
+    public function isEnhancedManyToManyRelationDetection($relation)
+    {
+        if (false === $enhancedManyToManyDetection = $this->getDocument()->getConfig()->get(Formatter::CFG_ENHANCED_M2M_DETECTION)) {
+            return false;
+        }
+        // ignore relation tables with more than two columns
+        // if enhancedManyToMany config is set true
+        // (it is most likely not an intended m2m relation)
+        if ($relation['reference']->getOwningTable()->isManyToMany()) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -309,9 +347,8 @@ class Table extends Base
     }
 
     /**
-     * Write document as generated code.
-     *
-     * @param \MwbExporter\Writer\WriterInterface $writer
+     * (non-PHPdoc)
+     * @see MwbExporter\Model.Base::write()
      */
     public function write(WriterInterface $writer)
     {
@@ -320,5 +357,7 @@ class Table extends Base
             $this->getIndices()->write($writer);
             $this->getForeignKeys()->write($writer);
         }
+
+        return $this;
     }
 }

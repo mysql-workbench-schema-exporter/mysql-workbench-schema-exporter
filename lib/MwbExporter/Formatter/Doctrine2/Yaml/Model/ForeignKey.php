@@ -51,5 +51,7 @@ class ForeignKey extends Base
                 ->outdent()
             ;
         }
+
+        return $this;
     }
 }

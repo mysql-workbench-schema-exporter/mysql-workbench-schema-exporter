@@ -76,18 +76,20 @@ class Table extends BaseTable
                 ->write(' */')
                 ->write('protected $_name = \''. $this->getRawTableName() .'\';')
                 ->write('')
-                ->writeCallback(function($writer) {
-                    if ($this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_DRI)) {
-                        $this->writeDependencies($writer);
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    if ($_this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_DRI)) {
+                        $_this->writeDependencies($writer);
                     }
                 })
-                ->writeCallback(function($writer) {
-                    $this->writeReferences($writer);
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    $_this->writeReferences($writer);
                 })
             ->outdent()
             ->write('}')
             ->write('')
         ;
+
+        return $this;
     }
 
     public function writeDependencies(WriterInterface $writer)
@@ -102,6 +104,8 @@ class Table extends BaseTable
             ->write('protected $_dependentTables = array();')
             ->write('')
         ;
+
+        return $this;
     }
 
     public function writeReferences(WriterInterface $writer)
@@ -110,11 +114,11 @@ class Table extends BaseTable
             ->write('/**')
             ->write(' * @var array')
             ->write(' */')
-            ->writeCallback(function($writer) {
-                if (count($this->getForeignKeys())) {
+            ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                if (count($_this->getForeignKeys())) {
                     $writer->write('protected $_referenceMap = array(');
                     $writer->indent();
-                    foreach ($this->getForeignKeys() as $foreignKey) {
+                    foreach ($_this->getForeignKeys() as $foreignKey) {
                         $foreignKey->write($writer);
                     }
                     $writer->outdent();
@@ -124,5 +128,7 @@ class Table extends BaseTable
                 }
             })
         ;
+
+        return $this;
     }
 }
