@@ -180,7 +180,7 @@ class Table extends BaseTable
     public function writeUsedClasses(WriterInterface $writer)
     {
         $count = 0;
-        if ($this->ormPrefix == '@ORM\\') {
+        if ('@ORM\\' === $this->addPrefix()) {
             $writer->write('use Doctrine\ORM\Mapping as ORM;');
             $count++;
         }
