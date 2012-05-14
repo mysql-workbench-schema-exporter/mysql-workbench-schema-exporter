@@ -155,7 +155,7 @@ class Column extends Base
     /**
      * Get local foreign key.
      *
-     * @return ForeignKey
+     * @return \MwbExporter\Model\ForeignKey
      */
     public function getLocalForeignKey()
     {

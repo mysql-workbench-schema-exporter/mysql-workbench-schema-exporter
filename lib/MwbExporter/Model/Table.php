@@ -59,6 +59,9 @@ class Table extends Base
      */
     protected $relations   = array();
 
+    /**
+     * @var array
+     */
     protected $manyToManyRelations = array();
 
     protected function init()
@@ -70,22 +73,74 @@ class Table extends Base
         }
     }
 
-    protected function initColumns()
+    /**
+     * Initialize table columns.
+     *
+     * @return \MwbExporter\Model\Table
+     */
+    public function initColumns()
     {
         $elems = $this->node->xpath("value[@key='columns']");
         $this->columns = $this->getDocument()->getFormatter()->createColumns($this, $elems[0]);
+
+        return $this;
     }
 
+    /**
+     * Initialize table indices.
+     *
+     * @return \MwbExporter\Model\Table
+     */
     public function initIndices()
     {
         $elems = $this->node->xpath("value[@key='indices']");
         $this->indices = $this->getDocument()->getFormatter()->createIndices($this, $elems[0]);
+
+        return $this;
     }
 
+    /**
+     * Initialize table foreign keys.
+     *
+     * @return \MwbExporter\Model\Table
+     */
     public function initForeignKeys()
     {
         $elems = $this->node->xpath("value[@key='foreignKeys']");
         $this->foreignKeys = $this->getDocument()->getFormatter()->createForeignKeys($this, $elems[0]);
+
+        return $this;
+    }
+
+    /**
+     * Initialize many to many relations.
+     *
+     * @return \MwbExporter\Model\Table
+     */
+    public function initManyToManyRelations()
+    {
+        if ($this->isManyToMany()) {
+            $fk1 = $this->foreignKeys[0];
+            $fk2 = $this->foreignKeys[1];
+            $this->injectManyToMany($fk1, $fk2);
+            $this->injectManyToMany($fk2, $fk1);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Inject a many to many relation into referenced table.
+     *
+     * @param \MwbExporter\Model\ForeignKey $fk1
+     * @param \MwbExporter\Model\ForeignKey $fk2
+     * @return \MwbExporter\Model\Table
+     */
+    protected function injectManyToMany(ForeignKey $fk1, ForeignKey $fk2)
+    {
+        $fk1->getReferencedTable()->setManyToManyRelation(array('reference' => $fk1, 'refTable' => $fk2->getReferencedTable()));
+
+        return $this;
     }
 
     /**
@@ -191,7 +246,7 @@ class Table extends Base
     }
 
     /**
-     * Add a many to manu relation.
+     * Add a many to many relation.
      *
      * @param array $rel  The relation
      * @return \MwbExporter\Model\Table
@@ -202,26 +257,6 @@ class Table extends Base
         $this->manyToManyRelations[$key] = $rel;
 
         return $this;
-    }
-
-    /**
-     *
-     * @param array $relation
-     * @return bool
-     */
-    public function isEnhancedManyToManyRelationDetection($relation)
-    {
-        if (false === $enhancedManyToManyDetection = $this->getDocument()->getConfig()->get(Formatter::CFG_ENHANCED_M2M_DETECTION)) {
-            return false;
-        }
-        // ignore relation tables with more than two columns
-        // if enhancedManyToMany config is set true
-        // (it is most likely not an intended m2m relation)
-        if ($relation['reference']->getOwningTable()->isManyToMany()) {
-            return true;
-        }
-
-        return false;
     }
 
     /**

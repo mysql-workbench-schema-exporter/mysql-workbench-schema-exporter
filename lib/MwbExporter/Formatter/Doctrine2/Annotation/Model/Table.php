@@ -184,15 +184,7 @@ class Table extends BaseTable
             $writer->write('use Doctrine\ORM\Mapping as ORM;');
             $count++;
         }
-        $useArray = false;
-        foreach ($this->manyToManyRelations as $relation) {
-            if ($this->isEnhancedManyToManyRelationDetection($relation)) {
-                continue;
-            }
-            $useArray = true;
-            break;
-        }
-        if ($useArray || $this->getColumns()->hasOneToManyRelation()) {
+        if (count($this->getManyToManyRelations()) || $this->getColumns()->hasOneToManyRelation()) {
             $writer->write('use %s;', $this->getCollectionClass());
             $count++;
         }
@@ -212,9 +204,6 @@ class Table extends BaseTable
                 ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
                     $_this->getColumns()->writeArrayCollections($writer);
                     foreach ($_this->getManyToManyRelations() as $relation) {
-                        if ($_this->isEnhancedManyToManyRelationDetection($relation)) {
-                            continue;
-                        }
                         $writer->write('$this->%s = new %s();', lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())), $_this->getCollectionClass(false));
                     }
                 })
@@ -246,18 +235,15 @@ class Table extends BaseTable
         // @TODO D2A ManyToMany relation joinColumns and inverseColumns
         // referencing wrong column names
         foreach ($this->manyToManyRelations as $relation) {
-            if ($this->isEnhancedManyToManyRelationDetection($relation)) {
-                continue;
-            }
             // if relation is not mapped yet define relation
             // otherwise use "mappedBy" feature
-            if ($relation['reference']->local->getColumnName() != $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->local->getColumnName()) {
+            if ($relation['reference']->getLocal()->getColumnName() != $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->getLocal()->getColumnName()) {
                 $writer
                     ->write('/**')
                     ->write(' * '.$this->addPrefix('ManyToMany(targetEntity="'.$relation['refTable']->getModelName().'")'))
                     ->write(' * '.$this->addPrefix('JoinTable(name="'.$relation['reference']->getOwningTable()->getRawTableName().'",'))
-                    ->write(' *     joinColumns={'       .$this->addPrefix('JoinColumn(name="'.$relation['reference']->foreign->getColumnName().'", referencedColumnName="'.$relation['reference']->local->getColumnName().'")},'))
-                    ->write(' *     inverseJoinColumns={'.$this->addPrefix('JoinColumn(name="'.$relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->foreign->getColumnName().'", referencedColumnName="'.$relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->local->getColumnName().'")}'))
+                    ->write(' *     joinColumns={'       .$this->addPrefix('JoinColumn(name="'.$relation['reference']->getForeign()->getColumnName().'", referencedColumnName="'.$relation['reference']->getLocal()->getColumnName().'")},'))
+                    ->write(' *     inverseJoinColumns={'.$this->addPrefix('JoinColumn(name="'.$relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->getForeign()->getColumnName().'", referencedColumnName="'.$relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->getLocal()->getColumnName().'")}'))
                     ->write(' * )')
                     ->write(' */')
                 ;
@@ -280,9 +266,6 @@ class Table extends BaseTable
     public function writeManyToManyGetterAndSetter(WriterInterface $writer)
     {
         foreach ($this->manyToManyRelations as $relation) {
-            if ($this->isEnhancedManyToManyRelationDetection($relation)) {
-                continue;
-            }
             $writer
                 ->write('/**')
                 ->write(' * Add '.$relation['refTable']->getModelName().' entity to collection.')

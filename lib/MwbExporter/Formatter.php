@@ -49,11 +49,12 @@ abstract class Formatter implements FormatterInterface
     {
         $this->registry = new Registry();
         $this->addConfigurations(array(
-            static::CFG_INDENTATION        => 2,
-            static::CFG_FILENAME           => '',
-            static::CFG_SKIP_PLURAL        => false,
-            static::CFG_BACKUP_FILE        => true,
-            static::CFG_USE_LOGGED_STORAGE => false,
+            static::CFG_INDENTATION            => 2,
+            static::CFG_FILENAME               => '%entity%.%extension%',
+            static::CFG_SKIP_PLURAL            => false,
+            static::CFG_BACKUP_FILE            => true,
+            static::CFG_USE_LOGGED_STORAGE     => false,
+            static::CFG_ENHANCE_M2M_DETECTION  => true,
         ));
         $this->init();
     }

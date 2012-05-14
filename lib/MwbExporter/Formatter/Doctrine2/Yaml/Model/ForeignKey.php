@@ -45,7 +45,7 @@ class ForeignKey extends Base
                     ->write('class: '.$this->referencedTable->getModelName())
                     ->write('local: '.$this->local->getColumnName())
                     ->write('foreign: '.$this->foreign->getColumnName())
-                    ->write('foreignAlias: '.($this->isManyToOne() ? Pluralizer::pluralize($this->owningTable->getModelName()) : $this->owningTable->getModelName()))
+                    ->write('foreignAlias: '.($this->isManyToOne() ? Pluralizer::pluralize($this->referencedTable->getModelName()) : $this->referencedTable->getModelName()))
                     ->write('onDelete: '.strtolower($this->parameters->get('deleteRule')))
                     ->write('onUpdate: '.strtolower($this->parameters->get('updateRule')))
                 ->outdent()

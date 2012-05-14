@@ -28,6 +28,7 @@
 namespace MwbExporter\Model;
 
 use MwbExporter\Writer\WriterInterface;
+use MwbExporter\FormatterInterface;
 
 class Tables extends Base implements \ArrayAccess, \IteratorAggregate, \Countable
 {
@@ -58,6 +59,12 @@ class Tables extends Base implements \ArrayAccess, \IteratorAggregate, \Countabl
         foreach ($this->tables as $table) {
             $table->initIndices();
             $table->initForeignKeys();
+        }
+        // initialize many to many relation
+        if ($this->getDocument()->getConfig()->get(FormatterInterface::CFG_ENHANCE_M2M_DETECTION)) {
+            foreach ($this->tables as $table) {
+                $table->initManyToManyRelations();
+            }
         }
     }
 

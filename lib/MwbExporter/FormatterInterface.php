@@ -31,11 +31,12 @@ use MwbExporter\Model\Base;
 
 interface FormatterInterface {
 
-    const CFG_INDENTATION        = 'indentation';
-    const CFG_FILENAME           = 'filename';
-    const CFG_SKIP_PLURAL        = 'skipPluralNameChecking';
-    const CFG_BACKUP_FILE        = 'backupExistingFile';
-    const CFG_USE_LOGGED_STORAGE = 'useLoggedStorage';
+    const CFG_INDENTATION            = 'indentation';
+    const CFG_FILENAME               = 'filename';
+    const CFG_SKIP_PLURAL            = 'skipPluralNameChecking';
+    const CFG_BACKUP_FILE            = 'backupExistingFile';
+    const CFG_USE_LOGGED_STORAGE     = 'useLoggedStorage';
+    const CFG_ENHANCE_M2M_DETECTION  = 'enhanceManyToManyDetection';
 
     /**
      * Get the registry object.
