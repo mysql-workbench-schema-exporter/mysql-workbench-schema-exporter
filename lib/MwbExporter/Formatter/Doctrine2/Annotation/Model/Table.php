@@ -135,6 +135,7 @@ class Table extends BaseTable
             $repositoryNamespace .= '\\';
         }
         $skipGetterAndSetter = $this->getDocument()->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
+        $serializableEntity  = $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
         $automaticRepository = $this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? sprintf('(repositoryClass="%sRepository")', $repositoryNamespace.$this->getModelName()) : '';
         $indices = array();
         foreach ($this->indexes as $index) {
@@ -157,13 +158,16 @@ class Table extends BaseTable
             ->write('class '.$this->getModelName())
             ->write('{')
             ->indent()
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter) {
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity) {
                     $_this->getColumns()->write($writer);
                     $_this->writeManyToMany($writer);
                     $_this->writeConstructor($writer);
                     if (!$skipGetterAndSetter) {
                         $_this->getColumns()->writeGetterAndSetter($writer);
                         $_this->writeManyToManyGetterAndSetter($writer);
+                    }
+                    if ($serializableEntity) {
+                        $_this->writeSerialization($writer);
                     }
                 })
             ->outdent()
@@ -220,6 +224,21 @@ class Table extends BaseTable
         ;
 
         return $this;
+    }
+
+    public function writeSerialization(WriterInterface $writer)
+    {
+        $columns = $this->getColumns()->getColumns();
+        $writer
+            ->write('public function __sleep()')
+            ->write('{')
+            ->indent()
+                ->write('return array(%s);', implode(', ', array_map(function($column) {
+                    return sprintf('\'%s\'', $column->getColumnName());
+                }, $columns)))
+            ->outdent()
+            ->write('}')
+        ;
     }
 
     public function writeManyToMany(WriterInterface $writer)
