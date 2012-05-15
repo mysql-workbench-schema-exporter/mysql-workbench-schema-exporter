@@ -41,10 +41,10 @@ $start = microtime(true);
 
 // formatter setup
 $setup = array(
-    Formatter::CFG_USE_LOGGED_STORAGE        => true,
-    Formatter::CFG_INDENTATION               => 4,
-    Formatter::CFG_PROPEL_ADD_VENDOR         => true,
-    Formatter::CFG_BUNDLE_NAMESPACE          => 'MyBundle',
+    Formatter::CFG_USE_LOGGED_STORAGE  => true,
+    Formatter::CFG_INDENTATION         => 4,
+    Formatter::CFG_ADD_VENDOR          => true,
+    Formatter::CFG_NAMESPACE           => 'MyBundle',
 
 );
 $filename = __DIR__.'/data/sakila.mwb';
