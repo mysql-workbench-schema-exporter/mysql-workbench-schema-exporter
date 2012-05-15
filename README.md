@@ -14,8 +14,8 @@ What is MySQL Workbench schema exporter?
 The application is intended to create:
 
   * Doctrine 1.0 YAML Schema
-  * Doctrine 2.0 YAML Schema and Annotation Classes
-  * Zend DbTable
+  * Doctrine 2.0 [YAML Schema](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/yaml-mapping.html) and [Annotation Classes](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/annotations-reference.html)
+  * [Zend DbTable](http://framework.zend.com/manual/en/zend.db.table.html)
   * Zend Rest Controller
   * Sencha ExtJS3 Model
   * Propel (not implemented)
@@ -86,7 +86,7 @@ Sample export paramaters (JSON) for doctrine2-annotation:
         "params": {
             "backupExistingFile": true,
             "skipPluralNameChecking": false,
-            "enhancedManyToManyDetection": false,
+            "enhanceManyToManyDetection": true,
             "bundleNamespace": "",
             "entityNamespace": "",
             "repositoryNamespace": "",
@@ -111,38 +111,82 @@ General options applied to all formatter.
   * `filename`
 
     The output filename format, use the following tag `%schema%`, `%table%`, `%entity%`, and `%extension%` to allow
-    the filename to be replaced with contextual data.
+    the filename to be replaced with contextual data. Default is `%entity%.%extension%`.
 
   * `skipPluralNameChecking`
 
-    Skip checking the plural name of model and leave as is, useful for non English table names. Default to `false`.
+    Skip checking the plural name of model and leave as is, useful for non English table names. Default is `false`.
 
   * `backupExistingFile`
 
-    If target already exists create a backup before replacing the content. Default `true`.
+    If target already exists create a backup before replacing the content. Default is `true`.
+
+  * `enhanceManyToManyDetection`
+
+    If enabled, many to many relations between tables will be added to generated code. Default is `true`.
 
 ### Option list for Doctrine 1.0
 
   * `extendTableNameWithSchemaName`
+
+    Include schema name beside the table name. Default is `false`.
+
   * `{d:externalRelations}`
+  
 
 ### Option list for Doctrine 2.0 YAML
 
   * `useAutomaticRepository`
+
+    Automatically generate entity repository class name.
+
   * `bundleNamespace`
+
+    The global namespace prefix for entity class name.
+
   * `entityNamespace`
+
+    The entity namespace. Default is `Entity`.
+
   * `repositoryNamespace`
+
+    The namespace prefix for entity repository class name. For this configuration to apply, `useAutomaticRepository` must be set to `true`.
+
   * `extendTableNameWithSchemaName`
+
+    Include schema name beside the table name. Default is `false`. 
+
 
 ### Option list for Doctrine 2.0 Annotation
 
   * `useAnnotationPrefix`
+
+    Doctrine annotation prefix. Default is `ORM\`.
+
   * `useAutomaticRepository`
+
+    See above.
+
   * `bundleNamespace`
+
+    See above.
+
   * `entityNamespace`
+
+    See above.
+
   * `repositoryNamespace`
+
+    See above.
+
   * `skipGetterAndSetter`
-  * `enhancedManyToManyDetection`
+
+    Don't generate columns getter and setter. Default is `false`.
+
+  * `generateEntitySerialization`
+
+    Generate method `__sleep()` to include only real columns when entity is serialized. Default is `true`.
+
 
 ### Option list for Zend DbTable
 
