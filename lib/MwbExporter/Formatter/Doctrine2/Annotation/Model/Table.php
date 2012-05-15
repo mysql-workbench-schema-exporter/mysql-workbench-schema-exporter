@@ -1,55 +1,43 @@
 <?php
 /*
- *  The MIT License
+ * The MIT License
  *
- *  Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
+ * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
+ * Copyright (c) 2012 Toha <tohenk@yahoo.com>
  *
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *  The above copyright notice and this permission notice shall be included in
- *  all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- *  THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 
 namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
-use MwbExporter\Core\Registry;
-use MwbExporter\Core\Model\Table as Base;
+use MwbExporter\FormatterInterface;
+
+use MwbExporter\Model\Table as BaseTable;
 use MwbExporter\Helper\Pluralizer;
+use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Formatter\Doctrine2\Annotation\Formatter;
 
-class Table extends Base
+class Table extends BaseTable
 {
-    protected $manyToManyRelations = array();
-    protected $ormPrefix = '@';
-    protected $namespace = null;
-    protected $arrayClass = 'Doctrine\Common\Collections\ArrayCollection';
-
-    public function __construct($data, $parent)
-    {
-        parent::__construct($data, $parent);
-    }
-
-    /**
-     * Get many to many relations.
-     *
-     * @return array
-     */
-    public function getManyToManyRelations()
-    {
-        return $this->manyToManyRelations;
-    }
+    protected $ormPrefix = null;
+    protected $collectionClass = 'Doctrine\Common\Collections\ArrayCollection';
+    protected $collectionInterface = 'Doctrine\Common\Collections\Collection';
 
     /**
      * Get the entity namespace.
@@ -58,19 +46,17 @@ class Table extends Base
      */
     public function getEntityNamespace()
     {
-        if (null === $this->namespace) {
-            $config = Registry::get('config');
-            if (isset($config['bundleNamespace']) && $config['bundleNamespace']) {
-                $this->namespace = $config['bundleNamespace'] . '\\';
-            }
-            if (isset($config['entityNamespace']) && $config['entityNamespace']) {
-                $this->namespace .= $config['entityNamespace'];
-            } else {
-                $this->namespace .= 'Entity';
-            }
+        $namespace = '';
+        if ($bundleNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_BUNDLE_NAMESPACE)) {
+            $namespace = $bundleNamespace.'\\';
+        }
+        if ($entityNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_ENTITY_NAMESPACE)) {
+            $namespace .= $entityNamespace;
+        } else {
+            $namespace .= 'Entity';
         }
 
-        return $this->namespace;
+        return $namespace;
     }
 
     /**
@@ -79,9 +65,9 @@ class Table extends Base
      * @param string $class The class name
      * @return string
      */
-    public function getNamespace($class = null)
+    public function getNamespace($class = null, $absolute = true)
     {
-        return sprintf('%s\%s', $this->getEntityNamespace(), null === $class ? $this->getModelName() : $class);
+        return sprintf('%s%s\%s', $absolute ? '\\' : '', $this->getEntityNamespace(), null === $class ? $this->getModelName() : $class);
     }
 
     /**
@@ -90,9 +76,9 @@ class Table extends Base
      * @param bool $useFQCN return full qualified class name
      * @return string
      */
-    public function getArrayClass($useFQCN = true)
+    public function getCollectionClass($useFQCN = true)
     {
-        $class = $this->arrayClass;
+        $class = $this->collectionClass;
         if (!$useFQCN && count($array = explode('\\', $class))) {
             $class = array_pop($array);
         }
@@ -101,13 +87,14 @@ class Table extends Base
     }
 
     /**
-     * Return the table definition
-     * Annotation format
+     * Get collection interface class.
      *
+     * @param bool $absolute Use absolute class name
      * @return string
      */
-    public function display()
+    public function getCollectionInterface($absolute = true)
     {
+<<<<<<< HEAD
         $return = array();
         $config = Registry::get('config');
         $this->ormPrefix = '@' . ((isset($config['useAnnotationPrefix']) && $config['useAnnotationPrefix']) ? $config['useAnnotationPrefix'] : '');
@@ -125,16 +112,26 @@ class Table extends Base
                 $uniqueIndices[] = $this->ormPrefix . 'UniqueConstraint(' . $index->display() . ')';
             }
         }
+=======
+        return ($absolute ? '\\' : '').$this->collectionInterface;
+    }
+>>>>>>> f5e4c3ae74bd8b331054b3f10a6334978076655b
 
-        $return[] = '<?php';
-        $return[] = '';
-        $return[] = sprintf('namespace %s;', $namespace);
-        $return[] = '';
-        if ($retval = $this->displayUsedClasses()) {
-            $return[] = $retval;
-            $return[] = '';
+    /**
+     * Write document as generated code.
+     *
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\Annotation\Model\Table
+     */
+    public function write(WriterInterface $writer)
+    {
+        if (!$this->isExternal()) {
+            $writer->open($this->getTableFileName());
+            $this->writeTable($writer);
+            $writer->close();
         }
 
+<<<<<<< HEAD
         $return[] = '/**';
         $return[] = ' * ' . $this->getNamespace();
         $return[] = ' *';
@@ -149,160 +146,194 @@ class Table extends Base
         if (!$skipGetterAndSetter) {
             $return[] = $this->columns->displayGetterAndSetter();
             $return[] = $this->displayManyToManyGetterAndSetter();
-        }
-        $return[] = '}';
-        $return[] = '';
-
-        return implode("\n", $return);
+=======
+        return $this;
     }
-
-    public function displayUsedClasses()
+    /**
+     * Get annotation prefix.
+     *
+     * @param string $annotation Annotation type
+     * @return string
+     */
+    public function addPrefix($annotation = null)
     {
-        $return = array();
-        if ($this->ormPrefix == '@ORM\\') {
-            $return[] = 'use Doctrine\ORM\Mapping as ORM;';
-        }
-        $useArray = false;
-        foreach ($this->manyToManyRelations as $relation) {
-            if($this->isEnhancedManyToManyRelationDetection($relation)){
-                continue;
-            }
-            $useArray = true;
-            break;
-        }
-        if ($useArray || $this->getColumns()->hasOneToManyRelation()) {
-            $return[] = sprintf('use %s;', $this->getArrayClass());
+        if (null === $this->ormPrefix) {
+            $this->ormPrefix = '@'.$this->getDocument()->getConfig()->get(Formatter::CFG_ANNOTATION_PREFIX);
+>>>>>>> f5e4c3ae74bd8b331054b3f10a6334978076655b
         }
 
-        return implode("\n", $return);
+        return $this->ormPrefix.($annotation ? $annotation : '');
     }
 
-    public function displayConstructor()
+    public function writeTable(WriterInterface $writer)
     {
-        $return = array();
-        $return[] = $this->indentation() . 'public function __construct()';
-        $return[] = $this->indentation() . '{';
-        if ($retval = $this->columns->displayArrayCollections()) {
-            $return[] = $retval;
+        $namespace = $this->getEntityNamespace();
+        if ($repositoryNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) {
+            $repositoryNamespace .= '\\';
         }
-        foreach($this->manyToManyRelations as $relation){
-
-            if($this->isEnhancedManyToManyRelationDetection($relation)){
-                continue;
-            }
-
-            $return[] = $this->indentation(2) . sprintf('$this->%s = new %s();', lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())), $this->getArrayClass(false));
+        $skipGetterAndSetter = $this->getDocument()->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
+        $serializableEntity  = $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
+        $automaticRepository = $this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? sprintf('(repositoryClass="%sRepository")', $repositoryNamespace.$this->getModelName()) : '';
+        $indices = array();
+        foreach ($this->indexes as $index) {
+            $indices[] = $this->addPrefix(sprintf('Index(%s)', (string) $index));
         }
-        $return[] = $this->indentation() . '}';
-        $return[] = '';
+        $writer
+            ->write('<?php')
+            ->write('')
+            ->write('namespace %s;', $namespace)
+            ->write('')
+            ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                $_this->writeUsedClasses($writer);
+            })
+            ->write('/**')
+            ->write(' * '.$this->getNamespace(null, false))
+            ->write(' *')
+            ->write(' * '.$this->addPrefix('Entity'.$automaticRepository))
+            ->write(' * '.$this->addPrefix('Table(name="'.$this->getRawTableName().'"'.(count($indices) ? ', indexes={'.implode(', ', $indices).'}' : '').')'))
+            ->write(' */')
+            ->write('class '.$this->getModelName())
+            ->write('{')
+            ->indent()
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity) {
+                    $_this->getColumns()->write($writer);
+                    $_this->writeManyToMany($writer);
+                    $_this->writeConstructor($writer);
+                    if (!$skipGetterAndSetter) {
+                        $_this->getColumns()->writeGetterAndSetter($writer);
+                        $_this->writeManyToManyGetterAndSetter($writer);
+                    }
+                    if ($serializableEntity) {
+                        $_this->writeSerialization($writer);
+                    }
+                })
+            ->outdent()
+            ->write('}')
+        ;
 
-        return implode("\n", $return);
+        return $this;
     }
 
-    public function setManyToManyRelation(Array $rel)
+    public function writeUsedClasses(WriterInterface $writer)
     {
-        $key = $rel['refTable']->getModelName();
-        $this->manyToManyRelations[$key] = $rel;
+        $count = 0;
+        if ('@ORM\\' === $this->addPrefix()) {
+            $writer->write('use Doctrine\ORM\Mapping as ORM;');
+            $count++;
+        }
+        if (count($this->getManyToManyRelations()) || $this->getColumns()->hasOneToManyRelation()) {
+            $writer->write('use %s;', $this->getCollectionClass());
+            $count++;
+        }
+        if ($count) {
+            $writer->write('');
+        }
+
+        return $this;
     }
 
-    protected function displayManyToMany()
+    public function writeConstructor(WriterInterface $writer)
+    {
+        $writer
+            ->write('public function __construct()')
+            ->write('{')
+            ->indent()
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    $_this->getColumns()->writeArrayCollections($writer);
+                    foreach ($_this->getManyToManyRelations() as $relation) {
+                        $writer->write('$this->%s = new %s();', lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())), $_this->getCollectionClass(false));
+                    }
+                })
+            ->outdent()
+            ->write('}')
+            ->write('')
+        ;
+
+        return $this;
+    }
+
+    public function writeSerialization(WriterInterface $writer)
+    {
+        $columns = $this->getColumns()->getColumns();
+        $writer
+            ->write('public function __sleep()')
+            ->write('{')
+            ->indent()
+                ->write('return array(%s);', implode(', ', array_map(function($column) {
+                    return sprintf('\'%s\'', $column->getColumnName());
+                }, $columns)))
+            ->outdent()
+            ->write('}')
+        ;
+    }
+
+    public function writeManyToMany(WriterInterface $writer)
     {
         // @TODO D2A ManyToMany relation joinColumns and inverseColumns
         // referencing wrong column names
-        $return = array();
-
-        foreach($this->manyToManyRelations as $relation){
-
-            if($this->isEnhancedManyToManyRelationDetection($relation)){
-                continue;
-            }
-
+        foreach ($this->manyToManyRelations as $relation) {
             // if relation is not mapped yet define relation
             // otherwise use "mappedBy" feature
-            if($relation['reference']->local->getColumnName() != $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->local->getColumnName()){
-                $return[] = $this->indentation() . '/**';
-                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToMany(targetEntity="' . $relation['refTable']->getModelName() . '")';
-                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'JoinTable(name="' . $relation['reference']->getOwningTable()->getRawTableName() . '",';
-                $return[] = $this->indentation() . ' *      joinColumns={'        . $this->ormPrefix . 'JoinColumn(name="' . $relation['reference']->foreign->getColumnName() . '", referencedColumnName="' . $relation['reference']->local->getColumnName() . '")},';
-                $return[] = $this->indentation() . ' *      inverseJoinColumns={' . $this->ormPrefix . 'JoinColumn(name="' . $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->foreign->getColumnName() . '", referencedColumnName="' . $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->local->getColumnName() . '")}';
-                $return[] = $this->indentation() . ' * )';
-                $return[] = $this->indentation() . ' */';
+            if ($relation['reference']->getLocal()->getColumnName() != $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->getLocal()->getColumnName()) {
+                $writer
+                    ->write('/**')
+                    ->write(' * '.$this->addPrefix('ManyToMany(targetEntity="'.$relation['refTable']->getModelName().'")'))
+                    ->write(' * '.$this->addPrefix('JoinTable(name="'.$relation['reference']->getOwningTable()->getRawTableName().'",'))
+                    ->write(' *     joinColumns={'       .$this->addPrefix('JoinColumn(name="'.$relation['reference']->getForeign()->getColumnName().'", referencedColumnName="'.$relation['reference']->getLocal()->getColumnName().'")},'))
+                    ->write(' *     inverseJoinColumns={'.$this->addPrefix('JoinColumn(name="'.$relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->getForeign()->getColumnName().'", referencedColumnName="'.$relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->getLocal()->getColumnName().'")}'))
+                    ->write(' * )')
+                    ->write(' */')
+                ;
             } else {
-                $return[] = $this->indentation() . '/**';
-                $return[] = $this->indentation() . ' * ' . $this->ormPrefix . 'ManyToMany(targetEntity="' . $relation['refTable']->getModelName() . '", mappedBy="' . lcfirst(Pluralizer::pluralize($this->getModelName())) . '")';
-                $return[] = $this->indentation() . ' */';
+                $writer
+                    ->write('/**')
+                    ->write(' * '.$this->addPrefix('ManyToMany(targetEntity="'.$relation['refTable']->getModelName().'", mappedBy="'.lcfirst(Pluralizer::pluralize($this->getModelName())).'")'))
+                    ->write(' */')
+                ;
             }
-            $return[] = $this->indentation() . 'private $' . lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
-            $return[] = '';
+            $writer
+                ->write('private $'.lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())).';')
+                ->write('')
+            ;
         }
 
-        return implode("\n", $return);
+        return $this;
     }
 
-    protected function displayManyToManyGetterAndSetter()
+    public function writeManyToManyGetterAndSetter(WriterInterface $writer)
     {
-        $return = array();
-
-        foreach($this->manyToManyRelations as $relation){
-
-            if($this->isEnhancedManyToManyRelationDetection($relation)){
-                continue;
-            }
-
-            $return[] = $this->indentation() . '/**';
-            $return[] = $this->indentation() . ' * Add ' . $relation['refTable']->getModelName() . ' entity to collection.';
-            $return[] = $this->indentation() . ' *';
-            $return[] = $this->indentation() . ' * @param '. $relation['refTable']->getNamespace() . ' $' . lcfirst($relation['refTable']->getModelName());
-            $return[] = $this->indentation() . ' * @return ' . $this->getNamespace($this->getModelName());
-            $return[] = $this->indentation() . ' */';
-            $return[] = $this->indentation() . 'public function add' . $relation['refTable']->getModelName() . '(' . $relation['refTable']->getModelName() . ' $' . lcfirst($relation['refTable']->getModelName()) . ')';
-            $return[] = $this->indentation() . '{';
-            $return[] = $this->indentation(2) . '$this->' . lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())) . '[] = $' . lcfirst($relation['refTable']->getModelName()) . ';';
-            $return[] = '';
-            $return[] = $this->indentation(2) . 'return $this;';
-            $return[] = $this->indentation() . '}';
-            $return[] = '';
-            $return[] = $this->indentation() . '/**';
-            $return[] = $this->indentation() . ' * Get ' . $relation['refTable']->getModelName() . ' entity collection.';
-            $return[] = $this->indentation() . ' *';
-            $return[] = $this->indentation() . ' * @return ' . $this->getArrayClass();
-            $return[] = $this->indentation() . ' */';
-            $return[] = $this->indentation() . 'public function get' . Pluralizer::pluralize($relation['refTable']->getModelName()) . '()';
-            $return[] = $this->indentation() . '{';
-            $return[] = $this->indentation(2) . 'return $this->' . lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())) . ';';
-            $return[] = $this->indentation() . '}';
-            $return[] = '';
+        foreach ($this->manyToManyRelations as $relation) {
+            $writer
+                ->write('/**')
+                ->write(' * Add '.$relation['refTable']->getModelName().' entity to collection.')
+                ->write(' *')
+                ->write(' * @param '. $relation['refTable']->getNamespace().' $'.lcfirst($relation['refTable']->getModelName()))
+                ->write(' * @return '.$this->getNamespace($this->getModelName()))
+                ->write(' */')
+                ->write('public function add'.$relation['refTable']->getModelName().'('.$relation['refTable']->getModelName().' $'.lcfirst($relation['refTable']->getModelName()).')')
+                ->write('{')
+                ->indent()
+                    ->write('$this->'.lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())).'[] = $'.lcfirst($relation['refTable']->getModelName()).';')
+                    ->write('')
+                    ->write('return $this;')
+                ->outdent()
+                ->write('}')
+                ->write('')
+                ->write('/**')
+                ->write(' * Get '.$relation['refTable']->getModelName().' entity collection.')
+                ->write(' *')
+                ->write(' * @return '.$this->getCollectionInterface())
+                ->write(' */')
+                ->write('public function get'.Pluralizer::pluralize($relation['refTable']->getModelName()).'()')
+                ->write('{')
+                ->indent()
+                    ->write('return $this->'.lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())).';')
+                ->outdent()
+                ->write('}')
+                ->write('')
+            ;
         }
 
-        return implode("\n", $return);
-    }
-
-    /**
-     *
-     * @param array $relation
-     * @return bool
-     */
-    protected function isEnhancedManyToManyRelationDetection($relation)
-    {
-        $config = Registry::get('config');
-
-        $enhancedManyToManyDetection = false;
-
-        if(isset($config['enhancedManyToManyDetection']) && $config['enhancedManyToManyDetection']){
-            $enhancedManyToManyDetection = (bool) $config['enhancedManyToManyDetection'];
-        }
-
-        if($enhancedManyToManyDetection == false){
-            return false;
-        }
-
-        // ignore relation tables with more than two columns
-        // if enhancedManyToMany config is set true
-        // (it is most likely not an intended m2m relation)
-        if($relation['reference']->getOwningTable()->isManyToMany()){
-            return true;
-        }
-
-        return false;
+        return $this;
     }
 }

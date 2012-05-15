@@ -13,11 +13,11 @@ What is MySQL Workbench schema exporter?
 
 The application is intended to create:
 
-  * Doctrine1
-  * Doctrine2
+  * Doctrine 1.0 YAML Schema
+  * Doctrine 2.0 YAML Schema and Annotation Classes
   * Zend DbTable
   * Zend Rest Controller
-  * JS Sencha3Model
+  * Sencha ExtJS3 Model
   * Propel (not implemented)
   * CakePHP (not implemented)
 
@@ -45,7 +45,9 @@ Command Line Interface (CLI)
 ----------------------------
 
 There is a new CLI to simplify the export process named `export.php`, you can look under the `cli` folder.
-The CLI has feature to customize export configuration before exporting.
+The CLI has feature to customize export configuration before exporting. By default, CLI application will
+use config file `export.json` located in the current directory to supply the parameter if it find it. To
+disable this behaviour, see the option below.
 
 The syntax of CLI:
 
@@ -55,14 +57,16 @@ Where:
 
   * `options`:
     * `--export=type`, choose the result of the export, currently available types:
-      * `doctrine1`, Doctrine 1.0 YAML schema
-      * `doctrine2-yml`, Doctrine 2.0 YAML schema
+      * `doctrine1-yaml`, Doctrine 1.0 YAML schema
+      * `doctrine2-yaml`, Doctrine 2.0 YAML schema
       * `doctrine2-annotation`, Doctrine 2.0 Annotation classes (default)
       * `zend-dbtable`, Zend DbTable
-      * `zend-restcontroller`, Zend Rest Controller
-      * `js-sencha3model`, JS Sencha3Model
+      * `zend-rest-controller`, Zend Rest Controller
+      * `sencha-extjs3`, Sencha ExtJS3 Model
     * `--config=file`, read export parameters from file (in JSON format)
     * `--saveconfig`, save export parameters to file `export.json`, later can be used as value for `--config=file`
+    * `--list-exporter`, show all available exporter
+    * `--no-auto-config`, disable automatic config file lookup
     * `--zip`, compress the result
     * `--help`, show the usage (or suppress any parameters)
   * `FILE`, the mwb file to export
@@ -100,29 +104,62 @@ Exporter Options
 
 General options applied to all formatter.
 
-  * `skipPluralNameChecking`, skip checking the plural name of model and leave as is, useful for non English table names.
-  * `backupExistingFile`, if target already exists create a backup before replacing the content.
+  * `indentation`
 
-### Option list for doctrine 1
+    The indentation size for generated code.
+
+  * `filename`
+
+    The output filename format, use the following tag `%schema%`, `%table%`, `%entity%`, and `%extension%` to allow
+    the filename to be replaced with contextual data.
+
+  * `skipPluralNameChecking`
+
+    Skip checking the plural name of model and leave as is, useful for non English table names. Default to `false`.
+
+  * `backupExistingFile`
+
+    If target already exists create a backup before replacing the content. Default `true`.
+
+### Option list for Doctrine 1.0
 
   * `extendTableNameWithSchemaName`
   * `{d:externalRelations}`
 
-### Option list for doctrine 2
+### Option list for Doctrine 2.0 YAML
 
-  * `useAnnotationPrefix`
-  * `indentation`
   * `useAutomaticRepository`
-  * `extendTableNameWithSchemaName`
   * `bundleNamespace`
   * `entityNamespace`
   * `repositoryNamespace`
+  * `extendTableNameWithSchemaName`
+
+### Option list for Doctrine 2.0 Annotation
+
+  * `useAnnotationPrefix`
+  * `useAutomaticRepository`
+  * `bundleNamespace`
+  * `entityNamespace`
+  * `repositoryNamespace`
+  * `skipGetterAndSetter`
+  * `enhancedManyToManyDetection`
 
 ### Option list for Zend DbTable
 
   * `tablePrefix`
   * `parentTable`
-  * `indentation`
+  * `generateDRI`
+  * `generateGetterSetter`
+
+### Option list for Zend Rest Controller
+
+  * `tablePrefix`
+  * `parentTable`
+
+### Option list for Sencha ExtJS3 Model
+
+  * `classPrefix`
+  * `parentClass`
 
 Requirements
 ------------
@@ -146,20 +183,28 @@ Example
     <?php
 
     // enable autoloading of classes
-    require_once('lib/MwbExporter/Core/SplClassLoader.php');
+    $libDir = __DIR__.'/lib';
+    require_once($libDir.'/MwbExporter/SplClassLoader.php');
+
     $classLoader = new SplClassLoader();
-    $classLoader->setIncludePath('lib');
+    $classLoader->setIncludePath($libDir);
     $classLoader->register();
 
-    // define a formatter
-    $formatter = new \MwbExporter\Formatter\Doctrine2\Annotation\Loader();
+    // create bootstrap
+    $bootstrap = new \MwbExporter\Bootstrap();
 
-    // parse the mwb file
-    $mwb = new \MwbExporter\Core\Workbench\Document('myDatabaseModel.mwb', $formatter);
+    // define a formatter and do configuration
+    $formatter = $bootstrap->getFormatter('doctrine2-annotation');
+    $formatter->setup(array());
+
+    // specify the workbench document to load, output directory, and storage type (zip or file)
+    $mwbfile = 'myDatabaseModel.mwb';
+    $outDir = getcwd();
+    $storage = 'zip';
+    // load document and export
+    $document = $bootstrap->export($formatter, $mwbfile, $outDir, $storage);
 
     // show the output
-    echo $mwb->display();
-    
-    // save as zip file in current directory and use .php as file endings
-    echo $mwb->zipExport(__DIR__, 'php');
+    echo sprintf("Saved to %s.\n\n", $document->getWriter()->getStorage()->getResult());
+
     ?>

@@ -1,9 +1,8 @@
 nbproject/
-example/data/
+example/result/
 tests/
 .buildpath
 .project
 .settings/
 *.zip
 *.sh
-data/
