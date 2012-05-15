@@ -75,12 +75,18 @@ class Columns extends BaseColumns
         $writer
             ->write('formItems: [')
             ->indent()
-                ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
-                    $columns = $_this->getColumns();
-                    for ($i = 0; $i < count($columns); $i++) {
-                        $writer->write($columns[$i]->getAsFormItem().($i < count($columns) - 1 ? ',' : ''));
-                    }
-                })
+                ->write('title: \'Basic Details\',')
+                ->write('layout: \'form\',')
+                ->write('items: [')
+                ->indent()
+                    ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
+                        $columns = $_this->getColumns();
+                        for ($i = 0; $i < count($columns); $i++) {
+                            $writer->write($columns[$i]->getAsFormItem().($i < count($columns) - 1 ? ',' : ''));
+                        }
+                    })
+                ->outdent()
+                ->write(']')
             ->outdent()
             ->write(']')
         ;

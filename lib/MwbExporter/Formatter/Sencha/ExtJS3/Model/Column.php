@@ -52,8 +52,7 @@ class Column extends BaseColumn
         } else {
             $result['name'] = $this->getColumnName();
         }
-        $result['fieldLabel'] = ucwords(str_replace('_', ' ', $this->getColumnName()));
-        $result['allowBlank'] = $this->parameters->get('isNotNull') == 1 ? false : true;
+        $anchor = null;
         switch (true) {
             case $this->isPrimary():
                 $type = 'hidden';
@@ -64,6 +63,14 @@ class Column extends BaseColumn
                 $type = 'xdatetime';
                 break;
 
+            case $this->getColumnType() === 'com.mysql.rdbms.mysql.datatype.tinytext':
+            case $this->getColumnType() === 'com.mysql.rdbms.mysql.datatype.mediumtext':
+            case $this->getColumnType() === 'com.mysql.rdbms.mysql.datatype.longtext':
+            case $this->getColumnType() === 'com.mysql.rdbms.mysql.datatype.text':
+                $type = 'htmleditor';
+                $anchor = '100%';
+                break;
+
             case $this->local !== null:
                 $type = 'combo';
                 break;
@@ -72,6 +79,11 @@ class Column extends BaseColumn
                 $type = 'textfield'; 
         }
         $result['xtype'] = $type;
+        $result['fieldLabel'] = ucwords(str_replace('_', ' ', $this->getColumnName()));
+        $result['allowBlank'] = $this->parameters->get('isNotNull') == 1 ? false : true;
+        if ($anchor) {
+            $result['anchor'] = $anchor;
+        }
         if (null !== $this->local) {
             $result['valueField'] = $this->local->getForeign()->getColumnName();
             $result['displayField'] = $this->local->getReferencedTable()->getRawTableName();
@@ -84,7 +96,7 @@ class Column extends BaseColumn
                     'id'     => str_replace(' ', '', ucwords(str_replace('_',' ',$this->local->getReferencedTable()->getRawTableName()))).'Store',
                     'url'    => ZendURLFormatter::fromUnderscoreConnectionToDashConnection($this->local->getReferencedTable()->getRawTableName()),
                     'root'   => 'data',
-                    'fields' => array($this->local->getForeign()->getColumnName(), $this->local->getReferencedTable()->getRawTableName()),
+                    'fields' => array('id', 'name'),
                 ))
             ), true);
         }
