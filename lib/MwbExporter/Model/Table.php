@@ -222,9 +222,10 @@ class Table extends Base
             return false;
         }
         // foreign tables is not many to many
-        if ($fkeys[0]->getReferencedTable()->isManyToMany() || $fkeys[1]->getReferencedTable()->isManyToMany()) {
-            return false;
-        }
+        // @FIXME memory allocation exhaustion --> recursion
+        // if ($fkeys[0]->getReferencedTable()->isManyToMany() || $fkeys[1]->getReferencedTable()->isManyToMany()) {
+            // return false;
+        // }
 
         return true;
     }

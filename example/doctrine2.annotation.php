@@ -50,7 +50,8 @@ $setup = array(
     Formatter::CFG_REPOSITORY_NAMESPACE      => '',
     Formatter::CFG_AUTOMATIC_REPOSITORY      => true,
     Formatter::CFG_SKIP_GETTER_SETTER        => false,
-    Formatter::CFG_ENHANCED_M2M_DETECTION    => false,
+    // @TODO check for enhanced M2M relation
+    // Formatter::CFG_ENHANCED_M2M_DETECTION    => false,
 );
 $filename = __DIR__.'/data/sakila.mwb';
 $outDir   = __DIR__.'/result';
