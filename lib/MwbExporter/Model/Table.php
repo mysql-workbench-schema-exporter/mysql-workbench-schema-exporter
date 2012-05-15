@@ -213,11 +213,20 @@ class Table extends Base
      */
     public function isManyToMany()
     {
-        if (2 == count($fkeys = $this->getForeignKeys()) && ($fkeys[0]->getId() !== $fkeys[1]->getId())) {
-            return true;
+        // contains 2 foreign keys
+        if (2 !== count($fkeys = $this->getForeignKeys())) {
+            return false;
+        }
+        // different foreign tables
+        if ($fkeys[0]->getId() === $fkeys[1]->getId()) {
+            return false;
+        }
+        // foreign tables is not many to many
+        if ($fkeys[0]->getReferencedTable()->isManyToMany() || $fkeys[1]->getReferencedTable()->isManyToMany()) {
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     /**
