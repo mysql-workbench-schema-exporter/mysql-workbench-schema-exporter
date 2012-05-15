@@ -101,7 +101,7 @@ class Table extends BaseTable
                 })
                 ->write('options:')
                 ->indent()
-                    ->write('charset: '.($charset = $this->parameters->get('defaultCharacterSetName') ? $charset : 'utf8'))
+                    ->write('charset: '.(($charset = $this->parameters->get('defaultCharacterSetName')) ? $charset : 'utf8'))
                     ->writeIf($engine = $this->parameters->get('tableEngine'), 'type: '.$engine)
                 ->outdent()
             ->outdent()
