@@ -206,15 +206,13 @@ class Column extends Base
     protected function getForeignKeyReferenceCount($fkey, $max = null)
     {
         $count = 0;
-        if (is_array($this->foreigns)) {
-            $tablename = $fkey->getOwningTable()->getRawTableName();
-            foreach ($this->foreigns as $foreign) {
-                if ($this->checkForeignKeyOwnerTableName($foreign, $tablename)) {
-                    $count++;
-                }
-                if ($max && $count == $max) {
-                    break;
-                }
+        $tablename = $fkey->getOwningTable()->getRawTableName();
+        foreach ($this->foreigns as $foreign) {
+            if ($this->checkForeignKeyOwnerTableName($foreign, $tablename)) {
+                $count++;
+            }
+            if ($max && $count == $max) {
+                break;
             }
         }
 
@@ -231,17 +229,14 @@ class Column extends Base
     protected function getRelationReferenceCount($fkey, $max = null)
     {
         $count = 0;
-        $table = $this->getTable();
-        if (is_array($relations = $table->getManyToManyRelations())) {
-            $tablename = $fkey->getOwningTable()->getRawTableName();
-            foreach ($relations as $relation) {
-                // $relation key => reference (ForeignKey), refTable (Table)
-                if ($this->checkReferenceTableName($relation['refTable'], $tablename) && !$relation['reference']->getOwningTable()->isManyToMany()) {
-                    $count++;
-                }
-                if ($max && $count == $max) {
-                    break;
-                }
+        $tablename = $fkey->getOwningTable()->getRawTableName();
+        foreach ($this->getTable()->getManyToManyRelations() as $relation) {
+            // $relation key => reference (ForeignKey), refTable (Table)
+            if ($this->checkReferenceTableName($relation['refTable'], $tablename)) {
+                $count++;
+            }
+            if ($max && $count == $max) {
+                break;
             }
         }
 
@@ -311,11 +306,9 @@ class Column extends Base
      */
     public function hasOneToManyRelation()
     {
-        if (is_array($this->foreigns)) {
-            foreach ($this->foreigns as $foreign) {
-                if ($foreign->isManyToOne()) {
-                    return true;
-                }
+        foreach ($this->foreigns as $foreign) {
+            if ($foreign->isManyToOne()) {
+                return true;
             }
         }
 
