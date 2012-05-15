@@ -50,8 +50,8 @@ $setup = array(
     Formatter::CFG_EXTEND_TABLENAME_WITH_SCHEMA  => false,
     Formatter::CFG_AUTOMATIC_REPOSITORY          => true,
 );
-$filename = __DIR__.'/data/test.mwb';
-$outDir = __DIR__.'/result';
+$filename = __DIR__.'/data/sakila.mwb';
+$outDir   = __DIR__.'/result';
 
 $bootstrap = new Bootstrap();
 $formatter = $bootstrap->getFormatter('doctrine2-yaml');

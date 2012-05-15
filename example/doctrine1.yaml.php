@@ -46,8 +46,8 @@ $setup = array(
     Formatter::CFG_FILENAME                      => '%entity%.%extension%',
     Formatter::CFG_EXTEND_TABLENAME_WITH_SCHEMA  => false,
 );
-$filename = __DIR__.'/data/test.mwb';
-$outDir = __DIR__.'/result';
+$filename = __DIR__.'/data/sakila.mwb';
+$outDir   = __DIR__.'/result';
 
 $bootstrap = new Bootstrap();
 $formatter = $bootstrap->getFormatter('doctrine1-yaml');

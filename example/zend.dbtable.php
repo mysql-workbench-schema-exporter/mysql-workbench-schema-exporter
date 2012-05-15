@@ -49,8 +49,8 @@ $setup = array(
     Formatter::CFG_GENERATE_DRI            => false,
     Formatter::CFG_GENERATE_GETTER_SETTER  => false,
 );
-$filename = __DIR__.'/data/test.mwb';
-$outDir = __DIR__.'/result';
+$filename = __DIR__.'/data/sakila.mwb';
+$outDir   = __DIR__.'/result';
 
 $bootstrap = new Bootstrap();
 $formatter = $bootstrap->getFormatter('zend-dbtable');

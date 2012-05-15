@@ -47,8 +47,8 @@ $setup = array(
     Formatter::CFG_CLASS_PREFIX        => 'SysX.App',
     Formatter::CFG_PARENT_CLASS        => 'SysX.Ui.App',
 );
-$filename = __DIR__.'/data/test.mwb';
-$outDir = __DIR__.'/result';
+$filename = __DIR__.'/data/sakila.mwb';
+$outDir   = __DIR__.'/result';
 
 $bootstrap = new Bootstrap();
 $formatter = $bootstrap->getFormatter('sencha-extjs3');

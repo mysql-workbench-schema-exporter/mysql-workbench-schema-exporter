@@ -47,8 +47,8 @@ $setup = array(
     Formatter::CFG_TABLE_PREFIX        => '',
     Formatter::CFG_PARENT_TABLE        => 'Zend_Rest_Controller',
 );
-$filename = __DIR__.'/data/test.mwb';
-$outDir = __DIR__.'/result';
+$filename = __DIR__.'/data/sakila.mwb';
+$outDir   = __DIR__.'/result';
 
 $bootstrap = new Bootstrap();
 $formatter = $bootstrap->getFormatter('zend-rest-controller');
