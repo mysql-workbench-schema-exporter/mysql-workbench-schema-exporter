@@ -57,6 +57,7 @@ class Bootstrap
             ->registerFormatter('doctrine2-annotation', '\\MwbExporter\\Formatter\\Doctrine2\Annotation\\Formatter')
             ->registerFormatter('doctrine2-yaml',       '\\MwbExporter\\Formatter\\Doctrine2\Yaml\\Formatter')
             ->registerFormatter('doctrine1-yaml',       '\\MwbExporter\\Formatter\\Doctrine1\Yaml\\Formatter')
+            ->registerFormatter('propel-xml',           '\\MwbExporter\\Formatter\\Propel\Xml\\Formatter')
             ->registerFormatter('sencha-extjs3',        '\\MwbExporter\\Formatter\\Sencha\ExtJS3\\Formatter')
             ->registerFormatter('zend-rest-controller', '\\MwbExporter\\Formatter\\Zend\Controller\\Formatter')
             ->registerFormatter('zend-dbtable',         '\\MwbExporter\\Formatter\\Zend\DbTable\\Formatter')

@@ -49,7 +49,7 @@ class Tables extends Base implements \ArrayAccess, \IteratorAggregate, \Countabl
             $this->tables[] = $table;
         }
         usort($this->tables, function($a, $b) {
-           return strcmp($a->getModelName(), $b->getModelName());
+            return strcmp($a->getModelName(), $b->getModelName());
         });
         /*
          * before you can check for foreign keys
@@ -100,6 +100,16 @@ class Tables extends Base implements \ArrayAccess, \IteratorAggregate, \Countabl
     public function count()
     {
         return count($this->tables);
+    }
+
+    /**
+     * Get the owner schema.
+     *
+     * @return \MwbExporter\Model\Schema
+     */
+    public function getSchema()
+    {
+        return $this->getParent();
     }
 
     /**
