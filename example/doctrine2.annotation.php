@@ -41,7 +41,7 @@ $start = microtime(true);
 
 // formatter setup
 $setup = array(
-    Formatter::CFG_USE_LOGGED_STORAGE           => true,
+    Formatter::CFG_USE_LOGGED_STORAGE        => true,
     Formatter::CFG_INDENTATION               => 4,
     Formatter::CFG_FILENAME                  => '%entity%.%extension%',
     Formatter::CFG_ANNOTATION_PREFIX         => 'ORM\\',

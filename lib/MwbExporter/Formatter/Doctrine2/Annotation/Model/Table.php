@@ -94,28 +94,8 @@ class Table extends BaseTable
      */
     public function getCollectionInterface($absolute = true)
     {
-<<<<<<< HEAD
-        $return = array();
-        $config = Registry::get('config');
-        $this->ormPrefix = '@' . ((isset($config['useAnnotationPrefix']) && $config['useAnnotationPrefix']) ? $config['useAnnotationPrefix'] : '');
-        $namespace = $this->getEntityNamespace();
-        $repositoryNamespace = isset($config['repositoryNamespace']) && $config['repositoryNamespace'] ? $config['repositoryNamespace'] . '\\' : '';
-        $skipGetterAndSetter = isset($config['skipGetterAndSetter']) && $config['skipGetterAndSetter'] ? true : false;
-        // indices
-        $indices = array();
-        $uniqueIndices = array();
-        foreach($this->indexes as $index){
-            if($index->isIndex()){
-                $indices[] = $this->ormPrefix . 'Index(' . $index->display() . ')';
-            }
-            if ($index->isUnique()){
-                $uniqueIndices[] = $this->ormPrefix . 'UniqueConstraint(' . $index->display() . ')';
-            }
-        }
-=======
         return ($absolute ? '\\' : '').$this->collectionInterface;
     }
->>>>>>> f5e4c3ae74bd8b331054b3f10a6334978076655b
 
     /**
      * Write document as generated code.
@@ -131,22 +111,6 @@ class Table extends BaseTable
             $writer->close();
         }
 
-<<<<<<< HEAD
-        $return[] = '/**';
-        $return[] = ' * ' . $this->getNamespace();
-        $return[] = ' *';
-        $return[] = ' * ' . $this->ormPrefix . 'Entity' . (isset($config['useAutomaticRepository']) && $config['useAutomaticRepository'] ? sprintf('(repositoryClass="%sRepository")', $repositoryNamespace . $this->getModelName()) : '');
-        $return[] = ' * ' . $this->ormPrefix . 'Table(name="' . $this->getRawTableName() . '"' . (count($indices) ? ', indexes={' . implode(', ', $indices) . '}' : '') . (count($uniqueIndices) ? ', uniqueConstraints={' . implode(', ', $uniqueIndices) . '}' : '') . ')';
-        $return[] = ' */';
-        $return[] = 'class ' . $this->getModelName();
-        $return[] = '{';
-        $return[] = $this->columns->display();
-        $return[] = $this->displayManyToMany();
-        $return[] = $this->displayConstructor();
-        if (!$skipGetterAndSetter) {
-            $return[] = $this->columns->displayGetterAndSetter();
-            $return[] = $this->displayManyToManyGetterAndSetter();
-=======
         return $this;
     }
     /**
@@ -159,7 +123,6 @@ class Table extends BaseTable
     {
         if (null === $this->ormPrefix) {
             $this->ormPrefix = '@'.$this->getDocument()->getConfig()->get(Formatter::CFG_ANNOTATION_PREFIX);
->>>>>>> f5e4c3ae74bd8b331054b3f10a6334978076655b
         }
 
         return $this->ormPrefix.($annotation ? $annotation : '');

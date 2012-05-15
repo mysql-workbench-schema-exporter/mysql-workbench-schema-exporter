@@ -6,3 +6,4 @@ tests/
 .settings/
 *.zip
 *.sh
+*.7z

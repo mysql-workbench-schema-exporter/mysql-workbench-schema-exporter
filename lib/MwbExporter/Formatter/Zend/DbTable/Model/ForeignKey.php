@@ -34,60 +34,6 @@ class ForeignKey extends BaseForeignKey
 {
     public function write(WriterInterface $writer)
     {
-<<<<<<< HEAD
-        parent::__construct($data, $parent);
-
-        $referencedColumn = $this->data->xpath("value[@key='referencedColumns']");
-        $local = Registry::get((string) $referencedColumn[0]->link);
-
-        $ownerColumn = $this->data->xpath("value[@key='columns']");
-        $foreign = Registry::get((string) $ownerColumn[0]->link);
-
-        $this->local   = $local;   // local column object
-        $this->foreign = $foreign; // foreign column object
-
-        // for doctrine2 annotations switch the local and the foreign
-        // reference for a proper output
-        $local->markAsForeignReference($this);
-        $foreign->markAsLocalReference($this);
-
-        // many to many
-        if($fk = $this->getOwningTable()->getForeignKeys()){
-            // only two or more foreign keys implicate an m2m relation
-            // of the current table
-            if(count($fk) > 1){
-                foreach($fk as $foreignKey1){
-                    foreach($fk as $foreignKey2){
-                        if($foreignKey1->getReferencedTable()->getId() != $foreignKey2->getReferencedTable()->getId()){
-                            $foreignKey1->getReferencedTable()->setManyToManyRelation(
-                                array(
-                                    'reference'  => $this,
-                                    'refTable'   => $foreignKey2->getReferencedTable()
-                                )
-                            );
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     *
-     * @return string
-     */
-    public function display()
-    {
-        $return = array();
-
-        $return[] = $this->indentation(3) .'\''. $this->getReferencedTable()->getRawTableName() .'\' => array(';
-        $return[] = $this->indentation(4) .'\'columns\'       => \''. $this->foreign->getColumnName() .'\',';
-        $return[] = $this->indentation(4) .'\'refTableClass\' => \''. $this->getReferencedTable()->getTableClassName() .'\',';
-        $return[] = $this->indentation(4) .'\'refColumns\'    => \''. $this->local->getColumnName() .'\',';
-        $return[] = $this->indentation(3) .'),';
-
-        return implode("\n", $return);
-=======
         $writer
             ->write('\''. $this->getReferencedTable()->getRawTableName() .'\' => array(')
             ->indent()
@@ -99,6 +45,5 @@ class ForeignKey extends BaseForeignKey
         ;
 
         return $this;
->>>>>>> f5e4c3ae74bd8b331054b3f10a6334978076655b
     }
 }

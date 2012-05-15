@@ -40,56 +40,6 @@ class Table extends BaseTable
 
     public function getParentTable()
     {
-<<<<<<< HEAD
-        $config = Registry::get('config');
-
-        $return = array();
-
-        $return[] = '<?php';
-        $return[] = '';
-        $return[] = '/**';
-        $return[] = ' * ';
-        $return[] = ' */';
-
-        /* FIXME: [Zend] Table name is one time in singular form, one time in plural form.
-         *        All table occurence need to be at the original form.
-         *
-         *        $this->getModelName() return singular form with correct camel case
-         *        $this->getRawTableName() return original form with no camel case
-         */
-        $return[] = 'class ' . $this->getTableClassName() . ' extends ' . $this->parentTable;
-        $return[] = '{';
-        
-        if (true === $config['generateSchema']) {
-            $return[] = $this->indentation(1) .'/* @var string $_schema */';
-            $return[] = $this->indentation(1) .'protected $_schema          = \''. $this->getSchemaName() .'\';';
-            $return[] = '';
-        }
-
-        if (true === $config['generateName']) {
-            $return[] = $this->indentation(1) .'/* @var string $_name */';
-            $return[] = $this->indentation(1) .'protected $_name            = \''. $this->getRawTableName() .'\';';
-            $return[] = '';
-        }
-
-        if (true === $config['generatePrimary']){
-            $return[] = $this->displayPrimary();
-            $return[] = '';
-        }
-
-        if (true === $config['generateDRI']) {
-            $return[] = $this->displayDependencies();
-            $return[] = '';
-        }
-        
-        if (true === $config['generateReferences']) {
-            $return[] = $this->displayReferences();
-            $return[] = '';
-        }   
-
-        $return[] = '}';
-        return implode("\n", $return);
-=======
         return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_PARENT_TABLE));
     }
 
@@ -100,7 +50,6 @@ class Table extends BaseTable
             $this->writeTable($writer);
             $writer->close();
         }
->>>>>>> f5e4c3ae74bd8b331054b3f10a6334978076655b
     }
 
     public function writeTable(WriterInterface $writer)
@@ -146,21 +95,6 @@ class Table extends BaseTable
     public function writeDependencies(WriterInterface $writer)
     {
         //TODO: [Zend] Find a way to print dependance without change the core.
-<<<<<<< HEAD
-        $return = array();
-
-//        $dependentTables = $this->getRelationToTable('users');
-//        var_dump($this->getRawTableName());
-//        var_dump(count($dependentTables));
-//        var_dump($dependentTables);
-
-        $return[] = $this->indentation(1) .'/* Note: this feature isn\'t implement yet */';
-
-        $return[] = $this->indentation(1) .'/* @var array $_dependentTables */';
-        $return[] = $this->indentation(1) .'protected $_dependentTables = array();';
-
-        return implode("\n", $return);
-=======
         $writer
             ->write('/**')
             ->write(' * TODO: this feature isn\'t implement yet')
@@ -172,42 +106,10 @@ class Table extends BaseTable
         ;
 
         return $this;
->>>>>>> f5e4c3ae74bd8b331054b3f10a6334978076655b
     }
 
     public function writeReferences(WriterInterface $writer)
     {
-<<<<<<< HEAD
-        $return = array();
-
-        $return[] = $this->indentation(1) .'/* @var array $_referenceMap */';
-
-        if (count($this->getForeignKeys()) > 0) {
-            $return[] = $this->indentation(1) .'protected $_referenceMap    = array(';
-
-            foreach($this->getForeignKeys() as $foreignKey){
-                $return[] = $foreignKey->display();
-            }
-
-            $return[] = $this->indentation(1) .');';
-        } else {
-            $return[] = $this->indentation(1) .'protected $_referenceMap    = array();';
-        }
-        return implode("\n", $return);
-    }
-
-    /**
-     *
-     * @return string
-     */
-    protected function displayPrimary()
-    {
-        $return = array();
-        $return[] = $this->indentation(1) .'/* @var array $_primary */';
-        $return[] = $this->indentation(1) .'protected $_primary    = array('.$this->getColumns()->displayPrimary().');';
-
-        return implode("\n", $return);
-=======
         $writer
             ->write('/**')
             ->write(' * @var array')
@@ -228,11 +130,5 @@ class Table extends BaseTable
         ;
 
         return $this;
->>>>>>> f5e4c3ae74bd8b331054b3f10a6334978076655b
-    }
-
-    public function getTableClassName()
-    {
-        return $this->tablePrefix . $this->getSchemaName() .'_'. $this->getModelName();
     }
 }
