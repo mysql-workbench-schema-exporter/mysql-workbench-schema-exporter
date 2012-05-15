@@ -18,11 +18,11 @@ The application is intended to create:
   * [Zend DbTable](http://framework.zend.com/manual/en/zend.db.table.html)
   * Zend Rest Controller
   * Sencha ExtJS3 Model
-  * Propel (not implemented)
+  * Propel [XML Schema](http://www.propelorm.org/reference/schema)
   * CakePHP (not implemented)
 
 schema files from MySQL Workbench models (*.mwb).
-It is inspired by http://code.google.com/p/mysql-workbench-doctrine-plugin/.
+It is inspired by [mysql-workbench-doctrine-plugin](http://code.google.com/p/mysql-workbench-doctrine-plugin/).
 
 Doctrine behaviours
 -------------------
@@ -60,6 +60,7 @@ Where:
       * `doctrine1-yaml`, Doctrine 1.0 YAML schema
       * `doctrine2-yaml`, Doctrine 2.0 YAML schema
       * `doctrine2-annotation`, Doctrine 2.0 Annotation classes (default)
+      * `propel-xml`, Propel XML schema
       * `zend-dbtable`, Zend DbTable
       * `zend-rest-controller`, Zend Rest Controller
       * `sencha-extjs3`, Sencha ExtJS3 Model
@@ -187,6 +188,11 @@ General options applied to all formatter.
 
     Generate method `__sleep()` to include only real columns when entity is serialized. Default is `true`.
 
+
+### Option list for Propel Xml
+
+  * `namespace`
+  * `addVendor`
 
 ### Option list for Zend DbTable
 

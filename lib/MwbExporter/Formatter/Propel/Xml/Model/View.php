@@ -52,7 +52,7 @@ class View extends BaseView
 
     public function writeView(WriterInterface $writer)
     {
-        $namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_BUNDLE_NAMESPACE);
+        $namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_NAMESPACE);
 
         $writer->write('<table name="%s" phpName="%s" namespace="%s">', $this->getRawTableName(), $this->getModelName(), $namespace);
         $writer->indent();

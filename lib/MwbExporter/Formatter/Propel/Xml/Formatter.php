@@ -31,17 +31,17 @@ use MwbExporter\Model\Base;
 
 class Formatter extends BaseFormatter
 {
-    const CFG_BUNDLE_NAMESPACE  = 'bundleNamespace';
-    const CFG_PROPEL_ADD_VENDOR = false;
+    const CFG_NAMESPACE  = 'namespace';
+    const CFG_ADD_VENDOR = 'addVendor';
 
     protected function init()
     {
         $this->setDatatypeConverter(new DatatypeConverter());
         $this->addConfigurations(array(
-            static::CFG_INDENTATION                   => 4,
-            static::CFG_FILENAME                      => '%entity%.%extension%',
-            static::CFG_BUNDLE_NAMESPACE              => '',
-            static::CFG_PROPEL_ADD_VENDOR             => false,
+            static::CFG_INDENTATION            => 4,
+            static::CFG_FILENAME               => 'schema.xml',
+            static::CFG_NAMESPACE              => '',
+            static::CFG_ADD_VENDOR             => false,
         ));
     }
 

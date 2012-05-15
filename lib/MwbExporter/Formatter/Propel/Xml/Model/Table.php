@@ -52,11 +52,11 @@ class Table extends BaseTable
 
     public function writeTable(WriterInterface $writer)
     {
-        $namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_BUNDLE_NAMESPACE);
+        $namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_NAMESPACE);
 
         $writer->write('<table name="%s" phpName="%s" namespace="%s">', $this->getRawTableName(), $this->getModelName(), $namespace);
         $writer->indent();
-        if($this->getDocument()->getConfig()->get(Formatter::CFG_PROPEL_ADD_VENDOR)){
+        if($this->getDocument()->getConfig()->get(Formatter::CFG_ADD_VENDOR)){
             $this->writeVendor($writer);
         }
         $this->getColumns()->write($writer);
