@@ -64,6 +64,11 @@ class Table extends Base
      */
     protected $manyToManyRelations = array();
 
+    /**
+     * @var bool
+     */
+    protected $isM2M = null;
+
     protected function init()
     {
         $this->initColumns();
@@ -209,25 +214,35 @@ class Table extends Base
     /**
      * Check if this table is a many to many table.
      *
+     * @param bool $deep True to check many to many relation for referenced tables
      * @return bool
      */
-    public function isManyToMany()
+    public function isManyToMany($deep = true)
     {
-        // contains 2 foreign keys
-        if (2 !== count($fkeys = $this->getForeignKeys())) {
-            return false;
-        }
-        // different foreign tables
-        if ($fkeys[0]->getId() === $fkeys[1]->getId()) {
-            return false;
-        }
-        // foreign tables is not many to many
-        // @FIXME memory allocation exhaustion --> recursion
-        // if ($fkeys[0]->getReferencedTable()->isManyToMany() || $fkeys[1]->getReferencedTable()->isManyToMany()) {
-            // return false;
-        // }
+        if (null === $this->isM2M) {
+            switch (true) {
+                // contains 2 foreign keys
+                case (2 !== count($fkeys = $this->getForeignKeys())):
+                    $this->isM2M = false;
+                    break;
 
-        return true;
+                // different foreign tables
+                case ($fkeys[0]->getReferencedTable()->getId() === $fkeys[1]->getReferencedTable()->getId()):
+                    $this->isM2M = false;
+                    break;
+
+                // foreign tables is not many to many
+                case $deep && $fkeys[0]->getReferencedTable()->isManyToMany(false):
+                case $deep && $fkeys[1]->getReferencedTable()->isManyToMany(false):
+                    $this->isM2M = false;
+                    break;
+
+                default:
+                    $this->isM2M = true;
+            }
+        }
+
+        return $this->isM2M;
     }
 
     /**
