@@ -42,8 +42,8 @@ class Tables extends Base implements \ArrayAccess, \IteratorAggregate, \Countabl
         // collect tables
         foreach ($this->node->xpath("value") as $key => $node) {
             $table = $this->getDocument()->getFormatter()->createTable($this, $node);
+            // skip translation tables
             if ($table->isTranslationTable()) {
-                // skip translation tables
                 continue;
             }
             $this->tables[] = $table;

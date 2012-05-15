@@ -138,8 +138,14 @@ class Table extends BaseTable
         $serializableEntity  = $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
         $automaticRepository = $this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? sprintf('(repositoryClass="%sRepository")', $repositoryNamespace.$this->getModelName()) : '';
         $indices = array();
+        $uniqueIndices = array();
         foreach ($this->indexes as $index) {
-            $indices[] = $this->addPrefix(sprintf('Index(%s)', (string) $index));
+            if($index->isUnique()){
+                $uniqueIndices[] = $this->addPrefix(sprintf('UniqueConstraint(%s)', (string) $index));
+            }
+            if($index->isIndex()){
+                $indices[] = $this->addPrefix(sprintf('Index(%s)', (string) $index));
+            }
         }
         $writer
             ->write('<?php')
@@ -153,7 +159,7 @@ class Table extends BaseTable
             ->write(' * '.$this->getNamespace(null, false))
             ->write(' *')
             ->write(' * '.$this->addPrefix('Entity'.$automaticRepository))
-            ->write(' * '.$this->addPrefix('Table(name="'.$this->getRawTableName().'"'.(count($indices) ? ', indexes={'.implode(', ', $indices).'}' : '').')'))
+            ->write(' * '.$this->addPrefix('Table(name="'.$this->getRawTableName().'"'.(count($indices) ? ', indexes={'.implode(', ', $indices).'}' : '').(count($uniqueIndices) ? ', uniqueConstraints={'.implode(', ', $uniqueIndices).'}' : '').')'))
             ->write(' */')
             ->write('class '.$this->getModelName())
             ->write('{')

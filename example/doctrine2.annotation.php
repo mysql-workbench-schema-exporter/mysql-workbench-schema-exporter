@@ -52,8 +52,8 @@ $setup = array(
     Formatter::CFG_SKIP_GETTER_SETTER        => false,
     Formatter::CFG_ENHANCED_M2M_DETECTION    => false,
 );
-$filename = __DIR__.'/data/test.mwb';
-$outDir = __DIR__.'/result';
+$filename = __DIR__.'/data/sakila.mwb';
+$outDir   = __DIR__.'/result';
 
 $bootstrap = new Bootstrap();
 $formatter = $bootstrap->getFormatter('doctrine2-annotation');

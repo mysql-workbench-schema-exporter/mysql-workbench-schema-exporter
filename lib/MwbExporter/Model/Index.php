@@ -41,7 +41,6 @@ class Index extends Base
             $attributes = $node->attributes();
             $this->parameters->set((string) $attributes['key'], (string) $node[0]);
         }
-        $isPrimary = false;
         // check for primary columns, to notify column
         $nodes = $this->node->xpath("value[@key='columns']/value/link[@key='referencedColumn']");
         foreach ($nodes as $node) {
@@ -50,19 +49,56 @@ class Index extends Base
             if (!($column = $this->getDocument()->getReference()->get((string) $node))) {
                 continue;
             }
-            if ($this->parameters->get('name') === 'PRIMARY') {
-                $isPrimary = true;
+            if ($this->isPrimary()) {
                 $column->markAsPrimary();
-            } else {
-                if ($this->parameters->get('indexType') === 'UNIQUE') {
-                    $column->markAsUnique();
-                }
-                $this->columns[] = $column;
             }
+            if ($this->isUnique()) {
+                $column->markAsUnique();
+            }
+            $this->columns[] = $column;
         }
-        if (!$isPrimary && ($table = $this->getDocument()->getReference()->get((string) $this->node->link))) {
+        if (!$this->isPrimary() && ($table = $this->getDocument()->getReference()->get((string) $this->node->link))) {
             $table->injectIndex($this);
         }
+    }
+
+    /**
+     * Is a unique index
+     *
+     * @return boolean
+     */
+    public function isUnique()
+    {
+        if ($this->parameters->get('indexType') === 'UNIQUE') {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Is a normal index
+     *
+     * @return boolean
+     */
+    public function isIndex()
+    {
+        if ($this->parameters->get('indexType') === 'INDEX') {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Is a primary index
+     *
+     * @return boolean
+     */
+    public function isPrimary()
+    {
+        if ($this->parameters->get('indexType') === 'PRIMARY') {
+            return true;
+        }
+        return false;
     }
 
     /**
