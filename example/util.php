@@ -46,7 +46,7 @@ function output($document, $time)
         echo "<h2>Information:</h2>\n";
         echo "<ul>\n";
         echo sprintf("<li>Filename: %s</li>\n", basename($document->getWriter()->getStorage()->getResult()));
-        echo sprintf("<li>Memoray usage: %0.3f MB</li>\n", (memory_get_peak_usage(true) / 1024/ 1024));
+        echo sprintf("<li>Memory usage: %0.3f MB</li>\n", (memory_get_peak_usage(true) / 1024 / 1024));
         echo sprintf("<li>Time: %0.3f second(s)</li>\n", $time);
         echo "</ul>\n";
 
