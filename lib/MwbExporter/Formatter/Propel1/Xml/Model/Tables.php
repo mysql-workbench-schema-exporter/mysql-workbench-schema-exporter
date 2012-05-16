@@ -23,33 +23,51 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Propel\Xml\Model;
+namespace MwbExporter\Formatter\Propel1\Xml\Model;
 
-use MwbExporter\Model\Index as BaseIndex;
+use MwbExporter\FormatterInterface;
+
+use MwbExporter\Model\Tables as BaseTables;
+use MwbExporter\Helper\Pluralizer;
 use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Formatter\Propel1\Xml\Formatter;
 
-class Index extends BaseIndex
+class Tables extends BaseTables
 {
+    /**
+     * Write document as generated code.
+     *
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Propel1\Xml\Model\Table
+     */
     public function write(WriterInterface $writer)
     {
-        if($this->isUnique()){
-            $type = "unique";
-        } else if ($this->isIndex()){
-            $type = "index";
-        } else {
-            return $this;
-        }
+        $writer->open(Formatter::CFG_FILENAME);
+        $this->writeTables($writer);
+        $writer->close();
+        return $this;
+    }
+
+    /**
+     * Write document as generated code.
+     *
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Propel1\Xml\Model\Tables
+     */
+    public function writeTables(WriterInterface $writer)
+    {
         $writer
-            ->write('<%s name="%s">', $type, $this->parameters->get('name'))
+            ->write('<?xml version="1.0" encoding="UTF-8"?>')
+            ->write('<database name="%s" defaultIdMethod="native"', $this->getSchema()->getName())
             ->indent()
-        ;
-        foreach ($this->columns as $refColumn) {
-            $writer->write('<%s-column name="%s" />', $type, $refColumn->getColumnName());
-        }
-        $writer
+            ->write('xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+            ->write('xsi:noNamespaceSchemaLocation="http://xsd.propelorm.org/1.6/database.xsd" >')
             ->outdent()
-            ->write('</%s>', $type)
         ;
+        foreach ($this->tables as $table) {
+            $table->write($writer);
+        }
+        $writer->write('</database>');
         return $this;
     }
 }

@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Propel\Xml;
+namespace MwbExporter\Formatter\Propel1\Xml;
 
 use MwbExporter\Formatter as BaseFormatter;
 use MwbExporter\Model\Base;
@@ -92,7 +92,7 @@ class Formatter extends BaseFormatter
 
     public function getTitle()
     {
-        return 'Propel Xml Classes';
+        return 'Propel1 Xml Classes';
     }
 
     public function getFileExtension()

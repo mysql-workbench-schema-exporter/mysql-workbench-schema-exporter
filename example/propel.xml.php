@@ -34,7 +34,7 @@ include 'util.php';
 autoload();
 
 use \MwbExporter\Bootstrap;
-use \MwbExporter\Formatter\Propel\Xml\Formatter;
+use \MwbExporter\Formatter\Propel1\Xml\Formatter;
 
 // lets stop the time
 $start = microtime(true);
@@ -44,14 +44,14 @@ $setup = array(
     Formatter::CFG_USE_LOGGED_STORAGE  => true,
     Formatter::CFG_INDENTATION         => 4,
     Formatter::CFG_ADD_VENDOR          => true,
-    Formatter::CFG_NAMESPACE           => 'MyBundle',
+    Formatter::CFG_NAMESPACE           => 'Acme\Namespace',
 
 );
 $filename = __DIR__.'/data/sakila.mwb';
 $outDir   = __DIR__.'/result';
 
 $bootstrap = new Bootstrap();
-$formatter = $bootstrap->getFormatter('propel-xml');
+$formatter = $bootstrap->getFormatter('propel1-xml');
 $formatter->setup($setup);
 $document  = $bootstrap->export($formatter, $filename, $outDir, 'zip');
 

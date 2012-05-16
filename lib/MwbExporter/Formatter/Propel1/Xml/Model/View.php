@@ -23,67 +23,43 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Propel\Xml\Model;
+namespace MwbExporter\Formatter\Propel1\Xml\Model;
 
 use MwbExporter\FormatterInterface;
 
-use MwbExporter\Model\Table as BaseTable;
+use MwbExporter\Model\View as BaseView;
 use MwbExporter\Writer\WriterInterface;
-use MwbExporter\Formatter\Propel\Xml\Formatter;
+use MwbExporter\Formatter\Propel1\Xml\Formatter;
 
-class Table extends BaseTable
+class View extends BaseView
 {
     /**
      * Write document as generated code.
      *
      * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Propel\Xml\Model\Table
+     * @return \MwbExporter\Formatter\Propel1\Xml\Model\Table
      */
     public function write(WriterInterface $writer)
     {
         if (!$this->isExternal()) {
             $writer->indent();
-            $this->writeTable($writer);
+            $this->writeView($writer);
             $writer->outdent();
         }
 
         return $this;
     }
 
-    public function writeTable(WriterInterface $writer)
+    public function writeView(WriterInterface $writer)
     {
         $namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_NAMESPACE);
 
         $writer->write('<table name="%s" phpName="%s" namespace="%s">', $this->getRawTableName(), $this->getModelName(), $namespace);
         $writer->indent();
-        if($this->getDocument()->getConfig()->get(Formatter::CFG_ADD_VENDOR)){
-            $this->writeVendor($writer);
-        }
         $this->getColumns()->write($writer);
-        $this->writeIndex($writer);
         $writer->outdent();
         $writer->write('</table>');
 
-        return $this;
-    }
-
-    public function writeVendor(WriterInterface $writer)
-    {
-        $writer->write('<vendor type="mysql">');
-        $writer->indent();
-        $writer->write('<parameter name="Engine" value="%s" />', $this->parameters->get('tableEngine'));
-        $writer->write('<parameter name="Charset" value="%s" />', $this->parameters->get('defaultCharacterSetName'));
-        $writer->outdent();
-        $writer->write('</vendor>');
-
-        return $this;
-    }
-
-    public function writeIndex(WriterInterface $writer)
-    {
-        foreach ($this->indexes as $index) {
-            $index->write($writer);
-        }
         return $this;
     }
 }

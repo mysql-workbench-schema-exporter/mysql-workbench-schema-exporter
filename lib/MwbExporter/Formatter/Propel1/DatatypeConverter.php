@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Propel;
+namespace MwbExporter\Formatter\Propel1;
 
 use MwbExporter\DatatypeConverter as Base;
 use MwbExporter\Model\Column;

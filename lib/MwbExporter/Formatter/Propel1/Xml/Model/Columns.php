@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Propel\Xml\Model;
+namespace MwbExporter\Formatter\Propel1\Xml\Model;
 
 use MwbExporter\Model\Columns as BaseColumns;
 use MwbExporter\Writer\WriterInterface;
