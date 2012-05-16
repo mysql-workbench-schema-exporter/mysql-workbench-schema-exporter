@@ -42,7 +42,7 @@ class Tables extends BaseTables
      */
     public function write(WriterInterface $writer)
     {
-        $writer->open('schema.xml');
+        $writer->open(Formatter::CFG_FILENAME);
         $this->writeTables($writer);
         $writer->close();
         return $this;
