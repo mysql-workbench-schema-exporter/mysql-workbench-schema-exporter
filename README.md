@@ -60,7 +60,7 @@ Where:
       * `doctrine1-yaml`, Doctrine 1.0 YAML schema
       * `doctrine2-yaml`, Doctrine 2.0 YAML schema
       * `doctrine2-annotation`, Doctrine 2.0 Annotation classes (default)
-      * `propel-xml`, Propel XML schema
+      * `propel1-xml`, Propel XML schema
       * `zend-dbtable`, Zend DbTable
       * `zend-rest-controller`, Zend Rest Controller
       * `sencha-extjs3`, Sencha ExtJS3 Model
