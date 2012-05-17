@@ -42,7 +42,7 @@ class Column extends BaseColumn
             ->writeIf($this->parameters->get('autoIncrement') == 1,
                     ' * '.$this->getTable()->addPrefix('GeneratedValue(strategy="AUTO")'))
             ->write(' */')
-            ->write('private $'.$this->getColumnName().';')
+            ->write('protected $'.$this->getColumnName().';')
             ->write('')
         ;
 
@@ -74,7 +74,7 @@ class Column extends BaseColumn
                     ->write(' * '.$this->getTable()->addPrefix('OneToMany(targetEntity="'.$foreign->getOwningTable()->getModelName().'", mappedBy="'.lcfirst($foreign->getReferencedTable()->getModelName()).'")'))
                     ->write(' * '.$this->getTable()->addPrefix('JoinColumn(name="'.$foreign->getForeign()->getColumnName().'", referencedColumnName="'.$foreign->getLocal()->getColumnName().'")'))
                     ->write(' */')
-                    ->write('private $'.lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())).$related.';')
+                    ->write('protected $'.lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())).$related.';')
                     ->write('')
                 ;
             } else { // is OneToOne
@@ -83,7 +83,7 @@ class Column extends BaseColumn
                     ->write(' * '.$this->getTable()->addPrefix('OneToOne(targetEntity="'.$foreign->getOwningTable()->getModelName().'", mappedBy="'.lcfirst($foreign->getReferencedTable()->getModelName()).'")'))
                     ->write(' * '.$this->getTable()->addPrefix('JoinColumn(name="'.$foreign->getForeign()->getColumnName().'", referencedColumnName="'.$foreign->getLocal()->getColumnName().'")'))
                     ->write(' */')
-                    ->write('private $'.lcfirst($foreign->getOwningTable()->getModelName()).';')
+                    ->write('protected $'.lcfirst($foreign->getOwningTable()->getModelName()).';')
                     ->write('')
                 ;
             }
@@ -99,7 +99,7 @@ class Column extends BaseColumn
                     ->write(' * '.$this->getTable()->addPrefix('ManyToOne(targetEntity="'.$this->local->getReferencedTable()->getModelName().'", inversedBy="'.lcfirst(Pluralizer::pluralize($this->local->getOwningTable()->getModelName())).$refRelated.'")'))
                     ->write(' * '.$this->getTable()->addPrefix('JoinColumn(name="'.$this->local->getForeign()->getColumnName().'", referencedColumnName="'.$this->local->getLocal()->getColumnName().'")'))
                     ->write(' */')
-                    ->write('private $'.lcfirst($this->local->getReferencedTable()->getModelName()).$related.';')
+                    ->write('protected $'.lcfirst($this->local->getReferencedTable()->getModelName()).$related.';')
                     ->write('')
                 ;
             } else { // is OneToOne
@@ -108,7 +108,7 @@ class Column extends BaseColumn
                     ->write(' * '.$this->getTable()->addPrefix('OneToOne(targetEntity="'.$this->local->getReferencedTable()->getModelName().'", inversedBy="'.lcfirst($this->local->getOwningTable()->getModelName()).'")'))
                     ->write(' * '.$this->getTable()->addPrefix('JoinColumn(name="'.$this->local->getForeign()->getColumnName().'", referencedColumnName="'.$this->local->getLocal()->getColumnName().'")'))
                     ->write(' */')
-                    ->write('private $'.lcfirst($this->local->getReferencedTable()->getModelName()).';')
+                    ->write('protected $'.lcfirst($this->local->getReferencedTable()->getModelName()).';')
                     ->write('')
                 ;
             }
