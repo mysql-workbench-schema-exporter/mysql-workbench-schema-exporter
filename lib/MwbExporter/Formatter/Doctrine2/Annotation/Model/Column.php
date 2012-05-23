@@ -29,6 +29,7 @@ namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 use MwbExporter\Model\Column as BaseColumn;
 use MwbExporter\Helper\Pluralizer;
 use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Formatter\Doctrine2\Annotation\Formatter;
 
 class Column extends BaseColumn
 {
@@ -38,7 +39,11 @@ class Column extends BaseColumn
             ->write('/**')
             ->writeIf($this->isPrimary,
                     ' * '.$this->getTable()->addPrefix('Id'))
-            ->write(' * '.$this->getTable()->addPrefix('Column(type='.$this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this).($this->parameters->get('isNotNull') != 1 ? ', nullable=true' : '').')'))
+            ->write(' * '.
+                $this->getTable()->addPrefix('Column(type='.$this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this).
+                    ($this->getDocument()->getConfig()->get(Formatter::CFG_QUOTE_COLUMNS) == 1 ? ', name="`'.$this->getColumnName().'`"' : '').
+                    ($this->parameters->get('isNotNull') != 1 ? ', nullable=true' : '')
+                .')'))
             ->writeIf($this->parameters->get('autoIncrement') == 1,
                     ' * '.$this->getTable()->addPrefix('GeneratedValue(strategy="AUTO")'))
             ->write(' */')
