@@ -69,10 +69,7 @@ class Index extends Base
      */
     public function isUnique()
     {
-        if ($this->parameters->get('indexType') === 'UNIQUE') {
-            return true;
-        }
-        return false;
+        return $this->parameters->get('indexType') === 'UNIQUE' ? true : false;
     }
 
     /**
@@ -82,10 +79,7 @@ class Index extends Base
      */
     public function isIndex()
     {
-        if ($this->parameters->get('indexType') === 'INDEX') {
-            return true;
-        }
-        return false;
+        return $this->parameters->get('indexType') === 'INDEX' ? true : false;
     }
 
     /**
@@ -95,10 +89,7 @@ class Index extends Base
      */
     public function isPrimary()
     {
-        if ($this->parameters->get('indexType') === 'PRIMARY') {
-            return true;
-        }
-        return false;
+        return $this->parameters->get('indexType') === 'PRIMARY' ? true : false;
     }
 
     /**
