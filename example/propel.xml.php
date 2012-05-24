@@ -43,7 +43,7 @@ $start = microtime(true);
 $setup = array(
     Formatter::CFG_USE_LOGGED_STORAGE  => true,
     Formatter::CFG_INDENTATION         => 4,
-    Formatter::CFG_ADD_VENDOR          => true,
+    Formatter::CFG_ADD_VENDOR          => false,
     Formatter::CFG_NAMESPACE           => 'Acme\Namespace',
 
 );

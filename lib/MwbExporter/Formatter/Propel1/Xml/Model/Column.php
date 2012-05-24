@@ -32,15 +32,25 @@ class Column extends BaseColumn
 {
     public function write(WriterInterface $writer)
     {
+        $type = strtoupper($this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this));
+
+        if($type == 'DECIMAL'){
+            $type = $type.'" size="'.$this->parameters->get('precision').'" scale="'.$this->parameters->get('scale');
+        }
+        if($type == 'ENUM' or $type == 'SET'){
+            $type = $type.'" sqlType="'.$type.$this->parameters->get('datatypeExplicitParams').'" valueSet="'.substr($this->parameters->get('datatypeExplicitParams'), 1, -1);
+        }
+
         $writer
-            ->write('<column name="%s" type="%s"%s%s%s%s%s />',
-                $this->getColumnName(),                                                                       // name
-                $this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this),                 // type
-                ($this->parameters->get('isNotNull') != 1 ? ' required="true"' : ''),                         // required
-                ($this->isPrimary == 1 ? ' primaryKey="true"' : ''),                                          // primaryKey
-                ($this->parameters->get('autoIncrement') == 1 ? ' autoIncrement="true"' : ''),                // autoIncrement
-                ($this->parameters->get('length') > 0 ? ' size="'.$this->parameters->get('length').'"' : ''), // size
-                ($this->parameters->get('defaultValue') != '' ? ' defaultValue="'.str_replace('\'', '', $this->parameters->get('defaultValue')).'"' : '') // defaultValue
+            ->write('<column name="%s" type="%s"%s%s%s%s%s%s />',
+                $this->getColumnName(),                                                                                // name
+                $type,                                                                                                 // type
+                ($this->isPrimary                        == 1  ? ' primaryKey="true"'                           : ''), // primaryKey
+                ($this->parameters->get('length')         > 0  ? ' size="'.$this->parameters->get('length').'"' : ''), // size
+                ($this->parameters->get('isNotNull')     == 1  ? ' required="true"'                             : ''), // required
+                ($this->parameters->get('autoIncrement') == 1  ? ' autoIncrement="true"'                        : ''), // autoIncrement
+                (($this->parameters->get('defaultValue')  != '' && !in_array($this->parameters->get('defaultValue'), array('CURRENT_TIMESTAMP'))) ? ' defaultValue="'.$this->parameters->get('defaultValue').'"' : ''), // defaultValue
+                ($this->parameters->get('defaultValue')  != '' ? ' defaultExpr="'.$this->parameters->get('defaultValue').'"' : '') // defaultExpr
             )
         ;
         return $this;
@@ -48,25 +58,29 @@ class Column extends BaseColumn
 
     public function writeRelations(WriterInterface $writer)
     {
+        $parentTable = $this->getParent()->getParent();
         foreach ($this->foreigns as $foreign) {
-            $writer
-                ->write('<foreign-key foreignTable="%s" phpName="%s" refPhpName="%s" onDelete="%s" onUpdate="%s">',
-                    $foreign->getOwningTable()->getRawTableName(),
-                    $foreign->getOwningTable()->getModelName(),
-                    $foreign->getReferencedTable()->getModelName(),
-                    (strtolower($foreign->parameters->get('deleteRule')) == 'no action' ? 'none' : strtolower($foreign->parameters->get('deleteRule'))),
-                    (strtolower($foreign->parameters->get('updateRule')) == 'no action' ? 'none' : strtolower($foreign->parameters->get('updateRule')))
-                )
-            ;
-            $writer->indent();
-            $writer
-                ->write('<reference local="%s" foreign="%s" />',
-                    $foreign->getLocal()->getColumnName(),
-                    $foreign->getForeign()->getColumnName()
-                )
-            ;
-            $writer->outdent();
-            $writer->write('</foreign-key>');
+            //if($foreign->getParent()->getParent()->getRawTableName() == $parentTable->getRawTableName()){
+                $writer
+                    ->write('<foreign-key name="%s" foreignTable="%s" phpName="%s" refPhpName="%s" onDelete="%s" onUpdate="%s">',
+                        $foreign->parameters->get('name'),
+                        $foreign->getOwningTable()->getRawTableName(),
+                        $foreign->getOwningTable()->getModelName(),
+                        $foreign->getReferencedTable()->getModelName(),
+                        (strtolower($foreign->parameters->get('deleteRule')) == 'no action' ? 'none' : strtolower($foreign->parameters->get('deleteRule'))),
+                        (strtolower($foreign->parameters->get('updateRule')) == 'no action' ? 'none' : strtolower($foreign->parameters->get('updateRule')))
+                    )
+                ;
+                $writer->indent();
+                $writer
+                    ->write('<reference local="%s" foreign="%s" />',
+                        $foreign->getLocal()->getColumnName(),
+                        $foreign->getForeign()->getColumnName()
+                    )
+                ;
+                $writer->outdent();
+                $writer->write('</foreign-key>');
+            //}
         }
         return $this;
     }

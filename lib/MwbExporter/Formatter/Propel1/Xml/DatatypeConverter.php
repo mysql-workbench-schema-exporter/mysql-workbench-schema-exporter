@@ -68,8 +68,8 @@ class DatatypeConverter extends Base
             'com.mysql.rdbms.mysql.datatype.multipolygon'       => 'object',
             'com.mysql.rdbms.mysql.datatype.geometrycollection' => 'object',
             'com.mysql.rdbms.mysql.datatype.bit'                => 'bigint',
-            'com.mysql.rdbms.mysql.datatype.enum'               => 'string',
-            'com.mysql.rdbms.mysql.datatype.set'                => 'string',
+            'com.mysql.rdbms.mysql.datatype.enum'               => 'enum',
+            'com.mysql.rdbms.mysql.datatype.set'                => 'set',
             // userdatatypes
             'com.mysql.rdbms.mysql.userdatatype.boolean'        => 'boolean',
             'com.mysql.rdbms.mysql.userdatatype.bool'           => 'boolean',

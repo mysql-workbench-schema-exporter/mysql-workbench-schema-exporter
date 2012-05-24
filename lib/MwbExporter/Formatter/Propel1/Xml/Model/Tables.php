@@ -56,13 +56,17 @@ class Tables extends BaseTables
      */
     public function writeTables(WriterInterface $writer)
     {
+        //$writer
+        //    ->write('<?xml version="1.0" encoding="UTF-8"?')
+        //    ->write('<database name="%s" defaultIdMethod="native"', $this->getSchema()->getName())
+        //    ->indent()
+        //    ->write('xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+        //    ->write('xsi:noNamespaceSchemaLocation="http://xsd.propelorm.org/1.6/database.xsd" >')
+        //    ->outdent()
+        //;
         $writer
             ->write('<?xml version="1.0" encoding="UTF-8"?>')
-            ->write('<database name="%s" defaultIdMethod="native"', $this->getSchema()->getName())
-            ->indent()
-            ->write('xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
-            ->write('xsi:noNamespaceSchemaLocation="http://xsd.propelorm.org/1.6/database.xsd" >')
-            ->outdent()
+            ->write('<database name="%s" defaultIdMethod="native">', $this->getSchema()->getName())
         ;
         foreach ($this->tables as $table) {
             $table->write($writer);
