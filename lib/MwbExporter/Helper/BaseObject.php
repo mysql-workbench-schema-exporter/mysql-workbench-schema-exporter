@@ -26,35 +26,71 @@
 
 namespace MwbExporter\Helper;
 
-class JSObject extends BaseObject
+class BaseObject
 {
     /**
-     * (non-PHPdoc)
-     * @see MwbExporter\Helper.BaseObject::asCode()
+     * @var mixed
      */
-    public function asCode($value)
+    protected $content = null;
+
+    /**
+     * @var bool
+     */
+    protected $raw = null;
+
+    /**
+     * Constructor.
+     * 
+     * @param mixed $content
+     * @param bool $raw
+     */
+    public function __construct($content = null, $raw = false)
     {
-        if ($value instanceof JSObject) {
-            $value = (string) $value;
-        } elseif (is_bool($value)) {
-            $value = $value ? 'true' : 'false';
-        } elseif (is_string($value)) {
-            $value = '\''.$value.'\'';
-        } elseif (is_array($value)) {
-            $tmp = array();
-            $useKey = !$this->isKeysNumeric($value);
-            foreach ($value as $k => $v) {
-                $v = $this->asCode($v);
-                $tmp[] = $useKey ? sprintf('%s: %s', $k, $v) : $v;
-            }
-            $value = implode(', ', $tmp);
-            if ($useKey) {
-                $value = sprintf('{%s}', $value);
-            } else {
-                $value = sprintf('[%s]', $value);
+        $this->content = $content;
+        $this->raw = $raw;
+    }
+
+    /**
+     * Check if array keys is all numeric.
+     *
+     * @param array $array  The input array
+     * @return bool
+     */
+    public function isKeysNumeric($array)
+    {
+        foreach ($array as $key => $value) {
+            if (!is_int($key)) {
+                return false;
             }
         }
 
+        return true;
+    }
+
+    /**
+     * Decorate generated code.
+     *
+     * @param string $code  The generated code
+     * @return string
+     */
+    protected function decorateCode($code)
+    {
+        return $code; 
+    }
+
+    /**
+     * Convert value as code equivalent.
+     *
+     * @param mixed $value  The value
+     * @return string
+     */
+    public function asCode($value)
+    {
         return $value;
+    }
+
+    public function __toString()
+    {
+        return $content = $this->raw ? $this->content : $this->decorateCode($this->asCode($this->content));
     }
 }

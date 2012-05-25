@@ -26,32 +26,58 @@
 
 namespace MwbExporter\Helper;
 
-class JSObject extends BaseObject
+class AnnotationObject extends BaseObject
 {
+    /**
+     * @var string
+     */
+    protected $annotation = null;
+
+    /**
+     * Constructor.
+     * 
+     * @param mixed $content
+     * @param bool $raw
+     */
+    public function __construct($annotation, $content = null, $raw = false)
+    {
+        parent::__construct($content, $raw);
+        $this->annotation = $annotation;
+    }
+
+    protected function decorateCode($code)
+    {
+        return $this->annotation.$code;
+    }
+
     /**
      * (non-PHPdoc)
      * @see MwbExporter\Helper.BaseObject::asCode()
      */
     public function asCode($value)
     {
-        if ($value instanceof JSObject) {
+        if ($value instanceof AnnotationObject) {
             $value = (string) $value;
         } elseif (is_bool($value)) {
             $value = $value ? 'true' : 'false';
         } elseif (is_string($value)) {
-            $value = '\''.$value.'\'';
+            $value = '"'.$value.'"';
         } elseif (is_array($value)) {
             $tmp = array();
             $useKey = !$this->isKeysNumeric($value);
             foreach ($value as $k => $v) {
+                // skip nulll value
+                if (null === $v) {
+                    continue;
+                }
                 $v = $this->asCode($v);
-                $tmp[] = $useKey ? sprintf('%s: %s', $k, $v) : $v;
+                $tmp[] = $useKey ? sprintf('%s=%s', $k, $v) : $v;
             }
             $value = implode(', ', $tmp);
             if ($useKey) {
-                $value = sprintf('{%s}', $value);
+                $value = sprintf('(%s)', $value);
             } else {
-                $value = sprintf('[%s]', $value);
+                $value = sprintf('{%s}', $value);
             }
         }
 
