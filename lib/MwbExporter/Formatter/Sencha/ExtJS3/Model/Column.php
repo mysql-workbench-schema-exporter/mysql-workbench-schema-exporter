@@ -30,6 +30,7 @@ namespace MwbExporter\Formatter\Sencha\ExtJS3\Model;
 use MwbExporter\Model\Column as BaseColumn;
 use MwbExporter\Helper\JSObject;
 use MwbExporter\Helper\ZendURLFormatter;
+use MwbExporter\DatatypeConverter;
 
 class Column extends BaseColumn
 {
@@ -58,15 +59,15 @@ class Column extends BaseColumn
                 $type = 'hidden';
                 break;
 
-            case $this->getColumnType() === 'com.mysql.rdbms.mysql.datatype.datetime':
-            case $this->getColumnType() === 'com.mysql.rdbms.mysql.datatype.timestamp':
+            case $this->getColumnType() === DatatypeConverter::DATATYPE_DATETIME:
+            case $this->getColumnType() === DatatypeConverter::DATATYPE_TIMESTAMP:
                 $type = 'xdatetime';
                 break;
 
-            case $this->getColumnType() === 'com.mysql.rdbms.mysql.datatype.tinytext':
-            case $this->getColumnType() === 'com.mysql.rdbms.mysql.datatype.mediumtext':
-            case $this->getColumnType() === 'com.mysql.rdbms.mysql.datatype.longtext':
-            case $this->getColumnType() === 'com.mysql.rdbms.mysql.datatype.text':
+            case $this->getColumnType() === DatatypeConverter::DATATYPE_TINYTEXT:
+            case $this->getColumnType() === DatatypeConverter::DATATYPE_MEDIUMTEXT:
+            case $this->getColumnType() === DatatypeConverter::DATATYPE_LONGTEXT:
+            case $this->getColumnType() === DatatypeConverter::DATATYPE_TEXT:
                 $type = 'htmleditor';
                 $anchor = '100%';
                 break;
