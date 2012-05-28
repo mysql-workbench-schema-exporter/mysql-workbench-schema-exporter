@@ -159,7 +159,7 @@ class Table extends BaseTable
             ->write(' * '.$this->getNamespace(null, false))
             ->write(' *')
             ->write(' * '.$this->addPrefix('Entity'.$automaticRepository))
-            ->write(' * '.$this->addPrefix('Table(name="'.($this->getDocument()->getConfig()->get(Formatter::CFG_QUOTE_TABLES) == 1 ? '`'. $this->getRawTableName() . '`' : $this->getRawTableName()).'"'.(count($indices) ? ', indexes={'.implode(', ', $indices).'}' : '').(count($uniqueIndices) ? ', uniqueConstraints={'.implode(', ', $uniqueIndices).'}' : '').')'))
+            ->write(' * '.$this->addPrefix('Table(name="'.$this->getQuotedRawTableName().'"'.(count($indices) ? ', indexes={'.implode(', ', $indices).'}' : '').(count($uniqueIndices) ? ', uniqueConstraints={'.implode(', ', $uniqueIndices).'}' : '').')'))
             ->write(' */')
             ->write('class '.$this->getModelName())
             ->write('{')
@@ -304,5 +304,14 @@ class Table extends BaseTable
         }
 
         return $this;
+    }
+
+    public function getQuotedRawTableName()
+    {
+        $tableName = $this->getRawTableName();
+        if ($this->getDocument()->getConfig()->get(Formatter::CFG_USE_QUOTES) == 1) {
+            $tableName = '`' . $tableName . '`';
+        }
+        return $tableName;
     }
 }
