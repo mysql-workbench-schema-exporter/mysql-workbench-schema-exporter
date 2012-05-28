@@ -54,7 +54,7 @@ class Formatter extends BaseFormatter
             static::CFG_AUTOMATIC_REPOSITORY          => true,
             static::CFG_SKIP_GETTER_SETTER            => false,
             static::CFG_GENERATE_ENTITY_SERIALIZATION => true,
-            static::CFG_USE_QUOTES                    => true,
+            static::CFG_USE_QUOTES                    => false,
         ));
     }
 
