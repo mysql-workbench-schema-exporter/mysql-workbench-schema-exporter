@@ -26,10 +26,9 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
-use MwbExporter\FormatterInterface;
-
 use MwbExporter\Model\Table as BaseTable;
 use MwbExporter\Helper\Pluralizer;
+use MwbExporter\Helper\AnnotationObject;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Formatter\Doctrine2\Annotation\Formatter;
 
@@ -128,6 +127,92 @@ class Table extends BaseTable
         return $this->ormPrefix.($annotation ? $annotation : '');
     }
 
+    /**
+     * Quote identifier if necessary. Quoting is enabled if configuration `CFG_QUOTE_IDENTIFIER` is set
+     * to true.
+     *
+     * @param string $value  The identifier to quote
+     * @return string
+     */
+    public function quoteIdentifier($value)
+    {
+        return $this->getDocument()->getConfig()->get(Formatter::CFG_QUOTE_IDENTIFIER) ? '`'.$value.'`' : $value;
+    }
+
+    /**
+     * Get annotation object.
+     *
+     * @param string $annotation  The annotation name
+     * @param mixed  $content     The annotation content
+     * @param array  $options     The annotation options
+     * @return \MwbExporter\Helper\AnnotationObject
+     */
+    public function getAnnotation($annotation, $content = null, $options = array())
+    {
+        return new AnnotationObject($this->addPrefix($annotation), $content, $options);
+    }
+
+    /**
+     * Get indexes annotation.
+     *
+     * @return array|null
+     */
+    protected function getIndexesAnnotation()
+    {
+        $indices = array();
+        foreach ($this->indexes as $index) {
+            if($index->isIndex()){
+                $indices[] = $this->getAnnotation('Index', $index->asAnnotation());
+            }
+        }
+
+        return count($indices) ? $indices : null; 
+    }
+
+    /**
+     * Get unique constraints annotation.
+     *
+     * @return array|null
+     */
+    protected function getUniqueConstraintsAnnotation()
+    {
+        $uniques = array();
+        foreach ($this->indexes as $index) {
+            if($index->isUnique()){
+                $uniques[] = $this->getAnnotation('UniqueConstraint', $index->asAnnotation());
+            }
+        }
+
+        return count($uniques) ? $uniques : null; 
+    }
+
+    /**
+     * Get join annotation.
+     *
+     * @param string $joinType    Join type
+     * @param string $entity      Entity name
+     * @param string $mappedBy    Column mapping
+     * @param string $inversedBy  Reverse column mapping
+     * @return \MwbExporter\Helper\AnnotationObject
+     */
+    public function getJoinAnnotation($joinType, $entity, $mappedBy = null, $inversedBy = null)
+    {
+        return $this->getAnnotation($joinType, array('targetEntity' => $entity, 'mappedBy' => $mappedBy, 'inversedBy' => $inversedBy));
+    }
+
+    /**
+     * Get column join annotation.
+     *
+     * @param string $local       Local column name
+     * @param string $foreign     Reference column name
+     * @param string $deleteRule  On delete rule
+     * @return \MwbExporter\Helper\AnnotationObject
+     */
+    public function getJoinColumnAnnotation($local, $foreign, $deleteRule = null)
+    {
+        return $this->getAnnotation('JoinColumn', array('name' => $local, 'referencedColumnName' => $foreign, 'onDelete' => $deleteRule));
+    }
+
     public function writeTable(WriterInterface $writer)
     {
         $namespace = $this->getEntityNamespace();
@@ -136,17 +221,6 @@ class Table extends BaseTable
         }
         $skipGetterAndSetter = $this->getDocument()->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
         $serializableEntity  = $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
-        $automaticRepository = $this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? sprintf('(repositoryClass="%sRepository")', $repositoryNamespace.$this->getModelName()) : '';
-        $indices = array();
-        $uniqueIndices = array();
-        foreach ($this->indexes as $index) {
-            if($index->isUnique()){
-                $uniqueIndices[] = $this->addPrefix(sprintf('UniqueConstraint(%s)', (string) $index));
-            }
-            if($index->isIndex()){
-                $indices[] = $this->addPrefix(sprintf('Index(%s)', (string) $index));
-            }
-        }
         $writer
             ->write('<?php')
             ->write('')
@@ -158,8 +232,8 @@ class Table extends BaseTable
             ->write('/**')
             ->write(' * '.$this->getNamespace(null, false))
             ->write(' *')
-            ->write(' * '.$this->addPrefix('Entity'.$automaticRepository))
-            ->write(' * '.$this->addPrefix('Table(name="'.$this->getQuotedRawTableName().'"'.(count($indices) ? ', indexes={'.implode(', ', $indices).'}' : '').(count($uniqueIndices) ? ', uniqueConstraints={'.implode(', ', $uniqueIndices).'}' : '').')'))
+            ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
+            ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation(), 'uniqueConstraints' => $this->getUniqueConstraintsAnnotation())))
             ->write(' */')
             ->write('class '.$this->getModelName())
             ->write('{')
@@ -246,22 +320,24 @@ class Table extends BaseTable
             if ($relation['reference']->getLocal()->getColumnName() != $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->getLocal()->getColumnName()) {
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->addPrefix('ManyToMany(targetEntity="'.$relation['refTable']->getModelName().'")'))
-                    ->write(' * '.$this->addPrefix('JoinTable(name="'.$relation['reference']->getOwningTable()->getRawTableName().'",'))
-                    ->write(' *     joinColumns={'       .$this->addPrefix('JoinColumn(name="'.$relation['reference']->getForeign()->getColumnName().'", referencedColumnName="'.$relation['reference']->getLocal()->getColumnName().'")},'))
-                    ->write(' *     inverseJoinColumns={'.$this->addPrefix('JoinColumn(name="'.$relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->getForeign()->getColumnName().'", referencedColumnName="'.$relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->getLocal()->getColumnName().'")}'))
-                    ->write(' * )')
+                    ->write(' * '.$this->getJoinAnnotation('ManyToMany', $relation['refTable']->getModelName()))
+                    ->write(' * '.$this->getAnnotation('JoinTable',
+                        array(
+                            'name'               => $relation['reference']->getOwningTable()->getRawTableName(),
+                            'joinColumns'        => array($this->getJoinColumnAnnotation($relation['reference']->getForeign()->getColumnName(), $relation['reference']->getLocal()->getColumnName())),
+                            'inverseJoinColumns' => array($this->getJoinColumnAnnotation($relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->getForeign()->getColumnName(), $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->getLocal()->getColumnName()))
+                        ), array('multiline' => true, 'wrapper' => ' * %s')))
                     ->write(' */')
                 ;
             } else {
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->addPrefix('ManyToMany(targetEntity="'.$relation['refTable']->getModelName().'", mappedBy="'.lcfirst(Pluralizer::pluralize($this->getModelName())).'")'))
+                    ->write(' * '.$this->getJoinAnnotation('ManyToMany', $relation['refTable']->getModelName(), lcfirst(Pluralizer::pluralize($this->getModelName()))))
                     ->write(' */')
                 ;
             }
             $writer
-                ->write('private $'.lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())).';')
+                ->write('protected $'.lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())).';')
                 ->write('')
             ;
         }
@@ -304,14 +380,5 @@ class Table extends BaseTable
         }
 
         return $this;
-    }
-
-    public function getQuotedRawTableName()
-    {
-        $tableName = $this->getRawTableName();
-        if ($this->getDocument()->getConfig()->get(Formatter::CFG_USE_QUOTES) == 1) {
-            $tableName = '`' . $tableName . '`';
-        }
-        return $tableName;
     }
 }

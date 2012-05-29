@@ -29,23 +29,38 @@ namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 use MwbExporter\Model\Column as BaseColumn;
 use MwbExporter\Helper\Pluralizer;
 use MwbExporter\Writer\WriterInterface;
-use MwbExporter\Formatter\Doctrine2\Annotation\Formatter;
 
 class Column extends BaseColumn
 {
+    public function asAnnotation()
+    {
+        $attributes = array(
+            'name' => ($columnName = $this->getTable()->quoteIdentifier($this->getColumnName())) !== $this->getColumnName() ? $columnName : null,
+            'type' => $this->getDocument()->getFormatter()->getDatatypeConverter()->getMappedType($this),
+        );
+        if (($length = $this->parameters->get('length')) && ($length != -1)) {
+            $attributes['length'] = (int) $length;
+        }
+        if (($precision = $this->parameters->get('precision')) && ($precision != -1) && ($scale = $this->parameters->get('scale')) && ($scale != -1)) {
+            $attributes['precision'] = (int) $precision;
+            $attributes['scale'] = (int) $scale;
+        }
+        if ($this->parameters->get('isNotNull') != 1) {
+            $attributes['nullable'] = true;
+        }
+
+        return $attributes;
+    }
+
     public function write(WriterInterface $writer)
     {
         $writer
             ->write('/**')
             ->writeIf($this->isPrimary,
-                    ' * '.$this->getTable()->addPrefix('Id'))
-            ->write(' * '.
-                $this->getTable()->addPrefix('Column(type='.$this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this).
-                    ', name="'.$this->getQuotedColumnName().'"'.
-                    ($this->parameters->get('isNotNull') != 1 ? ', nullable=true' : '')
-                .')'))
+                    ' * '.$this->getTable()->getAnnotation('Id'))
+            ->write(' * '.$this->getTable()->getAnnotation('Column', $this->asAnnotation()))
             ->writeIf($this->parameters->get('autoIncrement') == 1,
-                    ' * '.$this->getTable()->addPrefix('GeneratedValue(strategy="AUTO")'))
+                    ' * '.$this->getTable()->getAnnotation('GeneratedValue', array('strategy' => 'AUTO')))
             ->write(' */')
             ->write('protected $'.$this->getColumnName().';')
             ->write('')
@@ -60,7 +75,6 @@ class Column extends BaseColumn
             if ($foreign->isManyToOne()) { // is ManyToOne
                 $related = $this->getRelatedName($foreign);
                 $writer->write('$this->%s = new %s();', lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())).$related, $this->getTable()->getCollectionClass(false));
-            } else { // is OneToOne
             }
         }
 
@@ -76,8 +90,8 @@ class Column extends BaseColumn
                 $related = $this->getRelatedName($foreign);
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getTable()->addPrefix('OneToMany(targetEntity="'.$foreign->getOwningTable()->getModelName().'", mappedBy="'.lcfirst($foreign->getReferencedTable()->getModelName()).'")'))
-                    ->write(' * '.$this->getTable()->addPrefix('JoinColumn(name="'.$foreign->getForeign()->getColumnName().'", referencedColumnName="'.$foreign->getLocal()->getColumnName().'", onDelete="'.$foreign->getLocal()->getParameters()->get('deleteRule', 'NO ACTION').'", onUpdate="'.$foreign->getLocal()->getParameters()->get('updateRule', 'NO ACTION').'")'))
+                    ->write(' * '.$this->getTable()->getJoinAnnotation('OneToMany', $foreign->getOwningTable()->getModelName(), lcfirst($foreign->getReferencedTable()->getModelName())))
+                    ->write(' * '.$this->getTable()->getJoinColumnAnnotation($foreign->getForeign()->getColumnName(), $foreign->getLocal()->getColumnName(), $foreign->getLocal()->getParameters()->get('deleteRule')))
                     ->write(' */')
                     ->write('protected $'.lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())).$related.';')
                     ->write('')
@@ -85,8 +99,8 @@ class Column extends BaseColumn
             } else { // is OneToOne
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getTable()->addPrefix('OneToOne(targetEntity="'.$foreign->getOwningTable()->getModelName().'", mappedBy="'.lcfirst($foreign->getReferencedTable()->getModelName()).'")'))
-                    ->write(' * '.$this->getTable()->addPrefix('JoinColumn(name="'.$foreign->getForeign()->getColumnName().'", referencedColumnName="'.$foreign->getLocal()->getColumnName().'", onDelete="'.$foreign->getLocal()->getParameters()->get('deleteRule', 'NO ACTION').'", onUpdate="'.$foreign->getLocal()->getParameters()->get('updateRule', 'NO ACTION').'")'))
+                    ->write(' * '.$this->getTable()->getJoinAnnotation('OneToOne', $foreign->getOwningTable()->getModelName(), lcfirst($foreign->getReferencedTable()->getModelName())))
+                    ->write(' * '.$this->getTable()->getJoinColumnAnnotation($foreign->getForeign()->getColumnName(), $foreign->getLocal()->getColumnName(), $foreign->getLocal()->getParameters()->get('deleteRule')))
                     ->write(' */')
                     ->write('protected $'.lcfirst($foreign->getOwningTable()->getModelName()).';')
                     ->write('')
@@ -101,8 +115,8 @@ class Column extends BaseColumn
                 $refRelated = $this->local->getLocal()->getRelatedName($this->local);
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getTable()->addPrefix('ManyToOne(targetEntity="'.$this->local->getReferencedTable()->getModelName().'", inversedBy="'.lcfirst(Pluralizer::pluralize($this->local->getOwningTable()->getModelName())).$refRelated.'")'))
-                    ->write(' * '.$this->getTable()->addPrefix('JoinColumn(name="'.$this->local->getForeign()->getColumnName().'", referencedColumnName="'.$this->local->getLocal()->getColumnName().'", onDelete="'.$this->local->getParameters()->get('deleteRule', 'NO ACTION').'", onUpdate="'.$this->local->getParameters()->get('updateRule', 'NO ACTION').'")'))
+                    ->write(' * '.$this->getTable()->getJoinAnnotation('ManyToOne', $this->local->getReferencedTable()->getModelName(), null, lcfirst(Pluralizer::pluralize($this->local->getOwningTable()->getModelName())).$refRelated))
+                    ->write(' * '.$this->getTable()->getJoinColumnAnnotation($this->local->getForeign()->getColumnName(), $this->local->getLocal()->getColumnName(), $this->local->getLocal()->getParameters()->get('deleteRule')))
                     ->write(' */')
                     ->write('protected $'.lcfirst($this->local->getReferencedTable()->getModelName()).$related.';')
                     ->write('')
@@ -110,8 +124,8 @@ class Column extends BaseColumn
             } else { // is OneToOne
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getTable()->addPrefix('OneToOne(targetEntity="'.$this->local->getReferencedTable()->getModelName().'", inversedBy="'.lcfirst($this->local->getOwningTable()->getModelName()).'")'))
-                    ->write(' * '.$this->getTable()->addPrefix('JoinColumn(name="'.$this->local->getForeign()->getColumnName().'", referencedColumnName="'.$this->local->getLocal()->getColumnName().'", onDelete="'.$this->local->getParameters()->get('deleteRule', 'NO ACTION').'", onUpdate="'.$this->local->getParameters()->get('updateRule', 'NO ACTION').')'))
+                    ->write(' * '.$this->getTable()->getJoinAnnotation('OneToOne', $this->local->getReferencedTable()->getModelName(), null, lcfirst($this->local->getOwningTable()->getModelName())))
+                    ->write(' * '.$this->getTable()->getJoinColumnAnnotation($this->local->getForeign()->getColumnName(), $this->local->getLocal()->getColumnName(), $this->local->getLocal()->getParameters()->get('deleteRule')))
                     ->write(' */')
                     ->write('protected $'.lcfirst($this->local->getReferencedTable()->getModelName()).';')
                     ->write('')
@@ -309,14 +323,5 @@ class Column extends BaseColumn
         }
 
         return $this;
-    }
-
-    public function getQuotedColumnName()
-    {
-        $columnName = $this->getColumnName();
-        if ($this->getDocument()->getConfig()->get(Formatter::CFG_USE_QUOTES) == 1) {
-            $columnName = '`' . $columnName . '`';
-        }
-        return $columnName;
     }
 }
