@@ -36,12 +36,13 @@ class AnnotationObject extends BaseObject
     /**
      * Constructor.
      * 
-     * @param mixed $content
-     * @param bool $raw
+     * @param string $annotation  Annotation name
+     * @param mixed  $content     Object content
+     * @param array  $options     Object options
      */
-    public function __construct($annotation, $content = null, $raw = false)
+    public function __construct($annotation, $content = null, $options = array())
     {
-        parent::__construct($content, $raw);
+        parent::__construct($content, $options);
         $this->annotation = $annotation;
     }
 
@@ -73,11 +74,15 @@ class AnnotationObject extends BaseObject
                 $v = $this->asCode($v);
                 $tmp[] = $useKey ? sprintf('%s=%s', $k, $v) : $v;
             }
-            $value = implode(', ', $tmp);
+            $multiline = $this->getOption('multiline') && count($value) > 1;
+            $value = implode($multiline ? ",\n" : ', ', $tmp).($multiline ? "\n" : '');
             if ($useKey) {
                 $value = sprintf('(%s)', $value);
             } else {
                 $value = sprintf('{%s}', $value);
+            }
+            if ($multiline) {
+                $value = $this->wrapLines($value, 4);
             }
         }
 

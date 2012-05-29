@@ -28,7 +28,6 @@
 namespace MwbExporter\Formatter\Sencha\ExtJS3\Model;
 
 use MwbExporter\Model\Column as BaseColumn;
-use MwbExporter\Helper\JSObject;
 use MwbExporter\Helper\ZendURLFormatter;
 use MwbExporter\DatatypeConverter;
 
@@ -36,12 +35,12 @@ class Column extends BaseColumn
 {
     public function getAsField()
     {
-        return new JSObject(array('name' => $this->getColumnName(), 'type' => $this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this)));
+        return $this->getTable()->getJSObject(array('name' => $this->getColumnName(), 'type' => $this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this)));
     }
 
     public function getAsColumn()
     {
-        return new JSObject(array('header' => ucwords(str_replace('_', ' ', $this->getColumnName())), 'dataIndex' => $this->getColumnName()));
+        return $this->getTable()->getJSObject(array('header' => ucwords(str_replace('_', ' ', $this->getColumnName())), 'dataIndex' => $this->getColumnName()));
     }
 
     public function getAsFormItem()
@@ -91,17 +90,17 @@ class Column extends BaseColumn
             $result['mode'] = 'local';
             $result['forceSelection'] = true;
             $result['triggerAction'] = 'all';
-            $result['listeners'] = array('afterrender' => new JSObject('function() {this.store.load();}', true));
-            $result['store'] = new JSObject(sprintf('new Ext.data.JsonStore(%s);',
-                new JSObject(array(
+            $result['listeners'] = array('afterrender' => $this->getTable()->getJSObject('function() {this.store.load();}', false, true));
+            $result['store'] = $this->getTable()->getJSObject(sprintf('new Ext.data.JsonStore(%s);',
+                $this->getTable()->getJSObject(array(
                     'id'     => str_replace(' ', '', ucwords(str_replace('_',' ',$this->local->getReferencedTable()->getRawTableName()))).'Store',
                     'url'    => ZendURLFormatter::fromUnderscoreConnectionToDashConnection($this->local->getReferencedTable()->getRawTableName()),
                     'root'   => 'data',
                     'fields' => array('id', 'name'),
-                ))
-            ), true);
+                ), true)
+            ), false, true);
         }
 
-        return new JSObject($result);
+        return $this->getTable()->getJSObject($result, true);
     }
 }

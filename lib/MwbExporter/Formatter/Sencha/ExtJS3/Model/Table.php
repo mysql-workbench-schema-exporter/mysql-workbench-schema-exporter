@@ -31,6 +31,7 @@ use MwbExporter\Model\Table as BaseTable;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Formatter\Sencha\ExtJS3\Formatter;
 use MwbExporter\Helper\ZendURLFormatter;
+use MwbExporter\Helper\JSObject;
 
 class Table extends BaseTable
 {
@@ -85,5 +86,18 @@ class Table extends BaseTable
         ;
 
         return $this;
+    }
+
+    /**
+     * Get JSObject.
+     *
+     * @param mixed $content    Object content
+     * @param bool  $multiline  Multiline result
+     * @param bool  $raw        Is raw object
+     * @return \MwbExporter\Helper\JSObject
+     */
+    public function getJSObject($content, $multiline = false, $raw = false)
+    {
+        return new JSObject($content, array('multiline' => $multiline, 'raw' => $raw, 'indent' => $this->getDocument()->getConfig()->get(Formatter::CFG_INDENTATION))); 
     }
 }

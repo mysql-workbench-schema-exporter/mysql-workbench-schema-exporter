@@ -34,20 +34,28 @@ class BaseObject
     protected $content = null;
 
     /**
-     * @var bool
+     * @var array
      */
-    protected $raw = null;
+    protected $options = array();
 
     /**
      * Constructor.
      * 
      * @param mixed $content
-     * @param bool $raw
+     * @param array $options
      */
-    public function __construct($content = null, $raw = false)
+    public function __construct($content = null, $options = array())
     {
         $this->content = $content;
-        $this->raw = $raw;
+        $this->setOptions(array_merge(array('raw' => false), (array) $options));
+        $this->init();
+    }
+
+    /**
+     * Initialization.
+     */
+    protected function init()
+    {
     }
 
     /**
@@ -68,6 +76,47 @@ class BaseObject
     }
 
     /**
+     * Set options from array.
+     *
+     * @param array $options  The options array
+     * @return \MwbExporter\Helper\BaseObject
+     */
+    public function setOptions($options)
+    {
+        foreach ($options as $key => $value) {
+            $this->setOption($key, $value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get option value.
+     *
+     * @param string $key      Option name
+     * @param mixed  $default  Default value
+     * @return mixed
+     */
+    public function getOption($key, $default = null)
+    {
+        return isset($this->options[$key]) ? $this->options[$key] : $default;
+    }
+
+    /**
+     * Set option value.
+     *
+     * @param string $key    Option name
+     * @param mixed  $value  Option value
+     * @return \MwbExporter\Helper\BaseObject
+     */
+    public function setOption($key, $value)
+    {
+        $this->options[$key] = $value;
+
+        return $this;
+    }
+
+    /**
      * Decorate generated code.
      *
      * @param string $code  The generated code
@@ -76,6 +125,34 @@ class BaseObject
     protected function decorateCode($code)
     {
         return $code; 
+    }
+
+    /**
+     * Wrap text.
+     *
+     * @param string $lines      The text
+     * @param int    $indent     Indent line
+     * @return string
+     */
+    protected function wrapLines($lines, $indent = 0)
+    {
+        if ($wrapper = $this->getOption('wrapper')) {
+            $lines = explode("\n", $lines);
+            for ($i = 0; $i < count($lines); $i++) {
+                // first line ignored
+                if ($i === 0) {
+                    continue;
+                }
+                $line = $lines[$i];
+                if ($indent && $i < count($lines) - 1) {
+                    $line = str_repeat(' ', $indent).$line;
+                }
+                $lines[$i] = sprintf($wrapper, $line);
+            }
+            $lines = implode("\n", $lines);
+        }
+
+        return $lines;
     }
 
     /**
@@ -91,6 +168,6 @@ class BaseObject
 
     public function __toString()
     {
-        return $content = $this->raw ? $this->content : $this->decorateCode($this->asCode($this->content));
+        return $content = $this->getOption('raw') ? $this->content : $this->decorateCode($this->asCode($this->content));
     }
 }

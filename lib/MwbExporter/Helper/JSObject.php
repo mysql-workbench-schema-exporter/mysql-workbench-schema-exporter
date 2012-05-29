@@ -28,6 +28,13 @@ namespace MwbExporter\Helper;
 
 class JSObject extends BaseObject
 {
+    protected function init()
+    {
+        if ($this->getOption('multiline') && !$this->getOption('wrapper')) {
+            $this->setOption('wrapper', '%s');
+        }
+    }
+
     /**
      * (non-PHPdoc)
      * @see MwbExporter\Helper.BaseObject::asCode()
@@ -47,11 +54,15 @@ class JSObject extends BaseObject
                 $v = $this->asCode($v);
                 $tmp[] = $useKey ? sprintf('%s: %s', $k, $v) : $v;
             }
-            $value = implode(', ', $tmp);
+            $multiline = $this->getOption('multiline') && count($value) > 1;
+            $value = ($multiline ? "\n" : '').implode($multiline ? ",\n" : ', ', $tmp).($multiline ? "\n" : '');
             if ($useKey) {
                 $value = sprintf('{%s}', $value);
             } else {
                 $value = sprintf('[%s]', $value);
+            }
+            if ($multiline) {
+                $value = $this->wrapLines($value, $this->getOption('indent', 4));
             }
         }
 
