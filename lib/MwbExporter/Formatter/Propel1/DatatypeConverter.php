@@ -26,10 +26,10 @@
 
 namespace MwbExporter\Formatter\Propel1;
 
-use MwbExporter\DatatypeConverter as Base;
+use MwbExporter\DatatypeConverter as BaseDatatypeConverter;
 use MwbExporter\Model\Column;
 
-class DatatypeConverter extends Base
+class DatatypeConverter extends BaseDatatypeConverter
 {
     public function setup()
     {
