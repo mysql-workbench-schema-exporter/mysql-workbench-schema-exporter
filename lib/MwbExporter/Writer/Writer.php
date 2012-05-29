@@ -190,10 +190,13 @@ abstract class Writer implements WriterInterface
         } else {
             $line = $args[0];
         }
-        if ($line) {
-            $line = $this->getIndentation().$line;
+        $lines = explode("\n", $line);
+        foreach ($lines as $line) {
+            if ($line) {
+                $line = $this->getIndentation().$line;
+            }
+            $this->buffer[] = $line;
         }
-        $this->buffer[] = $line;
 
         return $this;
     }

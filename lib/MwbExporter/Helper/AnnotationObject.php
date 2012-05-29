@@ -26,13 +26,29 @@
 
 namespace MwbExporter\Helper;
 
-class JSObject extends BaseObject
+class AnnotationObject extends BaseObject
 {
-    protected function init()
+    /**
+     * @var string
+     */
+    protected $annotation = null;
+
+    /**
+     * Constructor.
+     * 
+     * @param string $annotation  Annotation name
+     * @param mixed  $content     Object content
+     * @param array  $options     Object options
+     */
+    public function __construct($annotation, $content = null, $options = array())
     {
-        if ($this->getOption('multiline') && !$this->getOption('wrapper')) {
-            $this->setOption('wrapper', '%s');
-        }
+        parent::__construct($content, $options);
+        $this->annotation = $annotation;
+    }
+
+    protected function decorateCode($code)
+    {
+        return $this->annotation.$code;
     }
 
     /**
@@ -41,28 +57,32 @@ class JSObject extends BaseObject
      */
     public function asCode($value)
     {
-        if ($value instanceof JSObject) {
+        if ($value instanceof AnnotationObject) {
             $value = (string) $value;
         } elseif (is_bool($value)) {
             $value = $value ? 'true' : 'false';
         } elseif (is_string($value)) {
-            $value = '\''.$value.'\'';
+            $value = '"'.$value.'"';
         } elseif (is_array($value)) {
             $tmp = array();
             $useKey = !$this->isKeysNumeric($value);
             foreach ($value as $k => $v) {
+                // skip nulll value
+                if (null === $v) {
+                    continue;
+                }
                 $v = $this->asCode($v);
-                $tmp[] = $useKey ? sprintf('%s: %s', $k, $v) : $v;
+                $tmp[] = $useKey ? sprintf('%s=%s', $k, $v) : $v;
             }
             $multiline = $this->getOption('multiline') && count($value) > 1;
-            $value = ($multiline ? "\n" : '').implode($multiline ? ",\n" : ', ', $tmp).($multiline ? "\n" : '');
+            $value = implode($multiline ? ",\n" : ', ', $tmp).($multiline ? "\n" : '');
             if ($useKey) {
-                $value = sprintf('{%s}', $value);
+                $value = sprintf('(%s)', $value);
             } else {
-                $value = sprintf('[%s]', $value);
+                $value = sprintf('{%s}', $value);
             }
             if ($multiline) {
-                $value = $this->wrapLines($value, $this->getOption('indent', 4));
+                $value = $this->wrapLines($value, 4);
             }
         }
 

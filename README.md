@@ -94,7 +94,8 @@ Sample export paramaters (JSON) for doctrine2-annotation:
             "useAnnotationPrefix": "ORM\\",
             "useAutomaticRepository": true,
             "indentation": 4,
-            "filename": "%entity%.%extension%"
+            "filename": "%entity%.%extension%",
+            "quoteIdentifier": false
         }
     }
 
@@ -188,6 +189,9 @@ General options applied to all formatter.
 
     Generate method `__sleep()` to include only real columns when entity is serialized. Default is `true`.
 
+  * `quoteIdentifier`
+
+    If this option is enabled, all table names and column names will be quoted using backtick (`` ` ``). Usefull when the table name or column name contains reserved word. Default is `false`.
 
 ### Option list for Propel Xml
 

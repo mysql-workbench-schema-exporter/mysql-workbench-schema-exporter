@@ -39,6 +39,7 @@ class Formatter extends BaseFormatter
     const CFG_AUTOMATIC_REPOSITORY           = 'useAutomaticRepository';
     const CFG_SKIP_GETTER_SETTER             = 'skipGetterAndSetter';
     const CFG_GENERATE_ENTITY_SERIALIZATION  = 'generateEntitySerialization';
+    const CFG_QUOTE_IDENTIFIER               = 'quoteIdentifier';
 
     protected function init()
     {
@@ -53,6 +54,7 @@ class Formatter extends BaseFormatter
             static::CFG_AUTOMATIC_REPOSITORY          => true,
             static::CFG_SKIP_GETTER_SETTER            => false,
             static::CFG_GENERATE_ENTITY_SERIALIZATION => true,
+            static::CFG_QUOTE_IDENTIFIER              => false,
         ));
     }
 

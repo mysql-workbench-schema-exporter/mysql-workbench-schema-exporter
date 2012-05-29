@@ -28,9 +28,9 @@
 namespace MwbExporter\Formatter\Doctrine2\Yaml;
 
 use MwbExporter\Model\Column;
-use MwbExporter\Formatter\Doctrine2\DatatypeConverter as Base;
+use MwbExporter\Formatter\Doctrine2\DatatypeConverter as BaseDatatypeConverter;
 
-class DatatypeConverter extends Base
+class DatatypeConverter extends BaseDatatypeConverter
 {
     public function getType(Column $column)
     {

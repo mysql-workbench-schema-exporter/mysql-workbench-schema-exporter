@@ -30,13 +30,18 @@ use MwbExporter\Model\Index as BaseIndex;
 
 class Index extends BaseIndex
 {
-    public function __toString()
+    protected function getColumnNames()
     {
         $columns = array();
         foreach ($this->columns as $refColumn) {
-            $columns[] = '"'.$refColumn->getColumnName().'"';
+            $columns[] = $refColumn->getColumnName();
         }
 
-        return sprintf('name="%s", columns={%s}', $this->parameters->get('name'), implode(', ', $columns));
+        return $columns;
+    }
+
+    public function asAnnotation()
+    {
+        return array('name' => $this->parameters->get('name'), 'columns' => $this->getColumnNames());
     }
 }
