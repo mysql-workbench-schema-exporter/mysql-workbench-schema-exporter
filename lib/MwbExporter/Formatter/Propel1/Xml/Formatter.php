@@ -47,6 +47,15 @@ class Formatter extends BaseFormatter
 
     /**
      * (non-PHPdoc)
+     * @see MwbExporter.Formatter::createSchema()
+     */
+    public function createSchema(Base $parent, $node)
+    {
+        return new Model\Schema($parent, $node);
+    }
+
+    /**
+     * (non-PHPdoc)
      * @see MwbExporter.Formatter::createTable()
      */
     public function createTable(Base $parent, $node)

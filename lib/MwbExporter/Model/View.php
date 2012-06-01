@@ -43,22 +43,35 @@ class View extends Base
         // iterate on column configuration
         foreach ($this->node->value as $key => $node) {
             $attributes = $node->attributes();
-            $this->parameters->get((string) $attributes['key'], (string) $node[0]);
+            $this->parameters->set((string) $attributes['key'], (string) $node[0]);
         }
     }
 
-    public function getRawTableName()
+    public function getRawViewName()
     {
         return $this->parameters->get('name');
     }
 
     public function getModelName()
     {
-        return ucfirst(preg_replace('@\_(\w)@e', 'ucfirst("$1")', $this->getRawTableName()));
+        return ucfirst(preg_replace('@\_(\w)@e', 'ucfirst("$1")', $this->getRawViewName()));
     }
 
     public function getModelNameInPlural()
     {
         return Pluralizer::pluralize($this->getModelName());
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function isExternal()
+    {
+        $external = trim($this->parseComment('external', $this->parameters->get('comment')));
+        if ($external === 'true') {
+            return true;
+        }
+        return false;
     }
 }

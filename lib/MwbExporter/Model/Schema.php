@@ -92,6 +92,12 @@ class Schema extends Base
      */
     public function write(WriterInterface $writer)
     {
+        $this->writeSchema($writer);
+        return $this;
+    }
+
+    public function writeSchema(WriterInterface $writer)
+    {
         $this->getTables()->write($writer);
         $this->getViews()->write($writer);
 

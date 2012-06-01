@@ -46,20 +46,15 @@ class View extends BaseView
             $this->writeView($writer);
             $writer->outdent();
         }
-
         return $this;
     }
 
     public function writeView(WriterInterface $writer)
     {
         $namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_NAMESPACE);
-
-        $writer->write('<table name="%s" phpName="%s" namespace="%s" skipSql="true" readOnly="true">', $this->getRawTableName(), $this->getModelName(), $namespace);
-        $writer->indent();
-        $this->getColumns()->write($writer);
-        $writer->outdent();
+        $writer->write('<table name="%s" phpName="%s" namespace="%s" skipSql="true" readOnly="true">', $this->getRawViewName(), $this->getModelName(), $namespace);
+        //views do not consist of columns just SQL queries
         $writer->write('</table>');
-
         return $this;
     }
 }
