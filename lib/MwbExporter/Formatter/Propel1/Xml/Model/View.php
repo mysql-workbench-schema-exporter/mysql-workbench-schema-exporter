@@ -54,7 +54,7 @@ class View extends BaseView
     {
         $namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_NAMESPACE);
 
-        $writer->write('<table name="%s" phpName="%s" namespace="%s">', $this->getRawTableName(), $this->getModelName(), $namespace);
+        $writer->write('<table name="%s" phpName="%s" namespace="%s" skipSql="true" readOnly="true">', $this->getRawTableName(), $this->getModelName(), $namespace);
         $writer->indent();
         $this->getColumns()->write($writer);
         $writer->outdent();

@@ -90,6 +90,15 @@ class Formatter extends BaseFormatter
         return new Model\Tables($parent, $node);
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see MwbExporter.FormatterInterface::createView()
+     */
+    public function createView(Base $parent, $node)
+    {
+        return new Model\View($parent, $node);
+    }
+
     public function getTitle()
     {
         return 'Propel1 Xml Classes';
