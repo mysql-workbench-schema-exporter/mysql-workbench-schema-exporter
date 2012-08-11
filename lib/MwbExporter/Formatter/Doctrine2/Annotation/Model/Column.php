@@ -107,6 +107,9 @@ class Column extends BaseColumn
             $annotationOptions = array(
                 'targetEntity' => $targetEntity,
                 'mappedBy' => lcfirst($mappedBy),
+                'cascade' => $this->getCascadeOption($foreign->parseComment('cascade')),
+                'fetch' => $this->getFetchOption($foreign->parseComment('fetch')),
+                'orphanRemoval' => $this->getBooleanOption($foreign->parseComment('orphanRemoval')),
             );
 
             //check for OneToOne or OneToMany relationship
@@ -140,11 +143,10 @@ class Column extends BaseColumn
                 'targetEntity' => $targetEntity,
                 'mappedBy' => null,
                 'inversedBy' => $inversedBy,
+                'cascade' => $this->getCascadeOption($this->local->parseComment('cascade')),
+                'fetch' => $this->getFetchOption($this->local->parseComment('fetch')),
+                'orphanRemoval' => $this->getBooleanOption($this->local->parseComment('orphanRemoval')),
             );
-
-            if ($this->local->getParameters()->get('deleteRule') == 'CASCADE') {
-                $annotationOptions['cascade'] = array('remove');
-            }
 
             //check for OneToOne or ManyToOne relationship
             if ($this->local->isManyToOne()) { // is ManyToOne
@@ -381,5 +383,76 @@ class Column extends BaseColumn
         }
 
         return $this;
+    }
+
+    /**
+     * get the cascade option as array. Only returns values allowed by Doctrine.
+     *
+     * @param $cascadeValue string cascade options separated by comma
+     * @return array array with the values or null, if no cascade values are available
+     */
+    private function getCascadeOption($cascadeValue)
+    {
+        if (!$cascadeValue) {
+            return null;
+        }
+
+        $cascadeValue = array_map('strtolower', array_map('trim', explode(',', $cascadeValue)));
+
+        // only allow certain values
+        $allowed = array('persist', 'remove', 'merge', 'detach', 'all');
+
+        $cascadeValue = array_intersect($cascadeValue, $allowed);
+
+        if ($cascadeValue) {
+            return $cascadeValue;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * get the fetch option for a relation
+     *
+     * @param $fetchValue string fetch option as given in comment for foreign key
+     * @return string valid fetch value or null
+     */
+    private function getFetchOption($fetchValue)
+    {
+        if (!$fetchValue) {
+            return null;
+        }
+
+        $fetchValue = strtoupper($fetchValue);
+
+        if ($fetchValue != 'EAGER' && $fetchValue != 'LAZY') {
+            // invalid fetch value
+            return null;
+        } else {
+            return $fetchValue;
+        }
+    }
+
+    /**
+     * get the a boolean option for a relation
+     *
+     * @param $booleanValue string boolean option (true or false)
+     * @return boolean or null, if booleanValue was invalid
+     */
+    private function getBooleanOption($booleanValue)
+    {
+        if (!$booleanValue) {
+            return null;
+        }
+
+        $booleanValue = strtolower($booleanValue);
+
+        if ($booleanValue == 'true') {
+            return true;
+        } else if ($booleanValue == 'false') {
+            return false;
+        } else {
+            return null;
+        }
     }
 }

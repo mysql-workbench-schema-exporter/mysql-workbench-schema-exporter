@@ -330,12 +330,20 @@ class Table extends BaseTable
                 $isOwningSide = $relation['reference']->getLocal()->getId() < $mappedRelation->getLocal()->getId();
             }
 
+            $annotationOptions = array(
+                'targetEntity' => $relation['refTable']->getModelName(),
+                'mappedBy' => null,
+                'inversedBy' => lcfirst(Pluralizer::pluralize($this->getModelName())),
+                'cascade' => $this->getCascadeOption($relation['reference']->parseComment('cascade')),
+                'fetch' => $this->getFetchOption($relation['reference']->parseComment('fetch')),
+            );
+
             // if this is the owning side, also output the JoinTable Annotation
             // otherwise use "mappedBy" feature
             if ($isOwningSide) {
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getJoinAnnotation('ManyToMany', $relation['refTable']->getModelName(), null, lcfirst(Pluralizer::pluralize($this->getModelName()))))
+                    ->write(' * '.$this->getAnnotation('ManyToMany', $annotationOptions))
                     ->write(' * '.$this->getAnnotation('JoinTable',
                         array(
                             'name'               => $relation['reference']->getOwningTable()->getRawTableName(),
@@ -345,9 +353,11 @@ class Table extends BaseTable
                     ->write(' */')
                 ;
             } else {
+                $annotationOptions['mappedBy'] = $annotationOptions['inversedBy'];
+                $annotationOptions['inversedBy'] = null;
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getJoinAnnotation('ManyToMany', $relation['refTable']->getModelName(), lcfirst(Pluralizer::pluralize($this->getModelName()))))
+                    ->write(' * '.$this->getJoinAnnotation('ManyToMany', $annotationOptions))
                     ->write(' */')
                 ;
             }
@@ -395,5 +405,53 @@ class Table extends BaseTable
         }
 
         return $this;
+    }
+
+    /**
+     * get the cascade option as array. Only returns values allowed by Doctrine.
+     *
+     * @param $cascadeValue string cascade options separated by comma
+     * @return array array with the values or null, if no cascade values are available
+     */
+    private function getCascadeOption($cascadeValue)
+    {
+        if (!$cascadeValue) {
+            return null;
+        }
+
+        $cascadeValue = array_map('strtolower', array_map('trim', explode(',', $cascadeValue)));
+
+        // only allow certain values
+        $allowed = array('persist', 'remove', 'merge', 'detach', 'all');
+
+        $cascadeValue = array_intersect($cascadeValue, $allowed);
+
+        if ($cascadeValue) {
+            return $cascadeValue;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * get the fetch option for a relation
+     *
+     * @param $fetchValue string fetch option as given in comment for foreign key
+     * @return string valid fetch value or null
+     */
+    private function getFetchOption($fetchValue)
+    {
+        if (!$fetchValue) {
+            return null;
+        }
+
+        $fetchValue = strtoupper($fetchValue);
+
+        if (!in_array($fetchValue, array('EAGER', 'LAZY', 'EXTRA_LAZY'))) {
+            // invalid fetch value
+            return null;
+        } else {
+            return $fetchValue;
+        }
     }
 }

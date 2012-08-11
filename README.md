@@ -212,6 +212,18 @@ General options applied to all formatter.
 
     In a bi-directional many-to-many mapping table the owning side of the relation is randomly selected. If you add this hint to one foreign key of the m2m-table, you can define the owning side for Doctrine.
 
+  * `{d:cascade}persist, merge, remove, detach, all{/d:cascade}`
+
+    You can specify Doctrine cascade options as a comment on a foreign key. The will be generated into the Annotation. ([Reference](http://doctrine-orm.readthedocs.org/en/latest/reference/working-with-associations.html#transitive-persistence-cascade-operations))
+
+  * `{d:fetch}EAGER{/d:fetch}`
+
+    You can specify the fetch type for relations in the comment of a foreign key. (EAGER or LAZY, doctrine default is LAZY)
+
+  * `{d:orphanRemoval}true{/d:orphanRemoval}`
+
+    Another option you can set in the comments of foreign key. ([Reference](http://doctrine-orm.readthedocs.org/en/latest/reference/working-with-associations.html#orphan-removal))
+
 ### Option list for Propel Xml
 
   * `namespace`
