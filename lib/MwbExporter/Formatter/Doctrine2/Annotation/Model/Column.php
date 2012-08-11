@@ -96,49 +96,72 @@ class Column extends BaseColumn
                 // do not create entities for many2many tables
                 continue;
             }
+            $targetEntity = $foreign->getOwningTable()->getModelName();
+            $mappedBy = $foreign->getReferencedTable()->getModelName();
+
+            $annotationOptions = array(
+                'targetEntity' => $targetEntity,
+                'mappedBy' => lcfirst($mappedBy),
+            );
+
             //check for OneToOne or OneToMany relationship
             if ($foreign->isManyToOne()) { // is OneToMany
                 $related = $this->getRelatedName($foreign);
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getTable()->getJoinAnnotation('OneToMany', $foreign->getOwningTable()->getModelName(), lcfirst($foreign->getReferencedTable()->getModelName())))
+                    ->write(' * '.$this->getTable()->getAnnotation('OneToMany', $annotationOptions))
                     ->write(' * '.$this->getTable()->getJoinColumnAnnotation($foreign->getForeign()->getColumnName(), $foreign->getLocal()->getColumnName(), $foreign->getLocal()->getParameters()->get('deleteRule')))
                     ->write(' */')
-                    ->write('protected $'.lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())).$related.';')
+                    ->write('protected $'.lcfirst(Pluralizer::pluralize($targetEntity)).$related.';')
                     ->write('')
                 ;
             } else { // is OneToOne
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getTable()->getJoinAnnotation('OneToOne', $foreign->getOwningTable()->getModelName(), lcfirst($foreign->getReferencedTable()->getModelName())))
+                    ->write(' * '.$this->getTable()->getJoinAnnotation('OneToOne', $annotationOptions))
                     ->write(' * '.$this->getTable()->getJoinColumnAnnotation($foreign->getForeign()->getColumnName(), $foreign->getLocal()->getColumnName(), $foreign->getLocal()->getParameters()->get('deleteRule')))
                     ->write(' */')
-                    ->write('protected $'.lcfirst($foreign->getOwningTable()->getModelName()).';')
+                    ->write('protected $'.lcfirst($targetEntity).';')
                     ->write('')
                 ;
             }
         }
         // many to references
         if (null !== $this->local) {
+            $targetEntity = $this->local->getReferencedTable()->getModelName();
+            $inversedBy = $this->local->getOwningTable()->getModelName();
+
+            $annotationOptions = array(
+                'targetEntity' => $targetEntity,
+                'mappedBy' => null,
+                'inversedBy' => $inversedBy,
+            );
+
+            if ($this->local->getParameters()->get('deleteRule') == 'CASCADE') {
+                $annotationOptions['cascade'] = array('remove');
+            }
+
             //check for OneToOne or ManyToOne relationship
             if ($this->local->isManyToOne()) { // is ManyToOne
                 $related = $this->getManyToManyRelatedName($this->local->getReferencedTable()->getRawTableName(), $this->local->getForeign()->getColumnName());
                 $refRelated = $this->local->getLocal()->getRelatedName($this->local);
+                $annotationOptions['inversedBy'] = lcfirst(Pluralizer::pluralize($annotationOptions['inversedBy'])) . $refRelated;
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getTable()->getJoinAnnotation('ManyToOne', $this->local->getReferencedTable()->getModelName(), null, lcfirst(Pluralizer::pluralize($this->local->getOwningTable()->getModelName())).$refRelated))
-                    ->write(' * '.$this->getTable()->getJoinColumnAnnotation($this->local->getForeign()->getColumnName(), $this->local->getLocal()->getColumnName(), $this->local->getLocal()->getParameters()->get('deleteRule')))
+                    ->write(' * '.$this->getTable()->getAnnotation('ManyToOne', $annotationOptions))
+                    ->write(' * '.$this->getTable()->getJoinColumnAnnotation($this->local->getForeign()->getColumnName(), $this->local->getLocal()->getColumnName(), $this->local->getParameters()->get('deleteRule')))
                     ->write(' */')
-                    ->write('protected $'.lcfirst($this->local->getReferencedTable()->getModelName()).$related.';')
+                    ->write('protected $'.lcfirst($targetEntity).$related.';')
                     ->write('')
                 ;
             } else { // is OneToOne
+                $annotationOptions['inversedBy'] = lcfirst($annotationOptions['inversedBy']);
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getTable()->getJoinAnnotation('OneToOne', $this->local->getReferencedTable()->getModelName(), null, lcfirst($this->local->getOwningTable()->getModelName())))
-                    ->write(' * '.$this->getTable()->getJoinColumnAnnotation($this->local->getForeign()->getColumnName(), $this->local->getLocal()->getColumnName(), $this->local->getLocal()->getParameters()->get('deleteRule')))
+                    ->write(' * '.$this->getTable()->getAnnotation('OneToOne', $annotationOptions))
+                    ->write(' * '.$this->getTable()->getJoinColumnAnnotation($this->local->getForeign()->getColumnName(), $this->local->getLocal()->getColumnName(), $this->local->getParameters()->get('deleteRule')))
                     ->write(' */')
-                    ->write('protected $'.lcfirst($this->local->getReferencedTable()->getModelName()).';')
+                    ->write('protected $'.lcfirst($targetEntity).';')
                     ->write('')
                 ;
             }
