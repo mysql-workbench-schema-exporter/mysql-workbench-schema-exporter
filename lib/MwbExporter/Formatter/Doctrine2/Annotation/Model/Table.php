@@ -318,12 +318,24 @@ class Table extends BaseTable
         // @TODO D2A ManyToMany relation joinColumns and inverseColumns
         // referencing wrong column names
         foreach ($this->manyToManyRelations as $relation) {
-            // if relation is not mapped yet define relation
+            $mappedRelation = $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName());
+
+            // user can hint which side is the owning side (set d:owningSide on the foreign key)
+            if ($relation['reference']->parseComment('owningSide') === 'true') {
+                $isOwningSide = true;
+            } else if ($mappedRelation->parseComment('owningSide') === 'true') {
+                $isOwningSide = false;
+            } else {
+                // if no owning side is defined, use one side randomly as owning side (the one where the column id is lower)
+                $isOwningSide = $relation['reference']->getLocal()->getId() < $mappedRelation->getLocal()->getId();
+            }
+
+            // if this is the owning side, also output the JoinTable Annotation
             // otherwise use "mappedBy" feature
-            if ($relation['reference']->getLocal()->getColumnName() != $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->getLocal()->getColumnName()) {
+            if ($isOwningSide) {
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getJoinAnnotation('ManyToMany', $relation['refTable']->getModelName()))
+                    ->write(' * '.$this->getJoinAnnotation('ManyToMany', $relation['refTable']->getModelName(), null, lcfirst(Pluralizer::pluralize($this->getModelName()))))
                     ->write(' * '.$this->getAnnotation('JoinTable',
                         array(
                             'name'               => $relation['reference']->getOwningTable()->getRawTableName(),

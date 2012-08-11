@@ -79,7 +79,7 @@ class Column extends BaseColumn
                 continue;
             }
             
-            if ($foreign->isManyToOne()) { // is ManyToOne
+            if ($foreign->isManyToOne() && $foreign->parseComment('unidirectional') !== 'true') { // is ManyToOne
                 $related = $this->getRelatedName($foreign);
                 $writer->write('$this->%s = new %s();', lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())).$related, $this->getTable()->getCollectionClass(false));
             }
@@ -96,6 +96,11 @@ class Column extends BaseColumn
                 // do not create entities for many2many tables
                 continue;
             }
+            if ($foreign->parseComment('unidirectional') === 'true') {
+                // do not output mapping in foreign table when the unidirectional option is set
+                continue;
+            }
+
             $targetEntity = $foreign->getOwningTable()->getModelName();
             $mappedBy = $foreign->getReferencedTable()->getModelName();
 
@@ -145,7 +150,11 @@ class Column extends BaseColumn
             if ($this->local->isManyToOne()) { // is ManyToOne
                 $related = $this->getManyToManyRelatedName($this->local->getReferencedTable()->getRawTableName(), $this->local->getForeign()->getColumnName());
                 $refRelated = $this->local->getLocal()->getRelatedName($this->local);
-                $annotationOptions['inversedBy'] = lcfirst(Pluralizer::pluralize($annotationOptions['inversedBy'])) . $refRelated;
+                if ($this->local->parseComment('unidirectional') === 'true') {
+                    $annotationOptions['inversedBy'] = null;
+                } else {
+                    $annotationOptions['inversedBy'] = lcfirst(Pluralizer::pluralize($annotationOptions['inversedBy'])) . $refRelated;
+                }
                 $writer
                     ->write('/**')
                     ->write(' * '.$this->getTable()->getAnnotation('ManyToOne', $annotationOptions))
@@ -155,7 +164,11 @@ class Column extends BaseColumn
                     ->write('')
                 ;
             } else { // is OneToOne
-                $annotationOptions['inversedBy'] = lcfirst($annotationOptions['inversedBy']);
+                if ($this->local->parseComment('unidirectional') === 'true') {
+                    $annotationOptions['inversedBy'] = null;
+                } else {
+                    $annotationOptions['inversedBy'] = lcfirst($annotationOptions['inversedBy']);
+                }
                 $writer
                     ->write('/**')
                     ->write(' * '.$this->getTable()->getAnnotation('OneToOne', $annotationOptions))
@@ -217,6 +230,10 @@ class Column extends BaseColumn
         foreach ($this->foreigns as $foreign) {
             if ($foreign->getForeign()->getTable()->isManyToMany()) {
                 // do not create entities for many2many tables
+                continue;
+            }
+            if ($foreign->parseComment('unidirectional') === 'true') {
+                // do not output mapping in foreign table when the unidirectional option is set
                 continue;
             }
 
@@ -291,6 +308,8 @@ class Column extends BaseColumn
         }
         // many to one references
         if (null !== $this->local) {
+            $unidirectional = ($this->local->parseComment('unidirectional') === 'true');
+
             if ($this->local->isManyToOne()) { // is ManyToOne
                 $related = $this->getManyToManyRelatedName($this->local->getReferencedTable()->getRawTableName(), $this->local->getForeign()->getColumnName());
                 $related_text = $this->getManyToManyRelatedName($this->local->getReferencedTable()->getRawTableName(), $this->local->getForeign()->getColumnName(), false);
@@ -337,7 +356,7 @@ class Column extends BaseColumn
                     ->write('public function set'.$this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()).'('.$this->local->getReferencedTable()->getModelName().' $'.lcfirst($this->local->getReferencedTable()->getModelName()).' = null)')
                     ->write('{')
                     ->indent()
-                        ->write('$'.lcfirst($this->local->getReferencedTable()->getModelName()).'->set'.$this->columnNameBeautifier($this->local->getOwningTable()->getModelName()).'($this);')
+                        ->writeIf(!$unidirectional, '$'.lcfirst($this->local->getReferencedTable()->getModelName()).'->set'.$this->columnNameBeautifier($this->local->getOwningTable()->getModelName()).'($this);')
                         ->write('$this->'.lcfirst($this->local->getReferencedTable()->getModelName()).' = $'.lcfirst($this->local->getReferencedTable()->getModelName()).';')
                         ->write('')
                         ->write('return $this;')
