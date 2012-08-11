@@ -221,6 +221,11 @@ class Table extends Base
     {
         if (null === $this->isM2M) {
             switch (true) {
+                // user hinted that this is not a m2m table
+                case ("false" === $this->parseComment('m2m')):
+                    $this->isM2M = false;
+                    break;
+
                 // contains 2 foreign keys
                 case (2 !== count($fkeys = $this->getForeignKeys())):
                     $this->isM2M = false;
