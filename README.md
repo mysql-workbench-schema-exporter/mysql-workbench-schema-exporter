@@ -110,6 +110,10 @@ General options applied to all formatter.
 
     The indentation size for generated code.
 
+  * `useTabs`
+
+    Use tabs for indentation instead of spaces. Setting this option will ignore the `indentation`-option
+
   * `filename`
 
     The output filename format, use the following tag `%schema%`, `%table%`, `%entity%`, and `%extension%` to allow

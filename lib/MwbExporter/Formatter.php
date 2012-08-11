@@ -50,6 +50,7 @@ abstract class Formatter implements FormatterInterface
         $this->registry = new Registry();
         $this->addConfigurations(array(
             static::CFG_INDENTATION            => 2,
+            static::CFG_USE_TABS               => false,
             static::CFG_FILENAME               => '%entity%.%extension%',
             static::CFG_SKIP_PLURAL            => false,
             static::CFG_BACKUP_FILE            => true,
