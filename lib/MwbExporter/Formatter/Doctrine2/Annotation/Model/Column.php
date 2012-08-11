@@ -54,8 +54,10 @@ class Column extends BaseColumn
 
     public function write(WriterInterface $writer)
     {
+        $comment = $this->getComment();
         $writer
             ->write('/**')
+            ->writeIf($comment, $comment)
             ->writeIf($this->isPrimary,
                     ' * '.$this->getTable()->getAnnotation('Id'))
             ->write(' * '.$this->getTable()->getAnnotation('Column', $this->asAnnotation()))

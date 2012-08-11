@@ -221,6 +221,8 @@ class Table extends BaseTable
         }
         $skipGetterAndSetter = $this->getDocument()->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
         $serializableEntity  = $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
+
+        $comment = $this->getComment();
         $writer
             ->write('<?php')
             ->write('')
@@ -232,6 +234,7 @@ class Table extends BaseTable
             ->write('/**')
             ->write(' * '.$this->getNamespace(null, false))
             ->write(' *')
+            ->writeIf($comment, $comment)
             ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
             ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation(), 'uniqueConstraints' => $this->getUniqueConstraintsAnnotation())))
             ->write(' */')

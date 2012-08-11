@@ -167,6 +167,35 @@ abstract class Base
     }
 
     /**
+     * get the comment of this object (without the hints for the exporter)
+     *
+     * @param boolean $asPhpComment add * infront of the lines and indent according to current indentation level
+     * @return string
+     */
+    protected function getComment($asPhpComment = true)
+    {
+        $comment = $this->parameters->get('comment');
+
+        // strip hints for mysql-exporter in comments (starting with {d:keyword}
+        // or {doctrine:keyword} and ending with {/d:keyword}
+        $comment = trim(preg_replace('/\{(d|doctrine):([^\}]+)\}(.+?)\{\/\1:\2\}/si', '', $comment));
+
+        if (!$comment) {
+            return '';
+        }
+
+        if ($asPhpComment) {
+            // start the comment with a "*"" and add a " * " after each newline
+            $comment = str_replace("\n", "\n * ", $comment);
+
+            // comments are wrapped at 80 chars and will end with a newline
+            $comment = ' * ' . wordwrap($comment, 77, "\n * ") . "\n *";
+        }
+
+        return $comment;
+    }
+
+    /**
      * Returns XML of the current MySQL Workbench object
      * 
      * @return string
