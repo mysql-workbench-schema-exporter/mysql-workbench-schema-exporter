@@ -104,7 +104,7 @@ class Table extends BaseTable
      */
     public function write(WriterInterface $writer)
     {
-        if (!$this->isExternal()) {
+        if (!$this->isExternal() && !$this->isManyToMany()) {
             $writer->open($this->getTableFileName());
             $this->writeTable($writer);
             $writer->close();

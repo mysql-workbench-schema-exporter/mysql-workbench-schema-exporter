@@ -74,6 +74,11 @@ class Column extends BaseColumn
     public function writeArrayCollection(WriterInterface $writer)
     {
         foreach ($this->foreigns as $foreign) {
+            if ($foreign->getForeign()->getTable()->isManyToMany()) {
+                // do not create entities for many2many tables
+                continue;
+            }
+            
             if ($foreign->isManyToOne()) { // is ManyToOne
                 $related = $this->getRelatedName($foreign);
                 $writer->write('$this->%s = new %s();', lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())).$related, $this->getTable()->getCollectionClass(false));
@@ -87,6 +92,10 @@ class Column extends BaseColumn
     {
         // one to many references
         foreach ($this->foreigns as $foreign) {
+            if ($foreign->getForeign()->getTable()->isManyToMany()) {
+                // do not create entities for many2many tables
+                continue;
+            }
             //check for OneToOne or OneToMany relationship
             if ($foreign->isManyToOne()) { // is OneToMany
                 $related = $this->getRelatedName($foreign);
@@ -183,6 +192,11 @@ class Column extends BaseColumn
         $table = $this->getTable();
         // one to many references
         foreach ($this->foreigns as $foreign) {
+            if ($foreign->getForeign()->getTable()->isManyToMany()) {
+                // do not create entities for many2many tables
+                continue;
+            }
+
             if ($foreign->isManyToOne()) { // is ManyToOne
                 $related = $this->getRelatedName($foreign);
                 $related_text = $this->getRelatedName($foreign, false);
