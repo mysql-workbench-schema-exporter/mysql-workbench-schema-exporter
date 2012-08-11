@@ -35,6 +35,10 @@ class Columns extends BaseColumns
     {
         // display column
         foreach ($this->columns as $column) {
+            if ($column->getLocalForeignKey() || $column->hasOneToManyRelation()) {
+                // do not output fields of relations.
+                continue;
+            }
             $column->write($writer);
         }
         // display column relations
@@ -58,6 +62,10 @@ class Columns extends BaseColumns
     {
         // column getter and setter
         foreach ($this->columns as $column) {
+            if ($column->getLocalForeignKey() || $column->hasOneToManyRelation()) {
+                // do not output fields of relations.
+                continue;
+            }
             $column->writeGetterAndSetter($writer);
         }
         // column getter and setter for relations
