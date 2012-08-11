@@ -126,7 +126,7 @@ class Column extends BaseColumn
             } else { // is OneToOne
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getTable()->getJoinAnnotation('OneToOne', $annotationOptions))
+                    ->write(' * '.$this->getTable()->getAnnotation('OneToOne', $annotationOptions))
                     ->write(' * '.$this->getTable()->getJoinColumnAnnotation($foreign->getForeign()->getColumnName(), $foreign->getLocal()->getColumnName(), $foreign->getLocal()->getParameters()->get('deleteRule')))
                     ->write(' */')
                     ->write('protected $'.lcfirst($targetEntity).';')

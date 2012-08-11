@@ -357,7 +357,7 @@ class Table extends BaseTable
                 $annotationOptions['inversedBy'] = null;
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getJoinAnnotation('ManyToMany', $annotationOptions))
+                    ->write(' * '.$this->getAnnotation('ManyToMany', $annotationOptions))
                     ->write(' */')
                 ;
             }
