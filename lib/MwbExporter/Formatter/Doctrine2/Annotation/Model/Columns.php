@@ -35,7 +35,7 @@ class Columns extends BaseColumns
     {
         // display column
         foreach ($this->columns as $column) {
-            if ($column->getLocalForeignKey() || $column->hasOneToManyRelation()) {
+            if (!$column->isPrimary() && ($column->getLocalForeignKey() || $column->hasOneToManyRelation())) {
                 // do not output fields of relations.
                 continue;
             }
@@ -62,7 +62,7 @@ class Columns extends BaseColumns
     {
         // column getter and setter
         foreach ($this->columns as $column) {
-            if ($column->getLocalForeignKey() || $column->hasOneToManyRelation()) {
+            if (!$column->isPrimary() && ($column->getLocalForeignKey() || $column->hasOneToManyRelation())) {
                 // do not output fields of relations.
                 continue;
             }
