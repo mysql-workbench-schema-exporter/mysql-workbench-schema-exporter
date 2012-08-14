@@ -45,9 +45,8 @@ class Column extends BaseColumn
             $attributes['precision'] = (int) $precision;
             $attributes['scale'] = (int) $scale;
         }
-        if ($this->parameters->get('isNotNull') == 1) {
-            // only set, if it is false. it defaults to true
-            $attributes['nullable'] = false;
+        if ($this->parameters->get('isNotNull') != 1) {
+            $attributes['nullable'] = true;
         }
 
         return $attributes;
