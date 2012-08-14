@@ -45,8 +45,9 @@ class Column extends BaseColumn
             $attributes['precision'] = (int) $precision;
             $attributes['scale'] = (int) $scale;
         }
-        if ($this->parameters->get('isNotNull') != 1) {
-            $attributes['nullable'] = true;
+        if ($this->parameters->get('isNotNull') == 1) {
+            // only set, if it is false. it defaults to true
+            $attributes['nullable'] = false;
         }
 
         return $attributes;
@@ -115,8 +116,8 @@ class Column extends BaseColumn
             $joinColumnAnnotationOptions = array(
                 'name' => $foreign->getForeign()->getColumnName(),
                 'referencedColumnName' => $foreign->getLocal()->getColumnName(),
-                'onDelete' => $foreign->getLocal()->getParameters()->get('deleteRule'),
-                'nullable' => $foreign->getForeign()->getParameters()->get('isNotNull') ? null : false,
+                'onDelete' => $this->getDeleteRule($foreign->getLocal()->getParameters()->get('deleteRule')),
+                'nullable' => !$foreign->getForeign()->getParameters()->get('isNotNull') ? null : false,
             );
 
             //check for OneToOne or OneToMany relationship
@@ -150,15 +151,15 @@ class Column extends BaseColumn
                 'targetEntity' => $targetEntity,
                 'mappedBy' => null,
                 'inversedBy' => $inversedBy,
-                'cascade' => $this->getCascadeOption($this->local->parseComment('cascade')),
-                'fetch' => $this->getFetchOption($this->local->parseComment('fetch')),
-                'orphanRemoval' => $this->getBooleanOption($this->local->parseComment('orphanRemoval')),
+                // 'cascade' => $this->getCascadeOption($this->local->parseComment('cascade')),
+                // 'fetch' => $this->getFetchOption($this->local->parseComment('fetch')),
+                // 'orphanRemoval' => $this->getBooleanOption($this->local->parseComment('orphanRemoval')),
             );
             $joinColumnAnnotationOptions = array(
                 'name' => $this->local->getForeign()->getColumnName(),
                 'referencedColumnName' => $this->local->getLocal()->getColumnName(),
-                'onDelete' => $this->local->getParameters()->get('deleteRule'),
-                'nullable' => $this->local->getForeign()->getParameters()->get('isNotNull') ? null : false,
+                'onDelete' => $this->getDeleteRule($this->local->getParameters()->get('deleteRule')),
+                'nullable' => !$this->local->getForeign()->getParameters()->get('isNotNull') ? null : false,
             );
 
             //check for OneToOne or ManyToOne relationship
@@ -467,5 +468,20 @@ class Column extends BaseColumn
         } else {
             return null;
         }
+    }
+
+    /**
+     * get the onDelete rule. this will set the database level ON DELETE and can be set
+     * to CASCADE or SET NULL. Do not confuse this with the Doctrine-level cascade rules.
+     */
+    private function getDeleteRule($deleteRule)
+    {
+        if ($deleteRule == 'NO ACTION' || $deleteRule == 'RESTRICT') {
+            // NO ACTION acts the same as RESTRICT,
+            // RESTRICT is the default
+            // http://dev.mysql.com/doc/refman/5.5/en/innodb-foreign-key-constraints.html
+            $deleteRule = null;
+        }
+        return $deleteRule;
     }
 }

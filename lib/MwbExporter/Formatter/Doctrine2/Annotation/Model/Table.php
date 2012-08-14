@@ -210,6 +210,12 @@ class Table extends BaseTable
      */
     public function getJoinColumnAnnotation($local, $foreign, $deleteRule = null)
     {
+        if ($deleteRule == 'NO ACTION' || $deleteRule == 'RESTRICT') {
+            // NO ACTION acts the same as RESTRICT,
+            // RESTRICT is the default
+            // http://dev.mysql.com/doc/refman/5.5/en/innodb-foreign-key-constraints.html
+            $deleteRule = null;
+        }
         return $this->getAnnotation('JoinColumn', array('name' => $local, 'referencedColumnName' => $foreign, 'onDelete' => $deleteRule));
     }
 
