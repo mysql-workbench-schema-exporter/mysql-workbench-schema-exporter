@@ -112,13 +112,20 @@ class Column extends BaseColumn
                 'orphanRemoval' => $this->getBooleanOption($foreign->parseComment('orphanRemoval')),
             );
 
+            $joinColumnAnnotationOptions = array(
+                'name' => $foreign->getForeign()->getColumnName(),
+                'referencedColumnName' => $foreign->getLocal()->getColumnName(),
+                'onDelete' => $foreign->getLocal()->getParameters()->get('deleteRule'),
+                'nullable' => $foreign->getForeign()->getParameters()->get('isNotNull') ? null : false,
+            );
+
             //check for OneToOne or OneToMany relationship
             if ($foreign->isManyToOne()) { // is OneToMany
                 $related = $this->getRelatedName($foreign);
                 $writer
                     ->write('/**')
                     ->write(' * '.$this->getTable()->getAnnotation('OneToMany', $annotationOptions))
-                    ->write(' * '.$this->getTable()->getJoinColumnAnnotation($foreign->getForeign()->getColumnName(), $foreign->getLocal()->getColumnName(), $foreign->getLocal()->getParameters()->get('deleteRule')))
+                    ->write(' * '.$this->getTable()->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
                     ->write(' */')
                     ->write('protected $'.lcfirst(Pluralizer::pluralize($targetEntity)).$related.';')
                     ->write('')
@@ -127,7 +134,7 @@ class Column extends BaseColumn
                 $writer
                     ->write('/**')
                     ->write(' * '.$this->getTable()->getAnnotation('OneToOne', $annotationOptions))
-                    ->write(' * '.$this->getTable()->getJoinColumnAnnotation($foreign->getForeign()->getColumnName(), $foreign->getLocal()->getColumnName(), $foreign->getLocal()->getParameters()->get('deleteRule')))
+                    ->write(' * '.$this->getTable()->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
                     ->write(' */')
                     ->write('protected $'.lcfirst($targetEntity).';')
                     ->write('')
@@ -147,6 +154,12 @@ class Column extends BaseColumn
                 'fetch' => $this->getFetchOption($this->local->parseComment('fetch')),
                 'orphanRemoval' => $this->getBooleanOption($this->local->parseComment('orphanRemoval')),
             );
+            $joinColumnAnnotationOptions = array(
+                'name' => $this->local->getForeign()->getColumnName(),
+                'referencedColumnName' => $this->local->getLocal()->getColumnName(),
+                'onDelete' => $this->local->getParameters()->get('deleteRule'),
+                'nullable' => $this->local->getForeign()->getParameters()->get('isNotNull') ? null : false,
+            );
 
             //check for OneToOne or ManyToOne relationship
             if ($this->local->isManyToOne()) { // is ManyToOne
@@ -160,7 +173,7 @@ class Column extends BaseColumn
                 $writer
                     ->write('/**')
                     ->write(' * '.$this->getTable()->getAnnotation('ManyToOne', $annotationOptions))
-                    ->write(' * '.$this->getTable()->getJoinColumnAnnotation($this->local->getForeign()->getColumnName(), $this->local->getLocal()->getColumnName(), $this->local->getParameters()->get('deleteRule')))
+                    ->write(' * '.$this->getTable()->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
                     ->write(' */')
                     ->write('protected $'.lcfirst($targetEntity).$related.';')
                     ->write('')
@@ -174,7 +187,7 @@ class Column extends BaseColumn
                 $writer
                     ->write('/**')
                     ->write(' * '.$this->getTable()->getAnnotation('OneToOne', $annotationOptions))
-                    ->write(' * '.$this->getTable()->getJoinColumnAnnotation($this->local->getForeign()->getColumnName(), $this->local->getLocal()->getColumnName(), $this->local->getParameters()->get('deleteRule')))
+                    ->write(' * '.$this->getTable()->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
                     ->write(' */')
                     ->write('protected $'.lcfirst($targetEntity).';')
                     ->write('')
