@@ -269,7 +269,12 @@ abstract class Writer implements WriterInterface
     protected function getIndentation()
     {
         if ($this->document) {
-            return str_repeat(' ', $this->indentation * $this->document->getConfig()->get(FormatterInterface::CFG_INDENTATION));
+            if ($this->document->getConfig()->get(FormatterInterface::CFG_USE_TABS)) {
+                $indentation = "\t";
+            } else {
+                $indentation = str_repeat(' ', $this->document->getConfig()->get(FormatterInterface::CFG_INDENTATION));
+            }
+            return str_repeat($indentation, $this->indentation);
         }
     }
 

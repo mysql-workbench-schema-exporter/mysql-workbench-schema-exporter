@@ -54,8 +54,10 @@ class Column extends BaseColumn
 
     public function write(WriterInterface $writer)
     {
+        $comment = $this->getComment();
         $writer
             ->write('/**')
+            ->writeIf($comment, $comment)
             ->writeIf($this->isPrimary,
                     ' * '.$this->getTable()->getAnnotation('Id'))
             ->write(' * '.$this->getTable()->getAnnotation('Column', $this->asAnnotation()))
@@ -72,7 +74,12 @@ class Column extends BaseColumn
     public function writeArrayCollection(WriterInterface $writer)
     {
         foreach ($this->foreigns as $foreign) {
-            if ($foreign->isManyToOne()) { // is ManyToOne
+            if ($foreign->getForeign()->getTable()->isManyToMany()) {
+                // do not create entities for many2many tables
+                continue;
+            }
+
+            if ($foreign->isManyToOne() && $foreign->parseComment('unidirectional') !== 'true') { // is ManyToOne
                 $related = $this->getRelatedName($foreign);
                 $writer->write('$this->%s = new %s();', lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())).$related, $this->getTable()->getCollectionClass(false));
             }
@@ -85,49 +92,106 @@ class Column extends BaseColumn
     {
         // one to many references
         foreach ($this->foreigns as $foreign) {
+            if ($foreign->getForeign()->getTable()->isManyToMany()) {
+                // do not create entities for many2many tables
+                continue;
+            }
+            if ($foreign->parseComment('unidirectional') === 'true') {
+                // do not output mapping in foreign table when the unidirectional option is set
+                continue;
+            }
+
+            $targetEntity = $foreign->getOwningTable()->getModelName();
+            $mappedBy = $foreign->getReferencedTable()->getModelName();
+
+            $annotationOptions = array(
+                'targetEntity' => $targetEntity,
+                'mappedBy' => lcfirst($mappedBy),
+                'cascade' => $this->getCascadeOption($foreign->parseComment('cascade')),
+                'fetch' => $this->getFetchOption($foreign->parseComment('fetch')),
+                'orphanRemoval' => $this->getBooleanOption($foreign->parseComment('orphanRemoval')),
+            );
+
+            $joinColumnAnnotationOptions = array(
+                'name' => $foreign->getForeign()->getColumnName(),
+                'referencedColumnName' => $foreign->getLocal()->getColumnName(),
+                'onDelete' => $this->getDeleteRule($foreign->getLocal()->getParameters()->get('deleteRule')),
+                'nullable' => !$foreign->getForeign()->getParameters()->get('isNotNull') ? null : false,
+            );
+
             //check for OneToOne or OneToMany relationship
             if ($foreign->isManyToOne()) { // is OneToMany
                 $related = $this->getRelatedName($foreign);
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getTable()->getJoinAnnotation('OneToMany', $foreign->getOwningTable()->getModelName(), lcfirst($foreign->getReferencedTable()->getModelName())))
-                    ->write(' * '.$this->getTable()->getJoinColumnAnnotation($foreign->getForeign()->getColumnName(), $foreign->getLocal()->getColumnName(), $foreign->getLocal()->getParameters()->get('deleteRule')))
+                    ->write(' * '.$this->getTable()->getAnnotation('OneToMany', $annotationOptions))
+                    ->write(' * '.$this->getTable()->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
                     ->write(' */')
-                    ->write('protected $'.lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())).$related.';')
+                    ->write('protected $'.lcfirst(Pluralizer::pluralize($targetEntity)).$related.';')
                     ->write('')
                 ;
             } else { // is OneToOne
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getTable()->getJoinAnnotation('OneToOne', $foreign->getOwningTable()->getModelName(), lcfirst($foreign->getReferencedTable()->getModelName())))
-                    ->write(' * '.$this->getTable()->getJoinColumnAnnotation($foreign->getForeign()->getColumnName(), $foreign->getLocal()->getColumnName(), $foreign->getLocal()->getParameters()->get('deleteRule')))
+                    ->write(' * '.$this->getTable()->getAnnotation('OneToOne', $annotationOptions))
+                    ->write(' * '.$this->getTable()->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
                     ->write(' */')
-                    ->write('protected $'.lcfirst($foreign->getOwningTable()->getModelName()).';')
+                    ->write('protected $'.lcfirst($targetEntity).';')
                     ->write('')
                 ;
             }
         }
         // many to references
         if (null !== $this->local) {
+            $targetEntity = $this->local->getReferencedTable()->getModelName();
+            $inversedBy = $this->local->getOwningTable()->getModelName();
+
+            $annotationOptions = array(
+                'targetEntity' => $targetEntity,
+                'mappedBy' => null,
+                'inversedBy' => $inversedBy,
+                // 'cascade' => $this->getCascadeOption($this->local->parseComment('cascade')),
+                // 'fetch' => $this->getFetchOption($this->local->parseComment('fetch')),
+                // 'orphanRemoval' => $this->getBooleanOption($this->local->parseComment('orphanRemoval')),
+            );
+            $joinColumnAnnotationOptions = array(
+                'name' => $this->local->getForeign()->getColumnName(),
+                'referencedColumnName' => $this->local->getLocal()->getColumnName(),
+                'onDelete' => $this->getDeleteRule($this->local->getParameters()->get('deleteRule')),
+                'nullable' => !$this->local->getForeign()->getParameters()->get('isNotNull') ? null : false,
+            );
+
             //check for OneToOne or ManyToOne relationship
             if ($this->local->isManyToOne()) { // is ManyToOne
                 $related = $this->getManyToManyRelatedName($this->local->getReferencedTable()->getRawTableName(), $this->local->getForeign()->getColumnName());
                 $refRelated = $this->local->getLocal()->getRelatedName($this->local);
+                if ($this->local->parseComment('unidirectional') === 'true') {
+                    $annotationOptions['inversedBy'] = null;
+                } else {
+                    $annotationOptions['inversedBy'] = lcfirst(Pluralizer::pluralize($annotationOptions['inversedBy'])) . $refRelated;
+                }
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getTable()->getJoinAnnotation('ManyToOne', $this->local->getReferencedTable()->getModelName(), null, lcfirst(Pluralizer::pluralize($this->local->getOwningTable()->getModelName())).$refRelated))
-                    ->write(' * '.$this->getTable()->getJoinColumnAnnotation($this->local->getForeign()->getColumnName(), $this->local->getLocal()->getColumnName(), $this->local->getLocal()->getParameters()->get('deleteRule')))
+                    ->write(' * '.$this->getTable()->getAnnotation('ManyToOne', $annotationOptions))
+                    ->write(' * '.$this->getTable()->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
                     ->write(' */')
-                    ->write('protected $'.lcfirst($this->local->getReferencedTable()->getModelName()).$related.';')
+                    ->write('protected $'.lcfirst($targetEntity).$related.';')
                     ->write('')
                 ;
             } else { // is OneToOne
+                if ($this->local->parseComment('unidirectional') === 'true') {
+                    $annotationOptions['inversedBy'] = null;
+                } else {
+                    $annotationOptions['inversedBy'] = lcfirst($annotationOptions['inversedBy']);
+                }
+                $annotationOptions['cascade'] = $this->getCascadeOption($this->local->parseComment('cascade'));
+
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getTable()->getJoinAnnotation('OneToOne', $this->local->getReferencedTable()->getModelName(), null, lcfirst($this->local->getOwningTable()->getModelName())))
-                    ->write(' * '.$this->getTable()->getJoinColumnAnnotation($this->local->getForeign()->getColumnName(), $this->local->getLocal()->getColumnName(), $this->local->getLocal()->getParameters()->get('deleteRule')))
+                    ->write(' * '.$this->getTable()->getAnnotation('OneToOne', $annotationOptions))
+                    ->write(' * '.$this->getTable()->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
                     ->write(' */')
-                    ->write('protected $'.lcfirst($this->local->getReferencedTable()->getModelName()).';')
+                    ->write('protected $'.lcfirst($targetEntity).';')
                     ->write('')
                 ;
             }
@@ -181,6 +245,15 @@ class Column extends BaseColumn
         $table = $this->getTable();
         // one to many references
         foreach ($this->foreigns as $foreign) {
+            if ($foreign->getForeign()->getTable()->isManyToMany()) {
+                // do not create entities for many2many tables
+                continue;
+            }
+            if ($foreign->parseComment('unidirectional') === 'true') {
+                // do not output mapping in foreign table when the unidirectional option is set
+                continue;
+            }
+
             if ($foreign->isManyToOne()) { // is ManyToOne
                 $related = $this->getRelatedName($foreign);
                 $related_text = $this->getRelatedName($foreign, false);
@@ -252,6 +325,8 @@ class Column extends BaseColumn
         }
         // many to one references
         if (null !== $this->local) {
+            $unidirectional = ($this->local->parseComment('unidirectional') === 'true');
+
             if ($this->local->isManyToOne()) { // is ManyToOne
                 $related = $this->getManyToManyRelatedName($this->local->getReferencedTable()->getRawTableName(), $this->local->getForeign()->getColumnName());
                 $related_text = $this->getManyToManyRelatedName($this->local->getReferencedTable()->getRawTableName(), $this->local->getForeign()->getColumnName(), false);
@@ -298,7 +373,7 @@ class Column extends BaseColumn
                     ->write('public function set'.$this->columnNameBeautifier($this->local->getReferencedTable()->getModelName()).'('.$this->local->getReferencedTable()->getModelName().' $'.lcfirst($this->local->getReferencedTable()->getModelName()).' = null)')
                     ->write('{')
                     ->indent()
-                        ->write('$'.lcfirst($this->local->getReferencedTable()->getModelName()).'->set'.$this->columnNameBeautifier($this->local->getOwningTable()->getModelName()).'($this);')
+                        ->writeIf(!$unidirectional, '$'.lcfirst($this->local->getReferencedTable()->getModelName()).'->set'.$this->columnNameBeautifier($this->local->getOwningTable()->getModelName()).'($this);')
                         ->write('$this->'.lcfirst($this->local->getReferencedTable()->getModelName()).' = $'.lcfirst($this->local->getReferencedTable()->getModelName()).';')
                         ->write('')
                         ->write('return $this;')
@@ -323,5 +398,91 @@ class Column extends BaseColumn
         }
 
         return $this;
+    }
+
+    /**
+     * get the cascade option as array. Only returns values allowed by Doctrine.
+     *
+     * @param $cascadeValue string cascade options separated by comma
+     * @return array array with the values or null, if no cascade values are available
+     */
+    private function getCascadeOption($cascadeValue)
+    {
+        if (!$cascadeValue) {
+            return null;
+        }
+
+        $cascadeValue = array_map('strtolower', array_map('trim', explode(',', $cascadeValue)));
+
+        // only allow certain values
+        $allowed = array('persist', 'remove', 'merge', 'detach', 'all');
+
+        $cascadeValue = array_intersect($cascadeValue, $allowed);
+
+        if ($cascadeValue) {
+            return $cascadeValue;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * get the fetch option for a relation
+     *
+     * @param $fetchValue string fetch option as given in comment for foreign key
+     * @return string valid fetch value or null
+     */
+    private function getFetchOption($fetchValue)
+    {
+        if (!$fetchValue) {
+            return null;
+        }
+
+        $fetchValue = strtoupper($fetchValue);
+
+        if ($fetchValue != 'EAGER' && $fetchValue != 'LAZY') {
+            // invalid fetch value
+            return null;
+        } else {
+            return $fetchValue;
+        }
+    }
+
+    /**
+     * get the a boolean option for a relation
+     *
+     * @param $booleanValue string boolean option (true or false)
+     * @return boolean or null, if booleanValue was invalid
+     */
+    private function getBooleanOption($booleanValue)
+    {
+        if (!$booleanValue) {
+            return null;
+        }
+
+        $booleanValue = strtolower($booleanValue);
+
+        if ($booleanValue == 'true') {
+            return true;
+        } else if ($booleanValue == 'false') {
+            return false;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * get the onDelete rule. this will set the database level ON DELETE and can be set
+     * to CASCADE or SET NULL. Do not confuse this with the Doctrine-level cascade rules.
+     */
+    private function getDeleteRule($deleteRule)
+    {
+        if ($deleteRule == 'NO ACTION' || $deleteRule == 'RESTRICT') {
+            // NO ACTION acts the same as RESTRICT,
+            // RESTRICT is the default
+            // http://dev.mysql.com/doc/refman/5.5/en/innodb-foreign-key-constraints.html
+            $deleteRule = null;
+        }
+        return $deleteRule;
     }
 }
