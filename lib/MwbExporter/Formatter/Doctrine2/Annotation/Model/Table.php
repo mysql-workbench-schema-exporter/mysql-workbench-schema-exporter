@@ -166,7 +166,7 @@ class Table extends BaseTable
             }
         }
 
-        return count($indices) ? $indices : null; 
+        return count($indices) ? $indices : null;
     }
 
     /**
@@ -183,7 +183,7 @@ class Table extends BaseTable
             }
         }
 
-        return count($uniques) ? $uniques : null; 
+        return count($uniques) ? $uniques : null;
     }
 
     /**
@@ -323,6 +323,7 @@ class Table extends BaseTable
     {
         // @TODO D2A ManyToMany relation joinColumns and inverseColumns
         // referencing wrong column names
+
         foreach ($this->manyToManyRelations as $relation) {
             $mappedRelation = $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName());
 
@@ -347,18 +348,38 @@ class Table extends BaseTable
             // if this is the owning side, also output the JoinTable Annotation
             // otherwise use "mappedBy" feature
             if ($isOwningSide) {
+                if ($mappedRelation->parseComment('unidirectional') === 'true') {
+                    unset($annotationOptions['inversedBy']);
+                }
+
                 $writer
                     ->write('/**')
                     ->write(' * '.$this->getAnnotation('ManyToMany', $annotationOptions))
                     ->write(' * '.$this->getAnnotation('JoinTable',
                         array(
                             'name'               => $relation['reference']->getOwningTable()->getRawTableName(),
-                            'joinColumns'        => array($this->getJoinColumnAnnotation($relation['reference']->getForeign()->getColumnName(), $relation['reference']->getLocal()->getColumnName())),
-                            'inverseJoinColumns' => array($this->getJoinColumnAnnotation($relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->getForeign()->getColumnName(), $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->getLocal()->getColumnName()))
+                            'joinColumns'        => array(
+                                $this->getJoinColumnAnnotation(
+                                    $relation['reference']->getForeign()->getColumnName(),
+                                    $relation['reference']->getLocal()->getColumnName(),
+                                    $relation['reference']->getParameters()->get('deleteRule')
+                                )
+                            ),
+                            'inverseJoinColumns' => array(
+                                $this->getJoinColumnAnnotation(
+                                    $mappedRelation->getForeign()->getColumnName(),
+                                    $mappedRelation->getLocal()->getColumnName(),
+                                    $mappedRelation->getParameters()->get('deleteRule')
+                                )
+                            )
                         ), array('multiline' => true, 'wrapper' => ' * %s')))
                     ->write(' */')
                 ;
             } else {
+                if ($relation['reference']->parseComment('unidirectional') === 'true') {
+                    continue;
+                }
+
                 $annotationOptions['mappedBy'] = $annotationOptions['inversedBy'];
                 $annotationOptions['inversedBy'] = null;
                 $writer

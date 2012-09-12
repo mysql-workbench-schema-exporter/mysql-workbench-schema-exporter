@@ -78,7 +78,7 @@ class Column extends BaseColumn
                 // do not create entities for many2many tables
                 continue;
             }
-            
+
             if ($foreign->isManyToOne() && $foreign->parseComment('unidirectional') !== 'true') { // is ManyToOne
                 $related = $this->getRelatedName($foreign);
                 $writer->write('$this->%s = new %s();', lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())).$related, $this->getTable()->getCollectionClass(false));
@@ -184,6 +184,8 @@ class Column extends BaseColumn
                 } else {
                     $annotationOptions['inversedBy'] = lcfirst($annotationOptions['inversedBy']);
                 }
+                $annotationOptions['cascade'] = $this->getCascadeOption($this->local->parseComment('cascade'));
+
                 $writer
                     ->write('/**')
                     ->write(' * '.$this->getTable()->getAnnotation('OneToOne', $annotationOptions))
