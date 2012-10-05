@@ -110,6 +110,10 @@ General options applied to all formatter.
 
     The indentation size for generated code.
 
+  * `useTabs`
+
+    Use tabs for indentation instead of spaces. Setting this option will ignore the `indentation`-option
+
   * `filename`
 
     The output filename format, use the following tag `%schema%`, `%table%`, `%entity%`, and `%extension%` to allow
@@ -192,6 +196,33 @@ General options applied to all formatter.
   * `quoteIdentifier`
 
     If this option is enabled, all table names and column names will be quoted using backtick (`` ` ``). Usefull when the table name or column name contains reserved word. Default is `false`.
+
+  * `{d:m2m}false{/d:m2m}`
+
+    MySQL Workbench schema exporter tries to automatically guess which tables are many-to-many mapping tables and will not generate entity classes for these tables.
+    A table is considered a mapping table, if it contains exactly two foreign keys to different tables and those tables are not many-to-many mapping tables.
+
+    Sometimes this guessing is incorrect for you. But you can add a hint in the comment of the table, to show that it is no mapping table. Just use "{d:m2m}false{/d:m2m}" anywhere in the comment of the table.
+
+  * `{d:unidirectional}true{/d:unidirectional}`
+
+    All foreign keys will result in a bidirectional relation by default. If you only want a unidirectional relation, add a flag to the comment of the foreign key.
+
+  * `{d:owningSide}true{/d:owningSide}`
+
+    In a bi-directional many-to-many mapping table the owning side of the relation is randomly selected. If you add this hint to one foreign key of the m2m-table, you can define the owning side for Doctrine.
+
+  * `{d:cascade}persist, merge, remove, detach, all{/d:cascade}`
+
+    You can specify Doctrine cascade options as a comment on a foreign key. The will be generated into the Annotation. ([Reference](http://doctrine-orm.readthedocs.org/en/latest/reference/working-with-associations.html#transitive-persistence-cascade-operations))
+
+  * `{d:fetch}EAGER{/d:fetch}`
+
+    You can specify the fetch type for relations in the comment of a foreign key. (EAGER or LAZY, doctrine default is LAZY)
+
+  * `{d:orphanRemoval}true{/d:orphanRemoval}`
+
+    Another option you can set in the comments of foreign key. ([Reference](http://doctrine-orm.readthedocs.org/en/latest/reference/working-with-associations.html#orphan-removal))
 
 ### Option list for Propel Xml
 

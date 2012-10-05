@@ -104,7 +104,7 @@ class Table extends BaseTable
      */
     public function write(WriterInterface $writer)
     {
-        if (!$this->isExternal()) {
+        if (!$this->isExternal() && !$this->isManyToMany()) {
             $writer->open($this->getTableFileName());
             $this->writeTable($writer);
             $writer->close();
@@ -166,7 +166,7 @@ class Table extends BaseTable
             }
         }
 
-        return count($indices) ? $indices : null; 
+        return count($indices) ? $indices : null;
     }
 
     /**
@@ -183,7 +183,7 @@ class Table extends BaseTable
             }
         }
 
-        return count($uniques) ? $uniques : null; 
+        return count($uniques) ? $uniques : null;
     }
 
     /**
@@ -210,6 +210,12 @@ class Table extends BaseTable
      */
     public function getJoinColumnAnnotation($local, $foreign, $deleteRule = null)
     {
+        if ($deleteRule == 'NO ACTION' || $deleteRule == 'RESTRICT') {
+            // NO ACTION acts the same as RESTRICT,
+            // RESTRICT is the default
+            // http://dev.mysql.com/doc/refman/5.5/en/innodb-foreign-key-constraints.html
+            $deleteRule = null;
+        }
         return $this->getAnnotation('JoinColumn', array('name' => $local, 'referencedColumnName' => $foreign, 'onDelete' => $deleteRule));
     }
 
@@ -221,6 +227,8 @@ class Table extends BaseTable
         }
         $skipGetterAndSetter = $this->getDocument()->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
         $serializableEntity  = $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
+
+        $comment = $this->getComment();
         $writer
             ->write('<?php')
             ->write('')
@@ -232,6 +240,7 @@ class Table extends BaseTable
             ->write('/**')
             ->write(' * '.$this->getNamespace(null, false))
             ->write(' *')
+            ->writeIf($comment, $comment)
             ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
             ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation(), 'uniqueConstraints' => $this->getUniqueConstraintsAnnotation())))
             ->write(' */')
@@ -314,25 +323,68 @@ class Table extends BaseTable
     {
         // @TODO D2A ManyToMany relation joinColumns and inverseColumns
         // referencing wrong column names
+
         foreach ($this->manyToManyRelations as $relation) {
-            // if relation is not mapped yet define relation
+            $mappedRelation = $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName());
+
+            // user can hint which side is the owning side (set d:owningSide on the foreign key)
+            if ($relation['reference']->parseComment('owningSide') === 'true') {
+                $isOwningSide = true;
+            } else if ($mappedRelation->parseComment('owningSide') === 'true') {
+                $isOwningSide = false;
+            } else {
+                // if no owning side is defined, use one side randomly as owning side (the one where the column id is lower)
+                $isOwningSide = $relation['reference']->getLocal()->getId() < $mappedRelation->getLocal()->getId();
+            }
+
+            $annotationOptions = array(
+                'targetEntity' => $relation['refTable']->getModelName(),
+                'mappedBy' => null,
+                'inversedBy' => lcfirst(Pluralizer::pluralize($this->getModelName())),
+                'cascade' => $this->getCascadeOption($relation['reference']->parseComment('cascade')),
+                'fetch' => $this->getFetchOption($relation['reference']->parseComment('fetch')),
+            );
+
+            // if this is the owning side, also output the JoinTable Annotation
             // otherwise use "mappedBy" feature
-            if ($relation['reference']->getLocal()->getColumnName() != $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->getLocal()->getColumnName()) {
+            if ($isOwningSide) {
+                if ($mappedRelation->parseComment('unidirectional') === 'true') {
+                    unset($annotationOptions['inversedBy']);
+                }
+
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getJoinAnnotation('ManyToMany', $relation['refTable']->getModelName()))
+                    ->write(' * '.$this->getAnnotation('ManyToMany', $annotationOptions))
                     ->write(' * '.$this->getAnnotation('JoinTable',
                         array(
                             'name'               => $relation['reference']->getOwningTable()->getRawTableName(),
-                            'joinColumns'        => array($this->getJoinColumnAnnotation($relation['reference']->getForeign()->getColumnName(), $relation['reference']->getLocal()->getColumnName())),
-                            'inverseJoinColumns' => array($this->getJoinColumnAnnotation($relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->getForeign()->getColumnName(), $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName())->getLocal()->getColumnName()))
+                            'joinColumns'        => array(
+                                $this->getJoinColumnAnnotation(
+                                    $relation['reference']->getForeign()->getColumnName(),
+                                    $relation['reference']->getLocal()->getColumnName(),
+                                    $relation['reference']->getParameters()->get('deleteRule')
+                                )
+                            ),
+                            'inverseJoinColumns' => array(
+                                $this->getJoinColumnAnnotation(
+                                    $mappedRelation->getForeign()->getColumnName(),
+                                    $mappedRelation->getLocal()->getColumnName(),
+                                    $mappedRelation->getParameters()->get('deleteRule')
+                                )
+                            )
                         ), array('multiline' => true, 'wrapper' => ' * %s')))
                     ->write(' */')
                 ;
             } else {
+                if ($relation['reference']->parseComment('unidirectional') === 'true') {
+                    continue;
+                }
+
+                $annotationOptions['mappedBy'] = $annotationOptions['inversedBy'];
+                $annotationOptions['inversedBy'] = null;
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getJoinAnnotation('ManyToMany', $relation['refTable']->getModelName(), lcfirst(Pluralizer::pluralize($this->getModelName()))))
+                    ->write(' * '.$this->getAnnotation('ManyToMany', $annotationOptions))
                     ->write(' */')
                 ;
             }
@@ -380,5 +432,53 @@ class Table extends BaseTable
         }
 
         return $this;
+    }
+
+    /**
+     * get the cascade option as array. Only returns values allowed by Doctrine.
+     *
+     * @param $cascadeValue string cascade options separated by comma
+     * @return array array with the values or null, if no cascade values are available
+     */
+    private function getCascadeOption($cascadeValue)
+    {
+        if (!$cascadeValue) {
+            return null;
+        }
+
+        $cascadeValue = array_map('strtolower', array_map('trim', explode(',', $cascadeValue)));
+
+        // only allow certain values
+        $allowed = array('persist', 'remove', 'merge', 'detach', 'all');
+
+        $cascadeValue = array_intersect($cascadeValue, $allowed);
+
+        if ($cascadeValue) {
+            return $cascadeValue;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * get the fetch option for a relation
+     *
+     * @param $fetchValue string fetch option as given in comment for foreign key
+     * @return string valid fetch value or null
+     */
+    private function getFetchOption($fetchValue)
+    {
+        if (!$fetchValue) {
+            return null;
+        }
+
+        $fetchValue = strtoupper($fetchValue);
+
+        if (!in_array($fetchValue, array('EAGER', 'LAZY', 'EXTRA_LAZY'))) {
+            // invalid fetch value
+            return null;
+        } else {
+            return $fetchValue;
+        }
     }
 }
