@@ -184,10 +184,6 @@ function main($filename, $dir, $params, $options)
         if ('default' === $params[CMD_PARAM_EXPORT] && $formatters = array_keys($bootstrap->getFormatters())) {
             $params[CMD_PARAM_EXPORT] = $formatters[0];
         }
-        if (!$formatter = $bootstrap->getFormatter($params[CMD_PARAM_EXPORT])) {
-            echo sprintf("Unsupported exporter %s. Use --%s option to show all available exporter.", $params[CMD_PARAM_EXPORT], CMD_OPT_LIST_EXPORTER);
-            die(1);
-        }
 
         // lookup config file export.json
         if (!$options[CMD_OPT_NO_AUTO_CONFIG] && !$params[CMD_PARAM_CONFIG]) {
@@ -222,6 +218,12 @@ function main($filename, $dir, $params, $options)
             }
         }
 
+        //get formatter after getting the parameter export either from command line or config file
+        if (!$formatter = $bootstrap->getFormatter($params[CMD_PARAM_EXPORT])) {
+            echo sprintf("Unsupported exporter %s. Use --%s option to show all available exporter.", $params[CMD_PARAM_EXPORT], CMD_OPT_LIST_EXPORTER);
+            die(1);
+        }
+
         // parameters customization
         echo sprintf("Exporting %s as %s.\n\n", basename($filename), $formatter->getTitle());
         $setup = $formatter->getConfigurations();
@@ -237,7 +239,13 @@ function main($filename, $dir, $params, $options)
 
         // save export parameters
         if ($options[CMD_OPT_SAVE_CONFIG]) {
-            file_put_contents('export.json', json_encode(array(CMD_PARAM_EXPORT => $export, CMD_OPT_ZIP => $options[CMD_OPT_ZIP], 'dir' => $dir, 'params' => $setup)));
+            file_put_contents('export.json', json_encode(
+                array(
+                    CMD_PARAM_EXPORT => $params[CMD_PARAM_EXPORT], 
+                    CMD_OPT_ZIP => $options[CMD_OPT_ZIP], 
+                    'dir' => $dir, 'params' => $setup
+                )
+            ));
         }
 
         // start time
