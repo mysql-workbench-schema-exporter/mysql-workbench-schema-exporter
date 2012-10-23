@@ -26,8 +26,8 @@
 
 namespace MwbExporter\Formatter\Propel1\Xml;
 
-use MwbExporter\Formatter\Propel1\DatatypeConverter as Base;
+use MwbExporter\Formatter\Propel1\DatatypeConverter as BaseDatatypeConverter;
 
-class DatatypeConverter extends Base
+class DatatypeConverter extends BaseDatatypeConverter
 {
 }

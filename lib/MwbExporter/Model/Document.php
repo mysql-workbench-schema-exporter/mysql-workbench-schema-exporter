@@ -53,6 +53,11 @@ class Document extends Base
     protected $writer = null;
 
     /**
+     * @var \Exception
+     */
+    protected $error = null;
+
+    /**
      * Constructor.
      *
      * @param FormatterInterface $formatter
@@ -156,14 +161,27 @@ class Document extends Base
     public function write(WriterInterface $writer)
     {
         $this->writer = $writer;
+        $this->error  = null;
         $writer->setDocument($this);
         $writer->begin();
         try {
             $this->physicalModel->write($writer);
         } catch (\Exception $e) {
+            $this->error = $e;
         }
         $writer->end();
 
         return $this;
+    }
+
+    /**
+     * Get the latest thrown error while document being written.
+     * Return null if document written successfully.
+     *
+     * @return \Exception
+     */
+    public function getError()
+    {
+        return $this->error;
     }
 }

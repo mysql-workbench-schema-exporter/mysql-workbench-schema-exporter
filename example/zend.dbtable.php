@@ -33,11 +33,7 @@ include 'util.php';
 // enable autoloading of classes
 autoload();
 
-use \MwbExporter\Bootstrap;
 use \MwbExporter\Formatter\Zend\DbTable\Formatter;
-
-// lets stop the time
-$start = microtime(true);
 
 // formatter setup
 $setup = array(
@@ -49,15 +45,6 @@ $setup = array(
     Formatter::CFG_GENERATE_DRI            => false,
     Formatter::CFG_GENERATE_GETTER_SETTER  => false,
 );
-$filename = __DIR__.'/data/sakila.mwb';
-$outDir   = __DIR__.'/result';
 
-$bootstrap = new Bootstrap();
-$formatter = $bootstrap->getFormatter('zend-dbtable');
-$formatter->setup($setup);
-$document  = $bootstrap->export($formatter, $filename, $outDir, 'zip');
-
-// show the time needed to parse the mwb file
-$end = microtime(true);
-
-output($document, $end - $start);
+// lets do it
+export('zend-dbtable', $setup);

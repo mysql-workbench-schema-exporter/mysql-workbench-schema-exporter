@@ -25,24 +25,35 @@
  * THE SOFTWARE.
  */
 
-// show errors
-error_reporting(E_ALL);
+namespace MwbExporter\Formatter\Propel1\Xml\Model;
 
-include 'util.php';
+use MwbExporter\Model\Schema as BaseSchema;
+use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Formatter\Propel1\Xml\Formatter;
 
-// enable autoloading of classes
-autoload();
+class Schema extends BaseSchema
+{
+    /**
+     * (non-PHPdoc)
+     * @see MwbExporter\Model.Schema::write()
+     */
+    public function write(WriterInterface $writer)
+    {
+        $fmt = $this->getDocument()->getConfig()->get(Formatter::CFG_FILENAME);
+        if (false === strpos($fmt, '%s')) {
+            $fmt = '%s.'.$fmt;
+        }
+        $writer
+            ->open(sprintf($fmt, $this->getName()))
+            ->write('<?xml version="1.0" encoding="UTF-8"?>')
+            ->write('<database name="%s" defaultIdMethod="native">', $this->getName())
+            ->writeCallback(function(WriterInterface $writer, Schema $_this = null) {
+                $_this->writeSchema($writer);
+            })
+            ->write('</database>')
+            ->close()
+        ;
 
-use \MwbExporter\Formatter\Sencha\ExtJS3\Formatter;
-
-// formatter setup
-$setup = array(
-    Formatter::CFG_USE_LOGGED_STORAGE  => true,
-    Formatter::CFG_INDENTATION         => 4,
-    Formatter::CFG_FILENAME            => 'JS/%schema%/%entity%.%extension%',
-    Formatter::CFG_CLASS_PREFIX        => 'SysX.App',
-    Formatter::CFG_PARENT_CLASS        => 'SysX.Ui.App',
-);
-
-// lets do it
-export('sencha-extjs3', $setup);
+        return $this;
+    }
+}

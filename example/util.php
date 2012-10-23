@@ -59,3 +59,30 @@ function output($document, $time)
         echo "<p>Export not performed, please review your code.</p>\n";
     }
 }
+
+function export($target, $setup = array())
+{
+    try {
+        // lets stop the time
+        $start    = microtime(true);
+        $filename = __DIR__.'/data/sakila.mwb';
+        $outDir   = __DIR__.'/result';
+
+        $bootstrap = new \MwbExporter\Bootstrap();
+        $formatter = $bootstrap->getFormatter($target);
+        $formatter->setup($setup);
+        $document  = $bootstrap->export($formatter, $filename, $outDir, 'zip');
+
+        // show the time needed to parse the mwb file
+        $end = microtime(true);
+
+        output($document, $end - $start);
+
+        return $document;
+    } catch (\Exception $e) {
+        echo "<h2>Error:</h2>\n";
+        echo "<textarea cols=\"100\" rows=\"5\">\n";
+        echo $e->getMessage()."\n";
+        echo "</textarea>\n";
+    }
+}

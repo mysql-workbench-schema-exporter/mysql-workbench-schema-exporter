@@ -33,18 +33,15 @@ include 'util.php';
 // enable autoloading of classes
 autoload();
 
-use \MwbExporter\Bootstrap;
 use \MwbExporter\Formatter\Propel1\Xml\Formatter as PropelFormatter;
 use \MwbExporter\Formatter\Doctrine2\Annotation\Formatter as DoctrineFormatter;
-
-// lets stop the time
-$start = microtime(true);
 
 /**********************************************
  *                                            *
  * start generation for Propel1 Xml Formatter *
  *                                            *
  **********************************************/
+
 $setup = array(
     PropelFormatter::CFG_USE_LOGGED_STORAGE  => true,
     PropelFormatter::CFG_INDENTATION         => 4,
@@ -53,19 +50,8 @@ $setup = array(
 
 );
 
-$filename = __DIR__.'/data/sakila.mwb';
-$outDir   = __DIR__.'/result';
-
-$bootstrap = new Bootstrap();
-
-$formatter = $bootstrap->getFormatter('propel1-xml');
-$formatter->setup($setup);
-$document1 = $bootstrap->export($formatter, $filename, $outDir, 'zip');
-
-// show the time needed to parse the mwb file
-$end = microtime(true);
-output($document1, $end - $start); // output Propel1 Xml
-
+// lets do it
+export('propel1-xml', $setup);
 
 /*******************************************************
  *                                                     *
@@ -84,10 +70,6 @@ $setup = array(
     DoctrineFormatter::CFG_AUTOMATIC_REPOSITORY      => true,
     DoctrineFormatter::CFG_SKIP_GETTER_SETTER        => false,
 );
-$formatter = $bootstrap->getFormatter('doctrine2-annotation');
-$formatter->setup($setup);
-$document2 = $bootstrap->export($formatter, $filename, $outDir, 'zip');
 
-// show the time needed to parse the mwb file
-$end = microtime(true);
-output($document2, $end - $start); // output Doctrine2 Annotation
+// lets do it again
+export('doctrine2-annotation', $setup);

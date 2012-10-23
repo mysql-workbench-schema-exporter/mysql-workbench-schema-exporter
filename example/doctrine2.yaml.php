@@ -33,11 +33,7 @@ include 'util.php';
 // enable autoloading of classes
 autoload();
 
-use \MwbExporter\Bootstrap;
 use \MwbExporter\Formatter\Doctrine2\Yaml\Formatter;
-
-// lets stop the time
-$start = microtime(true);
 
 // formatter setup
 $setup = array(
@@ -50,15 +46,6 @@ $setup = array(
     Formatter::CFG_EXTEND_TABLENAME_WITH_SCHEMA  => false,
     Formatter::CFG_AUTOMATIC_REPOSITORY          => true,
 );
-$filename = __DIR__.'/data/sakila.mwb';
-$outDir   = __DIR__.'/result';
 
-$bootstrap = new Bootstrap();
-$formatter = $bootstrap->getFormatter('doctrine2-yaml');
-$formatter->setup($setup);
-$document  = $bootstrap->export($formatter, $filename, $outDir, 'zip');
-
-// show the time needed to parse the mwb file
-$end = microtime(true);
-
-output($document, $end - $start);
+// lets do it
+export('doctrine2-yaml', $setup);

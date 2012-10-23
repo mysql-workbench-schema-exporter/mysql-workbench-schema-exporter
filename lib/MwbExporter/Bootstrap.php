@@ -212,7 +212,10 @@ class Bootstrap
             $writer->setStorage($storage);
             $document = new Document($formatter, $filename);
             $document->write($writer);
-    
+            if ($e = $document->getError()) {
+                throw $e;
+            }
+
             return $document;
         }
     }
