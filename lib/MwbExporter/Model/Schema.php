@@ -103,4 +103,13 @@ class Schema extends Base
 
         return $this;
     }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Model\Base::getVars()
+     */
+    protected function getVars()
+    {
+      return array('%schema%' => $this->getName());
+    }
 }

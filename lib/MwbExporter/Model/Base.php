@@ -215,4 +215,27 @@ abstract class Base
     {
         return $this;
     }
+
+    /**
+     * Translate text with object contextual data.
+     *
+     * @param string $text  The text to translate
+     * @return string
+     */
+    public function translateVars($text)
+    {
+        return strtr($text, $this->getVars());
+    }
+
+    /**
+     * Get translate variables. This function is called by translateVars() to
+     * translate text and should be overriden in the subclass to match the
+     * class requirement.
+     *
+     * @return array.
+     */
+    protected function getVars()
+    {
+      return array();
+    }
 }

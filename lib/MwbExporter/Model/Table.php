@@ -381,14 +381,12 @@ class Table extends Base
     }
 
     /**
-     * Translate text with table contextual data.
-     *
-     * @param string $text  The text to translate
-     * @return string
+     * (non-PHPdoc)
+     * @see \MwbExporter\Model\Base::getVars()
      */
-    public function translateVars($text)
+    protected function getVars()
     {
-        return strtr($text, array('%schema%' => $this->getSchema()->getName(), '%table%' => $this->getRawTableName(), '%entity%' => $this->getModelName(), '%extension%' => $this->getDocument()->getFormatter()->getFileExtension()));
+      return array('%schema%' => $this->getSchema()->getName(), '%table%' => $this->getRawTableName(), '%entity%' => $this->getModelName(), '%extension%' => $this->getDocument()->getFormatter()->getFileExtension());
     }
 
     /**
@@ -399,12 +397,8 @@ class Table extends Base
      */
     public function getTableFileName()
     {
-        if ($filename = $this->translateVars($this->getDocument()->getConfig()->get(FormatterInterface::CFG_FILENAME)))
+        if (0 === strlen($filename = $this->getDocument()->translateFilename($this)))
         {
-            if (false !== strpos($filename, '%')) {
-                throw new \Exception(sprintf('All filename variable where not converted. Perhaps a misstyped name (%s) ?', substr($filename, strpos($filename, '%'), strrpos($filename, '%'))));
-            }
-        } else {
             $filename = $this->getSchema()->getName().'.'.$this->getRawTableName().'.'.$this->getDocument()->getFormatter()->getFileExtension();
         }
 
