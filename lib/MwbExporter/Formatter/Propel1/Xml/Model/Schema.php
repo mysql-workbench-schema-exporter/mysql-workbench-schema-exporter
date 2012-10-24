@@ -29,7 +29,6 @@ namespace MwbExporter\Formatter\Propel1\Xml\Model;
 
 use MwbExporter\Model\Schema as BaseSchema;
 use MwbExporter\Writer\WriterInterface;
-use MwbExporter\Formatter\Propel1\Xml\Formatter;
 
 class Schema extends BaseSchema
 {
@@ -39,12 +38,8 @@ class Schema extends BaseSchema
      */
     public function write(WriterInterface $writer)
     {
-        $fmt = $this->getDocument()->getConfig()->get(Formatter::CFG_FILENAME);
-        if (false === strpos($fmt, '%s')) {
-            $fmt = '%s.'.$fmt;
-        }
         $writer
-            ->open(sprintf($fmt, $this->getName()))
+            ->open($this->getDocument()->translateFilename($this))
             ->write('<?xml version="1.0" encoding="UTF-8"?>')
             ->write('<database name="%s" defaultIdMethod="native">', $this->getName())
             ->writeCallback(function(WriterInterface $writer, Schema $_this = null) {

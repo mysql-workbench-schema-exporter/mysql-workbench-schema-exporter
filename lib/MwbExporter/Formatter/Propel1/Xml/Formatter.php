@@ -39,7 +39,7 @@ class Formatter extends BaseFormatter
         $this->setDatatypeConverter(new DatatypeConverter());
         $this->addConfigurations(array(
             static::CFG_INDENTATION            => 4,
-            static::CFG_FILENAME               => '%s.schema.xml',
+            static::CFG_FILENAME               => '%schema%.schema.xml',
             static::CFG_NAMESPACE              => '',
             static::CFG_ADD_VENDOR             => false,
         ));
