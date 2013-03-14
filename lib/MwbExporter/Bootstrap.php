@@ -32,6 +32,7 @@ use MwbExporter\Storage\LoggedStorage;
 
 class Bootstrap
 {
+
     /**
      * @var array
      */
@@ -55,19 +56,20 @@ class Bootstrap
         $this
             // formatter
             ->registerFormatter('doctrine2-annotation', '\\MwbExporter\\Formatter\\Doctrine2\Annotation\\Formatter')
-            ->registerFormatter('doctrine2-yaml',       '\\MwbExporter\\Formatter\\Doctrine2\Yaml\\Formatter')
-            ->registerFormatter('doctrine1-yaml',       '\\MwbExporter\\Formatter\\Doctrine1\Yaml\\Formatter')
-            ->registerFormatter('propel1-xml',          '\\MwbExporter\\Formatter\\Propel1\Xml\\Formatter')
-            ->registerFormatter('sencha-extjs3',        '\\MwbExporter\\Formatter\\Sencha\ExtJS3\\Formatter')
+            ->registerFormatter('doctrine2-annotationzf2filter', '\\MwbExporter\\Formatter\\Doctrine2\AnnotationZF2InputFilter\\Formatter')
+            ->registerFormatter('doctrine2-yaml', '\\MwbExporter\\Formatter\\Doctrine2\Yaml\\Formatter')
+            ->registerFormatter('doctrine1-yaml', '\\MwbExporter\\Formatter\\Doctrine1\Yaml\\Formatter')
+            ->registerFormatter('propel1-xml', '\\MwbExporter\\Formatter\\Propel1\Xml\\Formatter')
+            ->registerFormatter('sencha-extjs3', '\\MwbExporter\\Formatter\\Sencha\ExtJS3\\Formatter')
             ->registerFormatter('zend-rest-controller', '\\MwbExporter\\Formatter\\Zend\Controller\\Formatter')
-            ->registerFormatter('zend-dbtable',         '\\MwbExporter\\Formatter\\Zend\DbTable\\Formatter')
-            ->registerFormatter('cake2-php',            '\\MwbExporter\\Formatter\\Cake2\Php\\Formatter')
+            ->registerFormatter('zend-dbtable', '\\MwbExporter\\Formatter\\Zend\DbTable\\Formatter')
+            ->registerFormatter('cake2-php', '\\MwbExporter\\Formatter\\Cake2\Php\\Formatter')
             // writer
-            ->registerWriter('default',   '\\MwbExporter\\Writer\\DefaultWriter')
+            ->registerWriter('default', '\\MwbExporter\\Writer\\DefaultWriter')
             ->registerWriter('aggregate', '\\MwbExporter\\Writer\\AggregateWriter')
             // storage
             ->registerStorage('file', '\\MwbExporter\\Storage\\FileStorage')
-            ->registerStorage('zip',  '\\MwbExporter\\Storage\\ZipStorage')
+            ->registerStorage('zip', '\\MwbExporter\\Storage\\ZipStorage')
         ;
     }
 
@@ -154,7 +156,7 @@ class Bootstrap
         if (array_key_exists($name, $this->formatters)) {
             $formatterClass = $this->formatters[$name];
             $formatter = new $formatterClass();
-    
+
             return $formatter;
         }
     }
@@ -170,7 +172,7 @@ class Bootstrap
         if (array_key_exists($name, $this->writers)) {
             $writterClass = $this->writers[$name];
             $writter = new $writterClass();
-    
+
             return $writter;
         }
     }
@@ -186,7 +188,7 @@ class Bootstrap
         if (array_key_exists($name, $this->storages)) {
             $storageClass = $this->storages[$name];
             $storage = new $storageClass();
-    
+
             return $storage;
         }
     }
@@ -204,9 +206,11 @@ class Bootstrap
     {
         if ($formatter && $storage = $this->getStorage($storage)) {
             if ($formatter->getRegistry()->config->get(FormatterInterface::CFG_USE_LOGGED_STORAGE)) {
-                $storage = new LoggedStorage($storage); 
+                $storage = new LoggedStorage($storage);
             }
-            $storage->setOutdir(realpath($outDir) ? realpath($outDir) : $outDir);
+            $storage->setOutdir(realpath($outDir)
+                    ? realpath($outDir)
+                    : $outDir);
             $storage->setBackup($formatter->getRegistry()->config->get(FormatterInterface::CFG_BACKUP_FILE));
             $writer = $this->getWriter($formatter->getPreferredWriter());
             $writer->setStorage($storage);
@@ -219,4 +223,6 @@ class Bootstrap
             return $document;
         }
     }
+
 }
+

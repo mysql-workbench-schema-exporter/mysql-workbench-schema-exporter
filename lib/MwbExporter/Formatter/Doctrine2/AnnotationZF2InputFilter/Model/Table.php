@@ -24,13 +24,13 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
+namespace MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model;
 
 use MwbExporter\Model\Table as BaseTable;
 use MwbExporter\Helper\Pluralizer;
 use MwbExporter\Helper\AnnotationObject;
 use MwbExporter\Writer\WriterInterface;
-use MwbExporter\Formatter\Doctrine2\Annotation\Formatter;
+use MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Formatter;
 
 class Table extends BaseTable
 {
@@ -100,7 +100,7 @@ class Table extends BaseTable
      * Write document as generated code.
      *
      * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Doctrine2\Annotation\Model\Table
+     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Table
      */
     public function write(WriterInterface $writer)
     {

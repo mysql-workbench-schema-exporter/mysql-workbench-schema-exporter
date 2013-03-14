@@ -25,7 +25,7 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Doctrine2\Annotation;
+namespace MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter;
 
 use MwbExporter\Model\Column;
 use MwbExporter\Formatter\Doctrine2\DatatypeConverter as BaseDatatypeConverter;
