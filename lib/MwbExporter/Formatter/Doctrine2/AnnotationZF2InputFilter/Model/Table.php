@@ -509,7 +509,26 @@ class Table
             ->write('$factory = new InputFactory();')
             ->write('')
             ->write('$filters = array(')
-            ->write('// TODO, write filter logic')
+            ->indent();
+
+        foreach ($columns as $i => $column) {
+            $column instanceof Column;
+
+            $writer
+                ->write('array(')
+                ->indent()
+                ->write('\'name\' => \'%s\',', $column->getColumnName())
+                ->write('\'required\' => %s,', $column->getIsrequired()
+                        ? 'true'
+                        : 'false')
+                ->write('\'filters\' => array(),')
+                ->write('\'validators\' => array(),')
+                ->outdent()
+                ->write('),');
+        }
+
+        $writer
+            ->outdent()
             ->write(');')
             ->write('')
             ->write('$this->_inputFilter = $factory->createInputFilter($filters);')
