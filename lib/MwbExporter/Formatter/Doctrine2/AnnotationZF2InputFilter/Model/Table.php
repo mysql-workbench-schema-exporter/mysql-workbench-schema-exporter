@@ -273,7 +273,6 @@ class Table
             ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity) {
                     $_this->getColumns()->write($writer);
                     $_this->writeManyToMany($writer);
-                    $_this->writeConstructor($writer);
 
                     $writer
                     ->write('/**')
@@ -284,13 +283,15 @@ class Table
                     ->write('private $_inputFilter;')
                     ->write('');
 
+                    $_this->writeConstructor($writer);
+
                     if (!$skipGetterAndSetter) {
                         $_this->getColumns()->writeGetterAndSetter($writer);
                         $_this->writeManyToManyGetterAndSetter($writer);
                     }
 
                     $_this->writeInputFilter($writer);
-//                    $_this->writePopulate($writer);
+                    $_this->writePopulate($writer);
 //                    $_this->writeGetArrayCopy($writer); // add an option [array @excludeFields = null]
 
                     if ($serializableEntity) {
@@ -512,8 +513,6 @@ class Table
             ->indent();
 
         foreach ($columns as $i => $column) {
-            $column instanceof Column;
-
             $writer
                 ->write('array(')
                 ->indent()
@@ -545,18 +544,85 @@ class Table
 
     public function writePopulate(WriterInterface $writer)
     {
-        $columns = $this->getColumns()->getColumns();
-
+        $writer
+            ->write('/**')
+            ->write(' * Populate entity with the given data.')
+            ->write(' * The set* method will be used to set the data.')
+            ->write(' *')
+            ->write(' * @param array $data')
+            ->write(' * @return boolean')
+            ->write(' */')
+            ->write('public function populate(array $data = array())')
+            ->write('{')
+            ->indent()
+            ->write('$fields = get_object_vars($this);')
+            ->write('')
+            ->write('foreach ($data as $field => $value) {')
+            ->indent()
+            ->write('$setter = sprintf(\'set%s\', ucfirst(')
+            ->indent()
+            ->write('str_replace(\' \', \'\', ucwords(str_replace(\'_\', \' \', $field)))')
+            ->outdent()
+            ->write('));')
+            ->write('')
+            ->write('if (array_key_exists($field, $fields)) {')
+            ->indent()
+            ->write('$this->{$setter}($value);')
+            ->outdent()
+            ->write('}')
+            ->outdent()
+            ->write('}')
+            ->write('')
+            ->write('// End.')
+            ->write('return true;')
+            ->outdent()
+            ->write('}')
+            ->write('');
         // End.
         return $this;
     }
 
     public function writeGetArrayCopy(WriterInterface $writer)
     {
-        $columns = $this->getColumns()->getColumns();
-
         $writer
-            ->write();
+            ->write('/**')
+            ->write(' * Return all entity fields with values.')
+            ->write(' * Fields started with _ will be excluded.')
+            ->write(' * ')
+            ->write(' * @param array $exclude This fields will not be copied.')
+            ->write(' * @return array')
+            ->write(' */')
+            ->write('public function getArrayCopy(array $exclude = array())')
+            ->write('{')
+            ->indent()
+            ->write('$fields = get_object_vars($this);')
+            ->write('$copyable = array();')
+            ->write('')
+            ->write('foreach ($fields as $name => $value) {')
+            ->indent()
+            ->write('if (\'_\' == $name[0]) {')
+            ->indent()
+            ->write('// Field is private')
+            ->write('continue;')
+            ->outdent()
+            ->write('}')
+            ->write('')
+            ->write('if (in_array($name, $exclude)) {')
+            ->indent()
+            ->write('// Exclude field $name')
+            ->write('continue;')
+            ->outdent()
+            ->write('}')
+            ->write('')
+            ->write('$copyable[$name] = $value;')
+            ->outdent()
+            ->outdent()
+            ->write('}')
+            ->write('')
+            ->write('// End.')
+            ->write('return $copyable;')
+            ->write('}')
+            ->write('');
 
         // End.
         return $this;
