@@ -1,4 +1,5 @@
 <?php
+
 /*
  * The MIT License
  *
@@ -32,8 +33,10 @@ use MwbExporter\Helper\AnnotationObject;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Formatter;
 
-class Table extends BaseTable
+class Table
+    extends BaseTable
 {
+
     protected $ormPrefix = null;
     protected $collectionClass = 'Doctrine\Common\Collections\ArrayCollection';
     protected $collectionInterface = 'Doctrine\Common\Collections\Collection';
@@ -47,7 +50,7 @@ class Table extends BaseTable
     {
         $namespace = '';
         if ($bundleNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_BUNDLE_NAMESPACE)) {
-            $namespace = $bundleNamespace.'\\';
+            $namespace = $bundleNamespace . '\\';
         }
         if ($entityNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_ENTITY_NAMESPACE)) {
             $namespace .= $entityNamespace;
@@ -66,7 +69,11 @@ class Table extends BaseTable
      */
     public function getNamespace($class = null, $absolute = true)
     {
-        return sprintf('%s%s\%s', $absolute ? '\\' : '', $this->getEntityNamespace(), null === $class ? $this->getModelName() : $class);
+        return sprintf('%s%s\%s', $absolute
+                ? '\\'
+                : '', $this->getEntityNamespace(), null === $class
+                ? $this->getModelName()
+                : $class);
     }
 
     /**
@@ -93,7 +100,9 @@ class Table extends BaseTable
      */
     public function getCollectionInterface($absolute = true)
     {
-        return ($absolute ? '\\' : '').$this->collectionInterface;
+        return ($absolute
+                ? '\\'
+                : '') . $this->collectionInterface;
     }
 
     /**
@@ -112,6 +121,7 @@ class Table extends BaseTable
 
         return $this;
     }
+
     /**
      * Get annotation prefix.
      *
@@ -121,10 +131,12 @@ class Table extends BaseTable
     public function addPrefix($annotation = null)
     {
         if (null === $this->ormPrefix) {
-            $this->ormPrefix = '@'.$this->getDocument()->getConfig()->get(Formatter::CFG_ANNOTATION_PREFIX);
+            $this->ormPrefix = '@' . $this->getDocument()->getConfig()->get(Formatter::CFG_ANNOTATION_PREFIX);
         }
 
-        return $this->ormPrefix.($annotation ? $annotation : '');
+        return $this->ormPrefix . ($annotation
+                ? $annotation
+                : '');
     }
 
     /**
@@ -136,7 +148,9 @@ class Table extends BaseTable
      */
     public function quoteIdentifier($value)
     {
-        return $this->getDocument()->getConfig()->get(Formatter::CFG_QUOTE_IDENTIFIER) ? '`'.$value.'`' : $value;
+        return $this->getDocument()->getConfig()->get(Formatter::CFG_QUOTE_IDENTIFIER)
+            ? '`' . $value . '`'
+            : $value;
     }
 
     /**
@@ -161,12 +175,14 @@ class Table extends BaseTable
     {
         $indices = array();
         foreach ($this->indexes as $index) {
-            if($index->isIndex()){
+            if ($index->isIndex()) {
                 $indices[] = $this->getAnnotation('Index', $index->asAnnotation());
             }
         }
 
-        return count($indices) ? $indices : null;
+        return count($indices)
+            ? $indices
+            : null;
     }
 
     /**
@@ -178,12 +194,14 @@ class Table extends BaseTable
     {
         $uniques = array();
         foreach ($this->indexes as $index) {
-            if($index->isUnique()){
+            if ($index->isUnique()) {
                 $uniques[] = $this->getAnnotation('UniqueConstraint', $index->asAnnotation());
             }
         }
 
-        return count($uniques) ? $uniques : null;
+        return count($uniques)
+            ? $uniques
+            : null;
     }
 
     /**
@@ -226,7 +244,7 @@ class Table extends BaseTable
             $repositoryNamespace .= '\\';
         }
         $skipGetterAndSetter = $this->getDocument()->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
-        $serializableEntity  = $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
+        $serializableEntity = $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
 
         $comment = $this->getComment();
         $writer
@@ -235,26 +253,46 @@ class Table extends BaseTable
             ->write('namespace %s;', $namespace)
             ->write('')
             ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                $_this->writeUsedClasses($writer);
-            })
+                    $_this->writeUsedClasses($writer);
+                })
             ->write('/**')
-            ->write(' * '.$this->getNamespace(null, false))
+            ->write(' * ' . $this->getNamespace(null, false))
             ->write(' *')
             ->writeIf($comment, $comment)
-            ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
-            ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation(), 'uniqueConstraints' => $this->getUniqueConstraintsAnnotation())))
+            ->write(' * ' . $this->getAnnotation('Entity', array('repositoryClass' => $this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY)
+                        ? $repositoryNamespace . $this->getModelName() . 'Repository'
+                        : null)))
+            ->write(' * ' . $this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation(), 'uniqueConstraints' => $this->getUniqueConstraintsAnnotation())))
             ->write(' */')
-            ->write('class '.$this->getModelName())
+            ->write('class ' . $this->getModelName())
+            ->indent()
+            ->write('implements InputFilterAwareInterface')
+            ->outdent()
             ->write('{')
             ->indent()
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity) {
+            ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity) {
                     $_this->getColumns()->write($writer);
                     $_this->writeManyToMany($writer);
                     $_this->writeConstructor($writer);
+
+                    $writer
+                    ->write('/**')
+                    ->write(' * Instance of InputFilterInterface.')
+                    ->write(' *')
+                    ->write(' * @var InputFilter')
+                    ->write(' */')
+                    ->write('private $_inputFilter;')
+                    ->write('');
+
                     if (!$skipGetterAndSetter) {
                         $_this->getColumns()->writeGetterAndSetter($writer);
                         $_this->writeManyToManyGetterAndSetter($writer);
                     }
+
+                    $_this->writeInputFilter($writer);
+//                    $_this->writePopulate($writer);
+//                    $_this->writeGetArrayCopy($writer); // add an option [array @excludeFields = null]
+
                     if ($serializableEntity) {
                         $_this->writeSerialization($writer);
                     }
@@ -277,6 +315,12 @@ class Table extends BaseTable
             $writer->write('use %s;', $this->getCollectionClass());
             $count++;
         }
+        $writer->write('use Zend\InputFilter\InputFilter,')
+            ->indent()
+            ->write('Zend\InputFilter\Factory as InputFactory,')
+            ->write('Zend\InputFilter\InputFilterAwareInterface,')
+            ->write('Zend\InputFilter\InputFilterInterface;')
+            ->outdent();
         if ($count) {
             $writer->write('');
         }
@@ -290,7 +334,7 @@ class Table extends BaseTable
             ->write('public function __construct()')
             ->write('{')
             ->indent()
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+            ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
                     $_this->getColumns()->writeArrayCollections($writer);
                     foreach ($_this->getManyToManyRelations() as $relation) {
                         $writer->write('$this->%s = new %s();', lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())), $_this->getCollectionClass(false));
@@ -311,9 +355,9 @@ class Table extends BaseTable
             ->write('public function __sleep()')
             ->write('{')
             ->indent()
-                ->write('return array(%s);', implode(', ', array_map(function($column) {
-                    return sprintf('\'%s\'', $column->getColumnName());
-                }, $columns)))
+            ->write('return array(%s);', implode(', ', array_map(function($column) {
+                            return sprintf('\'%s\'', $column->getColumnName());
+                        }, $columns)))
             ->outdent()
             ->write('}')
         ;
@@ -354,25 +398,20 @@ class Table extends BaseTable
 
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getAnnotation('ManyToMany', $annotationOptions))
-                    ->write(' * '.$this->getAnnotation('JoinTable',
-                        array(
-                            'name'               => $relation['reference']->getOwningTable()->getRawTableName(),
-                            'joinColumns'        => array(
+                    ->write(' * ' . $this->getAnnotation('ManyToMany', $annotationOptions))
+                    ->write(' * ' . $this->getAnnotation('JoinTable', array(
+                            'name' => $relation['reference']->getOwningTable()->getRawTableName(),
+                            'joinColumns' => array(
                                 $this->getJoinColumnAnnotation(
-                                    $relation['reference']->getForeign()->getColumnName(),
-                                    $relation['reference']->getLocal()->getColumnName(),
-                                    $relation['reference']->getParameters()->get('deleteRule')
+                                    $relation['reference']->getForeign()->getColumnName(), $relation['reference']->getLocal()->getColumnName(), $relation['reference']->getParameters()->get('deleteRule')
                                 )
                             ),
                             'inverseJoinColumns' => array(
                                 $this->getJoinColumnAnnotation(
-                                    $mappedRelation->getForeign()->getColumnName(),
-                                    $mappedRelation->getLocal()->getColumnName(),
-                                    $mappedRelation->getParameters()->get('deleteRule')
+                                    $mappedRelation->getForeign()->getColumnName(), $mappedRelation->getLocal()->getColumnName(), $mappedRelation->getParameters()->get('deleteRule')
                                 )
                             )
-                        ), array('multiline' => true, 'wrapper' => ' * %s')))
+                            ), array('multiline' => true, 'wrapper' => ' * %s')))
                     ->write(' */')
                 ;
             } else {
@@ -384,12 +423,12 @@ class Table extends BaseTable
                 $annotationOptions['inversedBy'] = null;
                 $writer
                     ->write('/**')
-                    ->write(' * '.$this->getAnnotation('ManyToMany', $annotationOptions))
+                    ->write(' * ' . $this->getAnnotation('ManyToMany', $annotationOptions))
                     ->write(' */')
                 ;
             }
             $writer
-                ->write('protected $'.lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())).';')
+                ->write('protected $' . lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())) . ';')
                 ->write('')
             ;
         }
@@ -402,35 +441,105 @@ class Table extends BaseTable
         foreach ($this->manyToManyRelations as $relation) {
             $writer
                 ->write('/**')
-                ->write(' * Add '.$relation['refTable']->getModelName().' entity to collection.')
+                ->write(' * Add ' . $relation['refTable']->getModelName() . ' entity to collection.')
                 ->write(' *')
-                ->write(' * @param '. $relation['refTable']->getNamespace().' $'.lcfirst($relation['refTable']->getModelName()))
-                ->write(' * @return '.$this->getNamespace($this->getModelName()))
+                ->write(' * @param ' . $relation['refTable']->getNamespace() . ' $' . lcfirst($relation['refTable']->getModelName()))
+                ->write(' * @return ' . $this->getNamespace($this->getModelName()))
                 ->write(' */')
-                ->write('public function add'.$relation['refTable']->getModelName().'('.$relation['refTable']->getModelName().' $'.lcfirst($relation['refTable']->getModelName()).')')
+                ->write('public function add' . $relation['refTable']->getModelName() . '(' . $relation['refTable']->getModelName() . ' $' . lcfirst($relation['refTable']->getModelName()) . ')')
                 ->write('{')
                 ->indent()
-                    ->write('$this->'.lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())).'[] = $'.lcfirst($relation['refTable']->getModelName()).';')
-                    ->write('')
-                    ->write('return $this;')
+                ->write('$this->' . lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())) . '[] = $' . lcfirst($relation['refTable']->getModelName()) . ';')
+                ->write('')
+                ->write('return $this;')
                 ->outdent()
                 ->write('}')
                 ->write('')
                 ->write('/**')
-                ->write(' * Get '.$relation['refTable']->getModelName().' entity collection.')
+                ->write(' * Get ' . $relation['refTable']->getModelName() . ' entity collection.')
                 ->write(' *')
-                ->write(' * @return '.$this->getCollectionInterface())
+                ->write(' * @return ' . $this->getCollectionInterface())
                 ->write(' */')
-                ->write('public function get'.Pluralizer::pluralize($relation['refTable']->getModelName()).'()')
+                ->write('public function get' . Pluralizer::pluralize($relation['refTable']->getModelName()) . '()')
                 ->write('{')
                 ->indent()
-                    ->write('return $this->'.lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())).';')
+                ->write('return $this->' . lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())) . ';')
                 ->outdent()
                 ->write('}')
                 ->write('')
             ;
         }
 
+        return $this;
+    }
+
+    public function writeInputFilter(WriterInterface $writer)
+    {
+        $columns = $this->getColumns()->getColumns();
+
+        $writer
+            ->write('/**')
+            ->write(' * Not used, Only defined to be compatible with InputFilterAwareInterface.')
+            ->write(' * ')
+            ->write(' * @param \Zend\InputFilter\InputFilterInterface $inputFilter')
+            ->write(' * @throws \Exception')
+            ->write(' */')
+            ->write('public function setInputFilter(InputFilterInterface $inputFilter)')
+            ->write('{')
+            ->indent()
+            ->write('// End.')
+            ->write('throw new \Exception("Not used.");')
+            ->outdent()
+            ->write('}')
+            ->write('')
+            ->write('/**')
+            ->write(' * Return a for this entity configured input filter instance.')
+            ->write(' *')
+            ->write(' * @return InputFilterInterface')
+            ->write(' */')
+            ->write('public function getInputFilter()')
+            ->write('{')
+            ->indent()
+            ->write('if ($this->_inputFilter instanceof InputFilterInterface) {')
+            ->indent()
+            ->write('// End.')
+            ->write('return $this->_inputFilter;')
+            ->outdent()
+            ->write('}')
+            ->write('$factory = new InputFactory();')
+            ->write('')
+            ->write('$filters = array(')
+            ->write('// TODO, write filter logic')
+            ->write(');')
+            ->write('')
+            ->write('$this->_inputFilter = $factory->createInputFilter($filters);')
+            ->write('')
+            ->write('// End.')
+            ->write('return $this->_inputFilter;')
+            ->outdent()
+            ->write('}')
+            ->write('');
+
+        // End.
+        return $this;
+    }
+
+    public function writePopulate(WriterInterface $writer)
+    {
+        $columns = $this->getColumns()->getColumns();
+
+        // End.
+        return $this;
+    }
+
+    public function writeGetArrayCopy(WriterInterface $writer)
+    {
+        $columns = $this->getColumns()->getColumns();
+
+        $writer
+            ->write();
+
+        // End.
         return $this;
     }
 
@@ -481,4 +590,5 @@ class Table extends BaseTable
             return $fetchValue;
         }
     }
+
 }
