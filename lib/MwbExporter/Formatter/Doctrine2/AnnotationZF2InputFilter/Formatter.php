@@ -42,6 +42,8 @@ class Formatter
     const CFG_SKIP_GETTER_SETTER = 'skipGetterAndSetter';
     const CFG_GENERATE_ENTITY_SERIALIZATION = 'generateEntitySerialization';
     const CFG_QUOTE_IDENTIFIER = 'quoteIdentifier';
+    const CFG_BACKUP_FILE = 'backupExistingFile';
+    const CFG_ENHANCE_M2M_DETECTION = 'enhanceManyToManyDetection';
 
     protected function init()
     {
@@ -57,6 +59,8 @@ class Formatter
             static::CFG_SKIP_GETTER_SETTER => false,
             static::CFG_GENERATE_ENTITY_SERIALIZATION => true,
             static::CFG_QUOTE_IDENTIFIER => false,
+            static::CFG_BACKUP_FILE => false,
+            static::CFG_ENHANCE_M2M_DETECTION => false,
         ));
     }
 
