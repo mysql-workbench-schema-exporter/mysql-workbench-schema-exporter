@@ -113,7 +113,7 @@ class Table
      */
     public function write(WriterInterface $writer)
     {
-        if (!$this->isExternal()) {
+        if (!$this->isExternal() && !$this->isManyToMany()) {
             $writer->open($this->getTableFileName());
             $this->writeTable($writer);
             $writer->close();
@@ -297,6 +297,8 @@ class Table
                     if ($serializableEntity) {
                         $_this->writeSerialization($writer);
                     }
+
+                    $writer->write('// Custom methods //////////////////////////////////////////////////////////');
                 })
             ->outdent()
             ->write('}')
