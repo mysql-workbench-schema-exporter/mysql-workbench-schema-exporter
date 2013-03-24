@@ -585,6 +585,11 @@ class Table
 
     public function writeGetArrayCopy(WriterInterface $writer)
     {
+        $columns = $this->getColumns()->getColumns();
+        $relations = $this->getRelations();
+
+
+
         $writer
             ->write('/**')
             ->write(' * Return all entity fields with values.')
@@ -596,33 +601,31 @@ class Table
             ->write('public function getArrayCopy(array $fields = array())')
             ->write('{')
             ->indent()
-            ->write('$orginalFields = get_object_vars($this);')
+            ->write('$dataFields = array(%s);', implode(', ', array_map(function($column) {
+                            return sprintf('\'%s\'', $column->getColumnName());
+                        }, $columns)))
+            ->write('$relationFields = array(%s);', implode(', ', array_map(function($relation) {
+                            return sprintf('\'%s\'', lcfirst($relation->getReferencedTable()->getModelName()));
+                        }, $relations)))
+//            ->write('$orginalFields = get_object_vars($this);')
             ->write('$copiedFields = array();')
             ->outdent()
-            ->write('')
             ->indent()
-            ->write('foreach ($orginalFields as $field => $value) {')
+            ->write('foreach ($dataFields as $field) {')
             ->indent()
-            ->write('switch (true) {')
+            ->write('if (!in_array($field, $fields) && !empty($fields)) {')
             ->indent()
-            ->write('case (\'_\' == $field[0]):')
-            ->indent()
-            ->write('// Field is private')
-            ->outdent()
-            ->write('case (!in_array($field, $fields) && !empty($fields)):')
-            ->indent()
-            ->write('// Exclude field')
             ->write('continue;')
-            ->write('break;')
             ->outdent()
-            ->write('default:')
-            ->indent()
+            ->write('}')
             ->write('$copiedFields[$field] = $value;')
             ->outdent()
-            ->outdent()
             ->write('}')
+            ->write('// foreach ($relationFields as $field => $relation) {')
+            ->indent()
+            ->write('// $copiedFields[$field] = $relation->getArrayCopy();')
             ->outdent()
-            ->write('}')
+            ->write('// }')
             ->write('')
             ->write('// End.')
             ->write('return $copiedFields;')
