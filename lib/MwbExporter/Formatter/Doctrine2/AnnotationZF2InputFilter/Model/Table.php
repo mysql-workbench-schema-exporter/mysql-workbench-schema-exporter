@@ -510,7 +510,6 @@ class Table
             ->outdent()
             ->write('}')
             ->write('$factory = new InputFactory();')
-            ->write('')
             ->write('$filters = array(')
             ->indent();
 
@@ -531,9 +530,7 @@ class Table
         $writer
             ->outdent()
             ->write(');')
-            ->write('')
             ->write('$this->_inputFilter = $factory->createInputFilter($filters);')
-            ->write('')
             ->write('// End.')
             ->write('return $this->_inputFilter;')
             ->outdent()
@@ -544,6 +541,12 @@ class Table
         return $this;
     }
 
+    /**
+     * Add a populate method to the entity writer.
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Table
+     */
     public function writePopulate(WriterInterface $writer)
     {
         $writer
@@ -557,7 +560,6 @@ class Table
             ->write('public function populate(array $data = array())')
             ->write('{')
             ->indent()
-            ->write('')
             ->write('foreach ($data as $field => $value) {')
             ->indent()
             ->write('$setter = sprintf(\'set%s\', ucfirst(')
@@ -565,7 +567,6 @@ class Table
             ->write('str_replace(\' \', \'\', ucwords(str_replace(\'_\', \' \', $field)))')
             ->outdent()
             ->write('));')
-            ->write('')
             ->write('if (method_exists($this, $setter)) {')
             ->indent()
             ->write('$this->{$setter}($value);')
@@ -573,7 +574,6 @@ class Table
             ->write('}')
             ->outdent()
             ->write('}')
-            ->write('')
             ->write('// End.')
             ->write('return true;')
             ->outdent()
@@ -583,6 +583,12 @@ class Table
         return $this;
     }
 
+    /**
+     * Add a getArrayCopy method to the entity writer.
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Table
+     */
     public function writeGetArrayCopy(WriterInterface $writer)
     {
         $columns = $this->getColumns()->getColumns();
@@ -607,7 +613,6 @@ class Table
             ->write('$relationFields = array(%s);', implode(', ', array_map(function($relation) {
                             return sprintf('\'%s\'', lcfirst($relation->getReferencedTable()->getModelName()));
                         }, $relations)))
-//            ->write('$orginalFields = get_object_vars($this);')
             ->write('$copiedFields = array();')
             ->outdent()
             ->indent()
