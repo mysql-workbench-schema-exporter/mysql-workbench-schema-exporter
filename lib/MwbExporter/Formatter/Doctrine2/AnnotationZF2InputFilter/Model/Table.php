@@ -476,6 +476,12 @@ class Table
         return $this;
     }
 
+    /**
+     * Add the \Zend\InputFilter\InputFilterInterface methods.
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Table
+     */
     public function writeInputFilter(WriterInterface $writer)
     {
         $columns = $this->getColumns()->getColumns();
@@ -623,7 +629,8 @@ class Table
             ->write('continue;')
             ->outdent()
             ->write('}')
-            ->write('$copiedFields[$field] = $value;')
+            ->write('$getter = sprintf(\'get%s\', ucfirst(str_replace(\' \', \'\', ucwords(str_replace(\'_\', \' \', $field)))));')
+            ->write('$copiedFields[$field] = $this->{$getter}();')
             ->outdent()
             ->write('}')
             ->write('// foreach ($relationFields as $field => $relation) {')
