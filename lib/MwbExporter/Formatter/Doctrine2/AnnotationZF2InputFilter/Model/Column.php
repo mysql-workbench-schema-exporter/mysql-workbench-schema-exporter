@@ -155,9 +155,9 @@ class Column
                 'targetEntity' => $targetEntity,
                 'mappedBy' => null,
                 'inversedBy' => $inversedBy,
-                // 'cascade' => $this->getCascadeOption($this->local->parseComment('cascade')),
-                // 'fetch' => $this->getFetchOption($this->local->parseComment('fetch')),
-                // 'orphanRemoval' => $this->getBooleanOption($this->local->parseComment('orphanRemoval')),
+                'cascade' => $this->getCascadeOption($this->local->parseComment('cascade')),
+                'fetch' => $this->getFetchOption($this->local->parseComment('fetch')),
+                'orphanRemoval' => $this->getBooleanOption($this->local->parseComment('orphanRemoval')),
             );
             $joinColumnAnnotationOptions = array(
                 'name' => $this->local->getForeign()->getColumnName(),
