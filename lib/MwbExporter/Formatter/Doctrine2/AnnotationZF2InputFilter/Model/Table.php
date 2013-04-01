@@ -600,14 +600,12 @@ class Table
         $columns = $this->getColumns()->getColumns();
         $relations = $this->getRelations();
 
-
-
         $writer
             ->write('/**')
-            ->write(' * Return all entity fields with values.')
-            ->write(' * Fields started with _ will be excluded.')
+            ->write(' * Return a array with all fields and data.')
+            ->write(' * Default all fields will be copied.')
             ->write(' * ')
-            ->write(' * @param array $fields This fields will be copied')
+            ->write(' * @param array $fields Only this fields will be copied.')
             ->write(' * @return array')
             ->write(' */')
             ->write('public function getArrayCopy(array $fields = array())')
