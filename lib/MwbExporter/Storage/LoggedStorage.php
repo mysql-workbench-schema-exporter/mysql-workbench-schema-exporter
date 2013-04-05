@@ -53,7 +53,7 @@ class LoggedStorage extends Storage
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Storage.Storage::setOutdir()
+     * @see \MwbExporter\Storage\Storage::setOutdir()
      */
     public function setOutdir($dir)
     {
@@ -65,7 +65,7 @@ class LoggedStorage extends Storage
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Storage.Storage::setBackup()
+     * @see \MwbExporter\Storage\Storage::setBackup()
      */
     public function setBackup($value)
     {
@@ -77,7 +77,7 @@ class LoggedStorage extends Storage
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Storage.Storage::initialize()
+     * @see \MwbExporter\Storage\Storage::initialize()
      */
     public function initialize()
     {
@@ -89,7 +89,7 @@ class LoggedStorage extends Storage
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Storage.Storage::save()
+     * @see \MwbExporter\Storage\Storage::save()
      */
     public function save($filename, $content)
     {
@@ -101,7 +101,7 @@ class LoggedStorage extends Storage
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Storage.Storage::finalize()
+     * @see \MwbExporter\Storage\Storage::finalize()
      */
     public function finalize()
     {
@@ -112,7 +112,7 @@ class LoggedStorage extends Storage
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Storage.Storage::getResult()
+     * @see \MwbExporter\Storage\Storage::getResult()
      */
     public function getResult()
     {

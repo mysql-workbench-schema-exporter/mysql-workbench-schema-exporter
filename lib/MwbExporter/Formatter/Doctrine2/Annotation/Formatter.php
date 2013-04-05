@@ -27,7 +27,7 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Annotation;
 
-use MwbExporter\Formatter as BaseFormatter;
+use MwbExporter\Formatter\Formatter as BaseFormatter;
 use MwbExporter\Model\Base;
 
 class Formatter extends BaseFormatter
@@ -60,7 +60,7 @@ class Formatter extends BaseFormatter
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.Formatter::createTable()
+     * @see \MwbExporter\Formatter\Formatter::createTable()
      */
     public function createTable(Base $parent, $node)
     {
@@ -69,7 +69,7 @@ class Formatter extends BaseFormatter
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createColumns()
+     * @see \MwbExporter\Formatter\FormatterInterface::createColumns()
      */
     public function createColumns(Base $parent, $node)
     {
@@ -78,7 +78,7 @@ class Formatter extends BaseFormatter
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createColumn()
+     * @see \MwbExporter\Formatter\FormatterInterface::createColumn()
      */
     public function createColumn(Base $parent, $node)
     {
@@ -87,7 +87,7 @@ class Formatter extends BaseFormatter
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createIndex()
+     * @see \MwbExporter\Formatter\FormatterInterface::createIndex()
      */
     public function createIndex(Base $parent, $node)
     {

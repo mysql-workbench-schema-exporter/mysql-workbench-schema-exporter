@@ -29,7 +29,7 @@ namespace MwbExporter\Writer;
 
 use MwbExporter\Storage\StorageInterface;
 
-use MwbExporter\FormatterInterface;
+use MwbExporter\Formatter\FormatterInterface;
 use MwbExporter\Model\Document;
 use MwbExporter\Buffer\Buffer;
 
@@ -83,7 +83,7 @@ abstract class Writer implements WriterInterface
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Writer.WriterInterface::setStorage()
+     * @see \MwbExporter\Writer\WriterInterface::setStorage()
      */
     public function setStorage(StorageInterface $storage)
     {
@@ -94,7 +94,7 @@ abstract class Writer implements WriterInterface
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Writer.WriterInterface::getStorage()
+     * @see \MwbExporter\Writer\WriterInterface::getStorage()
      */
     public function getStorage()
     {
@@ -110,7 +110,7 @@ abstract class Writer implements WriterInterface
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Writer.WriterInterface::setDocument()
+     * @see \MwbExporter\Writer\WriterInterface::setDocument()
      */
     public function setDocument(Document $document)
     {
@@ -121,7 +121,7 @@ abstract class Writer implements WriterInterface
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Writer.WriterInterface::begin()
+     * @see \MwbExporter\Writer\WriterInterface::begin()
      */
     public function begin()
     {
@@ -133,7 +133,7 @@ abstract class Writer implements WriterInterface
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Writer.WriterInterface::open()
+     * @see \MwbExporter\Writer\WriterInterface::open()
      */
     public function open($filename)
     {
@@ -150,7 +150,7 @@ abstract class Writer implements WriterInterface
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Writer.WriterInterface::close()
+     * @see \MwbExporter\Writer\WriterInterface::close()
      */
     public function close()
     {
@@ -164,7 +164,7 @@ abstract class Writer implements WriterInterface
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Writer.WriterInterface::end()
+     * @see \MwbExporter\Writer\WriterInterface::end()
      */
     public function end()
     {
@@ -177,7 +177,7 @@ abstract class Writer implements WriterInterface
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Writer.WriterInterface::write()
+     * @see \MwbExporter\Writer\WriterInterface::write()
      */
     public function write()
     {
@@ -203,7 +203,7 @@ abstract class Writer implements WriterInterface
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Writer.WriterInterface::writeIf()
+     * @see \MwbExporter\Writer\WriterInterface::writeIf()
      */
     public function writeIf()
     {
@@ -220,7 +220,7 @@ abstract class Writer implements WriterInterface
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Writer.WriterInterface::writeCallback()
+     * @see \MwbExporter\Writer\WriterInterface::writeCallback()
      */
     public function writeCallback($callback)
     {
@@ -238,7 +238,7 @@ abstract class Writer implements WriterInterface
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Writer.WriterInterface::indent()
+     * @see \MwbExporter\Writer\WriterInterface::indent()
      */
     public function indent()
     {
@@ -249,7 +249,7 @@ abstract class Writer implements WriterInterface
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Writer.WriterInterface::outdent()
+     * @see \MwbExporter\Writer\WriterInterface::outdent()
      */
     public function outdent()
     {
@@ -274,6 +274,7 @@ abstract class Writer implements WriterInterface
             } else {
                 $indentation = str_repeat(' ', $this->document->getConfig()->get(FormatterInterface::CFG_INDENTATION));
             }
+
             return str_repeat($indentation, $this->indentation);
         }
     }

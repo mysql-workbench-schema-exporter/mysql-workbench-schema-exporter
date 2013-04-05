@@ -26,11 +26,11 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
-use MwbExporter\Model\Table as Base;
+use MwbExporter\Model\Table as BaseTable;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Formatter\Doctrine2\Yaml\Formatter;
 
-class Table extends Base
+class Table extends BaseTable
 {
     /**
      * Get the entity namespace.

@@ -24,9 +24,9 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Helper;
+namespace MwbExporter\Object;
 
-class JSObject extends BaseObject
+class JS extends Base
 {
     protected function init()
     {
@@ -37,11 +37,11 @@ class JSObject extends BaseObject
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Helper.BaseObject::asCode()
+     * @see \MwbExporter\Object\Base::asCode()
      */
     public function asCode($value)
     {
-        if ($value instanceof JSObject) {
+        if ($value instanceof JS) {
             $value = (string) $value;
         } elseif (is_bool($value)) {
             $value = $value ? 'true' : 'false';

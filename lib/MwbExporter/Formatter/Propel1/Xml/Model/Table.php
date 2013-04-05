@@ -25,8 +25,6 @@
 
 namespace MwbExporter\Formatter\Propel1\Xml\Model;
 
-use MwbExporter\FormatterInterface;
-
 use MwbExporter\Model\Table as BaseTable;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Formatter\Propel1\Xml\Formatter;
@@ -84,6 +82,7 @@ class Table extends BaseTable
         foreach ($this->indexes as $index) {
             $index->write($writer);
         }
+
         return $this;
     }
 }

@@ -26,10 +26,10 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
-use MwbExporter\Model\Index as Base;
+use MwbExporter\Model\Index as BaseIndex;
 use MwbExporter\Writer\WriterInterface;
 
-class Index extends Base
+class Index extends BaseIndex
 {
     public function write(WriterInterface $writer)
     {

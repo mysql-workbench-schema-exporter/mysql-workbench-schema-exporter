@@ -27,7 +27,7 @@
 
 namespace MwbExporter\Model;
 
-use MwbExporter\FormatterInterface;
+use MwbExporter\Formatter\FormatterInterface;
 use MwbExporter\Helper\Pluralizer;
 use MwbExporter\Helper\Singularizer;
 use MwbExporter\Writer\WriterInterface;
@@ -208,6 +208,7 @@ class Table extends Base
         if ($external === 'true') {
             return true;
         }
+
         return false;
     }
 
@@ -407,7 +408,7 @@ class Table extends Base
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Model.Base::write()
+     * @see \MwbExporter\Model\Base::write()
      */
     public function write(WriterInterface $writer)
     {

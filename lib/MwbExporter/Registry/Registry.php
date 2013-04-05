@@ -25,22 +25,22 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter;
+namespace MwbExporter\Registry;
 
 class Registry
 {
     /**
-     * @var \MwbExporter\RegistryHolder
+     * @var \MwbExporter\Registry\RegistryHolder
      */
     public $config;
 
     /**
-     * @var \MwbExporter\RegistryHolder
+     * @var \MwbExporter\Registry\RegistryHolder
      */
     public $reference;
 
     /**
-     * @var \MwbExporter\RegistryHolder
+     * @var \MwbExporter\Registry\RegistryHolder
      */
     public $factory;
 

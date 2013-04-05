@@ -25,8 +25,6 @@
 
 namespace MwbExporter\Formatter\Propel1\Xml\Model;
 
-use MwbExporter\FormatterInterface;
-
 use MwbExporter\Model\View as BaseView;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Formatter\Propel1\Xml\Formatter;

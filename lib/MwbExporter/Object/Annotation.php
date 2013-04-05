@@ -24,9 +24,9 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Helper;
+namespace MwbExporter\Object;
 
-class AnnotationObject extends BaseObject
+class Annotation extends Base
 {
     /**
      * @var string
@@ -37,7 +37,7 @@ class AnnotationObject extends BaseObject
      * Constructor.
      * 
      * @param string $annotation  Annotation name
-     * @param mixed  $content     Object content
+     * @param mixed  $content     Object content	
      * @param array  $options     Object options
      */
     public function __construct($annotation, $content = null, $options = array())
@@ -53,11 +53,11 @@ class AnnotationObject extends BaseObject
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Helper.BaseObject::asCode()
+     * @see \MwbExporter\Object\Base::asCode()
      */
     public function asCode($value)
     {
-        if ($value instanceof AnnotationObject) {
+        if ($value instanceof Annotation) {
             $value = (string) $value;
         } elseif (is_bool($value)) {
             $value = $value ? 'true' : 'false';

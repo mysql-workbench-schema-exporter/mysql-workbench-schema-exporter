@@ -27,6 +27,7 @@
 
 namespace MwbExporter;
 
+use MwbExporter\Formatter\FormatterInterface;
 use MwbExporter\Model\Document;
 use MwbExporter\Storage\LoggedStorage;
 
@@ -147,7 +148,7 @@ class Bootstrap
      * Get formatter.
      *
      * @param string $name  The formatter name
-     * @return \MwbExporter\FormatterInterface
+     * @return \MwbExporter\Formatter\FormatterInterface
      */
     public function getFormatter($name)
     {
@@ -194,7 +195,7 @@ class Bootstrap
     /**
      * Load workbench schema and generate the code.
      *
-     * @param \MwbExporter\FormatterInterface $formatter
+     * @param \MwbExporter\Formatter\FormatterInterface $formatter
      * @param string $filename
      * @param string $outDir
      * @param string $storage

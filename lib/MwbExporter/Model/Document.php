@@ -27,7 +27,7 @@
 
 namespace MwbExporter\Model;
 
-use MwbExporter\FormatterInterface;
+use MwbExporter\Formatter\FormatterInterface;
 use MwbExporter\Writer\WriterInterface;
 
 class Document extends Base
@@ -43,7 +43,7 @@ class Document extends Base
     protected $physicalModel = null;
 
     /**
-     * @var \MwbExporter\FormatterInterface
+     * @var \MwbExporter\Formatter\FormatterInterface
      */
     protected $formatter = null;
 
@@ -74,7 +74,7 @@ class Document extends Base
     /**
      * Get the formatter object.
      *
-     * @return \MwbExporter\FormatterInterface
+     * @return \MwbExporter\Formatter\FormatterInterface
      */
     public function getFormatter()
     {
@@ -94,7 +94,7 @@ class Document extends Base
     /**
      * Get configuration object.
      *
-     * @return \MwbExporter\RegistryHolder
+     * @return \MwbExporter\Registry\RegistryHolder
      */
     public function getConfig()
     {
@@ -104,7 +104,7 @@ class Document extends Base
     /**
      * Get factory object.
      *
-     * @return \MwbExporter\RegistryHolder
+     * @return \MwbExporter\Registry\RegistryHolder
      */
     public function getFactory()
     {
@@ -114,7 +114,7 @@ class Document extends Base
     /**
      * Get reference object.
      *
-     * @return \MwbExporter\RegistryHolder
+     * @return \MwbExporter\Registry\RegistryHolder
      */
     public function getReference()
     {
@@ -123,7 +123,7 @@ class Document extends Base
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Model.Base::getDocument()
+     * @see \MwbExporter\Model\Base::getDocument()
      */
     public function getDocument()
     {
@@ -156,7 +156,7 @@ class Document extends Base
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Model.Base::write()
+     * @see \MwbExporter\Model\Base::write()
      */
     public function write(WriterInterface $writer)
     {

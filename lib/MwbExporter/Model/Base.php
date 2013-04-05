@@ -27,8 +27,8 @@
 
 namespace MwbExporter\Model;
 
-use MwbExporter\Registry;
-use MwbExporter\RegistryHolder;
+use MwbExporter\Registry\Registry;
+use MwbExporter\Registry\RegistryHolder;
 use MwbExporter\Writer\WriterInterface;
 
 abstract class Base
@@ -54,7 +54,7 @@ abstract class Base
     protected $id;
 
     /**
-     * @var \MwbExporter\RegistryHolder
+     * @var \MwbExporter\Registry\RegistryHolder
      */
     protected $parameters = null;
 
@@ -118,7 +118,7 @@ abstract class Base
     /**
      * Get parameters holder.
      * 
-     * @return \MwbExporter\RegistryHolder
+     * @return \MwbExporter\Registry\RegistryHolder
      */
     public function getParameters()
     {

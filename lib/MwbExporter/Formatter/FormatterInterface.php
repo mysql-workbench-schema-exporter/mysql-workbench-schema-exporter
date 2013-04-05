@@ -25,7 +25,7 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter;
+namespace MwbExporter\Formatter;
 
 use MwbExporter\Model\Base;
 
@@ -42,14 +42,14 @@ interface FormatterInterface {
     /**
      * Get the registry object.
      *
-     * @return \MwbExporter\Registry
+     * @return \MwbExporter\Registry\Registry
      */
     public function getRegistry();
 
     /**
      * Get the data type converter.
      *
-     * @return \MwbExporter\DatatypeConverterInterface
+     * @return \MwbExporter\Formatter\DatatypeConverterInterface
      */
     public function getDatatypeConverter();
 

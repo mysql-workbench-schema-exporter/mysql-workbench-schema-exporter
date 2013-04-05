@@ -25,20 +25,33 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter;
+namespace MwbExporter\Formatter;
 
+use MwbExporter\Registry\Registry;
 use MwbExporter\Model\Base;
+use MwbExporter\Model\Catalog;
+use MwbExporter\Model\Schemas;
+use MwbExporter\Model\Schema;
+use MwbExporter\Model\Tables;
+use MwbExporter\Model\Table;
+use MwbExporter\Model\ForeignKeys;
+use MwbExporter\Model\ForeignKey;
+use MwbExporter\Model\Indices;
+use MwbExporter\Model\Index;
+use MwbExporter\Model\Columns;
 use MwbExporter\Model\Column;
+use MwbExporter\Model\Views;
+use MwbExporter\Model\View;
 
 abstract class Formatter implements FormatterInterface
 {
     /**
-     * @var \MwbExporter\Registry
+     * @var \MwbExporter\Registry\Registry
      */
     private $registry = null;
 
     /**
-     * @var \MwbExporter\DatatypeConverterInterface
+     * @var \MwbExporter\Formatter\DatatypeConverterInterface
      */
     private $nodetypeConverter = null;
 
@@ -71,7 +84,7 @@ abstract class Formatter implements FormatterInterface
      * Add configurations data.
      *
      * @param string $configurations Configurations data
-     * @return \MwbExporter\Formatter
+     * @return \MwbExporter\Formatter\Formatter
      */
     protected function addConfigurations($configurations = array())
     {
@@ -98,7 +111,7 @@ abstract class Formatter implements FormatterInterface
      *
      * @param array $configurations
      * @throws \RuntimeException
-     * @return \MwbExporter\Formatter
+     * @return \MwbExporter\Formatter\Formatter
      */
     public function setup($configurations = array())
     {
@@ -117,8 +130,8 @@ abstract class Formatter implements FormatterInterface
     /**
      * Set data type converter.
      *
-     * @param \MwbExporter\DatatypeConverterInterface $nodetypeConverter
-     * @return \MwbExporter\Formatter
+     * @param \MwbExporter\Formatter\DatatypeConverterInterface $nodetypeConverter
+     * @return \MwbExporter\Formatter\Formatter
      */
     protected function setDatatypeConverter(DatatypeConverterInterface $nodetypeConverter)
     {
@@ -131,7 +144,7 @@ abstract class Formatter implements FormatterInterface
     /**
      * Get registry object.
      *
-     * @return \MwbExporter\Registry
+     * @return \MwbExporter\Registry\Registry
      */
     public function getRegistry()
     {
@@ -141,7 +154,7 @@ abstract class Formatter implements FormatterInterface
     /**
      * Get data type converter.
      *
-     * @return \MwbExporter\DatatypeConverterInterface
+     * @return \MwbExporter\Formatter\DatatypeConverterInterface
      */
     public function getDatatypeConverter()
     {
@@ -154,124 +167,124 @@ abstract class Formatter implements FormatterInterface
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createCatalog()
+     * @see \MwbExporter\Formatter\FormatterInterface::createCatalog()
      */
     public function createCatalog(Base $parent, $node)
     {
-        return new Model\Catalog($parent, $node);
+        return new Catalog($parent, $node);
     }
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createSchemas()
+     * @see \MwbExporter\Formatter\FormatterInterface::createSchemas()
      */
     public function createSchemas(Base $parent, $node)
     {
-        return new Model\Schemas($parent, $node);
+        return new Schemas($parent, $node);
     }
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createSchema()
+     * @see \MwbExporter\Formatter\FormatterInterface::createSchema()
      */
     public function createSchema(Base $parent, $node)
     {
-        return new Model\Schema($parent, $node);
+        return new Schema($parent, $node);
     }
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createTables()
+     * @see \MwbExporter\Formatter\FormatterInterface::createTables()
      */
     public function createTables(Base $parent, $node)
     {
-        return new Model\Tables($parent, $node);
+        return new Tables($parent, $node);
     }
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createTable()
+     * @see \MwbExporter\Formatter\FormatterInterface::createTable()
      */
     public function createTable(Base $parent, $node)
     {
-        return new Model\Table($parent, $node);
+        return new Table($parent, $node);
     }
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createForeignKeys()
+     * @see \MwbExporter\Formatter\FormatterInterface::createForeignKeys()
      */
     public function createForeignKeys(Base $parent, $node)
     {
-        return new Model\ForeignKeys($parent, $node);
+        return new ForeignKeys($parent, $node);
     }
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createForeignKey()
+     * @see \MwbExporter\Formatter\FormatterInterface::createForeignKey()
      */
     public function createForeignKey(Base $parent, $node)
     {
-        return new Model\ForeignKey($parent, $node);
+        return new ForeignKey($parent, $node);
     }
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createIndices()
+     * @see \MwbExporter\Formatter\FormatterInterface::createIndices()
      */
     public function createIndices(Base $parent, $node)
     {
-        return new Model\Indices($parent, $node);
+        return new Indices($parent, $node);
     }
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createIndex()
+     * @see \MwbExporter\Formatter\FormatterInterface::createIndex()
      */
     public function createIndex(Base $parent, $node)
     {
-        return new Model\Index($parent, $node);
+        return new Index($parent, $node);
     }
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createColumns()
+     * @see \MwbExporter\Formatter\FormatterInterface::createColumns()
      */
     public function createColumns(Base $parent, $node)
     {
-        return new Model\Columns($parent, $node);
+        return new Columns($parent, $node);
     }
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createColumn()
+     * @see \MwbExporter\Formatter\FormatterInterface::createColumn()
      */
     public function createColumn(Base $parent, $node)
     {
-        return new Model\Column($parent, $node);
+        return new Column($parent, $node);
     }
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createViews()
+     * @see \MwbExporter\Formatter\FormatterInterface::createViews()
      */
     public function createViews(Base $parent, $node)
     {
-        return new Model\Views($parent, $node);
+        return new Views($parent, $node);
     }
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createView()
+     * @see \MwbExporter\Formatter\FormatterInterface::createView()
      */
     public function createView(Base $parent, $node)
     {
-        return new Model\View($parent, $node);
+        return new View($parent, $node);
     }
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::getPreferredWriter()
+     * @see \MwbExporter\Formatter\FormatterInterface::getPreferredWriter()
      */
     public function getPreferredWriter()
     {

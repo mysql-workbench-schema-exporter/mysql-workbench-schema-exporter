@@ -28,7 +28,7 @@
 namespace MwbExporter\Model;
 
 use MwbExporter\Writer\WriterInterface;
-use MwbExporter\FormatterInterface;
+use MwbExporter\Formatter\FormatterInterface;
 
 class Tables extends Base implements \ArrayAccess, \IteratorAggregate, \Countable
 {
@@ -114,7 +114,7 @@ class Tables extends Base implements \ArrayAccess, \IteratorAggregate, \Countabl
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Model.Base::write()
+     * @see \MwbExporter\Model\Base::write()
      */
     public function write(WriterInterface $writer)
     {

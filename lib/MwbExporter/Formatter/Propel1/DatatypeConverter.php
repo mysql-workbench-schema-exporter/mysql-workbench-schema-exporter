@@ -26,7 +26,7 @@
 
 namespace MwbExporter\Formatter\Propel1;
 
-use MwbExporter\DatatypeConverter as BaseDatatypeConverter;
+use MwbExporter\Formatter\DatatypeConverter as BaseDatatypeConverter;
 use MwbExporter\Model\Column;
 
 class DatatypeConverter extends BaseDatatypeConverter

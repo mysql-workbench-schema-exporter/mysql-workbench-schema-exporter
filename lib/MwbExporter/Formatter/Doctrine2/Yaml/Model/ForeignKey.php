@@ -26,11 +26,11 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
-use MwbExporter\Model\ForeignKey as Base;
+use MwbExporter\Model\ForeignKey as BaseForeignKey;
 use MwbExporter\Helper\Pluralizer;
 use MwbExporter\Writer\WriterInterface;
 
-class ForeignKey extends Base
+class ForeignKey extends BaseForeignKey
 {
     public function write(WriterInterface $writer)
     {

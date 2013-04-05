@@ -26,10 +26,10 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
-use MwbExporter\Model\Columns as Base;
+use MwbExporter\Model\Columns as BaseColumns;
 use MwbExporter\Writer\WriterInterface;
 
-class Columns extends Base
+class Columns extends BaseColumns
 {
     public function write(WriterInterface $writer)
     {
