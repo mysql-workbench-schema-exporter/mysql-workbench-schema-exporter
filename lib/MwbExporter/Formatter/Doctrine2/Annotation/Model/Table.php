@@ -205,7 +205,7 @@ class Table extends BaseTable
 
     public function writeTable(WriterInterface $writer)
     {
-        if (!$this->isExternal() && !$this->isManyToMany()) {
+        if (!$this->isExternal()) {
             $namespace = $this->getEntityNamespace();
             if ($repositoryNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) {
                 $repositoryNamespace .= '\\';
@@ -251,15 +251,9 @@ class Table extends BaseTable
             ;
 
             return self::WRITE_OK;
-        } else {
-            switch (true) {
-                case $this->isManyToMany():
-                    return self::WRITE_M2M;
-
-                case $this->isExternal():
-                    return self::WRITE_EXTERNAL;
-            }
         }
+
+        return self::WRITE_EXTERNAL;
     }
 
     public function writeUsedClasses(WriterInterface $writer)
