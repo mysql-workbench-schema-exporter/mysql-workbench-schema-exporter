@@ -309,23 +309,36 @@ class Table extends BaseTable
         ;
     }
 
+    /**
+     * Get owning side of relation.
+     *
+     * @param array $relation
+     * @param array $mappedRelation
+     * @return boolean
+     */
+    public function isOwningSide($relation, &$mappedRelation)
+    {
+        $mappedRelation = $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName());
+
+        // user can hint which side is the owning side (set d:owningSide on the foreign key)
+        if ($relation['reference']->parseComment('owningSide') === 'true') {
+            return true;
+        }
+        if ($mappedRelation->parseComment('owningSide') === 'true') {
+            return false;
+        }
+
+        // if no owning side is defined, use one side randomly as owning side (the one where the column id is lower)
+        return $relation['reference']->getLocal()->getId() < $mappedRelation->getLocal()->getId();
+    }
+
     public function writeManyToMany(WriterInterface $writer)
     {
         // @TODO D2A ManyToMany relation joinColumns and inverseColumns
         // referencing wrong column names
 
         foreach ($this->manyToManyRelations as $relation) {
-            $mappedRelation = $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName());
-
-            // user can hint which side is the owning side (set d:owningSide on the foreign key)
-            if ($relation['reference']->parseComment('owningSide') === 'true') {
-                $isOwningSide = true;
-            } else if ($mappedRelation->parseComment('owningSide') === 'true') {
-                $isOwningSide = false;
-            } else {
-                // if no owning side is defined, use one side randomly as owning side (the one where the column id is lower)
-                $isOwningSide = $relation['reference']->getLocal()->getId() < $mappedRelation->getLocal()->getId();
-            }
+            $isOwningSide = $this->isOwningSide($relation, $mappedRelation);
 
             $annotationOptions = array(
                 'targetEntity' => $relation['refTable']->getModelName(),
@@ -390,6 +403,7 @@ class Table extends BaseTable
     public function writeManyToManyGetterAndSetter(WriterInterface $writer)
     {
         foreach ($this->manyToManyRelations as $relation) {
+            $isOwningSide = $this->isOwningSide($relation, $mappedRelation);
             $writer
                 ->write('/**')
                 ->write(' * Add '.$relation['refTable']->getModelName().' entity to collection.')
@@ -400,6 +414,11 @@ class Table extends BaseTable
                 ->write('public function add'.$relation['refTable']->getModelName().'('.$relation['refTable']->getModelName().' $'.lcfirst($relation['refTable']->getModelName()).')')
                 ->write('{')
                 ->indent()
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($isOwningSide, $relation, $mappedRelation) {
+                        if ($isOwningSide) {
+                            $writer->write('$%s->add%s($this);', lcfirst($relation['refTable']->getModelName()), $_this->getModelName());
+                        }
+                    })
                     ->write('$this->'.lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())).'[] = $'.lcfirst($relation['refTable']->getModelName()).';')
                     ->write('')
                     ->write('return $this;')
