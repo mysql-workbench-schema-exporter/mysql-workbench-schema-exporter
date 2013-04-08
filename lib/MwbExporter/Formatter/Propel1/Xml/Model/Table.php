@@ -31,38 +31,31 @@ use MwbExporter\Formatter\Propel1\Xml\Formatter;
 
 class Table extends BaseTable
 {
-    /**
-     * Write document as generated code.
-     *
-     * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Propel1\Xml\Model\Table
-     */
-    public function write(WriterInterface $writer)
-    {
-        if (!$this->isExternal()) {
-            $writer->indent();
-            $this->writeTable($writer);
-            $writer->outdent();
-        }
-
-        return $this;
-    }
-
     public function writeTable(WriterInterface $writer)
     {
-        $namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_NAMESPACE);
+        if (!$this->isExternal()) {
+            $namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_NAMESPACE);
 
-        $writer->write('<table name="%s" phpName="%s" namespace="%s">', $this->getRawTableName(), $this->getModelName(), $namespace);
-        $writer->indent();
-        if($this->getDocument()->getConfig()->get(Formatter::CFG_ADD_VENDOR)){
-            $this->writeVendor($writer);
+            $writer
+                ->indent()
+                    ->write('<table name="%s" phpName="%s" namespace="%s">', $this->getRawTableName(), $this->getModelName(), $namespace)
+                    ->indent()
+                        ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                            if ($_this->getDocument()->getConfig()->get(Formatter::CFG_ADD_VENDOR)) {
+                                $_this->writeVendor($writer);
+                            }
+                            $_this->getColumns()->write($writer);
+                            $_this->writeIndex($writer);
+                        })
+                    ->outdent()
+                    ->write('</table>')
+                ->outdent()
+            ;
+
+            return self::WRITE_OK;
         }
-        $this->getColumns()->write($writer);
-        $this->writeIndex($writer);
-        $writer->outdent();
-        $writer->write('</table>');
 
-        return $this;
+        return self::WRITE_EXTERNAL;
     }
 
     public function writeVendor(WriterInterface $writer)

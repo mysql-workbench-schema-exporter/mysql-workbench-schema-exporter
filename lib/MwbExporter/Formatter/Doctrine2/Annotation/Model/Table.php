@@ -97,22 +97,6 @@ class Table extends BaseTable
     }
 
     /**
-     * Write document as generated code.
-     *
-     * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Doctrine2\Annotation\Model\Table
-     */
-    public function write(WriterInterface $writer)
-    {
-        if (!$this->isExternal() && !$this->isManyToMany()) {
-            $writer->open($this->getTableFileName());
-            $this->writeTable($writer);
-            $writer->close();
-        }
-
-        return $this;
-    }
-    /**
      * Get annotation prefix.
      *
      * @param string $annotation Annotation type
@@ -221,49 +205,61 @@ class Table extends BaseTable
 
     public function writeTable(WriterInterface $writer)
     {
-        $namespace = $this->getEntityNamespace();
-        if ($repositoryNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) {
-            $repositoryNamespace .= '\\';
-        }
-        $skipGetterAndSetter = $this->getDocument()->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
-        $serializableEntity  = $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
+        if (!$this->isExternal() && !$this->isManyToMany()) {
+            $namespace = $this->getEntityNamespace();
+            if ($repositoryNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) {
+                $repositoryNamespace .= '\\';
+            }
+            $skipGetterAndSetter = $this->getDocument()->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
+            $serializableEntity  = $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
 
-        $comment = $this->getComment();
-        $writer
-            ->write('<?php')
-            ->write('')
-            ->write('namespace %s;', $namespace)
-            ->write('')
-            ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                $_this->writeUsedClasses($writer);
-            })
-            ->write('/**')
-            ->write(' * '.$this->getNamespace(null, false))
-            ->write(' *')
-            ->writeIf($comment, $comment)
-            ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
-            ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation(), 'uniqueConstraints' => $this->getUniqueConstraintsAnnotation())))
-            ->write(' */')
-            ->write('class '.$this->getModelName())
-            ->write('{')
-            ->indent()
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity) {
-                    $_this->getColumns()->write($writer);
-                    $_this->writeManyToMany($writer);
-                    $_this->writeConstructor($writer);
-                    if (!$skipGetterAndSetter) {
-                        $_this->getColumns()->writeGetterAndSetter($writer);
-                        $_this->writeManyToManyGetterAndSetter($writer);
-                    }
-                    if ($serializableEntity) {
-                        $_this->writeSerialization($writer);
-                    }
+            $comment = $this->getComment();
+            $writer
+                ->open($this->getTableFileName())
+                ->write('<?php')
+                ->write('')
+                ->write('namespace %s;', $namespace)
+                ->write('')
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    $_this->writeUsedClasses($writer);
                 })
-            ->outdent()
-            ->write('}')
-        ;
+                ->write('/**')
+                ->write(' * '.$this->getNamespace(null, false))
+                ->write(' *')
+                ->writeIf($comment, $comment)
+                ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
+                ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation(), 'uniqueConstraints' => $this->getUniqueConstraintsAnnotation())))
+                ->write(' */')
+                ->write('class '.$this->getModelName())
+                ->write('{')
+                ->indent()
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity) {
+                        $_this->getColumns()->write($writer);
+                        $_this->writeManyToMany($writer);
+                        $_this->writeConstructor($writer);
+                        if (!$skipGetterAndSetter) {
+                            $_this->getColumns()->writeGetterAndSetter($writer);
+                            $_this->writeManyToManyGetterAndSetter($writer);
+                        }
+                        if ($serializableEntity) {
+                            $_this->writeSerialization($writer);
+                        }
+                    })
+                ->outdent()
+                ->write('}')
+                ->close()
+            ;
 
-        return $this;
+            return self::WRITE_OK;
+        } else {
+            switch (true) {
+                case $this->isManyToMany():
+                    return self::WRITE_M2M;
+
+                case $this->isExternal():
+                    return self::WRITE_EXTERNAL;
+            }
+        }
     }
 
     public function writeUsedClasses(WriterInterface $writer)

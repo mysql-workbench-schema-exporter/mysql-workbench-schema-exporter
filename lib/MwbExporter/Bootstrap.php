@@ -30,6 +30,9 @@ namespace MwbExporter;
 use MwbExporter\Formatter\FormatterInterface;
 use MwbExporter\Model\Document;
 use MwbExporter\Storage\LoggedStorage;
+use MwbExporter\Logger\Logger;
+use MwbExporter\Logger\LoggerFile;
+use MwbExporter\Logger\LoggerConsole;
 
 class Bootstrap
 {
@@ -212,6 +215,14 @@ class Bootstrap
             $writer = $this->getWriter($formatter->getPreferredWriter());
             $writer->setStorage($storage);
             $document = new Document($formatter, $filename);
+            if (strlen($logFile = $formatter->getRegistry()->config->get(FormatterInterface::CFG_LOG_FILE))) {
+                $logger = new LoggerFile(array('filename' => $logFile));
+            } elseif ($formatter->getRegistry()->config->get(FormatterInterface::CFG_LOG_TO_CONSOLE)) {
+                $logger = new LoggerConsole();
+            } else {
+                $logger = new Logger();
+            }
+            $document->setLogger($logger);
             $document->write($writer);
             if ($e = $document->getError()) {
                 throw $e;

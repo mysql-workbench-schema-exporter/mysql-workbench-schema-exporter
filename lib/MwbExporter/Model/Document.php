@@ -29,9 +29,15 @@ namespace MwbExporter\Model;
 
 use MwbExporter\Formatter\FormatterInterface;
 use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Logger\LoggerInterface;
 
 class Document extends Base
 {
+    /**
+     * @var string
+     */
+    protected $filename = null;
+
     /**
      * @var \SimpleXMLElement
      */
@@ -53,6 +59,11 @@ class Document extends Base
     protected $writer = null;
 
     /**
+     * @var \MwbExporter\Logger\LoggerInterface
+     */
+    protected $logger = null;
+
+    /**
      * @var \Exception
      */
     protected $error = null;
@@ -65,8 +76,9 @@ class Document extends Base
      */
     public function __construct(FormatterInterface $formatter, $filename)
     {
+        $this->filename = $filename;
         $this->formatter = $formatter;
-        $this->readXML($filename);
+        $this->readXML($this->filename);
         parent::__construct(null, $this->xml->value);
         $this->parse();
     }
@@ -89,6 +101,45 @@ class Document extends Base
     public function getWriter()
     {
         return $this->writer;
+    }
+
+    /**
+     * Get logger object.
+     *
+     * @return \MwbExporter\Logger\LoggerInterface
+     */
+    public function getLogger()
+    {
+        return $this->logger;
+    }
+
+    /**
+     * Set logger object.
+     *
+     * @param \MwbExporter\Logger\LoggerInterface $logger
+     * @return \MwbExporter\Model\Document
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+
+        return $this;
+    }
+
+    /**
+     * Log a message.
+     *
+     * @param string $message  Log message
+     * @param string $level    Log level
+     * @return \MwbExporter\Model\Document
+     */
+    public function addLog($message, $level = LoggerInterface::INFO)
+    {
+        if ($this->logger) {
+            $this->logger->log($message, $level);
+        }
+
+        return $this;
     }
 
     /**
@@ -165,9 +216,12 @@ class Document extends Base
         $writer->setDocument($this);
         $writer->begin();
         try {
+            $this->addLog(sprintf('Start writing document %s...', basename($this->filename)));
             $this->physicalModel->write($writer);
+            $this->addLog('Done writing document...');
         } catch (\Exception $e) {
             $this->error = $e;
+            $this->addLog($e->getMessage(), LoggerInterface::ERROR);
         }
         $writer->end();
 

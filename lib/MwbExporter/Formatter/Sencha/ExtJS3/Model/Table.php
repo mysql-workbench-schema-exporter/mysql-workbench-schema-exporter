@@ -45,47 +45,42 @@ class Table extends BaseTable
         return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_PARENT_CLASS));
     }
 
-    public function write(WriterInterface $writer)
-    {
-        if (!$this->isExternal()) {
-            $writer->open($this->getTableFileName());
-            $this->writeTable($writer);
-            $writer->close();
-        }
-
-        return $this;
-    }
-
     public function writeTable(WriterInterface $writer)
     {
-        $writer
-            // model
-            ->write($this->getClassPrefix().'.'. $this->getModelName().' = Ext.extend('.$this->getParentClass().', {')
-            ->indent()
-                ->write("id: '%s',", $this->getModelName())
-                ->write("url: '%s',", ZendURLFormatter::fromCamelCaseToDashConnection($this->getModelName()))
-                ->write("title: '%s',", str_replace('-', ' ', ZendURLFormatter::fromCamelCaseToDashConnection($this->getModelName())))
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    $_this->getColumns()->writeFields($writer);
-                })
-            ->outdent()
-            ->write('});')
-            ->write('')
-            // UI
-            ->write($this->getClassPrefix().'.'. $this->getModelName().' = Ext.extend('.$this->getClassPrefix().'.'. $this->getModelName().', {')
-            ->indent()
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    $_this->getColumns()
-                        ->writeColumns($writer)
-                        ->writeFormItems($writer)
-                    ;
-                })
-            ->outdent()
-            ->write('});')
-            ->write('')
-        ;
+        if (!$this->isExternal()) {
+            $writer
+                ->open($this->getTableFileName())
+                // model
+                ->write($this->getClassPrefix().'.'. $this->getModelName().' = Ext.extend('.$this->getParentClass().', {')
+                ->indent()
+                    ->write("id: '%s',", $this->getModelName())
+                    ->write("url: '%s',", ZendURLFormatter::fromCamelCaseToDashConnection($this->getModelName()))
+                    ->write("title: '%s',", str_replace('-', ' ', ZendURLFormatter::fromCamelCaseToDashConnection($this->getModelName())))
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                        $_this->getColumns()->writeFields($writer);
+                    })
+                ->outdent()
+                ->write('});')
+                ->write('')
+                // UI
+                ->write($this->getClassPrefix().'.'. $this->getModelName().' = Ext.extend('.$this->getClassPrefix().'.'. $this->getModelName().', {')
+                ->indent()
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                        $_this->getColumns()
+                            ->writeColumns($writer)
+                            ->writeFormItems($writer)
+                        ;
+                    })
+                ->outdent()
+                ->write('});')
+                ->write('')
+                ->close()
+            ;
 
-        return $this;
+            return self::WRITE_OK;
+        }
+
+        return self::WRITE_EXTERNAL;
     }
 
     /**

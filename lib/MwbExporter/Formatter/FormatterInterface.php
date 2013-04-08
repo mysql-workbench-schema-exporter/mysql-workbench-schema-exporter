@@ -38,6 +38,8 @@ interface FormatterInterface {
     const CFG_BACKUP_FILE            = 'backupExistingFile';
     const CFG_USE_LOGGED_STORAGE     = 'useLoggedStorage';
     const CFG_ENHANCE_M2M_DETECTION  = 'enhanceManyToManyDetection';
+    const CFG_LOG_TO_CONSOLE         = 'logToConsole';
+    const CFG_LOG_FILE               = 'logFile';
 
     /**
      * Get the registry object.

@@ -54,59 +54,54 @@ class Table extends BaseTable
         }
     }
 
-    public function write(WriterInterface $writer)
-    {
-        if (!$this->isExternal()) {
-            $writer->open($this->getTableFileName());
-            $this->writeTable($writer);
-            $writer->close();
-        }
-
-        return $this;
-    }
-
     public function writeTable(WriterInterface $writer)
     {
-        $writer
-            ->write('%s:', $this->getModelName())
-            ->indent()
-                ->writeIf($actAs = trim($this->getActAsBehaviour()), $actAs)
-                ->write('tableName: '.($this->getDocument()->getConfig()->get(Formatter::CFG_EXTEND_TABLENAME_WITH_SCHEMA) ? $this->getSchema()->getName().'.' : '').$this->getRawTableName())
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    $_this->getColumns()->write($writer);
-                })
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    $externalRelation = $_this->getExternalRelations();
-                    if (count($_this->getRelations()) || $externalRelation) {
-                        $writer->write('relations:');
-                        $writer->indent();
-                        foreach ($_this->getRelations() as $relation) {
-                            $relation->write($writer);
-                        }
-                        if ($externalRelation) {
-                            $writer->write($externalRelation);
-                        }
-                        $writer->outdent();
-                    }
-                })
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    if (count($_this->getIndexes())) {
-                        $writer->write('indexes:');
-                        $writer->indent();
-                        foreach ($_this->getIndexes() as $index) {
-                            $index->write($writer);
-                        }
-                        $writer->outdent();
-                    }
-                })
-                ->write('options:')
+        if (!$this->isExternal()) {
+            $writer
+                ->open($this->getTableFileName())
+                ->write('%s:', $this->getModelName())
                 ->indent()
-                    ->write('charset: '.(($charset = $this->parameters->get('defaultCharacterSetName')) ? $charset : 'utf8'))
-                    ->writeIf($engine = $this->parameters->get('tableEngine'), 'type: '.$engine)
+                    ->writeIf($actAs = trim($this->getActAsBehaviour()), $actAs)
+                    ->write('tableName: '.($this->getDocument()->getConfig()->get(Formatter::CFG_EXTEND_TABLENAME_WITH_SCHEMA) ? $this->getSchema()->getName().'.' : '').$this->getRawTableName())
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                        $_this->getColumns()->write($writer);
+                    })
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                        $externalRelation = $_this->getExternalRelations();
+                        if (count($_this->getRelations()) || $externalRelation) {
+                            $writer->write('relations:');
+                            $writer->indent();
+                            foreach ($_this->getRelations() as $relation) {
+                                $relation->write($writer);
+                            }
+                            if ($externalRelation) {
+                                $writer->write($externalRelation);
+                            }
+                            $writer->outdent();
+                        }
+                    })
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                        if (count($_this->getIndexes())) {
+                            $writer->write('indexes:');
+                            $writer->indent();
+                            foreach ($_this->getIndexes() as $index) {
+                                $index->write($writer);
+                            }
+                            $writer->outdent();
+                        }
+                    })
+                    ->write('options:')
+                    ->indent()
+                        ->write('charset: '.(($charset = $this->parameters->get('defaultCharacterSetName')) ? $charset : 'utf8'))
+                        ->writeIf($engine = $this->parameters->get('tableEngine'), 'type: '.$engine)
+                    ->outdent()
                 ->outdent()
-            ->outdent()
-        ;
+                ->close()
+            ;
 
-        return $this;
+            return self::WRITE_OK;
+        }
+
+        return self::WRITE_EXTERNAL;
     }
 }

@@ -43,31 +43,26 @@ class Table extends BaseTable
         return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_PARENT_TABLE));
     }
 
-    public function write(WriterInterface $writer)
-    {
-        if (!$this->isExternal()) {
-            $writer->open($this->getTableFileName());
-            $this->writeTable($writer);
-            $writer->close();
-        }
-
-        return $this;
-    }
-
     public function writeTable(WriterInterface $writer)
     {
-        $writer
-            ->write('<?php')
-            ->write('')
-            ->write('class '.$this->getTablePrefix().$this->getModelName().'Controller extends '.$this->getParentTable())
-            ->write('{')
-            ->indent()
+        if (!$this->isExternal()) {
+            $writer
+                ->open($this->getTableFileName())
+                ->write('<?php')
                 ->write('')
-            ->outdent()
-            ->write('}')
-            ->write('')
-        ;
+                ->write('class '.$this->getTablePrefix().$this->getModelName().'Controller extends '.$this->getParentTable())
+                ->write('{')
+                ->indent()
+                    ->write('')
+                ->outdent()
+                ->write('}')
+                ->write('')
+                ->close()
+            ;
+    
+            return self::WRITE_OK;
+        }
 
-        return $this;
+        return self::WRITE_EXTERNAL;
     }
 }

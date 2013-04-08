@@ -34,6 +34,10 @@ use MwbExporter\Writer\WriterInterface;
 
 class Table extends Base
 {
+    const WRITE_OK = 1;
+    const WRITE_EXTERNAL = 2;
+    const WRITE_M2M = 3;
+
     /**
      * @var \MwbExporter\Model\Columns
      */
@@ -412,12 +416,49 @@ class Table extends Base
      */
     public function write(WriterInterface $writer)
     {
+        try {
+            switch ($this->writeTable($writer)) {
+                case self::WRITE_OK:
+                    $status = 'OK';
+                    break;
+
+                case self::WRITE_EXTERNAL:
+                    $status = 'skipped, marked as external';
+                    break;
+
+                case self::WRITE_M2M:
+                    $status = 'skipped, M2M table';
+                    break;
+
+                default:
+                    $status = 'unsupported';
+                    break;
+            }
+            $this->getDocument()->addLog(sprintf('* %s: %s', $this->getRawTableName(), $status));
+        } catch (\Exception $e) {
+            $this->getDocument()->addLog(sprintf('* %s: ERROR', $this->getRawTableName()));
+            throw $e;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Write table entity as code.
+     *
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return string
+     */
+    public function writeTable(WriterInterface $writer)
+    {
         if (!$this->isExternal()) {
             $this->getColumns()->write($writer);
             $this->getIndices()->write($writer);
             $this->getForeignKeys()->write($writer);
+
+            return self::WRITE_OK;
         }
 
-        return $this;
+        return self::WRITE_EXTERNAL;
     }
 }

@@ -63,56 +63,51 @@ class Table extends BaseTable
         return sprintf('%s%s\%s', $absolute ? '\\' : '', $this->getEntityNamespace(), null === $class ? $this->getModelName() : $class);
     }
 
-    public function write(WriterInterface $writer)
-    {
-        if (!$this->isExternal()) {
-            $writer->open($this->getTableFileName());
-            $this->writeTable($writer);
-            $writer->close();
-        }
-
-        return $this;
-    }
-
     public function writeTable(WriterInterface $writer)
     {
-        $writer
-            ->write('%s:', $this->getNamespace())
-            ->indent()
-                ->write('type: Entity')
-                ->writeIf($this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY), 'repositoryClass: %s', (($namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) ? $namespace.'\\' : '').$this->getModelName().'Repository')
-                ->write('table: %s', ($this->getDocument()->getConfig()->get(Formatter::CFG_EXTEND_TABLENAME_WITH_SCHEMA) ? $this->getSchema()->getName().'.' : '').$this->getRawTableName())
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    $_this->getColumns()->write($writer);
-                })
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    if (count($_this->getRelations())) {
-                        $writer->write('relations:');
-                        $writer->indent();
-                        foreach ($_this->getRelations() as $relation) {
-                            $relation->write($writer);
-                        }
-                        $writer->outdent();
-                    }
-                })
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    if (count($_this->getIndexes())) {
-                        $writer->write('indexes:');
-                        $writer->indent();
-                        foreach ($_this->getIndexes() as $index) {
-                            $index->write($writer);
-                        }
-                        $writer->outdent();
-                    }
-                })
-                ->write('options:')
+        if (!$this->isExternal()) {
+            $writer
+                ->open($this->getTableFileName())
+                ->write('%s:', $this->getNamespace())
                 ->indent()
-                    ->writeIf($charset = $this->parameters->get('defaultCharacterSetName'), 'charset: '.$charset)
-                    ->writeIf($engine = $this->parameters->get('tableEngine'), 'type: '.$engine)
+                    ->write('type: Entity')
+                    ->writeIf($this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY), 'repositoryClass: %s', (($namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) ? $namespace.'\\' : '').$this->getModelName().'Repository')
+                    ->write('table: %s', ($this->getDocument()->getConfig()->get(Formatter::CFG_EXTEND_TABLENAME_WITH_SCHEMA) ? $this->getSchema()->getName().'.' : '').$this->getRawTableName())
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                        $_this->getColumns()->write($writer);
+                    })
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                        if (count($_this->getRelations())) {
+                            $writer->write('relations:');
+                            $writer->indent();
+                            foreach ($_this->getRelations() as $relation) {
+                                $relation->write($writer);
+                            }
+                            $writer->outdent();
+                        }
+                    })
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                        if (count($_this->getIndexes())) {
+                            $writer->write('indexes:');
+                            $writer->indent();
+                            foreach ($_this->getIndexes() as $index) {
+                                $index->write($writer);
+                            }
+                            $writer->outdent();
+                        }
+                    })
+                    ->write('options:')
+                    ->indent()
+                        ->writeIf($charset = $this->parameters->get('defaultCharacterSetName'), 'charset: '.$charset)
+                        ->writeIf($engine = $this->parameters->get('tableEngine'), 'type: '.$engine)
+                    ->outdent()
                 ->outdent()
-            ->outdent()
-        ;
+                ->close()
+            ;
 
-        return $this;
+            return self::WRITE_OK;
+        }
+
+        return self::WRITE_EXTERNAL;
     }
 }

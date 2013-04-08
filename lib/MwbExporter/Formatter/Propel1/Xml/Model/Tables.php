@@ -41,6 +41,7 @@ class Tables extends BaseTables
     public function write(WriterInterface $writer)
     {
         $this->writeTables($writer);
+
         return $this;
     }
 
@@ -55,6 +56,7 @@ class Tables extends BaseTables
         foreach ($this->tables as $table) {
             $table->write($writer);
         }
+
         return $this;
     }
 }

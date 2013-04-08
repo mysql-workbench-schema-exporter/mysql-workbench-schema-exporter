@@ -53,6 +53,7 @@ class Column extends BaseColumn
                 ($this->parameters->get('defaultValue')  != '' ? ' defaultExpr="'.$this->parameters->get('defaultValue').'"' : '') // defaultExpr
             )
         ;
+
         return $this;
     }
 
@@ -82,6 +83,7 @@ class Column extends BaseColumn
                 $writer->write('</foreign-key>');
             //}
         }
+
         return $this;
     }
 }

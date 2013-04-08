@@ -1,8 +1,10 @@
 <?php
+
 /*
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
+ * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,29 +25,32 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Propel1\Xml\Model;
+namespace MwbExporter\Logger;
 
-use MwbExporter\Model\View as BaseView;
-use MwbExporter\Writer\WriterInterface;
-use MwbExporter\Formatter\Propel1\Xml\Formatter;
-
-class View extends BaseView
+class LoggerFile extends Logger
 {
-    public function writeView(WriterInterface $writer)
+    /**
+     * @var resource
+     */
+    protected $handle = null;
+
+    protected function init()
     {
-        if (!$this->isExternal()) {
-            $namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_NAMESPACE);
-            $writer
-                ->indent()
-                    // views do not consist of columns just SQL queries
-                    ->write('<table name="%s" phpName="%s" namespace="%s" skipSql="true" readOnly="true">', $this->getRawViewName(), $this->getModelName(), $namespace)
-                    ->write('</table>')
-                ->outdent()
-            ;
-
-            return self::WRITE_OK;
+        if (!isset($this->options['filename'])) {
+            throw new \InvalidArgumentException('No filename option passed.');
         }
+        $this->handle = fopen($this->options['filename'], 'w');
+    }
 
-        return self::WRITE_EXTERNAL;
+    protected function sendLog($message)
+    {
+        fwrite($this->handle, $message);
+    }
+
+    public function __destruct()
+    {
+        if ($this->handle) {
+            fclose($this->handle);
+        }
     }
 }

@@ -1,8 +1,10 @@
 <?php
+
 /*
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
+ * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,29 +25,14 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Propel1\Xml\Model;
+namespace MwbExporter\Logger;
 
-use MwbExporter\Model\View as BaseView;
-use MwbExporter\Writer\WriterInterface;
-use MwbExporter\Formatter\Propel1\Xml\Formatter;
-
-class View extends BaseView
+interface LoggerInterface
 {
-    public function writeView(WriterInterface $writer)
-    {
-        if (!$this->isExternal()) {
-            $namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_NAMESPACE);
-            $writer
-                ->indent()
-                    // views do not consist of columns just SQL queries
-                    ->write('<table name="%s" phpName="%s" namespace="%s" skipSql="true" readOnly="true">', $this->getRawViewName(), $this->getModelName(), $namespace)
-                    ->write('</table>')
-                ->outdent()
-            ;
+    const INFO = 'INFO';
+    const DEBUG = 'DEBUG';
+    const WARNING = 'WARNING';
+    const ERROR = 'ERROR';
 
-            return self::WRITE_OK;
-        }
-
-        return self::WRITE_EXTERNAL;
-    }
+    public function log($message, $level = LoggerInterface::INFO);
 }

@@ -43,53 +43,50 @@ class Table extends BaseTable
         return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_PARENT_TABLE));
     }
 
-    public function write(WriterInterface $writer)
-    {
-        if (!$this->isExternal()) {
-            $writer->open($this->getTableFileName());
-            $this->writeTable($writer);
-            $writer->close();
-        }
-    }
-
     public function writeTable(WriterInterface $writer)
     {
-        /* FIXME: [Zend] Table name is one time in singular form, one time in plural form.
-         *       All table occurence need to be at the original form.
-         *
-         *       $this->getModelName() return singular form with correct camel case
-         *       $this->getRawTableName() return original form with no camel case
-         */
-        $writer
-            ->write('<?php')
-            ->write('')
-            ->write('class '.$this->getTablePrefix().$this->getSchema()->getName().'_'. $this->getModelName().' extends '.$this->getParentTable())
-            ->write('{')
-            ->indent()
-                ->write('/**')
-                ->write(' * @var string')
-                ->write(' */')
-                ->write('protected $_schema = \''. $this->getSchema()->getName() .'\';')
+        if (!$this->isExternal()) {
+            /* FIXME: [Zend] Table name is one time in singular form, one time in plural form.
+             *       All table occurence need to be at the original form.
+             *
+             *       $this->getModelName() return singular form with correct camel case
+             *       $this->getRawTableName() return original form with no camel case
+             */
+            $writer
+                ->open($this->getTableFileName())
+                ->write('<?php')
                 ->write('')
-                ->write('/**')
-                ->write(' * @var string')
-                ->write(' */')
-                ->write('protected $_name = \''. $this->getRawTableName() .'\';')
+                ->write('class '.$this->getTablePrefix().$this->getSchema()->getName().'_'. $this->getModelName().' extends '.$this->getParentTable())
+                ->write('{')
+                ->indent()
+                    ->write('/**')
+                    ->write(' * @var string')
+                    ->write(' */')
+                    ->write('protected $_schema = \''. $this->getSchema()->getName() .'\';')
+                    ->write('')
+                    ->write('/**')
+                    ->write(' * @var string')
+                    ->write(' */')
+                    ->write('protected $_name = \''. $this->getRawTableName() .'\';')
+                    ->write('')
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                        if ($_this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_DRI)) {
+                            $_this->writeDependencies($writer);
+                        }
+                    })
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                        $_this->writeReferences($writer);
+                    })
+                ->outdent()
+                ->write('}')
                 ->write('')
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    if ($_this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_DRI)) {
-                        $_this->writeDependencies($writer);
-                    }
-                })
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    $_this->writeReferences($writer);
-                })
-            ->outdent()
-            ->write('}')
-            ->write('')
-        ;
+                ->close()
+            ;
 
-        return $this;
+            return self::WRITE_OK;
+        }
+
+        return self::WRITE_EXTERNAL;
     }
 
     public function writeDependencies(WriterInterface $writer)
