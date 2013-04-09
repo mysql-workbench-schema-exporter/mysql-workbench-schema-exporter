@@ -25,44 +25,10 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Zend\Controller\Model;
+namespace MwbExporter\Formatter\Zend\RestController;
 
-use MwbExporter\Model\Table as BaseTable;
-use MwbExporter\Formatter\Zend\Controller\Formatter;
-use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Formatter\Zend\DatatypeConverter as BaseDatatypeConverter;
 
-class Table extends BaseTable
+class DatatypeConverter extends BaseDatatypeConverter
 {
-    public function getTablePrefix()
-    {
-        return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_TABLE_PREFIX));
-    }
-
-    public function getParentTable()
-    {
-        return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_PARENT_TABLE));
-    }
-
-    public function writeTable(WriterInterface $writer)
-    {
-        if (!$this->isExternal()) {
-            $writer
-                ->open($this->getTableFileName())
-                ->write('<?php')
-                ->write('')
-                ->write('class '.$this->getTablePrefix().$this->getModelName().'Controller extends '.$this->getParentTable())
-                ->write('{')
-                ->indent()
-                    ->write('')
-                ->outdent()
-                ->write('}')
-                ->write('')
-                ->close()
-            ;
-    
-            return self::WRITE_OK;
-        }
-
-        return self::WRITE_EXTERNAL;
-    }
 }

@@ -25,7 +25,7 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Zend\Controller;
+namespace MwbExporter\Formatter\Zend\RestController;
 
 use MwbExporter\Formatter\Formatter as BaseFormatter;
 use MwbExporter\Model\Base;
