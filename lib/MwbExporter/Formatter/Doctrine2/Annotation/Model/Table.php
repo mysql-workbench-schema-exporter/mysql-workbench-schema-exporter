@@ -46,7 +46,7 @@ class Table extends BaseTable
     public function getEntityNamespace()
     {
         $namespace = '';
-        if ($bundleNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_BUNDLE_NAMESPACE)) {
+        if (($bundleNamespace = $this->parseComment('bundleNamespace')) || ($bundleNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_BUNDLE_NAMESPACE))) {
             $namespace = $bundleNamespace.'\\';
         }
         if ($entityNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_ENTITY_NAMESPACE)) {
