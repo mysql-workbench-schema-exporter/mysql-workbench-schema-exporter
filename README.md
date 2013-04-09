@@ -13,7 +13,7 @@ What is MySQL Workbench schema exporter?
 
 The application is intended to create:
 
-  * Doctrine 1.0 YAML Schema
+  * Doctrine 1.0 [YAML Schema](http://docs.doctrine-project.org/projects/doctrine1/en/latest/en/manual/yaml-schema-files.html)
   * Doctrine 2.0 [YAML Schema](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/yaml-mapping.html) and [Annotation Classes](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/annotations-reference.html)
   * [Zend DbTable](http://framework.zend.com/manual/en/zend.db.table.html)
   * Zend Rest Controller
@@ -57,12 +57,12 @@ Where:
 
   * `options`:
     * `--export=type`, choose the result of the export, currently available types:
-      * `doctrine1-yaml`, Doctrine 1.0 YAML schema
+      * `doctrine1-yaml`, Doctrine 1.0 YAML schema (default)
       * `doctrine2-yaml`, Doctrine 2.0 YAML schema
-      * `doctrine2-annotation`, Doctrine 2.0 Annotation classes (default)
+      * `doctrine2-annotation`, Doctrine 2.0 Annotation classes
       * `propel1-xml`, Propel XML schema
       * `zend-dbtable`, Zend DbTable
-      * `zend-rest-controller`, Zend Rest Controller
+      * `zend-restcontroller`, Zend Rest Controller
       * `sencha-extjs3`, Sencha ExtJS3 Model
     * `--config=file`, read export parameters from file (in JSON format)
     * `--saveconfig`, save export parameters to file `export.json`, later can be used as value for `--config=file`
@@ -75,7 +75,7 @@ Where:
 
 Sample usage:
 
-    php cli/export.php --export=doctrine1 example/data/test.mwb ./generated
+    php cli/export.php --export=doctrine1-yaml example/data/test.mwb ./generated
     php cli/export.php --zip example/data/test.mwb
 
 Sample export paramaters (JSON) for doctrine2-annotation:
@@ -131,14 +131,31 @@ General options applied to all formatter.
 
     If enabled, many to many relations between tables will be added to generated code. Default is `true`.
 
+  * `logToConsole`
+
+    If enabled, output the log to console. Default is `false`.
+
+  * `logFile`
+
+    If specified, output the log to a file. If this option presence, option `logToConsole` will be ignored instead. Default is empty.
+
+### Comment behavior for All
+
+  * `{MwbExporter:external}true{/MwbExporter:external}` (applied to Table, View)
+
+    Mark table/view as external to skip table/view code generation. For Doctrine use `{d:external}true{/d:external}` instead.
+
 ### Option list for Doctrine 1.0
 
   * `extendTableNameWithSchemaName`
 
     Include schema name beside the table name. Default is `false`.
 
-  * `{d:externalRelations}`
-  
+### Comment behavior for Doctrine 1.0
+
+  * `{d:externalRelations}relation{/d:externalRelations}`
+
+  * `{d:actAs}behavior{/d:actAs}`
 
 ### Option list for Doctrine 2.0 YAML
 
@@ -197,30 +214,36 @@ General options applied to all formatter.
 
     If this option is enabled, all table names and column names will be quoted using backtick (`` ` ``). Usefull when the table name or column name contains reserved word. Default is `false`.
 
-  * `{d:m2m}false{/d:m2m}`
+### Comment behavior for Doctrine 2.0 Annotation
+
+  * `{d:bundleNamespace}AcmeBundle{/d:bundleNamespace}` (applied to Table)
+
+    Override `bundleNamespace` option.
+
+  * `{d:m2m}false{/d:m2m}` (applied to Table)
 
     MySQL Workbench schema exporter tries to automatically guess which tables are many-to-many mapping tables and will not generate entity classes for these tables.
     A table is considered a mapping table, if it contains exactly two foreign keys to different tables and those tables are not many-to-many mapping tables.
 
     Sometimes this guessing is incorrect for you. But you can add a hint in the comment of the table, to show that it is no mapping table. Just use "{d:m2m}false{/d:m2m}" anywhere in the comment of the table.
 
-  * `{d:unidirectional}true{/d:unidirectional}`
+  * `{d:unidirectional}true{/d:unidirectional}` (applied to ForeignKey)
 
     All foreign keys will result in a bidirectional relation by default. If you only want a unidirectional relation, add a flag to the comment of the foreign key.
 
-  * `{d:owningSide}true{/d:owningSide}`
+  * `{d:owningSide}true{/d:owningSide}` (applied to ForeignKey)
 
     In a bi-directional many-to-many mapping table the owning side of the relation is randomly selected. If you add this hint to one foreign key of the m2m-table, you can define the owning side for Doctrine.
 
-  * `{d:cascade}persist, merge, remove, detach, all{/d:cascade}`
+  * `{d:cascade}persist, merge, remove, detach, all{/d:cascade}` (applied to ForeignKey)
 
     You can specify Doctrine cascade options as a comment on a foreign key. The will be generated into the Annotation. ([Reference](http://doctrine-orm.readthedocs.org/en/latest/reference/working-with-associations.html#transitive-persistence-cascade-operations))
 
-  * `{d:fetch}EAGER{/d:fetch}`
+  * `{d:fetch}EAGER{/d:fetch}` (applied to ForeignKey)
 
     You can specify the fetch type for relations in the comment of a foreign key. (EAGER or LAZY, doctrine default is LAZY)
 
-  * `{d:orphanRemoval}true{/d:orphanRemoval}`
+  * `{d:orphanRemoval}true{/d:orphanRemoval}` (applied to ForeignKey)
 
     Another option you can set in the comments of foreign key. ([Reference](http://doctrine-orm.readthedocs.org/en/latest/reference/working-with-associations.html#orphan-removal))
 
