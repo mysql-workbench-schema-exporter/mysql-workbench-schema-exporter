@@ -206,4 +206,13 @@ interface FormatterInterface {
      * @return string
      */
     public function getPreferredWriter();
+
+    /**
+     * Each workbench element has a comment field. Several formatters utilize
+     * this comment field to enable customization of the formatter according
+     * to the user requirement.
+     *
+     * @return string
+     */
+    public function getCommentParserIdentifierPrefix();
 }

@@ -53,7 +53,7 @@ abstract class Formatter implements FormatterInterface
     /**
      * @var \MwbExporter\Formatter\DatatypeConverterInterface
      */
-    private $nodetypeConverter = null;
+    private $datatypeConverter = null;
 
     /**
      * Constructor.
@@ -132,13 +132,13 @@ abstract class Formatter implements FormatterInterface
     /**
      * Set data type converter.
      *
-     * @param \MwbExporter\Formatter\DatatypeConverterInterface $nodetypeConverter
+     * @param \MwbExporter\Formatter\DatatypeConverterInterface $datatypeConverter
      * @return \MwbExporter\Formatter\Formatter
      */
-    protected function setDatatypeConverter(DatatypeConverterInterface $nodetypeConverter)
+    protected function setDatatypeConverter(DatatypeConverterInterface $datatypeConverter)
     {
-        $this->nodetypeConverter = $nodetypeConverter;
-        $this->nodetypeConverter->setup();
+        $this->datatypeConverter = $datatypeConverter;
+        $this->datatypeConverter->setup();
 
         return $this;
     }
@@ -160,11 +160,11 @@ abstract class Formatter implements FormatterInterface
      */
     public function getDatatypeConverter()
     {
-        if (null === $this->nodetypeConverter) {
+        if (null === $this->datatypeConverter) {
             throw new \RuntimeException('DatatypeConverter has not been set.');
         }
 
-        return $this->nodetypeConverter;
+        return $this->datatypeConverter;
     }
 
     /**
@@ -291,5 +291,14 @@ abstract class Formatter implements FormatterInterface
     public function getPreferredWriter()
     {
         return 'default';
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Formatter\FormatterInterface::getCommentParserIdentifierPrefix()
+     */
+    public function getCommentParserIdentifierPrefix()
+    {
+        return 'MwbExporter';
     }
 }

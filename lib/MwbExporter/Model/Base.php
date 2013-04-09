@@ -160,7 +160,7 @@ abstract class Base
             $comment = $this->parameters->get('comment');
         }
         $needle_quoted = preg_quote($needle_raw);
-        $pattern = '@\{(d|doctrine):'.$needle_quoted.'\}(.+)\{\/(d|doctrine):'.$needle_quoted.'\}@si';
+        $pattern = sprintf('@\{(%1$s):%2$s\}(.+)\{\/(%1$s):%2$s\}@si', $this->getDocument()->getFormatter()->getCommentParserIdentifierPrefix(), $needle_quoted);
         if (preg_match($pattern, $comment, $matches) && isset($matches[2])) {
             return $matches[2];
         }

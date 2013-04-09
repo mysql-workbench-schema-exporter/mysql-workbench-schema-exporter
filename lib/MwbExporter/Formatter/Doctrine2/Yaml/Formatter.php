@@ -27,7 +27,7 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Yaml;
 
-use MwbExporter\Formatter\Formatter as BaseFormatter;
+use MwbExporter\Formatter\Doctrine2\Formatter as BaseFormatter;
 use MwbExporter\Model\Base;
 
 class Formatter extends BaseFormatter
