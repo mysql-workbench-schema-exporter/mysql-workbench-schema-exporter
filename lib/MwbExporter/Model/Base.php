@@ -154,7 +154,7 @@ abstract class Base
      * @param string $comment
      * @return string
      */
-    protected function parseComment($needle_raw, $comment = null)
+    public function parseComment($needle_raw, $comment = null)
     {
         if ($comment === null) {
             $comment = $this->parameters->get('comment');
@@ -175,24 +175,19 @@ abstract class Base
     protected function getComment($asPhpComment = true)
     {
         $comment = $this->parameters->get('comment');
-
         // strip hints for mysql-exporter in comments (starting with {d:keyword}
         // or {doctrine:keyword} and ending with {/d:keyword}
-        $comment = trim(preg_replace('/\{(d|doctrine):([^\}]+)\}(.+?)\{\/\1:\2\}/si', '', $comment));
+        if ($comment = trim(preg_replace(sprintf('/\{(%s):([^\}]+)\}(.+?)\{\/\1:\2\}/si', $this->getDocument()->getFormatter()->getCommentParserIdentifierPrefix()), '', $comment))) {
+            if ($asPhpComment) {
+                // start the comment with a "*"" and add a " * " after each newline
+                $comment = str_replace("\n", "\n * ", $comment);
+    
+                // comments are wrapped at 80 chars and will end with a newline
+                $comment = ' * ' . wordwrap($comment, 77, "\n * ") . "\n *";
+            }
 
-        if (!$comment) {
-            return '';
+            return $comment;
         }
-
-        if ($asPhpComment) {
-            // start the comment with a "*"" and add a " * " after each newline
-            $comment = str_replace("\n", "\n * ", $comment);
-
-            // comments are wrapped at 80 chars and will end with a newline
-            $comment = ' * ' . wordwrap($comment, 77, "\n * ") . "\n *";
-        }
-
-        return $comment;
     }
 
     /**
