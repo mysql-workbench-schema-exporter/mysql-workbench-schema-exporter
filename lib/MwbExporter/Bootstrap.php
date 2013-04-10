@@ -61,6 +61,7 @@ class Bootstrap
             ->registerFormatter('doctrine1-yaml', '\\MwbExporter\\Formatter\\Doctrine1\Yaml\\Formatter')
             ->registerFormatter('propel1-xml', '\\MwbExporter\\Formatter\\Propel1\Xml\\Formatter')
             ->registerFormatter('sencha-extjs3', '\\MwbExporter\\Formatter\\Sencha\ExtJS3\\Formatter')
+            ->registerFormatter('sencha-extjs42', '\\MwbExporter\\Formatter\\Sencha\ExtJS42\\Formatter')
             ->registerFormatter('zend-rest-controller', '\\MwbExporter\\Formatter\\Zend\Controller\\Formatter')
             ->registerFormatter('zend-dbtable', '\\MwbExporter\\Formatter\\Zend\DbTable\\Formatter')
             ->registerFormatter('cake2-php', '\\MwbExporter\\Formatter\\Cake2\Php\\Formatter')
