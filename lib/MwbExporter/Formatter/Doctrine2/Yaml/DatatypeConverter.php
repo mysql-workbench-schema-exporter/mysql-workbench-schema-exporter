@@ -32,17 +32,4 @@ use MwbExporter\Model\Column;
 
 class DatatypeConverter extends BaseDatatypeConverter
 {
-    public function getType(Column $column)
-    {
-        $type = $this->getMappedType($column);
-        $return = $type;
-        if (($precision = $column->getParameters()->get('precision')) && ($precision != -1) && ($scale = $column->getParameters()->get('scale')) && ($scale != -1)) {
-            $return .= '('.$precision.', '.$scale.')';
-        }
-        if (($length = $column->getParameters()->get('length')) && ($length != -1) && $type == 'string') {
-            $return .= '('.$length.')';
-        }
-
-        return $return;
-    }
 }

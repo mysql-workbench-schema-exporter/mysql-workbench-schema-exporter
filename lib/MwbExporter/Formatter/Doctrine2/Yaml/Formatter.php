@@ -43,7 +43,7 @@ class Formatter extends BaseFormatter
         $this->setDatatypeConverter(new DatatypeConverter());
         $this->addConfigurations(array(
             static::CFG_INDENTATION                   => 4,
-            static::CFG_FILENAME                      => '%entity%.orm.%extension%',
+            static::CFG_FILENAME                      => '%entity%.dcm.%extension%',
             static::CFG_BUNDLE_NAMESPACE              => '',
             static::CFG_ENTITY_NAMESPACE              => '',
             static::CFG_REPOSITORY_NAMESPACE          => '',
@@ -63,15 +63,6 @@ class Formatter extends BaseFormatter
 
     /**
      * (non-PHPdoc)
-     * @see \MwbExporter\Formatter\FormatterInterface::createColumns()
-     */
-    public function createColumns(Base $parent, $node)
-    {
-        return new Model\Columns($parent, $node);
-    }
-
-    /**
-     * (non-PHPdoc)
      * @see \MwbExporter\Formatter\FormatterInterface::createColumn()
      */
     public function createColumn(Base $parent, $node)
@@ -86,15 +77,6 @@ class Formatter extends BaseFormatter
     public function createIndex(Base $parent, $node)
     {
         return new Model\Index($parent, $node);
-    }
-
-    /**
-     * (non-PHPdoc)
-     * @see \MwbExporter\Formatter\Formatter::createForeignKey()
-     */
-    public function createForeignKey(Base $parent, $node)
-    {
-        return new Model\ForeignKey($parent, $node);
     }
 
     public function getTitle()

@@ -29,6 +29,8 @@ namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 use MwbExporter\Model\Table as BaseTable;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Formatter\Doctrine2\Yaml\Formatter;
+use MwbExporter\Object\YAML;
+use MwbExporter\Helper\Pluralizer;
 
 class Table extends BaseTable
 {
@@ -40,7 +42,7 @@ class Table extends BaseTable
     public function getEntityNamespace()
     {
         $namespace = '';
-        if ($bundleNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_BUNDLE_NAMESPACE)) {
+        if (($bundleNamespace = $this->parseComment('bundleNamespace')) || ($bundleNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_BUNDLE_NAMESPACE))) {
             $namespace = $bundleNamespace.'\\';
         }
         if ($entityNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_ENTITY_NAMESPACE)) {
@@ -68,40 +70,7 @@ class Table extends BaseTable
         if (!$this->isExternal()) {
             $writer
                 ->open($this->getTableFileName())
-                ->write('%s:', $this->getNamespace())
-                ->indent()
-                    ->write('type: Entity')
-                    ->writeIf($this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY), 'repositoryClass: %s', (($namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) ? $namespace.'\\' : '').$this->getModelName().'Repository')
-                    ->write('table: %s', ($this->getDocument()->getConfig()->get(Formatter::CFG_EXTEND_TABLENAME_WITH_SCHEMA) ? $this->getSchema()->getName().'.' : '').$this->getRawTableName())
-                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                        $_this->getColumns()->write($writer);
-                    })
-                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                        if (count($_this->getRelations())) {
-                            $writer->write('relations:');
-                            $writer->indent();
-                            foreach ($_this->getRelations() as $relation) {
-                                $relation->write($writer);
-                            }
-                            $writer->outdent();
-                        }
-                    })
-                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                        if (count($_this->getIndexes())) {
-                            $writer->write('indexes:');
-                            $writer->indent();
-                            foreach ($_this->getIndexes() as $index) {
-                                $index->write($writer);
-                            }
-                            $writer->outdent();
-                        }
-                    })
-                    ->write('options:')
-                    ->indent()
-                        ->writeIf($charset = $this->parameters->get('defaultCharacterSetName'), 'charset: '.$charset)
-                        ->writeIf($engine = $this->parameters->get('tableEngine'), 'type: '.$engine)
-                    ->outdent()
-                ->outdent()
+                ->write($this->asYAML())
                 ->close()
             ;
 
@@ -109,5 +78,125 @@ class Table extends BaseTable
         }
 
         return self::WRITE_EXTERNAL;
+    }
+
+    public function asYAML()
+    {
+        $namespace = $this->getNamespace(null, false);
+        $values = array(
+            'type' => 'entity',
+            'table' => $this->getRawTableName(), 
+        );
+        // indices
+        if (count($this->getIndexes())) {
+            $values['indexes'] = array();
+            foreach ($this->getIndexes() as $index) {
+                $values['indexes'][$index->getParameters()->get('name')] = $index->asYAML();
+            }
+        }
+        // id, fields, relations
+        $ids = array();
+        $fields = array();
+        $oneToOne = array();
+        $oneToMany = array();
+        $manyToOne = array();
+        $manyToMany = array();
+        foreach ($this->getColumns() as $column) {
+            if ($column->isPrimary()) {
+                $ids[$column->getParameters()->get('name')] = $column->asYAML();
+            } else {
+                $fields[$column->getParameters()->get('name')] = $column->asYAML();
+            }
+            foreach ($column->relationsAsYAML() as $key => $relation) {
+                switch ($key) {
+                    case Column::RELATION_ONE_TO_ONE:
+                        $oneToOne = array_merge($oneToOne, $relation);
+                        break;
+
+                    case Column::RELATION_ONE_TO_MANY:
+                        $oneToMany = array_merge($oneToMany, $relation);
+                        break;
+
+                    case Column::RELATION_MANY_TO_ONE:
+                        $manyToOne = array_merge($manyToOne, $relation);
+                        break;
+
+                    case Column::RELATION_MANY_TO_MANY:
+                        $manyToMany = array_merge($manyToMany, $relation);
+                        break;
+                }
+            }
+        }
+        // many to many relations
+        $formatter = $this->getDocument()->getFormatter();
+        foreach ($this->manyToManyRelations as $relation) {
+            $isOwningSide = $formatter->isOwningSide($relation, $mappedRelation);
+            $mappings = array(
+                'targetEntity' => $relation['refTable']->getModelName(),
+                'mappedBy'     => null,
+                'inversedBy'   => lcfirst(Pluralizer::pluralize($this->getModelName())),
+                'cascade'      => $formatter->getCascadeOption($relation['reference']->parseComment('cascade')),
+                'fetch'        => $formatter->getFetchOption($relation['reference']->parseComment('fetch')),
+            );
+            $relationName = $relation['refTable']->getRawTableName();
+            // if this is the owning side, also output the JoinTable Annotation
+            // otherwise use "mappedBy" feature
+            if ($isOwningSide) {
+                if ($mappedRelation->parseComment('unidirectional') === 'true') {
+                    unset($mappings['inversedBy']);
+                }
+                $manyToMany[$relationName] = array_merge($mappings, array(
+                    'joinTable' => array(
+                        'name'               => $relation['reference']->getOwningTable()->getRawTableName(),
+                        'joinColumns'        => array(
+                            'joinColumn'     => array(
+                                'name'                 => $relation['reference']->getForeign()->getColumnName(),
+                                'referencedColumnName' => $relation['reference']->getLocal()->getColumnName(),
+                                'onDelete'             => $formatter->getDeleteRule($relation['reference']->getParameters()->get('deleteRule')),
+                            ),
+                        ),
+                        'inverseJoinColumns' => array(
+                            'joinColumn'     => array(
+                                'name'                 => $mappedRelation->getForeign()->getColumnName(),
+                                'referencedColumnName' => $mappedRelation->getLocal()->getColumnName(),
+                                'onDelete'             => $formatter->getDeleteRule($mappedRelation->getParameters()->get('deleteRule')),
+                            ),
+                        )
+                    ),
+                ));
+            } else {
+                if ($relation['reference']->parseComment('unidirectional') === 'true') {
+                    continue;
+                }
+                $mappings['mappedBy'] = $mappings['inversedBy'];
+                $mappings['inversedBy'] = null;
+                $manyToMany[$relationName] = $mappings;
+            }
+        }
+
+        // update values
+        if (count($ids)) {
+            $values['id'] = $ids;
+        }
+        if (count($fields)) {
+            $values['fields'] = $fields;
+        }
+        if (count($oneToOne)) {
+            $values['oneToOne'] = $oneToOne;
+        }
+        if (count($oneToMany)) {
+            $values['oneToMany'] = $oneToMany;
+        }
+        if (count($manyToOne)) {
+            $values['manyToOne'] = $manyToOne;
+        }
+        if (count($manyToMany)) {
+            $values['manyToMany'] = $manyToMany;
+        }
+        if ($lifecycleCallbacks = $this->parseComment('lifecycleCallbacks')) {
+            $values['lifecycleCallbacks'] = $lifecycleCallbacks;
+        }
+
+        return new YAML(array($namespace => $values), array('indent' => $this->getDocument()->getConfig()->get(Formatter::CFG_INDENTATION)));
     }
 }

@@ -27,26 +27,21 @@
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
 use MwbExporter\Model\Index as BaseIndex;
-use MwbExporter\Writer\WriterInterface;
 
 class Index extends BaseIndex
 {
-    public function write(WriterInterface $writer)
+    protected function getColumnNames()
     {
-        $writer
-            ->write('%s:', $this->parameters->get('name'))
-            ->indent()
-                ->writeCallback(function(WriterInterface $writer, Index $_this = null) {
-                    $columns = array();
-                    foreach ($_this->getColumns() as $column) {
-                        $columns[] = $column->getColumnName();
-                    }
-                    $writer->write('columns: [%s]', implode(', ', $columns));
-                })
-                ->writeIf(($type = strtolower($this->parameters->get('indexType'))) !== 'index', 'type: '.$type)
-            ->outdent()
-        ;
+        $columns = array();
+        foreach ($this->columns as $refColumn) {
+            $columns[] = $refColumn->getColumnName();
+        }
 
-        return $this;
+        return $columns;
+    }
+
+    public function asYAML()
+    {
+        return array('columns' => $this->getColumnNames());
     }
 }
