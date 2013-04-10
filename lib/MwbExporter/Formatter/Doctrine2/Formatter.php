@@ -32,6 +32,99 @@ use MwbExporter\Formatter\Formatter as BaseFormatter;
 abstract class Formatter extends BaseFormatter
 {
     /**
+     * Get owning side of relation.
+     *
+     * @param array $relation
+     * @param array $mappedRelation
+     * @return boolean
+     */
+    public function isOwningSide($relation, &$mappedRelation)
+    {
+        $mappedRelation = $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName());
+
+        // user can hint which side is the owning side (set d:owningSide on the foreign key)
+        if ($relation['reference']->parseComment('owningSide') === 'true') {
+            return true;
+        }
+        if ($mappedRelation->parseComment('owningSide') === 'true') {
+            return false;
+        }
+
+        // if no owning side is defined, use one side randomly as owning side (the one where the column id is lower)
+        return $relation['reference']->getLocal()->getId() < $mappedRelation->getLocal()->getId();
+    }
+
+    /**
+     * get the cascade option as array. Only returns values allowed by Doctrine.
+     *
+     * @param $cascadeValue string cascade options separated by comma
+     * @return array array with the values or null, if no cascade values are available
+     */
+    public function getCascadeOption($cascadeValue)
+    {
+        if ($cascadeValue) {
+            $cascadeValue = array_map('strtolower', array_map('trim', explode(',', $cascadeValue)));
+            // only allow certain values
+            $allowed = array('persist', 'remove', 'merge', 'detach', 'all');
+            $cascadeValue = array_intersect($cascadeValue, $allowed);
+            if ($cascadeValue) {
+                return $cascadeValue;
+            }
+        }
+    }
+
+    /**
+     * get the fetch option for a relation
+     *
+     * @param $fetchValue string fetch option as given in comment for foreign key
+     * @return string valid fetch value or null
+     */
+    public function getFetchOption($fetchValue)
+    {
+        if ($fetchValue) {
+            $fetchValue = strtoupper($fetchValue);
+            if (in_array($fetchValue, array('EAGER', 'LAZY', 'EXTRA_LAZY'))) {
+                return $fetchValue;
+            }
+        }
+    }
+
+    /**
+     * get the a boolean option for a relation
+     *
+     * @param $booleanValue string boolean option (true or false)
+     * @return boolean or null, if booleanValue was invalid
+     */
+    public function getBooleanOption($booleanValue)
+    {
+        if ($booleanValue) {
+            switch (strtolower($booleanValue)) {
+                case 'true':
+                    return true;
+
+                case 'false':
+                    return false;
+            }
+        }
+    }
+
+    /**
+     * get the onDelete rule. this will set the database level ON DELETE and can be set
+     * to CASCADE or SET NULL. Do not confuse this with the Doctrine-level cascade rules.
+     */
+    public function getDeleteRule($deleteRule)
+    {
+        if ($deleteRule == 'NO ACTION' || $deleteRule == 'RESTRICT') {
+            // NO ACTION acts the same as RESTRICT,
+            // RESTRICT is the default
+            // http://dev.mysql.com/doc/refman/5.5/en/innodb-foreign-key-constraints.html
+            $deleteRule = null;
+        }
+
+        return $deleteRule;
+    }
+
+    /**
      * (non-PHPdoc)
      * @see \MwbExporter\Formatter\Formatter::getCommentParserIdentifierPrefix()
      */
