@@ -5,6 +5,8 @@
  *
  * Copyright (c) 2012 Allan Sun <sunajia@gmail.com>
  * Copyright (c) 2012 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2013 WitteStier <development@wittestier.nl>
+ * 
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +31,67 @@ namespace MwbExporter\Formatter\Sencha\ExtJS42;
 
 use MwbExporter\Formatter\Sencha\DatatypeConverter as BaseDatatypeConverter;
 
-class DatatypeConverter extends BaseDatatypeConverter
+class DatatypeConverter
+    extends BaseDatatypeConverter
 {
+
+    public function setup()
+    {
+        $this->register(array(
+            static::DATATYPE_TINYINT => 'int',
+            static::DATATYPE_SMALLINT => 'int',
+            static::DATATYPE_MEDIUMINT => 'int',
+            static::DATATYPE_INT => 'int',
+            static::DATATYPE_BIGINT => 'int',
+            static::DATATYPE_FLOAT => 'float',
+            static::DATATYPE_DOUBLE => 'float',
+            static::DATATYPE_DECIMAL => 'float',
+            static::DATATYPE_CHAR => 'string',
+            static::DATATYPE_VARCHAR => 'string',
+            static::DATATYPE_BINARY => 'string',
+            static::DATATYPE_VARBINARY => 'string',
+            static::DATATYPE_TINYTEXT => 'string',
+            static::DATATYPE_TEXT => 'string',
+            static::DATATYPE_MEDIUMTEXT => 'string',
+            static::DATATYPE_LONGTEXT => 'string',
+            static::DATATYPE_TINYBLOB => 'string',
+            static::DATATYPE_BLOB => 'string',
+            static::DATATYPE_MEDIUMBLOB => 'string',
+            static::DATATYPE_LONGBLOB => 'string',
+            static::DATATYPE_DATETIME => 'string',
+            static::DATATYPE_DATE => 'string',
+            static::DATATYPE_TIME => 'string',
+            static::DATATYPE_YEAR => 'int',
+            static::DATATYPE_TIMESTAMP => 'string',
+            static::DATATYPE_GEOMETRY => 'undefined',
+            static::DATATYPE_LINESTRING => 'string',
+            static::DATATYPE_POLYGON => 'undefined',
+            static::DATATYPE_MULTIPOINT => 'undefined',
+            static::DATATYPE_MULTILINESTRING => 'undefined',
+            static::DATATYPE_MULTIPOLYGON => 'undefined',
+            static::DATATYPE_GEOMETRYCOLLECTION => 'undefined',
+            static::DATATYPE_BIT => 'int',
+            static::DATATYPE_ENUM => 'string',
+            static::DATATYPE_SET => 'string',
+            static::USERDATATYPE_BOOLEAN => 'bool',
+            static::USERDATATYPE_BOOL => 'bool',
+            static::USERDATATYPE_FIXED => 'int',
+            static::USERDATATYPE_FLOAT4 => 'float',
+            static::USERDATATYPE_FLOAT8 => 'float',
+            static::USERDATATYPE_INT1 => 'int',
+            static::USERDATATYPE_INT2 => 'int',
+            static::USERDATATYPE_INT3 => 'int',
+            static::USERDATATYPE_INT4 => 'int',
+            static::USERDATATYPE_INT8 => 'int',
+            static::USERDATATYPE_INTEGER => 'int',
+            static::USERDATATYPE_LONGVARBINARY => 'string',
+            static::USERDATATYPE_LONGVARCHAR => 'string',
+            static::USERDATATYPE_LONG => 'int',
+            static::USERDATATYPE_MIDDLEINT => 'int',
+            static::USERDATATYPE_NUMERIC => 'int',
+            static::USERDATATYPE_DEC => 'int',
+            static::USERDATATYPE_CHARACTER => 'string',
+        ));
+    }
+
 }

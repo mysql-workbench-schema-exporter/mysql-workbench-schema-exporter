@@ -4,6 +4,7 @@
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
  * Copyright (c) 2012 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2013 WitteStier <development@wittestier.nl>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
