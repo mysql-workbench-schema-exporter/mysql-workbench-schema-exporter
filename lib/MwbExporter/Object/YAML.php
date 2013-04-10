@@ -3,7 +3,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2012 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,66 +26,58 @@
 
 namespace MwbExporter\Object;
 
-class Annotation extends Base
+class YAML extends Base
 {
-    /**
-     * @var string
-     */
-    protected $annotation = null;
-
-    /**
-     * Constructor.
-     * 
-     * @param string $annotation  Annotation name
-     * @param mixed  $content     Object content
-     * @param array  $options     Object options
-     */
-    public function __construct($annotation, $content = null, $options = array())
-    {
-        parent::__construct($content, $options);
-        $this->annotation = $annotation;
-    }
-
-    protected function decorateCode($code)
-    {
-        return $this->annotation.$code;
-    }
-
     /**
      * (non-PHPdoc)
      * @see \MwbExporter\Object\Base::asCode()
      */
-    public function asCode($value)
+    public function asCode($value, $level = 0)
     {
-        if ($value instanceof Annotation) {
+        if ($value instanceof YAML) {
             $value = (string) $value;
+        } elseif (null === $value) {
+            $value = '~';
         } elseif (is_bool($value)) {
             $value = $value ? 'true' : 'false';
         } elseif (is_string($value)) {
-            $value = '"'.$value.'"';
+            // nothing
         } elseif (is_array($value)) {
             $tmp = array();
-            $useKey = !$this->isKeysNumeric($value);
-            foreach ($value as $k => $v) {
-                // skip null value
-                if (null === $v) {
-                    continue;
+            if (!$this->isKeysNumeric($value)) {
+                $spacer = str_repeat(' ', $level * $this->getOption('indent', 2));
+                foreach ($value as $k => $v) {
+                    // skip null value
+                    if (null === $v) {
+                        continue;
+                    }
+                    if ($this->isInline($v)) {
+                        $tmp[] = $spacer.sprintf('%s: %s', $k, $this->asCode($v, $level + 1));
+                    } else {
+                        $tmp[] = $spacer.sprintf('%s:', $k);
+                        $tmp[] = $this->asCode($v, $level + 1);
+                    }
                 }
-                $v = $this->asCode($v);
-                $tmp[] = $useKey ? sprintf('%s=%s', $k, $v) : $v;
-            }
-            $multiline = $this->getOption('multiline') && count($value) > 1;
-            $value = implode($multiline ? ",\n" : ', ', $tmp).($multiline ? "\n" : '');
-            if ($useKey) {
-                $value = sprintf('(%s)', $value);
+                $value = implode("\n", $tmp);
             } else {
-                $value = sprintf('{%s}', $value);
-            }
-            if ($multiline) {
-                $value = $this->wrapLines($value, 4);
+                foreach ($value as $k => $v) {
+                    $tmp[] = $this->asCode($v, $level + 1);
+                }
+                $value = sprintf('[%s]', implode(', ', $tmp));
             }
         }
 
         return $value;
+    }
+
+    /**
+     * Check if value should be displayed as inline.
+     *
+     * @param mixed $value
+     * @return boolean
+     */
+    protected function isInline($value)
+    {
+        return is_array($value) && !$this->isKeysNumeric($value) ? false : true;
     }
 }
