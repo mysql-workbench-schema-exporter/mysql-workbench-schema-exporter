@@ -41,9 +41,9 @@ class Formatter extends BaseFormatter
         $this->setDatatypeConverter(new DatatypeConverter());
         $this->addConfigurations(array(
             static::CFG_INDENTATION     => 4,
-            static::CFG_FILENAME        => 'JS/%schema%/%entity%.%extension%',
-            static::CFG_CLASS_PREFIX    => 'SysX.App',
-            static::CFG_PARENT_CLASS    => 'SysX.Ui.App',
+            static::CFG_FILENAME        => '%schema%/%entity%.%extension%',
+            static::CFG_CLASS_PREFIX    => 'App.model',
+            static::CFG_PARENT_CLASS    => 'Ext.data.Model',
         ));
     }
 
@@ -85,7 +85,7 @@ class Formatter extends BaseFormatter
 
     public function getTitle()
     {
-        return 'Sencha ExtJS42 Model';
+        return 'Sencha ExtJS4.2 Model';
     }
 
     public function getFileExtension()

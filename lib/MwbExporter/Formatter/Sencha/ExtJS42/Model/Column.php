@@ -29,79 +29,105 @@
 namespace MwbExporter\Formatter\Sencha\ExtJS42\Model;
 
 use MwbExporter\Model\Column as BaseColumn;
-use MwbExporter\Helper\ZendURLFormatter;
-use MwbExporter\DatatypeConverter;
 
-class Column extends BaseColumn
+class Column
+    extends BaseColumn
 {
+
     public function getAsField()
     {
-        return $this->getTable()->getJSObject(array('name' => $this->getColumnName(), 'type' => $this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this)));
+        $field = array(
+            'name' => $this->getColumnName(),
+            'type' => $this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this)
+        );
+
+        $default = $this->getDefault();
+        if ($default) {
+            $field['defaultValue'] = trim($default, "'");
+        }
+
+        return $this->getTable()->getJSObject($field);
     }
 
-    public function getAsColumn()
+    public function getAsValidation()
     {
-        return $this->getTable()->getJSObject(array('header' => ucwords(str_replace('_', ' ', $this->getColumnName())), 'dataIndex' => $this->getColumnName()));
+        $validations = "";
+        $isRequired = $this->getIsrequired();
+        $maxLength = $this->getMaxLength();
+        $table = $this->getTable();
+
+        if ($isRequired && !$this->isPrimary()) {
+
+            $validation = array(
+                'type' => 'presence',
+                'field' => $this->getColumnName()
+            );
+
+            $validations .= $table->getJSObject($validation);
+        }
+
+        if ($maxLength) {
+            $validation = array(
+                'type' => 'length',
+                'field' => $this->getColumnName(),
+                'max' => $maxLength
+            );
+
+            $validations .= ($isRequired && !$this->isPrimary())
+                ? ",
+" . $table->getJSObject($validation) // Very bad way to define a new line, i know.
+                : $table->getJSObject($validation);
+        }
+
+        // End.
+        return $validations;
     }
 
-    public function getAsFormItem()
+    /**
+     * Get the column default value or false if there is no default value or the
+     * default value is NULL.
+     * 
+     * @return boolean
+     */
+    public function getDefault()
     {
-        $result = array();
-        // @see http://docs.sencha.com/ext-js/3-4/#!/api/Ext.form.ComboBox-cfg-hiddenName
-        if ($this->local) {
-            $result['hiddenName'] = $this->getColumnName();
-        } else {
-            $result['name'] = $this->getColumnName();
-        }
-        $anchor = null;
-        switch (true) {
-            case $this->isPrimary():
-                $type = 'hidden';
-                break;
+        $params = $this->parameters;
 
-            case $this->getColumnType() === DatatypeConverter::DATATYPE_DATETIME:
-            case $this->getColumnType() === DatatypeConverter::DATATYPE_TIMESTAMP:
-                $type = 'xdatetime';
-                break;
-
-            case $this->getColumnType() === DatatypeConverter::DATATYPE_TINYTEXT:
-            case $this->getColumnType() === DatatypeConverter::DATATYPE_MEDIUMTEXT:
-            case $this->getColumnType() === DatatypeConverter::DATATYPE_LONGTEXT:
-            case $this->getColumnType() === DatatypeConverter::DATATYPE_TEXT:
-                $type = 'htmleditor';
-                $anchor = '100%';
-                break;
-
-            case $this->local !== null:
-                $type = 'combo';
-                break;
-
-            default:
-                $type = 'textfield'; 
-        }
-        $result['xtype'] = $type;
-        $result['fieldLabel'] = ucwords(str_replace('_', ' ', $this->getColumnName()));
-        $result['allowBlank'] = $this->parameters->get('isNotNull') == 1 ? false : true;
-        if ($anchor) {
-            $result['anchor'] = $anchor;
-        }
-        if (null !== $this->local) {
-            $result['valueField'] = $this->local->getForeign()->getColumnName();
-            $result['displayField'] = $this->local->getReferencedTable()->getRawTableName();
-            $result['mode'] = 'local';
-            $result['forceSelection'] = true;
-            $result['triggerAction'] = 'all';
-            $result['listeners'] = array('afterrender' => $this->getTable()->getJSObject('function() {this.store.load();}', false, true));
-            $result['store'] = $this->getTable()->getJSObject(sprintf('new Ext.data.JsonStore(%s);',
-                $this->getTable()->getJSObject(array(
-                    'id'     => str_replace(' ', '', ucwords(str_replace('_',' ',$this->local->getReferencedTable()->getRawTableName()))).'Store',
-                    'url'    => ZendURLFormatter::fromUnderscoreConnectionToDashConnection($this->local->getReferencedTable()->getRawTableName()),
-                    'root'   => 'data',
-                    'fields' => array('id', 'name'),
-                ), true)
-            ), false, true);
+        if (!$params->get('defaultValue') || $params->get('defaultValueIsNull')) {
+            // End.
+            return false;
         }
 
-        return $this->getTable()->getJSObject($result, true);
+        // End.
+        return $params->get('defaultValue');
     }
+
+    /**
+     * Return whatever this column allows empty values.
+     * 
+     * @return boolean
+     */
+    public function getIsrequired()
+    {
+        $isNotNull = $this->parameters->get('isNotNull');
+
+        // End.
+        return (1 != $isNotNull)
+            ? false
+            : true;
+    }
+
+    /**
+     * Get the column max length pr false if there is no length.
+     * 
+     * @return boolean
+     */
+    public function getMaxLength()
+    {
+        $length = $this->parameters->get('length');
+        return ($length > 0)
+            ? $length
+            : false;
+    }
+
 }

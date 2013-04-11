@@ -36,14 +36,14 @@ class Index extends \MwbExporter\Model\Index
      */
     public function display()
     {
-        $return = array();
-        $return[] = 'name="'.$this->config['name'].'",';
-        $tmp = 'columns={';
-        foreach ($this->referencedColumn as $refColumn) {
-            $tmp .= '"'.$refColumn->getColumnName().'",';
-        }
-        $return[] = substr($tmp, 0, -1).'}';
+//        $return = array();
+//        $return[] = 'name="'.$this->config['name'].'",';
+//        $tmp = 'columns={';
+//        foreach ($this->referencedColumn as $refColumn) {
+//            $tmp .= '"'.$refColumn->getColumnName().'",';
+//        }
+//        $return[] = substr($tmp, 0, -1).'}';
         //$return[] = '      type: '.strtolower($this->config['indexType']);
-        return implode("", $return);
+//        return implode("", $return);
     }
 }

@@ -34,8 +34,10 @@ use MwbExporter\Formatter\Sencha\ExtJS42\Formatter;
 use MwbExporter\Helper\ZendURLFormatter;
 use MwbExporter\Helper\JSObject;
 
-class Table extends BaseTable
+class Table
+    extends BaseTable
 {
+
     public function getClassPrefix()
     {
         return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_CLASS_PREFIX));
@@ -59,31 +61,23 @@ class Table extends BaseTable
 
     public function writeTable(WriterInterface $writer)
     {
+
         $writer
-            // model
-            ->write($this->getClassPrefix().'.'. $this->getModelName().' = Ext.extend('.$this->getParentClass().', {')
+            ->write("Ext.define('%s', {", $this->getClassPrefix() . '.' . $this->getModelName())
             ->indent()
-                ->write("id: '%s',", $this->getModelName())
-                ->write("url: '%s',", ZendURLFormatter::fromCamelCaseToDashConnection($this->getModelName()))
-                ->write("title: '%s',", str_replace('-', ' ', ZendURLFormatter::fromCamelCaseToDashConnection($this->getModelName())))
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+            ->write("extend: '%s',", $this->getParentClass())
+            // TODO Add uses, See doctrine fromatter for a nice sollution
+            // TODO Add relations
+            ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
                     $_this->getColumns()->writeFields($writer);
                 })
-            ->outdent()
-            ->write('});')
-            ->write('')
-            // UI
-            ->write($this->getClassPrefix().'.'. $this->getModelName().' = Ext.extend('.$this->getClassPrefix().'.'. $this->getModelName().', {')
-            ->indent()
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    $_this->getColumns()
-                        ->writeColumns($writer)
-                        ->writeFormItems($writer)
-                    ;
+            ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    $_this->getColumns()->writeValidations($writer);
                 })
+            ->write("listners: {},")
+            ->write("proxy: {}")
             ->outdent()
             ->write('});')
-            ->write('')
         ;
 
         return $this;
@@ -97,8 +91,9 @@ class Table extends BaseTable
      * @param bool  $raw        Is raw object
      * @return \MwbExporter\Helper\JSObject
      */
-    public function getJSObject($content, $multiline = false, $raw = false)
+    public function getJSObject($content, $multiline = true, $raw = false)
     {
-        return new JSObject($content, array('multiline' => $multiline, 'raw' => $raw, 'indent' => $this->getDocument()->getConfig()->get(Formatter::CFG_INDENTATION))); 
+        return new JSObject($content, array('multiline' => $multiline, 'raw' => $raw, 'indent' => $this->getDocument()->getConfig()->get(Formatter::CFG_INDENTATION)));
     }
+
 }

@@ -29,39 +29,24 @@
 namespace MwbExporter\Formatter\Sencha\ExtJS42\Model;
 
 use MwbExporter\Writer\Writer;
-
 use MwbExporter\Model\Columns as BaseColumns;
 use MwbExporter\Writer\WriterInterface;
 
-class Columns extends BaseColumns
+class Columns
+    extends BaseColumns
 {
+
     public function writeFields(WriterInterface $writer)
     {
         $writer
             ->write('fields: [')
             ->indent()
-                ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
+            ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
                     $columns = $_this->getColumns();
                     for ($i = 0; $i < count($columns); $i++) {
-                        $writer->write($columns[$i]->getAsField().($i < count($columns) - 1 ? ',' : ''));
-                    }
-                })
-            ->outdent()
-            ->write(']')
-        ;
-
-        return $this;
-    }
-
-    public function writeColumns(WriterInterface $writer)
-    {
-        $writer
-            ->write('columns: [')
-            ->indent()
-                ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
-                    $columns = $_this->getColumns();
-                    for ($i = 0; $i < count($columns); $i++) {
-                        $writer->write($columns[$i]->getAsColumn().($i < count($columns) - 1 ? ',' : ''));
+                        $writer->write($columns[$i]->getAsField() . ($i < count($columns) - 1
+                                ? ','
+                                : ''));
                     }
                 })
             ->outdent()
@@ -71,27 +56,27 @@ class Columns extends BaseColumns
         return $this;
     }
 
-    public function writeFormItems(WriterInterface $writer)
+    public function writeValidations(WriterInterface $writer)
     {
         $writer
-            ->write('formItems: [')
+            ->write('validations: [')
             ->indent()
-                ->write('title: \'Basic Details\',')
-                ->write('layout: \'form\',')
-                ->write('items: [')
-                ->indent()
-                    ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
-                        $columns = $_this->getColumns();
-                        for ($i = 0; $i < count($columns); $i++) {
-                            $writer->write($columns[$i]->getAsFormItem().($i < count($columns) - 1 ? ',' : ''));
+            ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
+                    $columns = $_this->getColumns();
+                    for ($i = 0; $i < count($columns); $i++) {
+                        $validation = $columns[$i]->getAsValidation();
+                        if (!$validation) {
+                            continue;
                         }
-                    })
-                ->outdent()
-                ->write(']')
-            ->outdent()
-            ->write(']')
-        ;
 
-        return $this;
+                        $writer->write($columns[$i]->getAsValidation() . (($i < count($columns) - 1)
+                                ? ','
+                                : ''));
+                    }
+                })
+            ->outdent()
+            ->write('],')
+        ;
     }
+
 }
