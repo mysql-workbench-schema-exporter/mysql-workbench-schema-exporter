@@ -33,6 +33,13 @@ use MwbExporter\Formatter\Doctrine2\DatatypeConverter as BaseDatatypeConverter;
 
 class DatatypeConverter extends BaseDatatypeConverter
 {
+    /**
+     * (non-PHPdoc)
+     * 
+     * @see \MwbExporter\DatatypeConverter::getType()
+     * @param \MwbExporter\Model\Column $column
+     * @return string
+     */
     public function getType(Column $column)
     {
         $type = $this->getMappedType($column);

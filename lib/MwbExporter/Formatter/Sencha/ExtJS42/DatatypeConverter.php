@@ -36,7 +36,10 @@ class DatatypeConverter
 {
 
     /**
-     * COMMENTME
+     * (non-PHPdoc)
+     * 
+     * @see \MwbExporter\Formatter\Sencha::setup()
+     * 
      */
     public function setup()
     {

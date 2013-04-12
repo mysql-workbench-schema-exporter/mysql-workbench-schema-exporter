@@ -37,7 +37,7 @@ class Columns
 {
 
     /**
-     * COMMENTME
+     * Write entity fields.
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
      * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Columns
@@ -63,7 +63,7 @@ class Columns
     }
 
     /**
-     * COMMENTME
+     * Write entity validations.
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
      */

@@ -46,16 +46,21 @@ class Formatter
     const CFG_BACKUP_FILE = 'backupExistingFile';
     const CFG_ENHANCE_M2M_DETECTION = 'enhanceManyToManyDetection';
 
+    /**
+     * (non-PHPdoc)
+     * 
+     * @see \MwbExporter\Formatter::init()
+     */
     protected function init()
     {
         $this->setDatatypeConverter(new DatatypeConverter());
         $this->addConfigurations(array(
             static::CFG_INDENTATION => 4,
-            static::CFG_FILENAME => '%entity%.%extension%',
+            static::CFG_FILENAME => 'Entity/%entity%.%extension%',
             static::CFG_ANNOTATION_PREFIX => 'ORM\\',
             static::CFG_BUNDLE_NAMESPACE => '',
             static::CFG_ENTITY_NAMESPACE => 'Entity',
-            static::CFG_REPOSITORY_NAMESPACE => '',
+            static::CFG_REPOSITORY_NAMESPACE => 'Repository',
             static::CFG_AUTOMATIC_REPOSITORY => false,
             static::CFG_SKIP_GETTER_SETTER => false,
             static::CFG_GENERATE_ENTITY_SERIALIZATION => true,
@@ -67,7 +72,8 @@ class Formatter
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.Formatter::createTable()
+     * 
+     * @see \MwbExporter\Formatter::createTable()
      */
     public function createTable(Base $parent, $node)
     {
@@ -76,7 +82,8 @@ class Formatter
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createColumns()
+     * 
+     * @see \MwbExporter\FormatterInterface::createColumns()
      */
     public function createColumns(Base $parent, $node)
     {
@@ -85,7 +92,8 @@ class Formatter
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createColumn()
+     * 
+     * @see \MwbExporter\FormatterInterface::createColumn()
      */
     public function createColumn(Base $parent, $node)
     {
@@ -94,18 +102,27 @@ class Formatter
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createIndex()
+     * @see \MwbExporter\FormatterInterface::createIndex()
      */
     public function createIndex(Base $parent, $node)
     {
         return new Model\Index($parent, $node);
     }
 
+    /**
+     * (non-PHPdoc)
+     * 
+     * @see \MwbExporter\FormatterInterface::getTitle()
+     */
     public function getTitle()
     {
-        return 'Doctrine 2.0 Annotation Classes';
+        return 'Doctrine 2.0 Annotation with ZF2 input filter Classes';
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\FormatterInterface::getFileExtension()
+     */
     public function getFileExtension()
     {
         return 'php';

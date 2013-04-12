@@ -43,7 +43,7 @@ class Table
     protected $collectionInterface = 'Doctrine\Common\Collections\Collection';
 
     /**
-     * Get the entity namespace.
+     * Get entity namespace.
      *
      * @return string
      */
@@ -63,7 +63,7 @@ class Table
     }
 
     /**
-     * Get namespace of a class.
+     * Get namespace of a the given $class.
      *
      * @param string $class The class name
      * @return string
@@ -94,7 +94,7 @@ class Table
     }
 
     /**
-     * Get collection interface class.
+     * Get collection interface class name.
      *
      * @param bool $absolute Use absolute class name
      * @return string
@@ -107,8 +107,9 @@ class Table
     }
 
     /**
-     * Write document as generated code.
-     *
+     * (non-PHPdoc)
+     * 
+     * @see \MwbExporter\Model\Table::write()
      * @param \MwbExporter\Writer\WriterInterface $writer
      * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Table
      */
@@ -124,7 +125,7 @@ class Table
     }
 
     /**
-     * Get annotation prefix.
+     * Get annotation prefix from the configuration.
      *
      * @param string $annotation Annotation type
      * @return string
@@ -238,6 +239,12 @@ class Table
         return $this->getAnnotation('JoinColumn', array('name' => $local, 'referencedColumnName' => $foreign, 'onDelete' => $deleteRule));
     }
 
+    /**
+     * Write entity body code.
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Table
+     */
     public function writeTable(WriterInterface $writer)
     {
         $namespace = $this->getEntityNamespace();
@@ -281,7 +288,7 @@ class Table
                     ->write(' *')
                     ->write(' * @var InputFilter')
                     ->write(' */')
-                    ->write('private $_inputFilter;')
+                    ->write('private $inputFilter;')
                     ->write('');
 
                     $_this->writeConstructor($writer);
@@ -308,6 +315,12 @@ class Table
         return $this;
     }
 
+    /**
+     * Write entity used classes.
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Table
+     */
     public function writeUsedClasses(WriterInterface $writer)
     {
         $count = 0;
@@ -332,6 +345,12 @@ class Table
         return $this;
     }
 
+    /**
+     * Write entity constructor.
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Table
+     */
     public function writeConstructor(WriterInterface $writer)
     {
         $writer
@@ -352,6 +371,13 @@ class Table
         return $this;
     }
 
+    /**
+     * Write entity __sleep method.
+     * http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/cookbook/entities-in-session.html#serializing-entity-into-the-session
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return type
+     */
     public function writeSerialization(WriterInterface $writer)
     {
         $columns = $this->getColumns()->getColumns();
@@ -367,6 +393,12 @@ class Table
         ;
     }
 
+    /**
+     * Write entity many to many relations.
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Table
+     */
     public function writeManyToMany(WriterInterface $writer)
     {
         // @TODO D2A ManyToMany relation joinColumns and inverseColumns
@@ -440,6 +472,12 @@ class Table
         return $this;
     }
 
+    /**
+     * Write entity many to many getter and setter methods.
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Table
+     */
     public function writeManyToManyGetterAndSetter(WriterInterface $writer)
     {
         foreach ($this->manyToManyRelations as $relation) {
@@ -478,7 +516,8 @@ class Table
     }
 
     /**
-     * Add the \Zend\InputFilter\InputFilterInterface methods.
+     * Write \Zend\InputFilter\InputFilterInterface methods.
+     * http://framework.zend.com/manual/2.1/en/modules/zend.input-filter.intro.html
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
      * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Table
@@ -510,10 +549,10 @@ class Table
             ->write('public function getInputFilter()')
             ->write('{')
             ->indent()
-            ->write('if ($this->_inputFilter instanceof InputFilterInterface) {')
+            ->write('if ($this->inputFilter instanceof InputFilterInterface) {')
             ->indent()
             ->write('// End.')
-            ->write('return $this->_inputFilter;')
+            ->write('return $this->inputFilter;')
             ->outdent()
             ->write('}')
             ->write('$factory = new InputFactory();')
@@ -537,9 +576,9 @@ class Table
         $writer
             ->outdent()
             ->write(');')
-            ->write('$this->_inputFilter = $factory->createInputFilter($filters);')
+            ->write('$this->inputFilter = $factory->createInputFilter($filters);')
             ->write('// End.')
-            ->write('return $this->_inputFilter;')
+            ->write('return $this->inputFilter;')
             ->outdent()
             ->write('}')
             ->write('');
@@ -549,8 +588,9 @@ class Table
     }
 
     /**
-     * Add a populate method to the entity writer.
+     * Write entity populate method.
      * 
+     * @see \Zend\Stdlib\Hydrator\ArraySerializable::extract()
      * @param \MwbExporter\Writer\WriterInterface $writer
      * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Table
      */
@@ -591,8 +631,9 @@ class Table
     }
 
     /**
-     * Add a getArrayCopy method to the entity writer.
+     * Write getArrayCopy method.
      * 
+     * @see \Zend\Stdlib\Hydrator\ArraySerializable::hydrate()
      * @param \MwbExporter\Writer\WriterInterface $writer
      * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Table
      */

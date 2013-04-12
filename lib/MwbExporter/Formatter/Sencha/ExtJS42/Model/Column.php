@@ -35,9 +35,9 @@ class Column
 {
 
     /**
-     * COMMENTME
+     * Get column field object.
      * 
-     * @return type
+     * @return \MwbExporter\Helper\JSObject
      */
     public function getAsField()
     {
@@ -55,9 +55,9 @@ class Column
     }
 
     /**
-     * COMMENTME
+     * Get column validations.
      * 
-     * @return type
+     * @return string
      */
     public function getAsValidation()
     {
@@ -94,7 +94,7 @@ class Column
     }
 
     /**
-     * Get the column default value or false if there is no default value or the
+     * Get column default value or false if there is no default value or the
      * default value is NULL.
      * 
      * @return boolean
@@ -128,7 +128,7 @@ class Column
     }
 
     /**
-     * Get the column max length pr false if there is no length.
+     * Get column max length pr false if there is no length.
      * 
      * @return boolean
      */

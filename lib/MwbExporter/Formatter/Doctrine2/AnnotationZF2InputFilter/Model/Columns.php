@@ -32,6 +32,13 @@ use MwbExporter\Writer\WriterInterface;
 
 class Columns extends BaseColumns
 {
+    /**
+     * (non-PHPdoc)
+     * 
+     * @see MwbExporter\Model\Columns::write() 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Columns
+     */
     public function write(WriterInterface $writer)
     {
         // display column
@@ -50,6 +57,12 @@ class Columns extends BaseColumns
         return $this;
     }
 
+    /**
+     * Write entity array collections.
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Columns
+     */
     public function writeArrayCollections(WriterInterface $writer)
     {
         foreach ($this->columns as $column) {
@@ -59,6 +72,12 @@ class Columns extends BaseColumns
         return $this;
     }
 
+    /**
+     * Write entity setter and getter methods.
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Columns
+     */
     public function writeGetterAndSetter(WriterInterface $writer)
     {
         // column getter and setter

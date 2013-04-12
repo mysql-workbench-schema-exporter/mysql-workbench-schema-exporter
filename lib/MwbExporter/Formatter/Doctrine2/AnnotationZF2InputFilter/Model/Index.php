@@ -1,4 +1,5 @@
 <?php
+
 /*
  * The MIT License
  *
@@ -29,8 +30,15 @@ namespace MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model;
 
 use MwbExporter\Model\Index as BaseIndex;
 
-class Index extends BaseIndex
+class Index
+    extends BaseIndex
 {
+
+    /**
+     * COMMENTME
+     * 
+     * @return array
+     */
     protected function getColumnNames()
     {
         $columns = array();
@@ -41,8 +49,17 @@ class Index extends BaseIndex
         return $columns;
     }
 
+    /**
+     * COMMENTME
+     * 
+     * @return array
+     */
     public function asAnnotation()
     {
-        return array('name' => $this->parameters->get('name'), 'columns' => $this->getColumnNames());
+        return array(
+            'name' => $this->parameters->get('name'),
+            'columns' => $this->getColumnNames()
+        );
     }
+
 }

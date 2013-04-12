@@ -31,7 +31,6 @@ namespace MwbExporter\Formatter\Sencha\ExtJS42\Model;
 use MwbExporter\Model\Table as BaseTable;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Formatter\Sencha\ExtJS42\Formatter;
-use MwbExporter\Helper\ZendURLFormatter;
 use MwbExporter\Helper\JSObject;
 
 class Table
@@ -39,9 +38,9 @@ class Table
 {
 
     /**
-     * COMMENTME
+     * Get model class prefix from the configuration.
      * 
-     * @return type
+     * @return string
      */
     public function getClassPrefix()
     {
@@ -49,7 +48,7 @@ class Table
     }
 
     /**
-     * COMMENTME
+     * Get model class parent from the configuration.
      * 
      * @return type
      */
@@ -59,8 +58,9 @@ class Table
     }
 
     /**
-     * COMMENTME
+     * (non-PHPdoc)
      * 
+     * @see \MwbExporter\Model\Table::write()
      * @param \MwbExporter\Writer\WriterInterface $writer
      * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Table
      */
@@ -76,7 +76,7 @@ class Table
     }
 
     /**
-     * COMMENTME
+     * Write model body code.
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
      * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Table
@@ -87,16 +87,20 @@ class Table
             ->write("Ext.define('%s', {", $this->getClassPrefix() . '.' . $this->getModelName())
             ->indent()
             ->write("extend: '%s',", $this->getParentClass())
-            // TODO Add uses, See doctrine fromatter for a nice sollution
-            // TODO Add relations
             ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    $_this->writeUses($writer);
+
+                    $_this->writeBelongsTo($writer);
+
+                    $_this->writeHasOne($writer);
+
+                    $_this->writeHasMany($writer);
+
                     $_this->getColumns()->writeFields($writer);
-                })
-            ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+
                     $_this->getColumns()->writeValidations($writer);
-                })
-            ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    $_this->writeProxy($writer);
+
+                    $_this->writeAjaxProxy($writer);
                 })
             ->outdent()
             ->write('});')
@@ -106,12 +110,70 @@ class Table
     }
 
     /**
-     * COMMENTME
+     * Write used associations.
+     * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.Class-cfg-uses
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
      * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Table
      */
-    public function writeProxy(WriterInterface $writer)
+    public function writeUses(WriterInterface $writer)
+    {
+        // TODO find all assiciated class files.
+        
+        // End.
+        return $this;
+    }
+
+    /**
+     * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.data.association.BelongsTo
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Table
+     */
+    public function writeBelongsTo(WriterInterface $writer)
+    {
+        // TODO find all class file where this model belongs to.
+        
+        // End.
+        return $this;
+    }
+
+    /**
+     * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.data.association.HasOne
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Table
+     */
+    public function writeHasOne(WriterInterface $writer)
+    {
+        // TODO Find all one to * class files.
+        
+        // End.
+        return $this;
+    }
+
+    /**
+     * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.data.association.HasMany
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Table
+     */
+    public function writeHasMany(WriterInterface $writer)
+    {
+        // TODO find all many to * class files.
+        
+        // End.
+        return $this;
+    }
+
+    /**
+     * Write model ajax proxy object.
+     * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.data.proxy.Ajax
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Table
+     */
+    public function writeAjaxProxy(WriterInterface $writer)
     {
         $modelName = strtolower($this->getModelName());
 
@@ -139,11 +201,16 @@ class Table
      */
     public function getJSObject($content, $multiline = true, $raw = false)
     {
-        return new JSObject($content, array('multiline' => $multiline, 'raw' => $raw, 'indent' => $this->getDocument()->getConfig()->get(Formatter::CFG_INDENTATION)));
+        return new JSObject($content, array(
+            'multiline' => $multiline,
+            'raw' => $raw,
+            'indent' => $this->getDocument()->getConfig()->get(Formatter::CFG_INDENTATION)
+        ));
     }
 
     /**
-     * COMMENTME
+     * Get the model API object.
+     * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.data.proxy.Ajax-cfg-api
      * 
      * @return \MwbExporter\Helper\JSObject
      */
@@ -161,7 +228,8 @@ class Table
     }
 
     /**
-     * COMMENTME
+     * Get the model json reader.
+     * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.data.reader.Json
      * 
      * @return \MwbExporter\Helper\JSObject
      */
@@ -178,7 +246,8 @@ class Table
     }
 
     /**
-     * COMMENTME
+     * Get the model json writer
+     * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.data.writer.Json
      * 
      * @return \MwbExporter\Helper\JSObject
      */

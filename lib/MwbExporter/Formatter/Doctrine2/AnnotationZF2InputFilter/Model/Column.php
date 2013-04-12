@@ -36,6 +36,11 @@ class Column
     extends BaseColumn
 {
 
+    /**
+     * COMMENTME
+     * 
+     * @return boolean
+     */
     public function asAnnotation()
     {
         $attributes = array(
@@ -58,6 +63,12 @@ class Column
         return $attributes;
     }
 
+    /**
+     * COMMENTME
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Column
+     */
     public function write(WriterInterface $writer)
     {
         $comment = $this->getComment();
@@ -75,6 +86,12 @@ class Column
         return $this;
     }
 
+    /**
+     * COMMENTME
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Column
+     */
     public function writeArrayCollection(WriterInterface $writer)
     {
         foreach ($this->foreigns as $foreign) {
@@ -92,6 +109,12 @@ class Column
         return $this;
     }
 
+    /**
+     * COMMENTME
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Column
+     */
     public function writeRelations(WriterInterface $writer)
     {
         // one to many references
@@ -208,6 +231,12 @@ class Column
         return $this;
     }
 
+    /**
+     * COMMENTME
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Column
+     */
     public function writeGetterAndSetter(WriterInterface $writer)
     {
         $table = $this->getTable();
@@ -248,6 +277,12 @@ class Column
         return $this;
     }
 
+    /**
+     * COMMENTME
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Column
+     */
     public function writeRelationsGetterAndSetter(WriterInterface $writer)
     {
         $table = $this->getTable();
@@ -408,6 +443,11 @@ class Column
         return $this;
     }
 
+    /**
+     * COMMENTME
+     * 
+     * @return boolean
+     */
     public function getIsrequired()
     {
         $isNotNull = $this->parameters->get('isNotNull');
@@ -492,6 +532,9 @@ class Column
     /**
      * get the onDelete rule. this will set the database level ON DELETE and can be set
      * to CASCADE or SET NULL. Do not confuse this with the Doctrine-level cascade rules.
+     * 
+     * @param string $deleteRule
+     * @return string or null if the given $deleteRule != 'NO ACTION' | 'RESTRICT'
      */
     private function getDeleteRule($deleteRule)
     {

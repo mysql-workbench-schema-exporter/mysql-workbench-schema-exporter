@@ -37,25 +37,29 @@ class Formatter
 
     const CFG_CLASS_PREFIX = 'classPrefix';
     const CFG_PARENT_CLASS = 'parentClass';
+    const CFG_BACKUP_FILE = 'backupExistingFile';
 
     /**
-     * COMMENTME
+     * (non-PHPdoc)
      * 
+     * @see \MwbExporter\Formatter::init()
      */
     protected function init()
     {
         $this->setDatatypeConverter(new DatatypeConverter());
         $this->addConfigurations(array(
             static::CFG_INDENTATION => 4,
-            static::CFG_FILENAME => '%schema%/%entity%.%extension%',
+            static::CFG_FILENAME => 'model/%entity%.%extension%',
             static::CFG_CLASS_PREFIX => 'App.model',
             static::CFG_PARENT_CLASS => 'Ext.data.Model',
+            static::CFG_BACKUP_FILE => false,
         ));
     }
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.Formatter::createTable()
+     * 
+     * @see \MwbExporter\Formatter::createTable()
      */
     public function createTable(Base $parent, $node)
     {
@@ -64,7 +68,8 @@ class Formatter
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createColumns()
+     * 
+     * @see \MwbExporter\FormatterInterface::createColumns()
      */
     public function createColumns(Base $parent, $node)
     {
@@ -73,7 +78,8 @@ class Formatter
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createColumn()
+     * 
+     * @see \MwbExporter\FormatterInterface::createColumn()
      */
     public function createColumn(Base $parent, $node)
     {
@@ -82,7 +88,8 @@ class Formatter
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createIndex()
+     * 
+     * @see \MwbExporter\FormatterInterface::createIndex()
      */
     public function createIndex(Base $parent, $node)
     {
@@ -90,9 +97,9 @@ class Formatter
     }
 
     /**
-     * COMMENTME
+     * (non-PHPdoc)
      * 
-     * @return string
+     * @see \MwbExporter\FormatterInterface::getTitle()
      */
     public function getTitle()
     {
@@ -100,9 +107,9 @@ class Formatter
     }
 
     /**
-     * COMMENTME
+     * (non-PHPdoc)
      * 
-     * @return string
+     * @see \MwbExporter\FormatterInterface::getFileExtension()
      */
     public function getFileExtension()
     {

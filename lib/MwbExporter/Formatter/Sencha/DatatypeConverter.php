@@ -31,6 +31,10 @@ use MwbExporter\DatatypeConverter as BaseDatatypeConverter;
 
 class DatatypeConverter extends BaseDatatypeConverter
 {
+    /**
+     * Setup data type converter.
+     * Register all data types.
+     */
     public function setup()
     {
         $this->register(array(

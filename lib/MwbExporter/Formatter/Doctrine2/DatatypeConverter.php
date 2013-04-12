@@ -30,85 +30,98 @@ namespace MwbExporter\Formatter\Doctrine2;
 use MwbExporter\DatatypeConverter as BaseDatatypeConverter;
 use MwbExporter\Model\Column;
 
-class DatatypeConverter extends BaseDatatypeConverter
+class DatatypeConverter
+    extends BaseDatatypeConverter
 {
+
+    /**
+     * Setup data type converter.
+     * Register all data types.
+     */
     public function setup()
     {
         /**
-        Doctrine 2.2 Data Type:
-        const TARRAY = 'array';
-        const BIGINT = 'bigint';
-        const BOOLEAN = 'boolean';
-        const DATETIME = 'datetime';
-        const DATETIMETZ = 'datetimetz';
-        const DATE = 'date';
-        const TIME = 'time';
-        const DECIMAL = 'decimal';
-        const INTEGER = 'integer';
-        const OBJECT = 'object';
-        const SMALLINT = 'smallint';
-        const STRING = 'string';
-        const TEXT = 'text';
-        const BLOB = 'blob';
-        const FLOAT = 'float';
-        */
+          Doctrine 2.2 Data Type:
+          const TARRAY = 'array';
+          const BIGINT = 'bigint';
+          const BOOLEAN = 'boolean';
+          const DATETIME = 'datetime';
+          const DATETIMETZ = 'datetimetz';
+          const DATE = 'date';
+          const TIME = 'time';
+          const DECIMAL = 'decimal';
+          const INTEGER = 'integer';
+          const OBJECT = 'object';
+          const SMALLINT = 'smallint';
+          const STRING = 'string';
+          const TEXT = 'text';
+          const BLOB = 'blob';
+          const FLOAT = 'float';
+         */
         $this->register(array(
-            static::DATATYPE_TINYINT            => 'integer',
-            static::DATATYPE_SMALLINT           => 'smallint',
-            static::DATATYPE_MEDIUMINT          => 'integer',
-            static::DATATYPE_INT                => 'integer',
-            static::DATATYPE_BIGINT             => 'bigint',
-            static::DATATYPE_FLOAT              => 'float',
-            static::DATATYPE_DOUBLE             => 'float',
-            static::DATATYPE_DECIMAL            => 'decimal',
-            static::DATATYPE_CHAR               => 'string',
-            static::DATATYPE_VARCHAR            => 'string',
-            static::DATATYPE_BINARY             => 'blob',
-            static::DATATYPE_VARBINARY          => 'blob',
-            static::DATATYPE_TINYTEXT           => 'text',
-            static::DATATYPE_TEXT               => 'text',
-            static::DATATYPE_MEDIUMTEXT         => 'text',
-            static::DATATYPE_LONGTEXT           => 'text',
-            static::DATATYPE_TINYBLOB           => 'blob',
-            static::DATATYPE_BLOB               => 'blob',
-            static::DATATYPE_MEDIUMBLOB         => 'blob',
-            static::DATATYPE_LONGBLOB           => 'blob',
-            static::DATATYPE_DATETIME           => 'datetime',
-            static::DATATYPE_DATE               => 'date',
-            static::DATATYPE_TIME               => 'time',
-            static::DATATYPE_YEAR               => 'smallint',
-            static::DATATYPE_TIMESTAMP          => 'datetime',
-            static::DATATYPE_GEOMETRY           => 'object',
-            static::DATATYPE_LINESTRING         => 'object',
-            static::DATATYPE_POLYGON            => 'object',
-            static::DATATYPE_MULTIPOINT         => 'object',
-            static::DATATYPE_MULTILINESTRING    => 'object',
-            static::DATATYPE_MULTIPOLYGON       => 'object',
+            static::DATATYPE_TINYINT => 'integer',
+            static::DATATYPE_SMALLINT => 'smallint',
+            static::DATATYPE_MEDIUMINT => 'integer',
+            static::DATATYPE_INT => 'integer',
+            static::DATATYPE_BIGINT => 'bigint',
+            static::DATATYPE_FLOAT => 'float',
+            static::DATATYPE_DOUBLE => 'float',
+            static::DATATYPE_DECIMAL => 'decimal',
+            static::DATATYPE_CHAR => 'string',
+            static::DATATYPE_VARCHAR => 'string',
+            static::DATATYPE_BINARY => 'blob',
+            static::DATATYPE_VARBINARY => 'blob',
+            static::DATATYPE_TINYTEXT => 'text',
+            static::DATATYPE_TEXT => 'text',
+            static::DATATYPE_MEDIUMTEXT => 'text',
+            static::DATATYPE_LONGTEXT => 'text',
+            static::DATATYPE_TINYBLOB => 'blob',
+            static::DATATYPE_BLOB => 'blob',
+            static::DATATYPE_MEDIUMBLOB => 'blob',
+            static::DATATYPE_LONGBLOB => 'blob',
+            static::DATATYPE_DATETIME => 'datetime',
+            static::DATATYPE_DATE => 'date',
+            static::DATATYPE_TIME => 'time',
+            static::DATATYPE_YEAR => 'smallint',
+            static::DATATYPE_TIMESTAMP => 'datetime',
+            static::DATATYPE_GEOMETRY => 'object',
+            static::DATATYPE_LINESTRING => 'object',
+            static::DATATYPE_POLYGON => 'object',
+            static::DATATYPE_MULTIPOINT => 'object',
+            static::DATATYPE_MULTILINESTRING => 'object',
+            static::DATATYPE_MULTIPOLYGON => 'object',
             static::DATATYPE_GEOMETRYCOLLECTION => 'object',
-            static::DATATYPE_BIT                => 'bigint',
-            static::DATATYPE_ENUM               => 'string',
-            static::DATATYPE_SET                => 'string',
-            static::USERDATATYPE_BOOLEAN        => 'boolean',
-            static::USERDATATYPE_BOOL           => 'boolean',
-            static::USERDATATYPE_FIXED          => 'decimal',
-            static::USERDATATYPE_FLOAT4         => 'float',
-            static::USERDATATYPE_FLOAT8         => 'float',
-            static::USERDATATYPE_INT1           => 'integer',
-            static::USERDATATYPE_INT2           => 'integer',
-            static::USERDATATYPE_INT3           => 'integer',
-            static::USERDATATYPE_INT4           => 'integer',
-            static::USERDATATYPE_INT8           => 'integer',
-            static::USERDATATYPE_INTEGER        => 'integer',
-            static::USERDATATYPE_LONGVARBINARY  => 'blob',
-            static::USERDATATYPE_LONGVARCHAR    => 'blob',
-            static::USERDATATYPE_LONG           => 'bigint',
-            static::USERDATATYPE_MIDDLEINT      => 'integer',
-            static::USERDATATYPE_NUMERIC        => 'decimal',
-            static::USERDATATYPE_DEC            => 'decimal',
-            static::USERDATATYPE_CHARACTER      => 'string',
+            static::DATATYPE_BIT => 'bigint',
+            static::DATATYPE_ENUM => 'string',
+            static::DATATYPE_SET => 'string',
+            static::USERDATATYPE_BOOLEAN => 'boolean',
+            static::USERDATATYPE_BOOL => 'boolean',
+            static::USERDATATYPE_FIXED => 'decimal',
+            static::USERDATATYPE_FLOAT4 => 'float',
+            static::USERDATATYPE_FLOAT8 => 'float',
+            static::USERDATATYPE_INT1 => 'integer',
+            static::USERDATATYPE_INT2 => 'integer',
+            static::USERDATATYPE_INT3 => 'integer',
+            static::USERDATATYPE_INT4 => 'integer',
+            static::USERDATATYPE_INT8 => 'integer',
+            static::USERDATATYPE_INTEGER => 'integer',
+            static::USERDATATYPE_LONGVARBINARY => 'blob',
+            static::USERDATATYPE_LONGVARCHAR => 'blob',
+            static::USERDATATYPE_LONG => 'bigint',
+            static::USERDATATYPE_MIDDLEINT => 'integer',
+            static::USERDATATYPE_NUMERIC => 'decimal',
+            static::USERDATATYPE_DEC => 'decimal',
+            static::USERDATATYPE_CHARACTER => 'string',
         ));
     }
 
+    /**
+     * (non-PHPdoc)
+     * 
+     * @see \MwbExporter\DatatypeConverter::getNativeType()
+     * @param string $type
+     * @return string
+     */
     public function getNativeType($type)
     {
         switch ($type) {
@@ -148,6 +161,13 @@ class DatatypeConverter extends BaseDatatypeConverter
         return $type;
     }
 
+    /**
+     * (non-PHPdoc)
+     * 
+     * @see \MwbExporter\DatatypeConverter::getMappedType()
+     * @param \MwbExporter\Model\Column $column
+     * @return string
+     */
     public function getMappedType(Column $column)
     {
         $type = parent::getMappedType($column);
@@ -158,4 +178,5 @@ class DatatypeConverter extends BaseDatatypeConverter
 
         return $type;
     }
+
 }
