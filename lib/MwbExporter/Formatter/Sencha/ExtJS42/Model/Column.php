@@ -34,6 +34,11 @@ class Column
     extends BaseColumn
 {
 
+    /**
+     * COMMENTME
+     * 
+     * @return type
+     */
     public function getAsField()
     {
         $field = array(
@@ -49,6 +54,11 @@ class Column
         return $this->getTable()->getJSObject($field);
     }
 
+    /**
+     * COMMENTME
+     * 
+     * @return type
+     */
     public function getAsValidation()
     {
         $validations = "";

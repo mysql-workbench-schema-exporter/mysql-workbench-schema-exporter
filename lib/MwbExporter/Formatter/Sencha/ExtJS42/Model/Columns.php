@@ -36,6 +36,12 @@ class Columns
     extends BaseColumns
 {
 
+    /**
+     * COMMENTME
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Columns
+     */
     public function writeFields(WriterInterface $writer)
     {
         $writer
@@ -56,6 +62,11 @@ class Columns
         return $this;
     }
 
+    /**
+     * COMMENTME
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     */
     public function writeValidations(WriterInterface $writer)
     {
         $writer

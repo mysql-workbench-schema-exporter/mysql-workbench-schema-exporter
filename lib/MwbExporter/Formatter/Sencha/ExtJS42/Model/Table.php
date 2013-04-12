@@ -38,16 +38,32 @@ class Table
     extends BaseTable
 {
 
+    /**
+     * COMMENTME
+     * 
+     * @return type
+     */
     public function getClassPrefix()
     {
         return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_CLASS_PREFIX));
     }
 
+    /**
+     * COMMENTME
+     * 
+     * @return type
+     */
     public function getParentClass()
     {
         return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_PARENT_CLASS));
     }
 
+    /**
+     * COMMENTME
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Table
+     */
     public function write(WriterInterface $writer)
     {
         if (!$this->isExternal()) {
@@ -59,6 +75,12 @@ class Table
         return $this;
     }
 
+    /**
+     * COMMENTME
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Table
+     */
     public function writeTable(WriterInterface $writer)
     {
         $writer
@@ -92,7 +114,7 @@ class Table
     public function writeProxy(WriterInterface $writer)
     {
         $modelName = strtolower($this->getModelName());
-        
+
         $writer
             ->write('proxy: ' . $this->getJSObject(array(
                     'type' => 'ajax',
@@ -163,7 +185,7 @@ class Table
     protected function getJsonWriter()
     {
         $modelName = strtolower($this->getModelName());
-        
+
         // End.
         return $this->getJSObject(array(
                 'type' => 'json',

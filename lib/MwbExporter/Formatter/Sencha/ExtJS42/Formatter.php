@@ -31,19 +31,25 @@ namespace MwbExporter\Formatter\Sencha\ExtJS42;
 use MwbExporter\Formatter as BaseFormatter;
 use MwbExporter\Model\Base;
 
-class Formatter extends BaseFormatter
+class Formatter
+    extends BaseFormatter
 {
-    const CFG_CLASS_PREFIX   = 'classPrefix';
-    const CFG_PARENT_CLASS   = 'parentClass';
 
+    const CFG_CLASS_PREFIX = 'classPrefix';
+    const CFG_PARENT_CLASS = 'parentClass';
+
+    /**
+     * COMMENTME
+     * 
+     */
     protected function init()
     {
         $this->setDatatypeConverter(new DatatypeConverter());
         $this->addConfigurations(array(
-            static::CFG_INDENTATION     => 4,
-            static::CFG_FILENAME        => '%schema%/%entity%.%extension%',
-            static::CFG_CLASS_PREFIX    => 'App.model',
-            static::CFG_PARENT_CLASS    => 'Ext.data.Model',
+            static::CFG_INDENTATION => 4,
+            static::CFG_FILENAME => '%schema%/%entity%.%extension%',
+            static::CFG_CLASS_PREFIX => 'App.model',
+            static::CFG_PARENT_CLASS => 'Ext.data.Model',
         ));
     }
 
@@ -83,13 +89,24 @@ class Formatter extends BaseFormatter
         return new Model\Index($parent, $node);
     }
 
+    /**
+     * COMMENTME
+     * 
+     * @return string
+     */
     public function getTitle()
     {
         return 'Sencha ExtJS4.2 Model';
     }
 
+    /**
+     * COMMENTME
+     * 
+     * @return string
+     */
     public function getFileExtension()
     {
         return 'js';
     }
+
 }

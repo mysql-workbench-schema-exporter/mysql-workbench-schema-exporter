@@ -35,6 +35,9 @@ class DatatypeConverter
     extends BaseDatatypeConverter
 {
 
+    /**
+     * COMMENTME
+     */
     public function setup()
     {
         $this->register(array(

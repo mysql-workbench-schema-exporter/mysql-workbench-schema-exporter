@@ -31,6 +31,7 @@ namespace MwbExporter\Formatter\Sencha\ExtJS42\Model;
 class Index extends \MwbExporter\Model\Index
 {
     /**
+     * COMMENTME
      *
      * @return string
      */
