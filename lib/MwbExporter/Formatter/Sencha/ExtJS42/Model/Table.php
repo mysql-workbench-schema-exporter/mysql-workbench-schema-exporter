@@ -61,7 +61,6 @@ class Table
 
     public function writeTable(WriterInterface $writer)
     {
-
         $writer
             ->write("Ext.define('%s', {", $this->getClassPrefix() . '.' . $this->getModelName())
             ->indent()
@@ -74,12 +73,37 @@ class Table
             ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
                     $_this->getColumns()->writeValidations($writer);
                 })
-            ->write("listners: {},")
-            ->write("proxy: {}")
+            ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    $_this->writeProxy($writer);
+                })
             ->outdent()
             ->write('});')
         ;
 
+        return $this;
+    }
+
+    /**
+     * COMMENTME
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Table
+     */
+    public function writeProxy(WriterInterface $writer)
+    {
+        $modelName = strtolower($this->getModelName());
+        
+        $writer
+            ->write('proxy: ' . $this->getJSObject(array(
+                    'type' => 'ajax',
+                    'url' => sprintf('/data/%s', $modelName),
+                    'api' => $this->getApi(),
+                    'reader' => $this->getJsonReader(),
+                    'writer' => $this->getJsonWriter()
+            )))
+        ;
+
+        // End.
         return $this;
     }
 
@@ -94,6 +118,59 @@ class Table
     public function getJSObject($content, $multiline = true, $raw = false)
     {
         return new JSObject($content, array('multiline' => $multiline, 'raw' => $raw, 'indent' => $this->getDocument()->getConfig()->get(Formatter::CFG_INDENTATION)));
+    }
+
+    /**
+     * COMMENTME
+     * 
+     * @return \MwbExporter\Helper\JSObject
+     */
+    protected function getApi()
+    {
+        $modelName = strtolower($this->getModelName());
+
+        // End.
+        return $this->getJSObject(array(
+                'read' => sprintf('/data/%s', $modelName),
+                'update' => sprintf('/data/%s/update', $modelName),
+                'create' => sprintf('/data/%s/add', $modelName),
+                'destroy' => sprintf('/data/%s/destroy', $modelName)
+        ));
+    }
+
+    /**
+     * COMMENTME
+     * 
+     * @return \MwbExporter\Helper\JSObject
+     */
+    protected function getJsonReader()
+    {
+        $modelName = strtolower($this->getModelName());
+
+        // End.
+        return $this->getJSObject(array(
+                'type' => 'json',
+                'root' => $modelName,
+                'messageProperty' => 'message'
+        ));
+    }
+
+    /**
+     * COMMENTME
+     * 
+     * @return \MwbExporter\Helper\JSObject
+     */
+    protected function getJsonWriter()
+    {
+        $modelName = strtolower($this->getModelName());
+        
+        // End.
+        return $this->getJSObject(array(
+                'type' => 'json',
+                'root' => $modelName,
+                'encode' => true,
+                'expandData' => true
+        ));
     }
 
 }
