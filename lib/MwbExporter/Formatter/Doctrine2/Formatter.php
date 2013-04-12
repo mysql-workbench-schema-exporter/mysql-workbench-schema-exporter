@@ -31,6 +31,9 @@ use MwbExporter\Formatter\Formatter as BaseFormatter;
 
 abstract class Formatter extends BaseFormatter
 {
+    const CFG_BUNDLE_NAMESPACE               = 'bundleNamespace';
+    const CFG_ENTITY_NAMESPACE               = 'entityNamespace';
+
     /**
      * Get owning side of relation.
      *

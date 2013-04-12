@@ -1,4 +1,5 @@
 <?php
+
 /*
  * The MIT License
  *
@@ -26,45 +27,14 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
-use MwbExporter\Model\Table as BaseTable;
+use MwbExporter\Formatter\Doctrine2\Model\Table as BaseTable;
+use MwbExporter\Formatter\Doctrine2\Formatter;
 use MwbExporter\Writer\WriterInterface;
-use MwbExporter\Formatter\Doctrine2\Yaml\Formatter;
 use MwbExporter\Object\YAML;
 use MwbExporter\Helper\Pluralizer;
 
 class Table extends BaseTable
 {
-    /**
-     * Get the entity namespace.
-     *
-     * @return string
-     */
-    public function getEntityNamespace()
-    {
-        $namespace = '';
-        if (($bundleNamespace = $this->parseComment('bundleNamespace')) || ($bundleNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_BUNDLE_NAMESPACE))) {
-            $namespace = $bundleNamespace.'\\';
-        }
-        if ($entityNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_ENTITY_NAMESPACE)) {
-            $namespace .= $entityNamespace;
-        } else {
-            $namespace .= 'Entity';
-        }
-
-        return $namespace;
-    }
-
-    /**
-     * Get namespace of a class.
-     *
-     * @param string $class The class name
-     * @return string
-     */
-    public function getNamespace($class = null, $absolute = true)
-    {
-        return sprintf('%s%s\%s', $absolute ? '\\' : '', $this->getEntityNamespace(), null === $class ? $this->getModelName() : $class);
-    }
-
     public function writeTable(WriterInterface $writer)
     {
         if (!$this->isExternal()) {
@@ -132,7 +102,7 @@ class Table extends BaseTable
         foreach ($this->manyToManyRelations as $relation) {
             $isOwningSide = $formatter->isOwningSide($relation, $mappedRelation);
             $mappings = array(
-                'targetEntity' => $relation['refTable']->getModelName(),
+                'targetEntity' => $relation['refTable']->getModelNameAsFQCN($this->getEntityNamespace()),
                 'mappedBy'     => null,
                 'inversedBy'   => lcfirst(Pluralizer::pluralize($this->getModelName())),
                 'cascade'      => $formatter->getCascadeOption($relation['reference']->parseComment('cascade')),

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * The MIT License
  *
@@ -26,20 +27,10 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
-use MwbExporter\Model\Index as BaseIndex;
+use MwbExporter\Formatter\Doctrine2\Model\Index as BaseIndex;
 
 class Index extends BaseIndex
 {
-    protected function getColumnNames()
-    {
-        $columns = array();
-        foreach ($this->columns as $refColumn) {
-            $columns[] = $refColumn->getColumnName();
-        }
-
-        return $columns;
-    }
-
     public function asYAML()
     {
         return array('columns' => $this->getColumnNames());

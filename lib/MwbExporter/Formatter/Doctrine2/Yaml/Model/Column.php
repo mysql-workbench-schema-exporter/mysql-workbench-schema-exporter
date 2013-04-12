@@ -1,4 +1,5 @@
 <?php
+
 /*
  * The MIT License
  *
@@ -26,16 +27,11 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
-use MwbExporter\Model\Column as BaseColumn;
+use MwbExporter\Formatter\Doctrine2\Model\Column as BaseColumn;
 use MwbExporter\Helper\Pluralizer;
 
 class Column extends BaseColumn
 {
-    const RELATION_ONE_TO_ONE = '1:1';
-    const RELATION_ONE_TO_MANY = '1:M';
-    const RELATION_MANY_TO_ONE = 'M:1';
-    const RELATION_MANY_TO_MANY = 'M:M';
-
     public function asYAML()
     {
         $values = array();
@@ -74,9 +70,10 @@ class Column extends BaseColumn
                 // do not output mapping in foreign table when the unidirectional option is set
                 continue;
             }
-            $targetEntity = $foreign->getOwningTable()->getModelName();
-            $mappedBy     = $foreign->getReferencedTable()->getModelName();
-            $relationName = $foreign->getOwningTable()->getRawTableName();
+            $targetEntity     = $foreign->getOwningTable()->getModelName();
+            $targetEntityFQCN = $foreign->getOwningTable()->getModelNameAsFQCN($foreign->getReferencedTable()->getEntityNamespace());
+            $mappedBy         = $foreign->getReferencedTable()->getModelName();
+            $relationName     = $foreign->getOwningTable()->getRawTableName();
             // check for OneToOne or OneToMany relationship
             if ($foreign->isManyToOne()) {
                 // OneToMany
@@ -84,7 +81,7 @@ class Column extends BaseColumn
                     $values[static::RELATION_ONE_TO_MANY] = array();
                 }
                 $values[static::RELATION_ONE_TO_MANY][$relationName] = array(
-                    'targetEntity'  => $targetEntity,
+                    'targetEntity'  => $targetEntityFQCN,
                     'mappedBy'      => lcfirst($mappedBy),
                     'cascade'       => $formatter->getCascadeOption($foreign->parseComment('cascade')),
                     'fetch'         => $formatter->getFetchOption($foreign->parseComment('fetch')),
@@ -102,7 +99,7 @@ class Column extends BaseColumn
                     $values[static::RELATION_ONE_TO_ONE] = array();
                 }
                 $values[static::RELATION_ONE_TO_ONE][$relationName] = array(
-                    'targetEntity'  => $targetEntity,
+                    'targetEntity'  => $targetEntityFQCN,
                     'joinColumn'    => array(
                         'name'                 => $foreign->getForeign()->getColumnName(),
                         'referencedColumnName' => $foreign->getLocal()->getColumnName(),
@@ -114,9 +111,10 @@ class Column extends BaseColumn
         }
         // many to one references
         if (null !== $this->local) {
-            $targetEntity = $this->local->getReferencedTable()->getModelName();
-            $inversedBy   = $this->local->getOwningTable()->getModelName();
-            $relationName = $this->local->getReferencedTable()->getRawTableName();
+            $targetEntity     = $this->local->getReferencedTable()->getModelName();
+            $targetEntityFQCN = $this->local->getReferencedTable()->getModelNameAsFQCN($this->local->getOwningTable()->getEntityNamespace());
+            $inversedBy       = $this->local->getOwningTable()->getModelName();
+            $relationName     = $this->local->getReferencedTable()->getRawTableName();
             // check for OneToOne or ManyToOne relationship
             if ($this->local->isManyToOne()) {
                 // ManyToOne

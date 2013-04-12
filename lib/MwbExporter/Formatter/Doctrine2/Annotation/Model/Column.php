@@ -1,4 +1,5 @@
 <?php
+
 /*
  * The MIT License
  *
@@ -26,7 +27,7 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
-use MwbExporter\Model\Column as BaseColumn;
+use MwbExporter\Formatter\Doctrine2\Model\Column as BaseColumn;
 use MwbExporter\Helper\Pluralizer;
 use MwbExporter\Writer\WriterInterface;
 
@@ -103,10 +104,11 @@ class Column extends BaseColumn
             }
 
             $targetEntity = $foreign->getOwningTable()->getModelName();
+            $targetEntityFQCN = $foreign->getOwningTable()->getModelNameAsFQCN($foreign->getReferencedTable()->getEntityNamespace());
             $mappedBy = $foreign->getReferencedTable()->getModelName();
 
             $annotationOptions = array(
-                'targetEntity' => $targetEntity,
+                'targetEntity' => $targetEntityFQCN,
                 'mappedBy' => lcfirst($mappedBy),
                 'cascade' => $formatter->getCascadeOption($foreign->parseComment('cascade')),
                 'fetch' => $formatter->getFetchOption($foreign->parseComment('fetch')),
@@ -145,10 +147,11 @@ class Column extends BaseColumn
         // many to references
         if (null !== $this->local) {
             $targetEntity = $this->local->getReferencedTable()->getModelName();
+            $targetEntityFQCN = $this->local->getReferencedTable()->getModelNameAsFQCN($this->local->getOwningTable()->getEntityNamespace());
             $inversedBy = $this->local->getOwningTable()->getModelName();
 
             $annotationOptions = array(
-                'targetEntity' => $targetEntity,
+                'targetEntity' => $targetEntityFQCN,
                 'mappedBy' => null,
                 'inversedBy' => $inversedBy,
                 // 'cascade' => $formatter->getCascadeOption($this->local->parseComment('cascade')),
