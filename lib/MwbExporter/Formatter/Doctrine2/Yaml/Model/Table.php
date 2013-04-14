@@ -169,4 +169,12 @@ class Table extends BaseTable
 
         return new YAML(array($namespace => $values), array('indent' => $this->getDocument()->getConfig()->get(Formatter::CFG_INDENTATION)));
     }
+
+    protected function getVars()
+    {
+        $vars = parent::getVars();
+        $vars['%entity%'] = str_replace('\\', '.', $this->getModelNameAsFQCN());
+
+        return $vars;
+    }
 }
