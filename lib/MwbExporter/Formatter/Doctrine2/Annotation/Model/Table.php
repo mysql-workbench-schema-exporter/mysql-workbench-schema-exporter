@@ -176,6 +176,7 @@ class Table extends BaseTable
             }
             $skipGetterAndSetter = $this->getDocument()->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
             $serializableEntity  = $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
+            $lifecycleCallbacks  = $this->getLifecycleCallbacks();
 
             $comment = $this->getComment();
             $writer
@@ -193,17 +194,31 @@ class Table extends BaseTable
                 ->writeIf($comment, $comment)
                 ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
                 ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation(), 'uniqueConstraints' => $this->getUniqueConstraintsAnnotation())))
+                ->writeIf($lifecycleCallbacks, ' * @HasLifecycleCallbacks')
                 ->write(' */')
                 ->write('class '.$this->getModelName())
                 ->write('{')
                 ->indent()
-                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity) {
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity, $lifecycleCallbacks) {
                         $_this->getColumns()->write($writer);
                         $_this->writeManyToMany($writer);
                         $_this->writeConstructor($writer);
                         if (!$skipGetterAndSetter) {
                             $_this->getColumns()->writeGetterAndSetter($writer);
                             $_this->writeManyToManyGetterAndSetter($writer);
+                        }
+                        foreach ($lifecycleCallbacks as $callback => $handlers) {
+                            foreach ($handlers as $handler) {
+                                $writer
+                                    ->write('/**')
+                                    ->write(' * @%s', ucfirst($callback))
+                                    ->write(' */')
+                                    ->write('public function %s()', $handler)
+                                    ->write('{')
+                                    ->write('}')
+                                    ->write('')
+                                ;
+                            }
                         }
                         if ($serializableEntity) {
                             $_this->writeSerialization($writer);

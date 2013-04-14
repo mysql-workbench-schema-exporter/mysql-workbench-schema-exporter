@@ -163,7 +163,7 @@ class Table extends BaseTable
         if (count($manyToMany)) {
             $values['manyToMany'] = $manyToMany;
         }
-        if ($lifecycleCallbacks = $this->parseComment('lifecycleCallbacks')) {
+        if (count($lifecycleCallbacks = $this->getLifecycleCallbacks())) {
             $values['lifecycleCallbacks'] = $lifecycleCallbacks;
         }
 

@@ -76,4 +76,29 @@ class Table extends BaseTable
 
         return $fqcn ? $namespace.'\\'.$this->getModelName() : $this->getModelName();
     }
+
+    /**
+     * Get lifecycleCallbacks.
+     *
+     * @return array
+     */
+    public function getLifecycleCallbacks()
+    {
+        $result = array();
+        if ($lifecycleCallbacks = trim($this->parseComment('lifecycleCallbacks'))) {
+            foreach (explode("\n", $lifecycleCallbacks) as $callback) {
+                list($method, $handler) = explode(':', $callback, 2);
+                $method = lcfirst(trim($method));
+                if (!in_array($method, array('postLoad', 'prePersist', 'postPersist', 'preRemove', 'postRemove', 'preUpdate', 'postUpdate'))) {
+                    continue;
+                }
+                if (!isset($result[$method])) {
+                    $result[$method] = array();
+                }
+                $result[$method][] = trim($handler);
+            }
+        }
+
+        return $result;
+    }
 }
