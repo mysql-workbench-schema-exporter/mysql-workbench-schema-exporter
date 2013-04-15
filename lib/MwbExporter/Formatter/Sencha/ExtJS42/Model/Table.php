@@ -118,8 +118,14 @@ class Table
      */
     public function writeUses(WriterInterface $writer)
     {
-        // TODO find all assiciated class files.
-        
+        /* TODO
+         * Find all HasOne and HasMany relations and add them to the uses array.
+         * 
+         * uses: [
+         *   'App.model.<Model>'
+         * ],
+         */
+
         // End.
         return $this;
     }
@@ -132,8 +138,22 @@ class Table
      */
     public function writeBelongsTo(WriterInterface $writer)
     {
-        // TODO find all class file where this model belongs to.
-        
+
+
+        /* TODO
+         * Find all relations to this model and add them to the BelongsTo array.
+         * 
+         * belongsTo: [{
+         *   model: 'App.mode.<Model>',
+         *   associationKey: '<model>'
+         *   getterName: 'get<Model>',
+         *   setterName: 'set<Model>',
+         *   
+         *  }],
+         */
+
+        $this->getColumns()->writeBelongsToRelations($writer);
+
         // End.
         return $this;
     }
@@ -146,8 +166,17 @@ class Table
      */
     public function writeHasOne(WriterInterface $writer)
     {
-        // TODO Find all one to * class files.
-        
+        /* TODO
+         * Check if there are One to One or Many to One relations.
+         * If so gen the hasOne relations.
+         * 
+         * TODO Find a way to check if this table has OneToOne or ManyToOne relations.
+         */
+
+
+//        if (!$this->getColumns()->hasOneToManyRelation()) {
+        $this->getColumns()->writeHasOneRelations($writer);
+//        }
         // End.
         return $this;
     }
@@ -161,7 +190,6 @@ class Table
     public function writeHasMany(WriterInterface $writer)
     {
         // TODO find all many to * class files.
-        
         // End.
         return $this;
     }

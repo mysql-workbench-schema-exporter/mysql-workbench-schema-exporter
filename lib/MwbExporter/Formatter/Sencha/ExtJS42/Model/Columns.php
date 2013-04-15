@@ -28,7 +28,6 @@
 
 namespace MwbExporter\Formatter\Sencha\ExtJS42\Model;
 
-use MwbExporter\Writer\Writer;
 use MwbExporter\Model\Columns as BaseColumns;
 use MwbExporter\Writer\WriterInterface;
 
@@ -37,7 +36,90 @@ class Columns
 {
 
     /**
-     * Write entity fields.
+     * COMMENTME
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Columns
+     */
+    public function writeBelongsToRelations(WriterInterface $writer)
+    {
+        $writer
+            ->write('belongsTo: [')
+            ->indent()
+            ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
+
+                    // TODO check if there are more.
+                    foreach ($_this->getColumns() as $column) {
+                        if ($column->hasOneToManyRelation()) {
+                            $hasMore = true; // FIXME
+                            $column->writeBelongsToRelation($writer, $hasMore);
+                        }
+                    }
+                })
+            ->outdent()
+            ->write('],')
+        ;
+
+        // End.
+        return $this;
+    }
+
+    /**
+     * COMMENTME
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Columns
+     */
+    public function writeHasOneRelations(WriterInterface $writer)
+    {
+        // TODO Try to detect if this table has OneToOne of ManytoOne relations.
+
+        $writer
+            ->write('hasOne: [')
+            ->indent()
+            ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
+                    $foreignKeyCount = $_this->getParent()->getForeignKeys()->count();
+
+                    foreach ($_this->getColumns() as $column) {
+                        if ($column->getLocalForeignKey()) {
+                            $hasMore = (bool) --$foreignKeyCount;
+                            $column->writeHasOneRelation($writer, $hasMore);
+                        }
+                    }
+                })
+            ->outdent()
+            ->write('],')
+        ;
+
+        // End.
+        return $this;
+    }
+
+    /**
+     * COMMENTME
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Columns
+     */
+    public function writeHasManyRelations(WriterInterface $writer)
+    {
+        $writer
+            ->write('hasMany: [')
+            ->indent()
+            ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
+                    
+                })
+            ->outdent()
+            ->write('],')
+        ;
+
+        // End.
+        return $this;
+    }
+
+    /**
+     * Write model fields.
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
      * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Columns
@@ -49,10 +131,11 @@ class Columns
             ->indent()
             ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
                     $columns = $_this->getColumns();
-                    for ($i = 0; $i < count($columns); $i++) {
-                        $writer->write($columns[$i]->getAsField() . ($i < count($columns) - 1
-                                ? ','
-                                : ''));
+                    $columnsCount = count($columns);
+
+                    foreach ($columns as $column) {
+                        $hasMore = (bool) --$columnsCount;
+                        $column->writeField($writer, $hasMore);
                     }
                 })
             ->outdent()
@@ -63,7 +146,7 @@ class Columns
     }
 
     /**
-     * Write entity validations.
+     * Write model validations.
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
      */
@@ -74,15 +157,11 @@ class Columns
             ->indent()
             ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
                     $columns = $_this->getColumns();
-                    for ($i = 0; $i < count($columns); $i++) {
-                        $validation = $columns[$i]->getAsValidation();
-                        if (!$validation) {
-                            continue;
-                        }
+                    $columnsCount = count($columns);
 
-                        $writer->write($columns[$i]->getAsValidation() . (($i < count($columns) - 1)
-                                ? ','
-                                : ''));
+                    foreach ($columns as $column) {
+                        $hasMore = (bool) --$columnsCount;
+                        $column->writeValidation($writer, $hasMore);
                     }
                 })
             ->outdent()

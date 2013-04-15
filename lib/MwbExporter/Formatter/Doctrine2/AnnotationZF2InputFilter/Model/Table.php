@@ -169,44 +169,6 @@ class Table
     }
 
     /**
-     * Get indexes annotation.
-     *
-     * @return array|null
-     */
-    protected function getIndexesAnnotation()
-    {
-        $indices = array();
-        foreach ($this->indexes as $index) {
-            if ($index->isIndex()) {
-                $indices[] = $this->getAnnotation('Index', $index->asAnnotation());
-            }
-        }
-
-        return count($indices)
-            ? $indices
-            : null;
-    }
-
-    /**
-     * Get unique constraints annotation.
-     *
-     * @return array|null
-     */
-    protected function getUniqueConstraintsAnnotation()
-    {
-        $uniques = array();
-        foreach ($this->indexes as $index) {
-            if ($index->isUnique()) {
-                $uniques[] = $this->getAnnotation('UniqueConstraint', $index->asAnnotation());
-            }
-        }
-
-        return count($uniques)
-            ? $uniques
-            : null;
-    }
-
-    /**
      * Get join annotation.
      *
      * @param string $joinType    Join type
@@ -705,6 +667,44 @@ class Table
 
         // End.
         return $this;
+    }
+
+    /**
+     * Get indexes annotation.
+     *
+     * @return array|null
+     */
+    protected function getIndexesAnnotation()
+    {
+        $indices = array();
+        foreach ($this->indexes as $index) {
+            if ($index->isIndex()) {
+                $indices[] = $this->getAnnotation('Index', $index->asAnnotation());
+            }
+        }
+
+        return count($indices)
+            ? $indices
+            : null;
+    }
+
+    /**
+     * Get unique constraints annotation.
+     *
+     * @return array|null
+     */
+    protected function getUniqueConstraintsAnnotation()
+    {
+        $uniques = array();
+        foreach ($this->indexes as $index) {
+            if ($index->isUnique()) {
+                $uniques[] = $this->getAnnotation('UniqueConstraint', $index->asAnnotation());
+            }
+        }
+
+        return count($uniques)
+            ? $uniques
+            : null;
     }
 
     /**

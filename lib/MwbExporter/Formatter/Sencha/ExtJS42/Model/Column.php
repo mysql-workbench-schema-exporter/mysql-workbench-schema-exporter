@@ -29,68 +29,173 @@
 namespace MwbExporter\Formatter\Sencha\ExtJS42\Model;
 
 use MwbExporter\Model\Column as BaseColumn;
+use MwbExporter\Writer\WriterInterface;
 
 class Column
     extends BaseColumn
 {
 
     /**
-     * Get column field object.
+     * COMMENTME
      * 
-     * @return \MwbExporter\Helper\JSObject
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @param type $hasMore
+     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Column
      */
-    public function getAsField()
+    public function writeBelongsToRelation(WriterInterface $writer, $hasMore = false)
     {
-        $field = array(
+        $table = $this->getTable();
+
+        foreach ($this->foreigns as $foreign) {
+            // TODO Block ManyToMany
+            if ($foreign->getForeign()->getTable()->isManyToMany()) {
+                // continue;
+            }
+
+            // TODO Block Unidirectional
+            if ($foreign->parseComment('unidirectional') === 'true') {
+                // do not output mapping in foreign table when the unidirectional option is set
+                // continue;
+            }
+
+            if (!$foreign->isManyToOne()) {
+                continue;
+            }
+//            belongsTo: [{
+//          *   model: 'App.mode.<Model>',
+//          *   associationKey: '<model>'
+//          *   getterName: 'get<Model>',
+//          *   setterName: 'set<Model>',
+//          *   
+//          *  }],
+
+            $relation = $table->getJSObject(array(
+                'model' => '',
+                'associationKey' => '',
+                'getterName' => '',
+                'setterName' => ''
+            ));
+
+            $writer->write($relation);
+        }
+
+        // End.
+        return $this;
+    }
+
+    /**
+     * Write model Many and One to One relations.
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @param boolean $hasMore
+     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Column
+     */
+    public function writeHasOneRelation(WriterInterface $writer, $hasMore = false)
+    {
+        $table = $this->getTable();
+        $referencedTable = $this->local->getReferencedTable();
+        $relation = (string) $table->getJSObject(array(
+                'model' => sprintf('%s.%s', $table->getClassPrefix(), $referencedTable->getModelName()),
+                'associationKey' => lcfirst($referencedTable->getModelName()),
+                'getterName' => sprintf('get%s', $referencedTable->getModelName()),
+                'setterName' => sprintf('set%s', $referencedTable->getModelName()),
+        ));
+
+        if ($hasMore) {
+            $relation .= ',';
+        }
+
+
+        $writer->write($relation);
+
+
+
+//        var_dump($this->getColumnName());
+        // What do i need?
+        // model            Prefix + RelatedClassName
+        // associationKey   ForeignName
+        // getterName       get + ForeignName
+        // setterName       set + ForeignName
+        // End.
+        return $this;
+    }
+
+    /**
+     * Write model field.
+     * 
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @param boolean $hasMore
+     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Column
+     */
+    public function writeField(WriterInterface $writer, $hasMore = false)
+    {
+        $table = $this->getTable();
+        $defaultValue = $this->getDefaultValue();
+        $content = array(
             'name' => $this->getColumnName(),
             'type' => $this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this)
         );
 
-        $default = $this->getDefault();
-        if ($default) {
-            $field['defaultValue'] = trim($default, "'");
+        if ($defaultValue) {
+            $content['defaultValue'] = trim($defaultValue, "'");
         }
 
-        return $this->getTable()->getJSObject($field);
+        $field = (string) $table->getJSObject($content);
+
+        if ($hasMore) {
+            $field .= ',';
+        }
+
+        $writer->write($field);
+
+        // End.
+        return $this;
     }
 
     /**
-     * Get column validations.
+     * Write model validation(s).
      * 
-     * @return string
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @param boolean $hasMore
+     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Column
      */
-    public function getAsValidation()
+    public function writeValidation(WriterInterface $writer, $hasMore = false)
     {
-        $validations = "";
-        $isRequired = $this->getIsrequired();
-        $maxLength = $this->getMaxLength();
         $table = $this->getTable();
+        $isRequired = $this->getIsrequired();
+        $isPrimary = $this->isPrimary();
+        $maxLength = $this->getMaxLength();
 
-        if ($isRequired && !$this->isPrimary()) {
-
-            $validation = array(
+        if ($isRequired && !$isPrimary) {
+            $content = array(
                 'type' => 'presence',
                 'field' => $this->getColumnName()
             );
 
-            $validations .= $table->getJSObject($validation);
+            $writer->write(
+                $table->getJSObject($content) . (($maxLength)
+                    ? ','
+                    : '')
+            );
         }
 
         if ($maxLength) {
-            $validation = array(
+            $content = array(
                 'type' => 'length',
                 'field' => $this->getColumnName(),
                 'max' => $maxLength
             );
 
-            $validations .= ($isRequired && !$this->isPrimary())
-                ? ",
-" . $table->getJSObject($validation) // Very bad way to define a new line, i know.
-                : $table->getJSObject($validation);
+            $writer->write(
+                $table->getJSObject($content) . (($hasMore)
+                    ? ','
+                    : '')
+            );
         }
 
+
         // End.
-        return $validations;
+        return $this;
     }
 
     /**
@@ -99,7 +204,7 @@ class Column
      * 
      * @return boolean
      */
-    public function getDefault()
+    public function getDefaultValue()
     {
         $params = $this->parameters;
 
@@ -113,7 +218,7 @@ class Column
     }
 
     /**
-     * Return whatever this column allows empty values.
+     * Return whatever this column require a values.
      * 
      * @return boolean
      */
