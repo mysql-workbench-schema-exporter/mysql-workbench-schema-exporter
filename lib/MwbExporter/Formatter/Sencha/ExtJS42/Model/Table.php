@@ -138,21 +138,43 @@ class Table
      */
     public function writeBelongsTo(WriterInterface $writer)
     {
+        $primary = $this->columns[0];
+        $belongToCount = $this->getBelongToCount();
 
+        if (0 === $belongToCount) {
+            // End, No belongTo relations found.
+            return false;
+        }
 
-        /* TODO
-         * Find all relations to this model and add them to the BelongsTo array.
-         * 
-         * belongsTo: [{
-         *   model: 'App.mode.<Model>',
-         *   associationKey: '<model>'
-         *   getterName: 'get<Model>',
-         *   setterName: 'set<Model>',
-         *   
-         *  }],
-         */
+        $writer
+            ->write('belongsTo: [')
+            ->indent()
+            ->writeCallback(function(WriterInterface $writer, Table $_this = null) use($primary, $belongToCount) {
+                    foreach ($primary->getForeignKeys() as $foreignKey) {
+                        $referencedTable = $foreignKey->getForeign()->getTable();
+                        if ($referencedTable->isManyToMany()) {
+                            // Do not write ManyToMany relations.
+                            continue;
+                        }
 
-        $this->getColumns()->writeBelongsToRelations($writer);
+                        $hasMore = (bool) --$belongToCount;
+                        $relation = (string) $_this->getJSObject(array(
+                                'model' => sprintf('%s.%s', $_this->getClassPrefix(), $referencedTable->getModelName()),
+                                'associationKey' => lcfirst($referencedTable->getModelName()),
+                                'getterName' => sprintf('get%s', $referencedTable->getModelName()),
+                                'setterName' => sprintf('set%s', $referencedTable->getModelName()),
+                        ));
+
+                        if ($hasMore) {
+                            $relation .= ',';
+                        }
+
+                        $writer->write($relation);
+                    }
+                })
+            ->outdent()
+            ->write('],')
+        ;
 
         // End.
         return $this;
@@ -166,17 +188,8 @@ class Table
      */
     public function writeHasOne(WriterInterface $writer)
     {
-        /* TODO
-         * Check if there are One to One or Many to One relations.
-         * If so gen the hasOne relations.
-         * 
-         * TODO Find a way to check if this table has OneToOne or ManyToOne relations.
-         */
-
-
-//        if (!$this->getColumns()->hasOneToManyRelation()) {
         $this->getColumns()->writeHasOneRelations($writer);
-//        }
+
         // End.
         return $this;
     }
@@ -189,7 +202,38 @@ class Table
      */
     public function writeHasMany(WriterInterface $writer)
     {
-        // TODO find all many to * class files.
+        $primary = $this->columns[0];
+        $hasManyCount = $this->getHasManyCount();
+
+        if (0 === $hasManyCount) {
+            // End, No belongTo relations found.
+            return false;
+        }
+
+        $writer
+            ->write('hasMany: [')
+            ->indent()
+            ->writeCallback(function(WriterInterface $writer, Table $_this = null) use($hasManyCount) {
+                    foreach ($_this->getManyToManyRelations() as $relation) {
+                        $referencedTable = $relation['refTable'];
+                        $hasMore = (bool) --$hasManyCount;
+                        $relation = (string) $_this->getJSObject(array(
+                                'model' => sprintf('%s.%s', $_this->getClassPrefix(), $referencedTable->getModelName()),
+                                'associationKey' => lcfirst($referencedTable->getModelName()),
+                                'name' => sprintf('get%sStore', $referencedTable->getModelName()),
+                        ));
+
+                        if ($hasMore) {
+                            $relation .= ',';
+                        }
+
+                        $writer->write($relation);
+                    }
+                })
+            ->outdent()
+            ->write('],')
+        ;
+
         // End.
         return $this;
     }
@@ -290,6 +334,40 @@ class Table
                 'encode' => true,
                 'expandData' => true
         ));
+    }
+
+    /**
+     * Get the number of belong to relations.
+     * All PRIMARY foreign keys minus the M2M relations.
+     * 
+     * @return int
+     */
+    protected function getBelongToCount()
+    {
+        $count = 0;
+        $primary = $this->columns[0];
+        foreach ($primary->getForeignKeys() as $foreignKey) {
+            if ($foreignKey->getForeign()->getTable()->isManyToMany()) {
+                // Do not count ManyToMany relations.
+                continue;
+            }
+
+            $count++;
+        }
+
+        // End.
+        return $count;
+    }
+
+    /**
+     * Get the number of hasMany relations.
+     * 
+     * @return int
+     */
+    protected function getHasManyCount()
+    {
+        // End.
+        return count($this->manyToManyRelations);
     }
 
 }

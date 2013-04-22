@@ -41,48 +41,17 @@ class Columns
      * @param \MwbExporter\Writer\WriterInterface $writer
      * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Columns
      */
-    public function writeBelongsToRelations(WriterInterface $writer)
-    {
-        $writer
-            ->write('belongsTo: [')
-            ->indent()
-            ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
-
-                    // TODO check if there are more.
-                    foreach ($_this->getColumns() as $column) {
-                        if ($column->hasOneToManyRelation()) {
-                            $hasMore = true; // FIXME
-                            $column->writeBelongsToRelation($writer, $hasMore);
-                        }
-                    }
-                })
-            ->outdent()
-            ->write('],')
-        ;
-
-        // End.
-        return $this;
-    }
-
-    /**
-     * COMMENTME
-     * 
-     * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Columns
-     */
     public function writeHasOneRelations(WriterInterface $writer)
     {
-        // TODO Try to detect if this table has OneToOne of ManytoOne relations.
+        $hasOneCount = $this->getHasOneCount();
 
         $writer
             ->write('hasOne: [')
             ->indent()
-            ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
-                    $foreignKeyCount = $_this->getParent()->getForeignKeys()->count();
-
+            ->writeCallback(function(WriterInterface $writer, Columns $_this = null) use($hasOneCount) {
                     foreach ($_this->getColumns() as $column) {
                         if ($column->getLocalForeignKey()) {
-                            $hasMore = (bool) --$foreignKeyCount;
+                            $hasMore = (bool) --$hasOneCount;
                             $column->writeHasOneRelation($writer, $hasMore);
                         }
                     }
@@ -90,7 +59,6 @@ class Columns
             ->outdent()
             ->write('],')
         ;
-
         // End.
         return $this;
     }
@@ -119,6 +87,7 @@ class Columns
     }
 
     /**
+     * TODO Use method write.
      * Write model fields.
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
@@ -167,6 +136,25 @@ class Columns
             ->outdent()
             ->write('],')
         ;
+    }
+
+    /**
+     * Get the number of hasOne relations.
+     * All columns with local foreign key. 
+     * 
+     * @return int
+     */
+    protected function getHasOneCount()
+    {
+        $count = 0;
+        foreach ($this->columns as $column) {
+            if ($column->getLocalForeignKey()) {
+                $count++;
+            }
+        }
+
+        // End.
+        return $count;
     }
 
 }

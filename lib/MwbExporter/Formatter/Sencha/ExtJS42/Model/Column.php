@@ -36,54 +36,6 @@ class Column
 {
 
     /**
-     * COMMENTME
-     * 
-     * @param \MwbExporter\Writer\WriterInterface $writer
-     * @param type $hasMore
-     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Column
-     */
-    public function writeBelongsToRelation(WriterInterface $writer, $hasMore = false)
-    {
-        $table = $this->getTable();
-
-        foreach ($this->foreigns as $foreign) {
-            // TODO Block ManyToMany
-            if ($foreign->getForeign()->getTable()->isManyToMany()) {
-                // continue;
-            }
-
-            // TODO Block Unidirectional
-            if ($foreign->parseComment('unidirectional') === 'true') {
-                // do not output mapping in foreign table when the unidirectional option is set
-                // continue;
-            }
-
-            if (!$foreign->isManyToOne()) {
-                continue;
-            }
-//            belongsTo: [{
-//          *   model: 'App.mode.<Model>',
-//          *   associationKey: '<model>'
-//          *   getterName: 'get<Model>',
-//          *   setterName: 'set<Model>',
-//          *   
-//          *  }],
-
-            $relation = $table->getJSObject(array(
-                'model' => '',
-                'associationKey' => '',
-                'getterName' => '',
-                'setterName' => ''
-            ));
-
-            $writer->write($relation);
-        }
-
-        // End.
-        return $this;
-    }
-
-    /**
      * Write model Many and One to One relations.
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
@@ -93,7 +45,14 @@ class Column
     public function writeHasOneRelation(WriterInterface $writer, $hasMore = false)
     {
         $table = $this->getTable();
+
+        if (!$this->local) {
+            // End, No local foreign keys found.
+            return false;
+        }
+
         $referencedTable = $this->local->getReferencedTable();
+
         $relation = (string) $table->getJSObject(array(
                 'model' => sprintf('%s.%s', $table->getClassPrefix(), $referencedTable->getModelName()),
                 'associationKey' => lcfirst($referencedTable->getModelName()),
@@ -105,17 +64,7 @@ class Column
             $relation .= ',';
         }
 
-
         $writer->write($relation);
-
-
-
-//        var_dump($this->getColumnName());
-        // What do i need?
-        // model            Prefix + RelatedClassName
-        // associationKey   ForeignName
-        // getterName       get + ForeignName
-        // setterName       set + ForeignName
         // End.
         return $this;
     }
@@ -243,6 +192,12 @@ class Column
         return ($length > 0)
             ? $length
             : false;
+    }
+
+    public function getForeignKeys()
+    {
+        // End.
+        return $this->foreigns;
     }
 
 }
