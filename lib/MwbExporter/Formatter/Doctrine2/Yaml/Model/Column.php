@@ -80,7 +80,7 @@ class Column extends BaseColumn
                 if (!isset($values[static::RELATION_ONE_TO_MANY])) {
                     $values[static::RELATION_ONE_TO_MANY] = array();
                 }
-                $values[static::RELATION_ONE_TO_MANY][$relationName] = array(
+                $values[static::RELATION_ONE_TO_MANY][Pluralizer::pluralize($relationName)] = array(
                     'targetEntity'  => $targetEntityFQCN,
                     'mappedBy'      => lcfirst($mappedBy),
                     'cascade'       => $formatter->getCascadeOption($foreign->parseComment('cascade')),
