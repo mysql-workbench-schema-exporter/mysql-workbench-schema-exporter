@@ -28,7 +28,7 @@
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
 use MwbExporter\Formatter\Doctrine2\Model\Table as BaseTable;
-use MwbExporter\Formatter\Doctrine2\Formatter;
+use MwbExporter\Formatter\Doctrine2\Yaml\Formatter;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Object\YAML;
 use MwbExporter\Helper\Pluralizer;
@@ -165,6 +165,13 @@ class Table extends BaseTable
         }
         if ($lifecycleCallbacks = $this->parseComment('lifecycleCallbacks')) {
             $values['lifecycleCallbacks'] = $lifecycleCallbacks;
+        }
+
+        if ($this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY)) {
+            if ($repositoryNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) {
+                $repositoryNamespace .= '\\';
+            }
+            $values['repositoryClass'] = $repositoryNamespace.$this->getModelName().'Repository';
         }
 
         return new YAML(array($namespace => $values), array('indent' => $this->getDocument()->getConfig()->get(Formatter::CFG_INDENTATION)));

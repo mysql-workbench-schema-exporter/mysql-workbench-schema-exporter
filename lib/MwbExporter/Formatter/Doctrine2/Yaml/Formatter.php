@@ -33,6 +33,8 @@ use MwbExporter\Model\Base;
 class Formatter extends BaseFormatter
 {
     const CFG_EXTEND_TABLENAME_WITH_SCHEMA = 'extendTableNameWithSchemaName';
+    const CFG_REPOSITORY_NAMESPACE         = 'repositoryNamespace';
+    const CFG_AUTOMATIC_REPOSITORY         = 'useAutomaticRepository';
 
     protected function init()
     {
@@ -42,6 +44,8 @@ class Formatter extends BaseFormatter
             static::CFG_FILENAME                      => '%entity%.dcm.%extension%',
             static::CFG_BUNDLE_NAMESPACE              => '',
             static::CFG_ENTITY_NAMESPACE              => '',
+            static::CFG_REPOSITORY_NAMESPACE          => '',
+            static::CFG_AUTOMATIC_REPOSITORY          => true,
             static::CFG_EXTEND_TABLENAME_WITH_SCHEMA  => false,
         ));
     }
