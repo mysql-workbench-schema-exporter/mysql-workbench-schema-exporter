@@ -108,7 +108,7 @@ class Table extends BaseTable
                 'cascade'      => $formatter->getCascadeOption($relation['reference']->parseComment('cascade')),
                 'fetch'        => $formatter->getFetchOption($relation['reference']->parseComment('fetch')),
             );
-            $relationName = $relation['refTable']->getRawTableName();
+            $relationName = Pluralizer::pluralize($relation['refTable']->getRawTableName());
             // if this is the owning side, also output the JoinTable Annotation
             // otherwise use "mappedBy" feature
             if ($isOwningSide) {
