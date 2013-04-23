@@ -14,10 +14,11 @@ What is MySQL Workbench schema exporter?
 The application is intended to create:
 
   * Doctrine 1.0 YAML Schema
-  * Doctrine 2.0 [YAML Schema](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/yaml-mapping.html) and [Annotation Classes](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/annotations-reference.html)
+  * Doctrine 2.0 [YAML Schema](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/yaml-mapping.html) and [Annotation Classes](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/annotations-reference.html) or [Annotation Classes with ZF2 Inputfilter](http://example.com)
   * [Zend DbTable](http://framework.zend.com/manual/en/zend.db.table.html)
   * Zend Rest Controller
   * Sencha ExtJS3 Model
+  * Sencha [ExtJS4.2 Model](http://www.sencha.com/products/extjs/)
   * Propel [XML Schema](http://www.propelorm.org/reference/schema)
   * CakePHP (not implemented)
 
@@ -60,10 +61,12 @@ Where:
       * `doctrine1-yaml`, Doctrine 1.0 YAML schema
       * `doctrine2-yaml`, Doctrine 2.0 YAML schema
       * `doctrine2-annotation`, Doctrine 2.0 Annotation classes (default)
+      * `doctrine2-annotationzf2filter`, Doctrine 2.0 Annotation classes with Zend Framework 2 Inputfilter configuration, Populate and getArrayCopy methods.
       * `propel1-xml`, Propel XML schema
       * `zend-dbtable`, Zend DbTable
       * `zend-rest-controller`, Zend Rest Controller
       * `sencha-extjs3`, Sencha ExtJS3 Model
+      * `sencha-extjs4.2`, Sencha ExtJS4.2 Model
     * `--config=file`, read export parameters from file (in JSON format)
     * `--saveconfig`, save export parameters to file `export.json`, later can be used as value for `--config=file`
     * `--list-exporter`, show all available exporter
@@ -224,6 +227,16 @@ General options applied to all formatter.
 
     Another option you can set in the comments of foreign key. ([Reference](http://doctrine-orm.readthedocs.org/en/latest/reference/working-with-associations.html#orphan-removal))
 
+#### Additional option list for Doctrine 2.0 Annotation ZF2 Inputfilter
+
+  * `generateEntityPopulate`
+
+    TODO
+
+  * `generateEntityGetArrayCopy`
+
+    TODO
+
 ### Option list for Propel Xml
 
   * `namespace`
@@ -246,6 +259,12 @@ General options applied to all formatter.
   * `classPrefix`
   * `parentClass`
 
+### Option list for Sencha ExtJS4.2 Model
+
+  * `classPrefix`
+  * `parentClass`
+  * `generateValidation`
+
 Requirements
 ------------
 
@@ -256,6 +275,7 @@ Links
   * [MySQL Workbench](http://wb.mysql.com/)
   * [Doctrine Project](http://www.doctrine-project.org/)
   * [Symfony Project](http://www.symfony.com/)
+  * [Sencha - Open source FAQ](http://www.sencha.com/legal/open-source-faq/)
 
 Test-Database
 -------------

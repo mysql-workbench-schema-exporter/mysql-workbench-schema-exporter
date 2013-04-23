@@ -76,13 +76,16 @@ class Column
      * @param boolean $hasMore
      * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Column
      */
-    public function writeField(WriterInterface $writer, $hasMore = false)
+    public function write(WriterInterface $writer, $hasMore = false)
     {
         $table = $this->getTable();
+        $type = $this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this);
         $defaultValue = $this->getDefaultValue();
         $content = array(
             'name' => $this->getColumnName(),
-            'type' => $this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this)
+            'type' => ($type)
+                ? $type
+                : 'string'
         );
 
         if ($defaultValue) {
@@ -122,7 +125,7 @@ class Column
             );
 
             $writer->write(
-                $table->getJSObject($content) . (($maxLength)
+                $table->getJSObject($content) . (($maxLength || $hasMore)
                     ? ','
                     : '')
             );

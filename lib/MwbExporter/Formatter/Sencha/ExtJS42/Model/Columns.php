@@ -87,13 +87,12 @@ class Columns
     }
 
     /**
-     * TODO Use method write.
      * Write model fields.
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
      * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Columns
      */
-    public function writeFields(WriterInterface $writer)
+    public function write(WriterInterface $writer)
     {
         $writer
             ->write('fields: [')
@@ -104,7 +103,7 @@ class Columns
 
                     foreach ($columns as $column) {
                         $hasMore = (bool) --$columnsCount;
-                        $column->writeField($writer, $hasMore);
+                        $column->write($writer, $hasMore);
                     }
                 })
             ->outdent()

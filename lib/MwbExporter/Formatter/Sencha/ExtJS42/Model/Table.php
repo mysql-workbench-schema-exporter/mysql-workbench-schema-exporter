@@ -96,7 +96,7 @@ class Table
 
                     $_this->writeHasMany($writer);
 
-                    $_this->getColumns()->writeFields($writer);
+                    $_this->getColumns()->write($writer);
 
                     $_this->getColumns()->writeValidations($writer);
 
@@ -110,7 +110,7 @@ class Table
     }
 
     /**
-     * Write used associations.
+     * COMMENTME
      * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.Class-cfg-uses
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
@@ -118,6 +118,8 @@ class Table
      */
     public function writeUses(WriterInterface $writer)
     {
+        // Find all used files
+        
         /* TODO
          * Find all HasOne and HasMany relations and add them to the uses array.
          * 
