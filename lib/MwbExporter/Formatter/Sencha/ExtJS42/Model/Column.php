@@ -36,40 +36,6 @@ class Column
 {
 
     /**
-     * Write model Many and One to One relations.
-     * 
-     * @param \MwbExporter\Writer\WriterInterface $writer
-     * @param boolean $hasMore
-     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Column
-     */
-    public function writeHasOneRelation(WriterInterface $writer, $hasMore = false)
-    {
-        $table = $this->getTable();
-
-        if (!$this->local) {
-            // End, No local foreign keys found.
-            return false;
-        }
-
-        $referencedTable = $this->local->getReferencedTable();
-
-        $relation = (string) $table->getJSObject(array(
-                'model' => sprintf('%s.%s', $table->getClassPrefix(), $referencedTable->getModelName()),
-                'associationKey' => lcfirst($referencedTable->getModelName()),
-                'getterName' => sprintf('get%s', $referencedTable->getModelName()),
-                'setterName' => sprintf('set%s', $referencedTable->getModelName()),
-        ));
-
-        if ($hasMore) {
-            $relation .= ',';
-        }
-
-        $writer->write($relation);
-        // End.
-        return $this;
-    }
-
-    /**
      * Write model field.
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
@@ -151,12 +117,23 @@ class Column
     }
 
     /**
+     * Get the column foreign key.
+     * 
+     * @return \MwbExporter\Model\ForeignKey
+     */
+    public function getForeignKeys()
+    {
+        // End.
+        return $this->foreigns;
+    }
+
+    /**
      * Get column default value or false if there is no default value or the
      * default value is NULL.
      * 
      * @return boolean
      */
-    public function getDefaultValue()
+    private function getDefaultValue()
     {
         $params = $this->parameters;
 
@@ -174,7 +151,7 @@ class Column
      * 
      * @return boolean
      */
-    public function getIsrequired()
+    private function getIsrequired()
     {
         $isNotNull = $this->parameters->get('isNotNull');
 
@@ -189,18 +166,12 @@ class Column
      * 
      * @return boolean
      */
-    public function getMaxLength()
+    private function getMaxLength()
     {
         $length = $this->parameters->get('length');
         return ($length > 0)
             ? $length
             : false;
-    }
-
-    public function getForeignKeys()
-    {
-        // End.
-        return $this->foreigns;
     }
 
 }

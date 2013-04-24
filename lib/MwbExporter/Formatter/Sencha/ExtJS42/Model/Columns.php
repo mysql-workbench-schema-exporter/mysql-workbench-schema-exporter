@@ -36,34 +36,6 @@ class Columns
 {
 
     /**
-     * COMMENTME
-     * 
-     * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Columns
-     */
-    public function writeHasOneRelations(WriterInterface $writer)
-    {
-        $hasOneCount = $this->getHasOneCount();
-
-        $writer
-            ->write('hasOne: [')
-            ->indent()
-            ->writeCallback(function(WriterInterface $writer, Columns $_this = null) use($hasOneCount) {
-                    foreach ($_this->getColumns() as $column) {
-                        if ($column->getLocalForeignKey()) {
-                            $hasMore = (bool) --$hasOneCount;
-                            $column->writeHasOneRelation($writer, $hasMore);
-                        }
-                    }
-                })
-            ->outdent()
-            ->write('],')
-        ;
-        // End.
-        return $this;
-    }
-
-    /**
      * Write model fields.
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
@@ -112,25 +84,6 @@ class Columns
             ->outdent()
             ->write('],')
         ;
-    }
-
-    /**
-     * Get the number of hasOne relations.
-     * All columns with local foreign key. 
-     * 
-     * @return int
-     */
-    protected function getHasOneCount()
-    {
-        $count = 0;
-        foreach ($this->columns as $column) {
-            if ($column->getLocalForeignKey()) {
-                $count++;
-            }
-        }
-
-        // End.
-        return $count;
     }
 
 }
