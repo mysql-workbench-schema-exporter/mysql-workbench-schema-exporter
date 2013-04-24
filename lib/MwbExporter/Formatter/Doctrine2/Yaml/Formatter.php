@@ -33,6 +33,8 @@ use MwbExporter\Model\Base;
 class Formatter extends BaseFormatter
 {
     const CFG_EXTEND_TABLENAME_WITH_SCHEMA = 'extendTableNameWithSchemaName';
+    const CFG_REPOSITORY_NAMESPACE         = 'repositoryNamespace';
+    const CFG_AUTOMATIC_REPOSITORY         = 'useAutomaticRepository';
 
     protected function init()
     {

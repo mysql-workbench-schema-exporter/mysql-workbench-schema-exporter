@@ -177,6 +177,13 @@ class Table extends BaseTable
             $values['lifecycleCallbacks'] = $lifecycleCallbacks;
         }
 
+        if ($this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY)) {
+            if ($repositoryNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) {
+                $repositoryNamespace .= '\\';
+            }
+            $values['repositoryClass'] = $repositoryNamespace.$this->getModelName().'Repository';
+        }
+
         return new YAML(array($namespace => $values), array('indent' => $this->getDocument()->getConfig()->get(Formatter::CFG_INDENTATION)));
     }
 
