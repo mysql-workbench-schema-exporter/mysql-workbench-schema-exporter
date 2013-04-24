@@ -33,6 +33,8 @@ abstract class Formatter extends BaseFormatter
 {
     const CFG_BUNDLE_NAMESPACE               = 'bundleNamespace';
     const CFG_ENTITY_NAMESPACE               = 'entityNamespace';
+    const CFG_REPOSITORY_NAMESPACE           = 'repositoryNamespace';
+    const CFG_AUTOMATIC_REPOSITORY           = 'useAutomaticRepository';
 
     /**
      * Get owning side of relation.

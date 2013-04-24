@@ -33,8 +33,6 @@ use MwbExporter\Model\Base;
 class Formatter extends BaseFormatter
 {
     const CFG_ANNOTATION_PREFIX              = 'useAnnotationPrefix';
-    const CFG_REPOSITORY_NAMESPACE           = 'repositoryNamespace';
-    const CFG_AUTOMATIC_REPOSITORY           = 'useAutomaticRepository';
     const CFG_SKIP_GETTER_SETTER             = 'skipGetterAndSetter';
     const CFG_GENERATE_ENTITY_SERIALIZATION  = 'generateEntitySerialization';
     const CFG_QUOTE_IDENTIFIER               = 'quoteIdentifier';

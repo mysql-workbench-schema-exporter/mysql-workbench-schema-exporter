@@ -42,6 +42,8 @@ class Formatter extends BaseFormatter
             static::CFG_FILENAME                      => '%entity%.dcm.%extension%',
             static::CFG_BUNDLE_NAMESPACE              => '',
             static::CFG_ENTITY_NAMESPACE              => '',
+            static::CFG_REPOSITORY_NAMESPACE          => '',
+            static::CFG_AUTOMATIC_REPOSITORY          => true,
             static::CFG_EXTEND_TABLENAME_WITH_SCHEMA  => false,
         ));
     }
