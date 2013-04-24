@@ -37,17 +37,21 @@ class Table extends BaseTable
 {
     public function writeTable(WriterInterface $writer)
     {
-        if (!$this->isExternal()) {
-            $writer
-                ->open($this->getTableFileName())
-                ->write($this->asYAML())
-                ->close()
-            ;
-
-            return self::WRITE_OK;
+        switch (true) {
+            case ($this->isExternal()): 
+                return self::WRITE_EXTERNAL;
+                break;
+            case ($this->isManyToMany()):
+                return self::WRITE_M2M;
+                break;
         }
 
-        return self::WRITE_EXTERNAL;
+        $writer
+            ->open($this->getTableFileName())
+            ->write($this->asYAML())
+            ->close();
+
+        return self::WRITE_OK;
     }
 
     public function asYAML()
