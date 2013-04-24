@@ -226,9 +226,9 @@ class Table extends Base
     {
         if (null === $this->isM2M) {
             switch (true) {
-                // user hinted that this is not a m2m table
-                case ("false" === $this->parseComment('m2m')):
-                    $this->isM2M = false;
+                // user hinted that this is a m2m table or not
+                case in_array($m2m = $this->parseComment('m2m'), array('true', 'false')):
+                    $this->isM2M = 'true' === $m2m ? true : false;
                     break;
 
                 // contains 2 foreign keys
@@ -244,6 +244,11 @@ class Table extends Base
                 // foreign tables is not many to many
                 case $deep && $fkeys[0]->getReferencedTable()->isManyToMany(false):
                 case $deep && $fkeys[1]->getReferencedTable()->isManyToMany(false):
+                    $this->isM2M = false;
+                    break;
+
+                // has more columns than id + 2 x key columnns, is not many to many
+                case (count($this->getColumns()) >= 3):
                     $this->isM2M = false;
                     break;
 
