@@ -118,15 +118,59 @@ class Table
      */
     public function writeUses(WriterInterface $writer)
     {
-        // Find all used files
-        
-        /* TODO
-         * Find all HasOne and HasMany relations and add them to the uses array.
-         * 
-         * uses: [
-         *   'App.model.<Model>'
-         * ],
-         */
+        $uses = array();
+        $primary = $this->columns[0];
+        $current = sprintf('%s.%s', $this->getClassPrefix(), $this->getModelName());
+
+        // Collect belongsTo uses.
+        foreach ($primary->getForeignKeys() as $foreignKey) {
+            $referencedTable = $foreignKey->getForeign()->getTable();
+            $refTableName = sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName());
+            if (!$referencedTable->isManyToMany() && !in_array($refTableName, $uses) && ($refTableName !== $current)) {
+                $uses[] = $refTableName;
+            }
+        }
+
+        // Collect hasOne uses.
+        foreach ($this->getRelations() as $relation) {
+            $refTableName = sprintf('%s.%s', $this->getClassPrefix(), $relation->getReferencedTable()->getModelName());
+            if (!in_array($refTableName, $uses) && ($refTableName !== $current)) {
+                $uses[] = $refTableName;
+            }
+        }
+
+        // Collect hasMany uses.
+        foreach ($this->getManyToManyRelations() as $relation) {
+            $referencedTable = $relation['refTable'];
+            $refTableName = sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName());
+            if (!in_array($refTableName, $uses) && ($refTableName !== $current)) {
+                $uses[] = $refTableName;
+            }
+        }
+
+        $usesCount = count($uses);
+
+        if (0 === $usesCount) {
+            // End, No uses found.
+            return $this;
+        }
+
+        $writer
+            ->write('uses: [')
+            ->indent()
+            ->writeCallback(function(WriterInterface $writer) use($uses, $usesCount) {
+                    foreach ($uses as $use) {
+                        $use = sprintf("'%s'", $use);
+                        if (--$usesCount) {
+                            $use .= ',';
+                        }
+                        
+                        $writer->write($use);
+                    }
+                })
+                ->outdent()
+            ->write('],')
+        ;
 
         // End.
         return $this;
@@ -190,6 +234,10 @@ class Table
      */
     public function writeHasOne(WriterInterface $writer)
     {
+        // TODO
+        // Can also use this->getRelations();
+        // and handle it here.
+
         $this->getColumns()->writeHasOneRelations($writer);
 
         // End.

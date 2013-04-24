@@ -64,29 +64,6 @@ class Columns
     }
 
     /**
-     * COMMENTME
-     * 
-     * @param \MwbExporter\Writer\WriterInterface $writer
-     * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Sencha\ExtJS42\Model\Columns
-     */
-    public function writeHasManyRelations(WriterInterface $writer)
-    {
-        $writer
-            ->write('hasMany: [')
-            ->indent()
-            ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
-                    
-                })
-            ->outdent()
-            ->write('],')
-        ;
-
-        // End.
-        return $this;
-    }
-
-    /**
      * Write model fields.
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
