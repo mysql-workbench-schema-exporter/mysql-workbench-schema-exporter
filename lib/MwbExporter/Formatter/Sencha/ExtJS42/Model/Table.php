@@ -119,22 +119,20 @@ class Table
     public function writeUses(WriterInterface $writer)
     {
         $uses = array();
-        $primary = $this->columns[0];
         $current = sprintf('%s.%s', $this->getClassPrefix(), $this->getModelName());
 
         // Collect belongsTo uses.
-        foreach ($primary->getForeignKeys() as $foreignKey) {
-            $referencedTable = $foreignKey->getForeign()->getTable();
-            $refTableName = sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName());
-            if (!$referencedTable->isManyToMany() && !in_array($refTableName, $uses) && ($refTableName !== $current)) {
+        foreach ($this->relations as $relation) {
+            $refTableName = sprintf('%s.%s', $this->getClassPrefix(), $relation->getReferencedTable()->getModelName());
+            if ($relation->isManyToOne() && !in_array($refTableName, $uses) && ($refTableName !== $current)) {
                 $uses[] = $refTableName;
             }
         }
 
         // Collect hasOne uses.
-        foreach ($this->getRelations() as $relation) {
+        foreach ($this->relations as $relation) {
             $refTableName = sprintf('%s.%s', $this->getClassPrefix(), $relation->getReferencedTable()->getModelName());
-            if (!in_array($refTableName, $uses) && ($refTableName !== $current)) {
+            if (!$relation->isManyToOne() && !in_array($refTableName, $uses) && ($refTableName !== $current)) {
                 $uses[] = $refTableName;
             }
         }
@@ -177,7 +175,7 @@ class Table
     }
 
     /**
-     * Write belongsTo relations.
+     * Write BelongsTo relations.
      * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.data.association.BelongsTo
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
@@ -185,7 +183,6 @@ class Table
      */
     public function writeBelongsTo(WriterInterface $writer)
     {
-        $primary = $this->columns[0];
         $belongToCount = $this->getBelongToCount();
 
         if (0 === $belongToCount) {
@@ -196,15 +193,14 @@ class Table
         $writer
             ->write('belongsTo: [')
             ->indent()
-            ->writeCallback(function(WriterInterface $writer, Table $_this = null) use($primary, $belongToCount) {
-                    foreach ($primary->getForeignKeys() as $foreignKey) {
-                        $referencedTable = $foreignKey->getForeign()->getTable();
-                        if ($referencedTable->isManyToMany()) {
-                            // Do not write ManyToMany relations.
+            ->writeCallback(function(WriterInterface $writer, Table $_this = null) use($belongToCount) {
+                    foreach ($_this->getRelations() as $relation) {
+                        if (!$relation->isManyToOne()) {
+                            // Do not list OneToOne relations.
                             continue;
                         }
-
                         $hasMore = (bool) --$belongToCount;
+                        $referencedTable = $relation->getReferencedTable();
                         $relation = (string) $_this->getJSObject(array(
                                 'model' => sprintf('%s.%s', $_this->getClassPrefix(), $referencedTable->getModelName()),
                                 'associationKey' => lcfirst($referencedTable->getModelName()),
@@ -228,7 +224,7 @@ class Table
     }
 
     /**
-     * Write hasOne relations.
+     * Write HasOne relations.
      * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.data.association.HasOne
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
@@ -239,7 +235,7 @@ class Table
         $hasOneCount = $this->getHasOneCount();
 
         if (0 === $hasOneCount) {
-            // End, No hasOne relations found.
+            // End, No HasOne relations found.
             return false;
         }
 
@@ -248,13 +244,17 @@ class Table
             ->indent()
             ->writeCallback(function(WriterInterface $writer, Table $_this = null) use($hasOneCount) {
                     foreach ($_this->getRelations() as $relation) {
+                        if ($relation->isManyToOne()) {
+                            // Do not list manyToOne relations.
+                            continue;
+                        }
                         $hasMore = (bool) --$hasOneCount;
-                        $refTable = $relation->getReferencedTable();
+                        $referencedTable = $relation->getReferencedTable();
                         $relation = (string) $_this->getJSObject(array(
-                                'model' => sprintf('%s.%s', $_this->getClassPrefix(), $refTable->getModelName()),
-                                'associationKey' => lcfirst($refTable->getModelName()),
-                                'getterName' => sprintf('get%s', $refTable->getModelName()),
-                                'setterName' => sprintf('set%s', $refTable->getModelName()),
+                                'model' => sprintf('%s.%s', $_this->getClassPrefix(), $referencedTable->getModelName()),
+                                'associationKey' => lcfirst($referencedTable->getModelName()),
+                                'getterName' => sprintf('get%s', $referencedTable->getModelName()),
+                                'setterName' => sprintf('set%s', $referencedTable->getModelName()),
                         ));
 
                         if ($hasMore) {
@@ -272,7 +272,7 @@ class Table
     }
 
     /**
-     * Write hasMany relations.
+     * Write HasMany relations.
      * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.data.association.HasMany
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
@@ -283,7 +283,7 @@ class Table
         $hasManyCount = $this->getHasManyCount();
 
         if (0 === $hasManyCount) {
-            // End, No belongTo relations found.
+            // End, No HasMany relations found.
             return false;
         }
 
@@ -324,12 +324,10 @@ class Table
      */
     public function writeAjaxProxy(WriterInterface $writer)
     {
-        $modelName = strtolower($this->getModelName());
-
         $writer
             ->write('proxy: ' . $this->getJSObject(array(
                     'type' => 'ajax',
-                    'url' => sprintf('/data/%s', $modelName),
+                    'url' => sprintf('/data/%s', strtolower($this->getModelName())),
                     'api' => $this->getApi(),
                     'reader' => $this->getJsonReader(),
                     'writer' => $this->getJsonWriter()
@@ -384,12 +382,10 @@ class Table
      */
     private function getJsonReader()
     {
-        $modelName = strtolower($this->getModelName());
-
         // End.
         return $this->getJSObject(array(
                 'type' => 'json',
-                'root' => $modelName,
+                'root' => strtolower($this->getModelName()),
                 'messageProperty' => 'message'
         ));
     }
@@ -402,12 +398,10 @@ class Table
      */
     private function getJsonWriter()
     {
-        $modelName = strtolower($this->getModelName());
-
         // End.
         return $this->getJSObject(array(
                 'type' => 'json',
-                'root' => $modelName,
+                'root' => strtolower($this->getModelName()),
                 'encode' => true,
                 'expandData' => true
         ));
@@ -415,16 +409,14 @@ class Table
 
     /**
      * Get the number of belong to relations.
-     * All PRIMARY foreign keys minus the M2M relations.
      * 
      * @return int
      */
     private function getBelongToCount()
     {
         $count = 0;
-        $primary = $this->columns[0];
-        foreach ($primary->getForeignKeys() as $foreignKey) {
-            if (!$foreignKey->getForeign()->getTable()->isManyToMany()) {
+        foreach ($this->relations as $relation) {
+            if ($relation->isManyToOne()) {
                 $count++;
             }
         }
@@ -440,8 +432,15 @@ class Table
      */
     private function getHasOneCount()
     {
+        $count = 0;
+        foreach ($this->relations as $relation) {
+            if (!$relation->isManyToOne()) {
+                $count++;
+            }
+        }
+
         // End.
-        return count($this->relations);
+        return $count;
     }
 
     /**
