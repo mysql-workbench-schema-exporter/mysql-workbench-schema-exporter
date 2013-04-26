@@ -37,6 +37,8 @@ class Formatter
 
     const CFG_CLASS_PREFIX = 'classPrefix';
     const CFG_PARENT_CLASS = 'parentClass';
+    const CFG_GENERATE_VALIDATION = 'generateValidation';
+    const CFG_GENERATE_PROXY = 'generateProxy';
     const CFG_BACKUP_FILE = 'backupExistingFile';
 
     /**
@@ -52,6 +54,8 @@ class Formatter
             static::CFG_FILENAME => 'model/%entity%.%extension%',
             static::CFG_CLASS_PREFIX => 'App.model',
             static::CFG_PARENT_CLASS => 'Ext.data.Model',
+            static::CFG_GENERATE_VALIDATION => true,
+            static::CFG_GENERATE_PROXY => true,
             static::CFG_BACKUP_FILE => false,
         ));
     }

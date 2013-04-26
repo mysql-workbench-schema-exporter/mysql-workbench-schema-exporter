@@ -264,6 +264,7 @@ General options applied to all formatter.
   * `classPrefix`
   * `parentClass`
   * `generateValidation`
+  * `generateProxy`
 
 Requirements
 ------------

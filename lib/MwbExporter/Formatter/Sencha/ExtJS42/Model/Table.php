@@ -58,6 +58,23 @@ class Table
     }
 
     /**
+     * Get the generate validations flag.
+     * 
+     * @return bool
+     */
+    public function generateValidation()
+    {
+        // End.
+        return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_VALIDATION));
+    }
+
+    public function generateProxy()
+    {
+        // End.
+        return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_PROXY));
+    }
+
+    /**
      * (non-PHPdoc)
      * 
      * @see \MwbExporter\Model\Table::write()
@@ -98,9 +115,13 @@ class Table
 
                     $_this->getColumns()->write($writer);
 
-                    $_this->getColumns()->writeValidations($writer);
+                    if ($_this->generateValidation()) {
+                        $_this->getColumns()->writeValidations($writer);
+                    }
 
-                    $_this->writeAjaxProxy($writer);
+                    if ($_this->generateProxy()) {
+                        $_this->writeAjaxProxy($writer);
+                    }
                 })
             ->outdent()
             ->write('});')
