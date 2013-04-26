@@ -107,6 +107,28 @@ class Table
     }
 
     /**
+     * Get generatePopulate flag.
+     * 
+     * @return boolean
+     */
+    public function generatePopulate()
+    {
+        // End.
+        return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_POPULATE));
+    }
+
+    /**
+     * Get generateGetArrayCopy flag.
+     * 
+     * @return boolean
+     */
+    public function generateGetArrayCopy()
+    {
+        // End.
+        return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_GETARRAYCOPY));
+    }
+
+    /**
      * (non-PHPdoc)
      * 
      * @see \MwbExporter\Model\Table::write()
@@ -261,8 +283,14 @@ class Table
                     }
 
                     $_this->writeInputFilter($writer);
-                    $_this->writePopulate($writer);
-                    $_this->writeGetArrayCopy($writer);
+
+                    if ($_this->generatePopulate()) {
+                        $_this->writePopulate($writer);
+                    }
+
+                    if ($_this->generateGetArrayCopy()) {
+                        $_this->writeGetArrayCopy($writer);
+                    }
 
                     if ($serializableEntity) {
                         $_this->writeSerialization($writer);

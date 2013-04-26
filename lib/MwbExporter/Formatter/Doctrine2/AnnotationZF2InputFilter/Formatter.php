@@ -41,6 +41,8 @@ class Formatter
     const CFG_REPOSITORY_NAMESPACE = 'repositoryNamespace';
     const CFG_AUTOMATIC_REPOSITORY = 'useAutomaticRepository';
     const CFG_SKIP_GETTER_SETTER = 'skipGetterAndSetter';
+    const CFG_GENERATE_ENTITY_POPULATE = 'generateEntityPopulate';
+    const CFG_GENERATE_ENTITY_GETARRAYCOPY = 'generateEntityGetArrayCopy';
     const CFG_GENERATE_ENTITY_SERIALIZATION = 'generateEntitySerialization';
     const CFG_QUOTE_IDENTIFIER = 'quoteIdentifier';
     const CFG_BACKUP_FILE = 'backupExistingFile';
@@ -63,6 +65,8 @@ class Formatter
             static::CFG_REPOSITORY_NAMESPACE => 'Repository',
             static::CFG_AUTOMATIC_REPOSITORY => false,
             static::CFG_SKIP_GETTER_SETTER => false,
+            static::CFG_GENERATE_ENTITY_POPULATE => true,
+            static::CFG_GENERATE_ENTITY_GETARRAYCOPY => true,
             static::CFG_GENERATE_ENTITY_SERIALIZATION => true,
             static::CFG_QUOTE_IDENTIFIER => false,
             static::CFG_BACKUP_FILE => false,
