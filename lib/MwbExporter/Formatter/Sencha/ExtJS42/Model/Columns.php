@@ -43,6 +43,8 @@ class Columns
      */
     public function write(WriterInterface $writer)
     {
+        $table = $this->getParent();
+
         $writer
             ->write('fields: [')
             ->indent()
@@ -55,9 +57,13 @@ class Columns
                         $column->write($writer, $hasMore);
                     }
                 })
-            ->outdent()
-            ->write('],')
-        ;
+            ->outdent();
+
+        if ($table->generateValidation() || $table->generateProxy()) {
+            $writer->write('],');
+        } else {
+            $writer->write(']');
+        }
 
         return $this;
     }
