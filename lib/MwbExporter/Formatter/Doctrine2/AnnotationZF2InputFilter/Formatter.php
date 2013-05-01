@@ -28,7 +28,7 @@
 
 namespace MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter;
 
-use MwbExporter\Formatter as BaseFormatter;
+use MwbExporter\Formatter\Doctrine2\Formatter as BaseFormatter;
 use MwbExporter\Model\Base;
 
 class Formatter

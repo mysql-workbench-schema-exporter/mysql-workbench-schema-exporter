@@ -30,7 +30,7 @@ namespace MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model;
 
 use MwbExporter\Model\Table as BaseTable;
 use MwbExporter\Helper\Pluralizer;
-use MwbExporter\Helper\AnnotationObject;
+use MwbExporter\Object\Annotation as AnnotationObject;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Formatter;
 
@@ -183,7 +183,7 @@ class Table
      * @param string $annotation  The annotation name
      * @param mixed  $content     The annotation content
      * @param array  $options     The annotation options
-     * @return \MwbExporter\Helper\AnnotationObject
+     * @return \MwbExporter\Object\Annotation
      */
     public function getAnnotation($annotation, $content = null, $options = array())
     {
@@ -197,7 +197,7 @@ class Table
      * @param string $entity      Entity name
      * @param string $mappedBy    Column mapping
      * @param string $inversedBy  Reverse column mapping
-     * @return \MwbExporter\Helper\AnnotationObject
+     * @return \MwbExporter\Object\Annotation
      */
     public function getJoinAnnotation($joinType, $entity, $mappedBy = null, $inversedBy = null)
     {
@@ -210,7 +210,7 @@ class Table
      * @param string $local       Local column name
      * @param string $foreign     Reference column name
      * @param string $deleteRule  On delete rule
-     * @return \MwbExporter\Helper\AnnotationObject
+     * @return \MwbExporter\Object\Annotation
      */
     public function getJoinColumnAnnotation($local, $foreign, $deleteRule = null)
     {
