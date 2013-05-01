@@ -31,7 +31,7 @@ namespace MwbExporter\Formatter\Sencha\ExtJS42\Model;
 use MwbExporter\Model\Table as BaseTable;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Formatter\Sencha\ExtJS42\Formatter;
-use MwbExporter\Helper\JSObject;
+use MwbExporter\Object\JS as JSObject;
 
 class Table
     extends BaseTable

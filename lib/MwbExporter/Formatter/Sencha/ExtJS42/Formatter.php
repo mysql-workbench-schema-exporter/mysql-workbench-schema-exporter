@@ -28,7 +28,7 @@
 
 namespace MwbExporter\Formatter\Sencha\ExtJS42;
 
-use MwbExporter\Formatter as BaseFormatter;
+use MwbExporter\Formatter\Formatter as BaseFormatter;
 use MwbExporter\Model\Base;
 
 class Formatter
