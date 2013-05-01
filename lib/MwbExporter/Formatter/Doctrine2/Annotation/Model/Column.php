@@ -1,4 +1,5 @@
 <?php
+
 /*
  * The MIT License
  *
@@ -26,7 +27,7 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
-use MwbExporter\Model\Column as BaseColumn;
+use MwbExporter\Formatter\Doctrine2\Model\Column as BaseColumn;
 use MwbExporter\Helper\Pluralizer;
 use MwbExporter\Writer\WriterInterface;
 
@@ -90,6 +91,7 @@ class Column extends BaseColumn
 
     public function writeRelations(WriterInterface $writer)
     {
+        $formatter = $this->getDocument()->getFormatter();
         // one to many references
         foreach ($this->foreigns as $foreign) {
             if ($foreign->getForeign()->getTable()->isManyToMany()) {
@@ -102,20 +104,21 @@ class Column extends BaseColumn
             }
 
             $targetEntity = $foreign->getOwningTable()->getModelName();
+            $targetEntityFQCN = $foreign->getOwningTable()->getModelNameAsFQCN($foreign->getReferencedTable()->getEntityNamespace());
             $mappedBy = $foreign->getReferencedTable()->getModelName();
 
             $annotationOptions = array(
-                'targetEntity' => $targetEntity,
+                'targetEntity' => $targetEntityFQCN,
                 'mappedBy' => lcfirst($mappedBy),
-                'cascade' => $this->getCascadeOption($foreign->parseComment('cascade')),
-                'fetch' => $this->getFetchOption($foreign->parseComment('fetch')),
-                'orphanRemoval' => $this->getBooleanOption($foreign->parseComment('orphanRemoval')),
+                'cascade' => $formatter->getCascadeOption($foreign->parseComment('cascade')),
+                'fetch' => $formatter->getFetchOption($foreign->parseComment('fetch')),
+                'orphanRemoval' => $formatter->getBooleanOption($foreign->parseComment('orphanRemoval')),
             );
 
             $joinColumnAnnotationOptions = array(
                 'name' => $foreign->getForeign()->getColumnName(),
                 'referencedColumnName' => $foreign->getLocal()->getColumnName(),
-                'onDelete' => $this->getDeleteRule($foreign->getLocal()->getParameters()->get('deleteRule')),
+                'onDelete' => $formatter->getDeleteRule($foreign->getLocal()->getParameters()->get('deleteRule')),
                 'nullable' => !$foreign->getForeign()->getParameters()->get('isNotNull') ? null : false,
             );
 
@@ -144,20 +147,21 @@ class Column extends BaseColumn
         // many to references
         if (null !== $this->local) {
             $targetEntity = $this->local->getReferencedTable()->getModelName();
+            $targetEntityFQCN = $this->local->getReferencedTable()->getModelNameAsFQCN($this->local->getOwningTable()->getEntityNamespace());
             $inversedBy = $this->local->getOwningTable()->getModelName();
 
             $annotationOptions = array(
-                'targetEntity' => $targetEntity,
+                'targetEntity' => $targetEntityFQCN,
                 'mappedBy' => null,
                 'inversedBy' => $inversedBy,
-                // 'cascade' => $this->getCascadeOption($this->local->parseComment('cascade')),
-                // 'fetch' => $this->getFetchOption($this->local->parseComment('fetch')),
-                // 'orphanRemoval' => $this->getBooleanOption($this->local->parseComment('orphanRemoval')),
+                // 'cascade' => $formatter->getCascadeOption($this->local->parseComment('cascade')),
+                // 'fetch' => $formatter->getFetchOption($this->local->parseComment('fetch')),
+                // 'orphanRemoval' => $formatter->getBooleanOption($this->local->parseComment('orphanRemoval')),
             );
             $joinColumnAnnotationOptions = array(
                 'name' => $this->local->getForeign()->getColumnName(),
                 'referencedColumnName' => $this->local->getLocal()->getColumnName(),
-                'onDelete' => $this->getDeleteRule($this->local->getParameters()->get('deleteRule')),
+                'onDelete' => $formatter->getDeleteRule($this->local->getParameters()->get('deleteRule')),
                 'nullable' => !$this->local->getForeign()->getParameters()->get('isNotNull') ? null : false,
             );
 
@@ -184,7 +188,7 @@ class Column extends BaseColumn
                 } else {
                     $annotationOptions['inversedBy'] = lcfirst($annotationOptions['inversedBy']);
                 }
-                $annotationOptions['cascade'] = $this->getCascadeOption($this->local->parseComment('cascade'));
+                $annotationOptions['cascade'] = $formatter->getCascadeOption($this->local->parseComment('cascade'));
 
                 $writer
                     ->write('/**')
@@ -398,91 +402,5 @@ class Column extends BaseColumn
         }
 
         return $this;
-    }
-
-    /**
-     * get the cascade option as array. Only returns values allowed by Doctrine.
-     *
-     * @param $cascadeValue string cascade options separated by comma
-     * @return array array with the values or null, if no cascade values are available
-     */
-    private function getCascadeOption($cascadeValue)
-    {
-        if (!$cascadeValue) {
-            return null;
-        }
-
-        $cascadeValue = array_map('strtolower', array_map('trim', explode(',', $cascadeValue)));
-
-        // only allow certain values
-        $allowed = array('persist', 'remove', 'merge', 'detach', 'all');
-
-        $cascadeValue = array_intersect($cascadeValue, $allowed);
-
-        if ($cascadeValue) {
-            return $cascadeValue;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * get the fetch option for a relation
-     *
-     * @param $fetchValue string fetch option as given in comment for foreign key
-     * @return string valid fetch value or null
-     */
-    private function getFetchOption($fetchValue)
-    {
-        if (!$fetchValue) {
-            return null;
-        }
-
-        $fetchValue = strtoupper($fetchValue);
-
-        if ($fetchValue != 'EAGER' && $fetchValue != 'LAZY') {
-            // invalid fetch value
-            return null;
-        } else {
-            return $fetchValue;
-        }
-    }
-
-    /**
-     * get the a boolean option for a relation
-     *
-     * @param $booleanValue string boolean option (true or false)
-     * @return boolean or null, if booleanValue was invalid
-     */
-    private function getBooleanOption($booleanValue)
-    {
-        if (!$booleanValue) {
-            return null;
-        }
-
-        $booleanValue = strtolower($booleanValue);
-
-        if ($booleanValue == 'true') {
-            return true;
-        } else if ($booleanValue == 'false') {
-            return false;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * get the onDelete rule. this will set the database level ON DELETE and can be set
-     * to CASCADE or SET NULL. Do not confuse this with the Doctrine-level cascade rules.
-     */
-    private function getDeleteRule($deleteRule)
-    {
-        if ($deleteRule == 'NO ACTION' || $deleteRule == 'RESTRICT') {
-            // NO ACTION acts the same as RESTRICT,
-            // RESTRICT is the default
-            // http://dev.mysql.com/doc/refman/5.5/en/innodb-foreign-key-constraints.html
-            $deleteRule = null;
-        }
-        return $deleteRule;
     }
 }

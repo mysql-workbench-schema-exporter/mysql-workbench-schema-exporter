@@ -24,9 +24,9 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Helper;
+namespace MwbExporter\Object;
 
-class BaseObject
+class Base
 {
     /**
      * @var mixed
@@ -79,7 +79,7 @@ class BaseObject
      * Set options from array.
      *
      * @param array $options  The options array
-     * @return \MwbExporter\Helper\BaseObject
+     * @return \MwbExporter\Object\Base
      */
     public function setOptions($options)
     {
@@ -107,7 +107,7 @@ class BaseObject
      *
      * @param string $key    Option name
      * @param mixed  $value  Option value
-     * @return \MwbExporter\Helper\BaseObject
+     * @return \MwbExporter\Object\Base
      */
     public function setOption($key, $value)
     {

@@ -1,9 +1,10 @@
 <?php
+
 /*
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,38 +25,18 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
+namespace MwbExporter\Formatter\Doctrine1;
 
-use MwbExporter\Model\Columns as Base;
-use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Formatter\Formatter as BaseFormatter;
 
-class Columns extends Base
+abstract class Formatter extends BaseFormatter
 {
-    public function write(WriterInterface $writer)
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Formatter\Formatter::getCommentParserIdentifierPrefix()
+     */
+    public function getCommentParserIdentifierPrefix()
     {
-        $writer
-            ->write('id:')
-            ->indent()
-                ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
-                    foreach ($_this->getColumns() as $column) {
-                        if ($column->isPrimary()) {
-                            $column->write($writer);
-                        }
-                    }
-                })
-            ->outdent()
-            ->write('fields:')
-            ->indent()
-                ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
-                    foreach ($_this->getColumns() as $column) {
-                        if (!$column->isPrimary()) {
-                            $column->write($writer);
-                        }
-                    }
-                })
-            ->outdent()
-        ;
-
-        return $this;
+        return 'd|doctrine';
     }
 }

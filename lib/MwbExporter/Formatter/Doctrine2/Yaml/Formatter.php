@@ -27,15 +27,11 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Yaml;
 
-use MwbExporter\Formatter as BaseFormatter;
+use MwbExporter\Formatter\Doctrine2\Formatter as BaseFormatter;
 use MwbExporter\Model\Base;
 
 class Formatter extends BaseFormatter
 {
-    const CFG_BUNDLE_NAMESPACE             = 'bundleNamespace';
-    const CFG_ENTITY_NAMESPACE             = 'entityNamespace';
-    const CFG_REPOSITORY_NAMESPACE         = 'repositoryNamespace';
-    const CFG_AUTOMATIC_REPOSITORY         = 'useAutomaticRepository';
     const CFG_EXTEND_TABLENAME_WITH_SCHEMA = 'extendTableNameWithSchemaName';
 
     protected function init()
@@ -43,18 +39,18 @@ class Formatter extends BaseFormatter
         $this->setDatatypeConverter(new DatatypeConverter());
         $this->addConfigurations(array(
             static::CFG_INDENTATION                   => 4,
-            static::CFG_FILENAME                      => '%entity%.orm.%extension%',
+            static::CFG_FILENAME                      => '%entity%.dcm.%extension%',
             static::CFG_BUNDLE_NAMESPACE              => '',
             static::CFG_ENTITY_NAMESPACE              => '',
             static::CFG_REPOSITORY_NAMESPACE          => '',
-            static::CFG_EXTEND_TABLENAME_WITH_SCHEMA  => false,
             static::CFG_AUTOMATIC_REPOSITORY          => true,
+            static::CFG_EXTEND_TABLENAME_WITH_SCHEMA  => false,
         ));
     }
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.Formatter::createTable()
+     * @see \MwbExporter\Formatter\Formatter::createTable()
      */
     public function createTable(Base $parent, $node)
     {
@@ -63,16 +59,7 @@ class Formatter extends BaseFormatter
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createColumns()
-     */
-    public function createColumns(Base $parent, $node)
-    {
-        return new Model\Columns($parent, $node);
-    }
-
-    /**
-     * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createColumn()
+     * @see \MwbExporter\Formatter\FormatterInterface::createColumn()
      */
     public function createColumn(Base $parent, $node)
     {
@@ -81,20 +68,11 @@ class Formatter extends BaseFormatter
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.FormatterInterface::createIndex()
+     * @see \MwbExporter\Formatter\FormatterInterface::createIndex()
      */
     public function createIndex(Base $parent, $node)
     {
         return new Model\Index($parent, $node);
-    }
-
-    /**
-     * (non-PHPdoc)
-     * @see MwbExporter.Formatter::createForeignKey()
-     */
-    public function createForeignKey(Base $parent, $node)
-    {
-        return new Model\ForeignKey($parent, $node);
     }
 
     public function getTitle()

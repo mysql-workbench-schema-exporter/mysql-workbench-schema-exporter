@@ -29,7 +29,7 @@ namespace MwbExporter\Formatter\Sencha\ExtJS3\Model;
 
 use MwbExporter\Model\Column as BaseColumn;
 use MwbExporter\Helper\ZendURLFormatter;
-use MwbExporter\DatatypeConverter;
+use MwbExporter\Formatter\DatatypeConverter;
 
 class Column extends BaseColumn
 {

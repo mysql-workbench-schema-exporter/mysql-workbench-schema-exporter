@@ -88,17 +88,27 @@ class Schema extends Base
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Model.Base::write()
+     * @see \MwbExporter\Model\Base::write()
      */
     public function write(WriterInterface $writer)
     {
         $this->writeSchema($writer);
+
         return $this;
     }
 
+    /**
+     * Write schema entity as code.
+     *
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Model\Schema
+     */
     public function writeSchema(WriterInterface $writer)
     {
+        $this->getDocument()->addLog(sprintf('Processing schema %s:', $this->name));
+        $this->getDocument()->addLog('Processing tables:');
         $this->getTables()->write($writer);
+        $this->getDocument()->addLog('Processing views:');
         $this->getViews()->write($writer);
 
         return $this;

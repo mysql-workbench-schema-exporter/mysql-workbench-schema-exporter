@@ -25,7 +25,7 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter;
+namespace MwbExporter\Formatter;
 
 use MwbExporter\Model\Base;
 
@@ -38,18 +38,20 @@ interface FormatterInterface {
     const CFG_BACKUP_FILE            = 'backupExistingFile';
     const CFG_USE_LOGGED_STORAGE     = 'useLoggedStorage';
     const CFG_ENHANCE_M2M_DETECTION  = 'enhanceManyToManyDetection';
+    const CFG_LOG_TO_CONSOLE         = 'logToConsole';
+    const CFG_LOG_FILE               = 'logFile';
 
     /**
      * Get the registry object.
      *
-     * @return \MwbExporter\Registry
+     * @return \MwbExporter\Registry\Registry
      */
     public function getRegistry();
 
     /**
      * Get the data type converter.
      *
-     * @return \MwbExporter\DatatypeConverterInterface
+     * @return \MwbExporter\Formatter\DatatypeConverterInterface
      */
     public function getDatatypeConverter();
 
@@ -204,4 +206,13 @@ interface FormatterInterface {
      * @return string
      */
     public function getPreferredWriter();
+
+    /**
+     * Each workbench element has a comment field. Several formatters utilize
+     * this comment field to enable customization of the formatter according
+     * to the user requirement.
+     *
+     * @return string
+     */
+    public function getCommentParserIdentifierPrefix();
 }

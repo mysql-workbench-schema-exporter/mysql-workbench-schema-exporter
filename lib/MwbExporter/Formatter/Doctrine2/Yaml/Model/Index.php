@@ -1,4 +1,5 @@
 <?php
+
 /*
  * The MIT License
  *
@@ -26,27 +27,12 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
-use MwbExporter\Model\Index as Base;
-use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Formatter\Doctrine2\Model\Index as BaseIndex;
 
-class Index extends Base
+class Index extends BaseIndex
 {
-    public function write(WriterInterface $writer)
+    public function asYAML()
     {
-        $writer
-            ->write('%s:', $this->parameters->get('name'))
-            ->indent()
-                ->writeCallback(function(WriterInterface $writer, Index $_this = null) {
-                    $columns = array();
-                    foreach ($_this->getColumns() as $column) {
-                        $columns[] = $column->getColumnName();
-                    }
-                    $writer->write('columns: [%s]', implode(', ', $columns));
-                })
-                ->writeIf(($type = strtolower($this->parameters->get('indexType'))) !== 'index', 'type: '.$type)
-            ->outdent()
-        ;
-
-        return $this;
+        return array('columns' => $this->getColumnNames());
     }
 }

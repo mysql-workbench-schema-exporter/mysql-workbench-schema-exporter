@@ -3,8 +3,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,32 +24,14 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter;
+namespace MwbExporter\Formatter\Doctrine2\Model;
 
-class Registry
+use MwbExporter\Model\Column as BaseColumn;
+
+class Column extends BaseColumn
 {
-    /**
-     * @var \MwbExporter\RegistryHolder
-     */
-    public $config;
-
-    /**
-     * @var \MwbExporter\RegistryHolder
-     */
-    public $reference;
-
-    /**
-     * @var \MwbExporter\RegistryHolder
-     */
-    public $factory;
-
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        $this->config = new RegistryHolder();
-        $this->reference = new RegistryHolder();
-        $this->factory = new RegistryHolder();
-    }
+    const RELATION_ONE_TO_ONE = '1:1';
+    const RELATION_ONE_TO_MANY = '1:M';
+    const RELATION_MANY_TO_ONE = 'M:1';
+    const RELATION_MANY_TO_MANY = 'M:M';
 }

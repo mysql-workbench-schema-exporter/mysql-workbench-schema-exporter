@@ -27,13 +27,17 @@
 
 namespace MwbExporter\Model;
 
-use MwbExporter\FormatterInterface;
+use MwbExporter\Formatter\FormatterInterface;
 use MwbExporter\Helper\Pluralizer;
 use MwbExporter\Helper\Singularizer;
 use MwbExporter\Writer\WriterInterface;
 
 class Table extends Base
 {
+    const WRITE_OK = 1;
+    const WRITE_EXTERNAL = 2;
+    const WRITE_M2M = 3;
+
     /**
      * @var \MwbExporter\Model\Columns
      */
@@ -208,6 +212,7 @@ class Table extends Base
         if ($external === 'true') {
             return true;
         }
+
         return false;
     }
 
@@ -221,9 +226,9 @@ class Table extends Base
     {
         if (null === $this->isM2M) {
             switch (true) {
-                // user hinted that this is not a m2m table
-                case ("false" === $this->parseComment('m2m')):
-                    $this->isM2M = false;
+                // user hinted that this is a m2m table or not
+                case in_array($m2m = $this->parseComment('m2m'), array('true', 'false')):
+                    $this->isM2M = 'true' === $m2m ? true : false;
                     break;
 
                 // contains 2 foreign keys
@@ -239,6 +244,11 @@ class Table extends Base
                 // foreign tables is not many to many
                 case $deep && $fkeys[0]->getReferencedTable()->isManyToMany(false):
                 case $deep && $fkeys[1]->getReferencedTable()->isManyToMany(false):
+                    $this->isM2M = false;
+                    break;
+
+                // has more columns than id + 2 x key columnns, is not many to many
+                case (count($this->getColumns()) >= 3):
                     $this->isM2M = false;
                     break;
 
@@ -407,16 +417,53 @@ class Table extends Base
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Model.Base::write()
+     * @see \MwbExporter\Model\Base::write()
      */
     public function write(WriterInterface $writer)
+    {
+        try {
+            switch ($this->writeTable($writer)) {
+                case self::WRITE_OK:
+                    $status = 'OK';
+                    break;
+
+                case self::WRITE_EXTERNAL:
+                    $status = 'skipped, marked as external';
+                    break;
+
+                case self::WRITE_M2M:
+                    $status = 'skipped, M2M table';
+                    break;
+
+                default:
+                    $status = 'unsupported';
+                    break;
+            }
+            $this->getDocument()->addLog(sprintf('* %s: %s', $this->getRawTableName(), $status));
+        } catch (\Exception $e) {
+            $this->getDocument()->addLog(sprintf('* %s: ERROR', $this->getRawTableName()));
+            throw $e;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Write table entity as code.
+     *
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return string
+     */
+    public function writeTable(WriterInterface $writer)
     {
         if (!$this->isExternal()) {
             $this->getColumns()->write($writer);
             $this->getIndices()->write($writer);
             $this->getForeignKeys()->write($writer);
+
+            return self::WRITE_OK;
         }
 
-        return $this;
+        return self::WRITE_EXTERNAL;
     }
 }

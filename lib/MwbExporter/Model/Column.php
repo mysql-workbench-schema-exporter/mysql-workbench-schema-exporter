@@ -27,12 +27,12 @@
 
 namespace MwbExporter\Model;
 
-use MwbExporter\RegistryHolder;
+use MwbExporter\Registry\RegistryHolder;
 
 class Column extends Base
 {
     /**
-     * @var \MwbExporter\RegistryHolder
+     * @var \MwbExporter\Registry\RegistryHolder
      */
     protected $links = null;
 

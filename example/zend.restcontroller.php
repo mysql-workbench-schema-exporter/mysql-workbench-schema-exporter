@@ -33,7 +33,7 @@ include 'util.php';
 // enable autoloading of classes
 autoload();
 
-use \MwbExporter\Formatter\Zend\Controller\Formatter;
+use \MwbExporter\Formatter\Zend\RestController\Formatter;
 
 // formatter setup
 $setup = array(
@@ -45,4 +45,4 @@ $setup = array(
 );
 
 // lets do it
-export('zend-rest-controller', $setup);
+export('zend-restcontroller', $setup);

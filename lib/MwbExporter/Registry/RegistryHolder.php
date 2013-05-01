@@ -25,7 +25,7 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter;
+namespace MwbExporter\Registry;
 
 class RegistryHolder implements \ArrayAccess, \IteratorAggregate, \Countable
 {
@@ -36,7 +36,7 @@ class RegistryHolder implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @param string $key    The registry key
      * @param mixed  $value  The value to store
-     * @return \MwbExporter\RegistryHolder
+     * @return \MwbExporter\Registry\RegistryHolder
      */
     public function set($key, $value)
     {
@@ -81,7 +81,7 @@ class RegistryHolder implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * Check if data is stored in the registry data.
      *
-     * @return \MwbExporter\RegistryHolder
+     * @return \MwbExporter\Registry\RegistryHolder
      */
     public function clear()
     {

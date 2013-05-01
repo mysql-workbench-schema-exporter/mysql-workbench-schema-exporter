@@ -27,8 +27,8 @@
 
 namespace MwbExporter\Formatter\Doctrine1\Yaml;
 
-use MwbExporter\Model\Column;
 use MwbExporter\Formatter\Doctrine1\DatatypeConverter as BaseDatatypeConverter;
+use MwbExporter\Model\Column;
 
 class DatatypeConverter extends BaseDatatypeConverter
 {

@@ -50,6 +50,7 @@ class Index extends BaseIndex
             ->outdent()
             ->write('</%s>', $type)
         ;
+
         return $this;
     }
 }

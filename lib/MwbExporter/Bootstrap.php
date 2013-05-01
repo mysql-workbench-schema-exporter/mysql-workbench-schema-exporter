@@ -27,8 +27,12 @@
 
 namespace MwbExporter;
 
+use MwbExporter\Formatter\FormatterInterface;
 use MwbExporter\Model\Document;
 use MwbExporter\Storage\LoggedStorage;
+use MwbExporter\Logger\Logger;
+use MwbExporter\Logger\LoggerFile;
+use MwbExporter\Logger\LoggerConsole;
 
 class Bootstrap
 {
@@ -36,130 +40,46 @@ class Bootstrap
     /**
      * @var array
      */
-    protected $formatters = array();
+    protected static $formatters = null;
 
     /**
-     * @var array
-     */
-    protected $writers = array();
-
-    /**
-     * @var array
-     */
-    protected $storages = array();
-
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        $this
-            // formatter
-            ->registerFormatter('doctrine2-annotation', '\\MwbExporter\\Formatter\\Doctrine2\Annotation\\Formatter')
-            ->registerFormatter('doctrine2-annotationzf2filter', '\\MwbExporter\\Formatter\\Doctrine2\AnnotationZF2InputFilter\\Formatter')
-            ->registerFormatter('doctrine2-yaml', '\\MwbExporter\\Formatter\\Doctrine2\Yaml\\Formatter')
-            ->registerFormatter('doctrine1-yaml', '\\MwbExporter\\Formatter\\Doctrine1\Yaml\\Formatter')
-            ->registerFormatter('propel1-xml', '\\MwbExporter\\Formatter\\Propel1\Xml\\Formatter')
-            ->registerFormatter('sencha-extjs3', '\\MwbExporter\\Formatter\\Sencha\ExtJS3\\Formatter')
-            ->registerFormatter('sencha-extjs42', '\\MwbExporter\\Formatter\\Sencha\ExtJS42\\Formatter')
-            ->registerFormatter('zend-rest-controller', '\\MwbExporter\\Formatter\\Zend\Controller\\Formatter')
-            ->registerFormatter('zend-dbtable', '\\MwbExporter\\Formatter\\Zend\DbTable\\Formatter')
-            ->registerFormatter('cake2-php', '\\MwbExporter\\Formatter\\Cake2\Php\\Formatter')
-            // writer
-            ->registerWriter('default', '\\MwbExporter\\Writer\\DefaultWriter')
-            ->registerWriter('aggregate', '\\MwbExporter\\Writer\\AggregateWriter')
-            // storage
-            ->registerStorage('file', '\\MwbExporter\\Storage\\FileStorage')
-            ->registerStorage('zip', '\\MwbExporter\\Storage\\ZipStorage')
-        ;
-    }
-
-    /**
-     * Register formatter.
-     *
-     * @param string $name  Formatter name
-     * @param string $class Formatter class name
-     * @return \MwbExporter\Bootstrap
-     */
-    protected function registerFormatter($name, $class)
-    {
-        $this->formatters[$name] = $class;
-
-        return $this;
-    }
-
-    /**
-     * Register writer.
-     *
-     * @param string $name  Writer name
-     * @param string $class Writer class name
-     * @return \MwbExporter\Bootstrap
-     */
-    protected function registerWriter($name, $class)
-    {
-        $this->writers[$name] = $class;
-
-        return $this;
-    }
-
-    /**
-     * Register storage.
-     *
-     * @param string $name  Storage name
-     * @param string $class Storage class name
-     * @return \MwbExporter\Bootstrap
-     */
-    protected function registerStorage($name, $class)
-    {
-        $this->storages[$name] = $class;
-
-        return $this;
-    }
-
-    /**
-     * Get registered formatter.
+     * Get available formatters.
      *
      * @return array
      */
     public function getFormatters()
     {
-        return $this->formatters;
-    }
+        if (null === self::$formatters) {
+            self::$formatters = array();
+            $pattern = implode(DIRECTORY_SEPARATOR, array(__DIR__, 'Formatter', '*', '*', 'Formatter.php'));
+            foreach (glob($pattern) as $filename) {
+                $dirs = explode(DIRECTORY_SEPARATOR, dirname(realpath($filename)));
+                $subVendor = array_pop($dirs);
+                $vendor = array_pop($dirs);
+                $formatter = strtolower(implode('-', array($vendor, $subVendor)));
+                $formatterClass = sprintf('\\MwbExporter\\Formatter\\%s\\%s\\Formatter', $vendor, $subVendor);
+                self::$formatters[$formatter] = $formatterClass;
+            }
+        }
 
-    /**
-     * Get registered writer.
-     *
-     * @return array
-     */
-    public function getWriters()
-    {
-        return $this->writers;
-    }
-
-    /**
-     * Get registered storage.
-     *
-     * @return array
-     */
-    public function getStorages()
-    {
-        return $this->writers;
+        return self::$formatters;
     }
 
     /**
      * Get formatter.
      *
      * @param string $name  The formatter name
-     * @return \MwbExporter\FormatterInterface
+     * @return \MwbExporter\Formatter\FormatterInterface
      */
     public function getFormatter($name)
     {
-        if (array_key_exists($name, $this->formatters)) {
-            $formatterClass = $this->formatters[$name];
-            $formatter = new $formatterClass();
-
-            return $formatter;
+        $formatters = $this->getFormatters();
+        if (!array_key_exists($name, $formatters)) {
+            throw new \InvalidArgumentException(sprintf('Unknown formatter "%s".', $name));
         }
+        $class = $formatters[$name];
+
+        return new $class();
     }
 
     /**
@@ -170,12 +90,14 @@ class Bootstrap
      */
     public function getWriter($name)
     {
-        if (array_key_exists($name, $this->writers)) {
-            $writterClass = $this->writers[$name];
-            $writter = new $writterClass();
+        $class = sprintf('\\MwbExporter\\Writer\\%sWriter', ucfirst($name));
+        if (class_exists($class)) {
+            $writter = new $class();
 
             return $writter;
         }
+
+        throw new \InvalidArgumentException(sprintf('Writer %s not found.', $class));
     }
 
     /**
@@ -186,18 +108,20 @@ class Bootstrap
      */
     public function getStorage($name)
     {
-        if (array_key_exists($name, $this->storages)) {
-            $storageClass = $this->storages[$name];
-            $storage = new $storageClass();
+        $class = sprintf('\\MwbExporter\\Storage\\%sStorage', ucfirst($name));
+        if (class_exists($class)) {
+            $storage = new $class();
 
             return $storage;
         }
+
+        throw new \InvalidArgumentException(sprintf('Storage %s not found.', $class));
     }
 
     /**
      * Load workbench schema and generate the code.
      *
-     * @param \MwbExporter\FormatterInterface $formatter
+     * @param \MwbExporter\Formatter\FormatterInterface $formatter
      * @param string $filename
      * @param string $outDir
      * @param string $storage
@@ -216,6 +140,14 @@ class Bootstrap
             $writer = $this->getWriter($formatter->getPreferredWriter());
             $writer->setStorage($storage);
             $document = new Document($formatter, $filename);
+            if (strlen($logFile = $formatter->getRegistry()->config->get(FormatterInterface::CFG_LOG_FILE))) {
+                $logger = new LoggerFile(array('filename' => $logFile));
+            } elseif ($formatter->getRegistry()->config->get(FormatterInterface::CFG_LOG_TO_CONSOLE)) {
+                $logger = new LoggerConsole();
+            } else {
+                $logger = new Logger();
+            }
+            $document->setLogger($logger);
             $document->write($writer);
             if ($e = $document->getError()) {
                 throw $e;

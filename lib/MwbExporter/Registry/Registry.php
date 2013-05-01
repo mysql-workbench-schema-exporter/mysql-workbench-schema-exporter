@@ -1,4 +1,5 @@
 <?php
+
 /*
  * The MIT License
  *
@@ -24,34 +25,32 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
+namespace MwbExporter\Registry;
 
-use MwbExporter\Model\ForeignKey as Base;
-use MwbExporter\Helper\Pluralizer;
-use MwbExporter\Writer\WriterInterface;
-
-class ForeignKey extends Base
+class Registry
 {
-    public function write(WriterInterface $writer)
-    {
-        if ($this->referencedTable == null) {
-            $writer
-                ->write('# There is another foreign key declaration.')
-            ;
-        } else {
-            $writer
-                ->write('%s:', $this->referencedTable->getModelName())
-                ->indent()
-                    ->write('class: '.$this->referencedTable->getModelName())
-                    ->write('local: '.$this->foreign->getColumnName())
-                    ->write('foreign: '.$this->local->getColumnName())
-                    ->write('foreignAlias: '.($this->isManyToOne() ? Pluralizer::pluralize($this->referencedTable->getModelName()) : $this->referencedTable->getModelName()))
-                    ->write('onDelete: '.strtolower($this->parameters->get('deleteRule')))
-                    ->write('onUpdate: '.strtolower($this->parameters->get('updateRule')))
-                ->outdent()
-            ;
-        }
+    /**
+     * @var \MwbExporter\Registry\RegistryHolder
+     */
+    public $config;
 
-        return $this;
+    /**
+     * @var \MwbExporter\Registry\RegistryHolder
+     */
+    public $reference;
+
+    /**
+     * @var \MwbExporter\Registry\RegistryHolder
+     */
+    public $factory;
+
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        $this->config = new RegistryHolder();
+        $this->reference = new RegistryHolder();
+        $this->factory = new RegistryHolder();
     }
 }

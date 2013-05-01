@@ -34,7 +34,7 @@ class Schema extends BaseSchema
 {
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Model.Schema::write()
+     * @see \MwbExporter\Model\Schema::write()
      */
     public function write(WriterInterface $writer)
     {

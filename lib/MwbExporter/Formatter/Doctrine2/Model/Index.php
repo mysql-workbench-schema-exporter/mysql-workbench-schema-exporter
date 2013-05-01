@@ -3,8 +3,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,14 +24,24 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
+namespace MwbExporter\Formatter\Doctrine2\Model;
 
-use MwbExporter\Formatter\Doctrine2\Model\Index as BaseIndex;
+use MwbExporter\Model\Index as BaseIndex;
 
 class Index extends BaseIndex
 {
-    public function asAnnotation()
+    /**
+     * Get index column names.
+     *
+     * @return array
+     */
+    public function getColumnNames()
     {
-        return array('name' => $this->parameters->get('name'), 'columns' => $this->getColumnNames());
+        $columns = array();
+        foreach ($this->columns as $refColumn) {
+            $columns[] = $refColumn->getColumnName();
+        }
+
+        return $columns;
     }
 }

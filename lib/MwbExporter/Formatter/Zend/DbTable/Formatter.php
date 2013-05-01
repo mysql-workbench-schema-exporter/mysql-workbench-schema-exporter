@@ -27,8 +27,8 @@
 
 namespace MwbExporter\Formatter\Zend\DbTable;
 
+use MwbExporter\Formatter\Formatter as BaseFormatter;
 use MwbExporter\Model\Base;
-use MwbExporter\Formatter as BaseFormatter;
 
 class Formatter extends BaseFormatter
 {
@@ -57,7 +57,7 @@ class Formatter extends BaseFormatter
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.Formatter::createTable()
+     * @see \MwbExporter\Formatter\Formatter::createTable()
      */
     public function createTable(Base $parent, $node)
     {
@@ -66,7 +66,7 @@ class Formatter extends BaseFormatter
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.Formatter::createForeignKey()
+     * @see \MwbExporter\Formatter\Formatter::createForeignKey()
      */
     public function createForeignKey(Base $parent, $node)
     {

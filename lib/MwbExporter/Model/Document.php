@@ -27,11 +27,17 @@
 
 namespace MwbExporter\Model;
 
-use MwbExporter\FormatterInterface;
+use MwbExporter\Formatter\FormatterInterface;
 use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Logger\LoggerInterface;
 
 class Document extends Base
 {
+    /**
+     * @var string
+     */
+    protected $filename = null;
+
     /**
      * @var \SimpleXMLElement
      */
@@ -43,7 +49,7 @@ class Document extends Base
     protected $physicalModel = null;
 
     /**
-     * @var \MwbExporter\FormatterInterface
+     * @var \MwbExporter\Formatter\FormatterInterface
      */
     protected $formatter = null;
 
@@ -51,6 +57,11 @@ class Document extends Base
      * @var \MwbExporter\Writer\WriterInterface
      */
     protected $writer = null;
+
+    /**
+     * @var \MwbExporter\Logger\LoggerInterface
+     */
+    protected $logger = null;
 
     /**
      * @var \Exception
@@ -65,8 +76,9 @@ class Document extends Base
      */
     public function __construct(FormatterInterface $formatter, $filename)
     {
+        $this->filename = $filename;
         $this->formatter = $formatter;
-        $this->readXML($filename);
+        $this->readXML($this->filename);
         parent::__construct(null, $this->xml->value);
         $this->parse();
     }
@@ -74,7 +86,7 @@ class Document extends Base
     /**
      * Get the formatter object.
      *
-     * @return \MwbExporter\FormatterInterface
+     * @return \MwbExporter\Formatter\FormatterInterface
      */
     public function getFormatter()
     {
@@ -92,9 +104,48 @@ class Document extends Base
     }
 
     /**
+     * Get logger object.
+     *
+     * @return \MwbExporter\Logger\LoggerInterface
+     */
+    public function getLogger()
+    {
+        return $this->logger;
+    }
+
+    /**
+     * Set logger object.
+     *
+     * @param \MwbExporter\Logger\LoggerInterface $logger
+     * @return \MwbExporter\Model\Document
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+
+        return $this;
+    }
+
+    /**
+     * Log a message.
+     *
+     * @param string $message  Log message
+     * @param string $level    Log level
+     * @return \MwbExporter\Model\Document
+     */
+    public function addLog($message, $level = LoggerInterface::INFO)
+    {
+        if ($this->logger) {
+            $this->logger->log($message, $level);
+        }
+
+        return $this;
+    }
+
+    /**
      * Get configuration object.
      *
-     * @return \MwbExporter\RegistryHolder
+     * @return \MwbExporter\Registry\RegistryHolder
      */
     public function getConfig()
     {
@@ -104,7 +155,7 @@ class Document extends Base
     /**
      * Get factory object.
      *
-     * @return \MwbExporter\RegistryHolder
+     * @return \MwbExporter\Registry\RegistryHolder
      */
     public function getFactory()
     {
@@ -114,7 +165,7 @@ class Document extends Base
     /**
      * Get reference object.
      *
-     * @return \MwbExporter\RegistryHolder
+     * @return \MwbExporter\Registry\RegistryHolder
      */
     public function getReference()
     {
@@ -123,7 +174,7 @@ class Document extends Base
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Model.Base::getDocument()
+     * @see \MwbExporter\Model\Base::getDocument()
      */
     public function getDocument()
     {
@@ -156,7 +207,7 @@ class Document extends Base
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter\Model.Base::write()
+     * @see \MwbExporter\Model\Base::write()
      */
     public function write(WriterInterface $writer)
     {
@@ -165,9 +216,12 @@ class Document extends Base
         $writer->setDocument($this);
         $writer->begin();
         try {
+            $this->addLog(sprintf('Start writing document %s...', basename($this->filename)));
             $this->physicalModel->write($writer);
+            $this->addLog('Done writing document...');
         } catch (\Exception $e) {
             $this->error = $e;
+            $this->addLog($e->getMessage(), LoggerInterface::ERROR);
         }
         $writer->end();
 

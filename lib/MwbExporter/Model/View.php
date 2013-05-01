@@ -28,9 +28,13 @@
 namespace MwbExporter\Model;
 
 use MwbExporter\Helper\Pluralizer;
+use MwbExporter\Writer\WriterInterface;
 
 class View extends Base
 {
+    const WRITE_OK = 1;
+    const WRITE_EXTERNAL = 2;
+
     /**
      * @var \MwbExporter\Model\Columns
      */
@@ -73,5 +77,43 @@ class View extends Base
             return true;
         }
         return false;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Model\Base::write()
+     */
+    public function write(WriterInterface $writer)
+    {
+        try {
+            switch ($this->writeView($writer)) {
+                case self::WRITE_OK:
+                    $status = 'OK';
+                    break;
+
+                case self::WRITE_EXTERNAL:
+                    $status = 'skipped, marked as external';
+                    break;
+
+                default:
+                    $status = 'unsupported';
+                    break;
+            }
+            $this->getDocument()->addLog(sprintf('* %s: %s', $this->getRawViewName(), $status));
+        } catch (\Exception $e) {
+            $this->getDocument()->addLog(sprintf('* %s: ERROR', $this->getRawViewName()));
+            throw $e;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Write view entity as code.
+     *
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     */
+    public function writeView(WriterInterface $writer)
+    {
     }
 }

@@ -27,7 +27,7 @@
 
 namespace MwbExporter\Formatter\Doctrine1;
 
-use MwbExporter\DatatypeConverter as BaseDatatypeConverter;
+use MwbExporter\Formatter\DatatypeConverter as BaseDatatypeConverter;
 
 class DatatypeConverter extends BaseDatatypeConverter
 {

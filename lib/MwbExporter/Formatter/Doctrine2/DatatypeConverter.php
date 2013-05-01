@@ -27,7 +27,7 @@
 
 namespace MwbExporter\Formatter\Doctrine2;
 
-use MwbExporter\DatatypeConverter as BaseDatatypeConverter;
+use MwbExporter\Formatter\DatatypeConverter as BaseDatatypeConverter;
 use MwbExporter\Model\Column;
 
 class DatatypeConverter

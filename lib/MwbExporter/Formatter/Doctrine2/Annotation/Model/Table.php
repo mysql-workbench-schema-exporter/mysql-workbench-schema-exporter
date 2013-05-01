@@ -1,4 +1,5 @@
 <?php
+
 /*
  * The MIT License
  *
@@ -26,9 +27,9 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
-use MwbExporter\Model\Table as BaseTable;
+use MwbExporter\Formatter\Doctrine2\Model\Table as BaseTable;
 use MwbExporter\Helper\Pluralizer;
-use MwbExporter\Helper\AnnotationObject;
+use MwbExporter\Object\Annotation;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Formatter\Doctrine2\Annotation\Formatter;
 
@@ -37,37 +38,6 @@ class Table extends BaseTable
     protected $ormPrefix = null;
     protected $collectionClass = 'Doctrine\Common\Collections\ArrayCollection';
     protected $collectionInterface = 'Doctrine\Common\Collections\Collection';
-
-    /**
-     * Get the entity namespace.
-     *
-     * @return string
-     */
-    public function getEntityNamespace()
-    {
-        $namespace = '';
-        if ($bundleNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_BUNDLE_NAMESPACE)) {
-            $namespace = $bundleNamespace.'\\';
-        }
-        if ($entityNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_ENTITY_NAMESPACE)) {
-            $namespace .= $entityNamespace;
-        } else {
-            $namespace .= 'Entity';
-        }
-
-        return $namespace;
-    }
-
-    /**
-     * Get namespace of a class.
-     *
-     * @param string $class The class name
-     * @return string
-     */
-    public function getNamespace($class = null, $absolute = true)
-    {
-        return sprintf('%s%s\%s', $absolute ? '\\' : '', $this->getEntityNamespace(), null === $class ? $this->getModelName() : $class);
-    }
 
     /**
      * Get the array collection class name.
@@ -96,22 +66,6 @@ class Table extends BaseTable
         return ($absolute ? '\\' : '').$this->collectionInterface;
     }
 
-    /**
-     * Write document as generated code.
-     *
-     * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Doctrine2\Annotation\Model\Table
-     */
-    public function write(WriterInterface $writer)
-    {
-        if (!$this->isExternal() && !$this->isManyToMany()) {
-            $writer->open($this->getTableFileName());
-            $this->writeTable($writer);
-            $writer->close();
-        }
-
-        return $this;
-    }
     /**
      * Get annotation prefix.
      *
@@ -145,11 +99,11 @@ class Table extends BaseTable
      * @param string $annotation  The annotation name
      * @param mixed  $content     The annotation content
      * @param array  $options     The annotation options
-     * @return \MwbExporter\Helper\AnnotationObject
+     * @return \MwbExporter\Object\Annotation
      */
     public function getAnnotation($annotation, $content = null, $options = array())
     {
-        return new AnnotationObject($this->addPrefix($annotation), $content, $options);
+        return new Annotation($this->addPrefix($annotation), $content, $options);
     }
 
     /**
@@ -193,7 +147,7 @@ class Table extends BaseTable
      * @param string $entity      Entity name
      * @param string $mappedBy    Column mapping
      * @param string $inversedBy  Reverse column mapping
-     * @return \MwbExporter\Helper\AnnotationObject
+     * @return \MwbExporter\Object\Annotation
      */
     public function getJoinAnnotation($joinType, $entity, $mappedBy = null, $inversedBy = null)
     {
@@ -206,64 +160,79 @@ class Table extends BaseTable
      * @param string $local       Local column name
      * @param string $foreign     Reference column name
      * @param string $deleteRule  On delete rule
-     * @return \MwbExporter\Helper\AnnotationObject
+     * @return \MwbExporter\Object\Annotation
      */
     public function getJoinColumnAnnotation($local, $foreign, $deleteRule = null)
     {
-        if ($deleteRule == 'NO ACTION' || $deleteRule == 'RESTRICT') {
-            // NO ACTION acts the same as RESTRICT,
-            // RESTRICT is the default
-            // http://dev.mysql.com/doc/refman/5.5/en/innodb-foreign-key-constraints.html
-            $deleteRule = null;
-        }
-        return $this->getAnnotation('JoinColumn', array('name' => $local, 'referencedColumnName' => $foreign, 'onDelete' => $deleteRule));
+        return $this->getAnnotation('JoinColumn', array('name' => $local, 'referencedColumnName' => $foreign, 'onDelete' => $this->getDocument()->getFormatter()->getDeleteRule($deleteRule)));
     }
 
     public function writeTable(WriterInterface $writer)
     {
-        $namespace = $this->getEntityNamespace();
-        if ($repositoryNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) {
-            $repositoryNamespace .= '\\';
-        }
-        $skipGetterAndSetter = $this->getDocument()->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
-        $serializableEntity  = $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
+        if (!$this->isExternal()) {
+            $namespace = $this->getEntityNamespace();
+            if ($repositoryNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) {
+                $repositoryNamespace .= '\\';
+            }
+            $skipGetterAndSetter = $this->getDocument()->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
+            $serializableEntity  = $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
+            $lifecycleCallbacks  = $this->getLifecycleCallbacks();
 
-        $comment = $this->getComment();
-        $writer
-            ->write('<?php')
-            ->write('')
-            ->write('namespace %s;', $namespace)
-            ->write('')
-            ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                $_this->writeUsedClasses($writer);
-            })
-            ->write('/**')
-            ->write(' * '.$this->getNamespace(null, false))
-            ->write(' *')
-            ->writeIf($comment, $comment)
-            ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
-            ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation(), 'uniqueConstraints' => $this->getUniqueConstraintsAnnotation())))
-            ->write(' */')
-            ->write('class '.$this->getModelName())
-            ->write('{')
-            ->indent()
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity) {
-                    $_this->getColumns()->write($writer);
-                    $_this->writeManyToMany($writer);
-                    $_this->writeConstructor($writer);
-                    if (!$skipGetterAndSetter) {
-                        $_this->getColumns()->writeGetterAndSetter($writer);
-                        $_this->writeManyToManyGetterAndSetter($writer);
-                    }
-                    if ($serializableEntity) {
-                        $_this->writeSerialization($writer);
-                    }
+            $comment = $this->getComment();
+            $writer
+                ->open($this->getTableFileName())
+                ->write('<?php')
+                ->write('')
+                ->write('namespace %s;', $namespace)
+                ->write('')
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    $_this->writeUsedClasses($writer);
                 })
-            ->outdent()
-            ->write('}')
-        ;
+                ->write('/**')
+                ->write(' * '.$this->getNamespace(null, false))
+                ->write(' *')
+                ->writeIf($comment, $comment)
+                ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
+                ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation(), 'uniqueConstraints' => $this->getUniqueConstraintsAnnotation())))
+                ->writeIf($lifecycleCallbacks, ' * @HasLifecycleCallbacks')
+                ->write(' */')
+                ->write('class '.$this->getModelName())
+                ->write('{')
+                ->indent()
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity, $lifecycleCallbacks) {
+                        $_this->getColumns()->write($writer);
+                        $_this->writeManyToMany($writer);
+                        $_this->writeConstructor($writer);
+                        if (!$skipGetterAndSetter) {
+                            $_this->getColumns()->writeGetterAndSetter($writer);
+                            $_this->writeManyToManyGetterAndSetter($writer);
+                        }
+                        foreach ($lifecycleCallbacks as $callback => $handlers) {
+                            foreach ($handlers as $handler) {
+                                $writer
+                                    ->write('/**')
+                                    ->write(' * @%s', ucfirst($callback))
+                                    ->write(' */')
+                                    ->write('public function %s()', $handler)
+                                    ->write('{')
+                                    ->write('}')
+                                    ->write('')
+                                ;
+                            }
+                        }
+                        if ($serializableEntity) {
+                            $_this->writeSerialization($writer);
+                        }
+                    })
+                ->outdent()
+                ->write('}')
+                ->close()
+            ;
 
-        return $this;
+            return self::WRITE_OK;
+        }
+
+        return self::WRITE_EXTERNAL;
     }
 
     public function writeUsedClasses(WriterInterface $writer)
@@ -324,25 +293,16 @@ class Table extends BaseTable
         // @TODO D2A ManyToMany relation joinColumns and inverseColumns
         // referencing wrong column names
 
+        $formatter = $this->getDocument()->getFormatter();
         foreach ($this->manyToManyRelations as $relation) {
-            $mappedRelation = $relation['reference']->getOwningTable()->getRelationToTable($relation['refTable']->getRawTableName());
-
-            // user can hint which side is the owning side (set d:owningSide on the foreign key)
-            if ($relation['reference']->parseComment('owningSide') === 'true') {
-                $isOwningSide = true;
-            } else if ($mappedRelation->parseComment('owningSide') === 'true') {
-                $isOwningSide = false;
-            } else {
-                // if no owning side is defined, use one side randomly as owning side (the one where the column id is lower)
-                $isOwningSide = $relation['reference']->getLocal()->getId() < $mappedRelation->getLocal()->getId();
-            }
+            $isOwningSide = $formatter->isOwningSide($relation, $mappedRelation);
 
             $annotationOptions = array(
-                'targetEntity' => $relation['refTable']->getModelName(),
+                'targetEntity' => $relation['refTable']->getModelNameAsFQCN($this->getEntityNamespace()),
                 'mappedBy' => null,
                 'inversedBy' => lcfirst(Pluralizer::pluralize($this->getModelName())),
-                'cascade' => $this->getCascadeOption($relation['reference']->parseComment('cascade')),
-                'fetch' => $this->getFetchOption($relation['reference']->parseComment('fetch')),
+                'cascade' => $formatter->getCascadeOption($relation['reference']->parseComment('cascade')),
+                'fetch' => $formatter->getFetchOption($relation['reference']->parseComment('fetch')),
             );
 
             // if this is the owning side, also output the JoinTable Annotation
@@ -399,7 +359,9 @@ class Table extends BaseTable
 
     public function writeManyToManyGetterAndSetter(WriterInterface $writer)
     {
+        $formatter = $this->getDocument()->getFormatter();
         foreach ($this->manyToManyRelations as $relation) {
+            $isOwningSide = $formatter->isOwningSide($relation, $mappedRelation);
             $writer
                 ->write('/**')
                 ->write(' * Add '.$relation['refTable']->getModelName().' entity to collection.')
@@ -410,6 +372,11 @@ class Table extends BaseTable
                 ->write('public function add'.$relation['refTable']->getModelName().'('.$relation['refTable']->getModelName().' $'.lcfirst($relation['refTable']->getModelName()).')')
                 ->write('{')
                 ->indent()
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($isOwningSide, $relation, $mappedRelation) {
+                        if ($isOwningSide) {
+                            $writer->write('$%s->add%s($this);', lcfirst($relation['refTable']->getModelName()), $_this->getModelName());
+                        }
+                    })
                     ->write('$this->'.lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())).'[] = $'.lcfirst($relation['refTable']->getModelName()).';')
                     ->write('')
                     ->write('return $this;')
@@ -432,53 +399,5 @@ class Table extends BaseTable
         }
 
         return $this;
-    }
-
-    /**
-     * get the cascade option as array. Only returns values allowed by Doctrine.
-     *
-     * @param $cascadeValue string cascade options separated by comma
-     * @return array array with the values or null, if no cascade values are available
-     */
-    private function getCascadeOption($cascadeValue)
-    {
-        if (!$cascadeValue) {
-            return null;
-        }
-
-        $cascadeValue = array_map('strtolower', array_map('trim', explode(',', $cascadeValue)));
-
-        // only allow certain values
-        $allowed = array('persist', 'remove', 'merge', 'detach', 'all');
-
-        $cascadeValue = array_intersect($cascadeValue, $allowed);
-
-        if ($cascadeValue) {
-            return $cascadeValue;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * get the fetch option for a relation
-     *
-     * @param $fetchValue string fetch option as given in comment for foreign key
-     * @return string valid fetch value or null
-     */
-    private function getFetchOption($fetchValue)
-    {
-        if (!$fetchValue) {
-            return null;
-        }
-
-        $fetchValue = strtoupper($fetchValue);
-
-        if (!in_array($fetchValue, array('EAGER', 'LAZY', 'EXTRA_LAZY'))) {
-            // invalid fetch value
-            return null;
-        } else {
-            return $fetchValue;
-        }
     }
 }

@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,14 +25,32 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
+namespace MwbExporter\Logger;
 
-use MwbExporter\Formatter\Doctrine2\Model\Index as BaseIndex;
-
-class Index extends BaseIndex
+class LoggerFile extends Logger
 {
-    public function asAnnotation()
+    /**
+     * @var resource
+     */
+    protected $handle = null;
+
+    protected function init()
     {
-        return array('name' => $this->parameters->get('name'), 'columns' => $this->getColumnNames());
+        if (!isset($this->options['filename'])) {
+            throw new \InvalidArgumentException('No filename option passed.');
+        }
+        $this->handle = fopen($this->options['filename'], 'w');
+    }
+
+    protected function sendLog($message)
+    {
+        fwrite($this->handle, $message);
+    }
+
+    public function __destruct()
+    {
+        if ($this->handle) {
+            fclose($this->handle);
+        }
     }
 }

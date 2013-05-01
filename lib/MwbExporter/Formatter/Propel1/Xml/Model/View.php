@@ -25,36 +25,27 @@
 
 namespace MwbExporter\Formatter\Propel1\Xml\Model;
 
-use MwbExporter\FormatterInterface;
-
 use MwbExporter\Model\View as BaseView;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Formatter\Propel1\Xml\Formatter;
 
 class View extends BaseView
 {
-    /**
-     * Write document as generated code.
-     *
-     * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Propel1\Xml\Model\Table
-     */
-    public function write(WriterInterface $writer)
-    {
-        if (!$this->isExternal()) {
-            $writer->indent();
-            $this->writeView($writer);
-            $writer->outdent();
-        }
-        return $this;
-    }
-
     public function writeView(WriterInterface $writer)
     {
-        $namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_NAMESPACE);
-        $writer->write('<table name="%s" phpName="%s" namespace="%s" skipSql="true" readOnly="true">', $this->getRawViewName(), $this->getModelName(), $namespace);
-        //views do not consist of columns just SQL queries
-        $writer->write('</table>');
-        return $this;
+        if (!$this->isExternal()) {
+            $namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_NAMESPACE);
+            $writer
+                ->indent()
+                    // views do not consist of columns just SQL queries
+                    ->write('<table name="%s" phpName="%s" namespace="%s" skipSql="true" readOnly="true">', $this->getRawViewName(), $this->getModelName(), $namespace)
+                    ->write('</table>')
+                ->outdent()
+            ;
+
+            return self::WRITE_OK;
+        }
+
+        return self::WRITE_EXTERNAL;
     }
 }

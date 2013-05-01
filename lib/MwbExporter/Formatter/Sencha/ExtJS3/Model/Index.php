@@ -27,7 +27,9 @@
 
 namespace MwbExporter\Formatter\Sencha\ExtJS3\Model;
 
-class Index extends \MwbExporter\Model\Index
+use MwbExporter\Model\Index as BaseIndex;
+
+class Index extends BaseIndex
 {
     /**
      *
@@ -43,6 +45,7 @@ class Index extends \MwbExporter\Model\Index
         }
         $return[] = substr($tmp, 0, -1).'}';
         //$return[] = '      type: '.strtolower($this->config['indexType']);
+
         return implode("", $return);
     }
 }

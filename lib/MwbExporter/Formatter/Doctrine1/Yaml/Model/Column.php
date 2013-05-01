@@ -41,6 +41,12 @@ class Column extends BaseColumn
                 ->writeIf($this->isPrimary(), 'primary: true')
                 ->writeIf($this->parameters->get('isNotNull') == 1, 'notnull: true')
                 ->writeIf($this->parameters->get('autoIncrement') == 1, 'autoincrement: true')
+                // enum and set values
+                ->writeCallback(function(WriterInterface $writer, Column $_this = null) {
+                    if ($values = $_this->getParameters()->get('datatypeExplicitParams')) {
+                        $writer->write('values: %s', strtr($values, array('(' => '[', ')' => ']')));
+                    }
+                })
                 ->writeIf(($default = $this->parameters->get('defaultValue')) && 'NULL' !== $default, 'default: '.$default)
                 ->writeCallback(function(WriterInterface $writer, Column $_this = null) {
                     foreach ($_this->getNode()->xpath("value[@key='flags']/value") as $flag) {

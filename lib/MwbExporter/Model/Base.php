@@ -27,8 +27,8 @@
 
 namespace MwbExporter\Model;
 
-use MwbExporter\Registry;
-use MwbExporter\RegistryHolder;
+use MwbExporter\Registry\Registry;
+use MwbExporter\Registry\RegistryHolder;
 use MwbExporter\Writer\WriterInterface;
 
 abstract class Base
@@ -54,7 +54,7 @@ abstract class Base
     protected $id;
 
     /**
-     * @var \MwbExporter\RegistryHolder
+     * @var \MwbExporter\Registry\RegistryHolder
      */
     protected $parameters = null;
 
@@ -118,7 +118,7 @@ abstract class Base
     /**
      * Get parameters holder.
      * 
-     * @return \MwbExporter\RegistryHolder
+     * @return \MwbExporter\Registry\RegistryHolder
      */
     public function getParameters()
     {
@@ -154,13 +154,13 @@ abstract class Base
      * @param string $comment
      * @return string
      */
-    protected function parseComment($needle_raw, $comment = null)
+    public function parseComment($needle_raw, $comment = null)
     {
         if ($comment === null) {
             $comment = $this->parameters->get('comment');
         }
         $needle_quoted = preg_quote($needle_raw);
-        $pattern = '@\{(d|doctrine):'.$needle_quoted.'\}(.+)\{\/(d|doctrine):'.$needle_quoted.'\}@si';
+        $pattern = sprintf('@\{(%1$s):%2$s\}(.+)\{\/(%1$s):%2$s\}@si', $this->getDocument()->getFormatter()->getCommentParserIdentifierPrefix(), $needle_quoted);
         if (preg_match($pattern, $comment, $matches) && isset($matches[2])) {
             return $matches[2];
         }
@@ -175,24 +175,19 @@ abstract class Base
     protected function getComment($asPhpComment = true)
     {
         $comment = $this->parameters->get('comment');
-
         // strip hints for mysql-exporter in comments (starting with {d:keyword}
         // or {doctrine:keyword} and ending with {/d:keyword}
-        $comment = trim(preg_replace('/\{(d|doctrine):([^\}]+)\}(.+?)\{\/\1:\2\}/si', '', $comment));
+        if ($comment = trim(preg_replace(sprintf('/\{(%s):([^\}]+)\}(.+?)\{\/\1:\2\}/si', $this->getDocument()->getFormatter()->getCommentParserIdentifierPrefix()), '', $comment))) {
+            if ($asPhpComment) {
+                // start the comment with a "*"" and add a " * " after each newline
+                $comment = str_replace("\n", "\n * ", $comment);
+    
+                // comments are wrapped at 80 chars and will end with a newline
+                $comment = ' * ' . wordwrap($comment, 77, "\n * ") . "\n *";
+            }
 
-        if (!$comment) {
-            return '';
+            return $comment;
         }
-
-        if ($asPhpComment) {
-            // start the comment with a "*"" and add a " * " after each newline
-            $comment = str_replace("\n", "\n * ", $comment);
-
-            // comments are wrapped at 80 chars and will end with a newline
-            $comment = ' * ' . wordwrap($comment, 77, "\n * ") . "\n *";
-        }
-
-        return $comment;
     }
 
     /**

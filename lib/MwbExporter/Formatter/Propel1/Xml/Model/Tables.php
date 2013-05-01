@@ -25,8 +25,6 @@
 
 namespace MwbExporter\Formatter\Propel1\Xml\Model;
 
-use MwbExporter\FormatterInterface;
-
 use MwbExporter\Model\Tables as BaseTables;
 use MwbExporter\Helper\Pluralizer;
 use MwbExporter\Writer\WriterInterface;
@@ -43,6 +41,7 @@ class Tables extends BaseTables
     public function write(WriterInterface $writer)
     {
         $this->writeTables($writer);
+
         return $this;
     }
 
@@ -57,6 +56,7 @@ class Tables extends BaseTables
         foreach ($this->tables as $table) {
             $table->write($writer);
         }
+
         return $this;
     }
 }

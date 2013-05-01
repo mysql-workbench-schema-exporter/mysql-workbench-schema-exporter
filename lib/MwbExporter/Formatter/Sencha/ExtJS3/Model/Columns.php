@@ -27,8 +27,6 @@
 
 namespace MwbExporter\Formatter\Sencha\ExtJS3\Model;
 
-use MwbExporter\Writer\Writer;
-
 use MwbExporter\Model\Columns as BaseColumns;
 use MwbExporter\Writer\WriterInterface;
 

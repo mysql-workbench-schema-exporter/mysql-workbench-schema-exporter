@@ -25,9 +25,9 @@
 
 namespace MwbExporter\Formatter\Zend\DbTable\Model;
 
-use MwbExporter\Core\Model\Columns as Base;
+use MwbExporter\Core\Model\Columns as BaseColumns;
 
-class Columns extends Base
+class Columns extends BaseColumns
 {
     /**
      *

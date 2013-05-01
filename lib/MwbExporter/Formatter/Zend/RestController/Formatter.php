@@ -25,9 +25,9 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Zend\Controller;
+namespace MwbExporter\Formatter\Zend\RestController;
 
-use MwbExporter\Formatter as BaseFormatter;
+use MwbExporter\Formatter\Formatter as BaseFormatter;
 use MwbExporter\Model\Base;
 
 class Formatter extends BaseFormatter
@@ -48,7 +48,7 @@ class Formatter extends BaseFormatter
 
     /**
      * (non-PHPdoc)
-     * @see MwbExporter.Formatter::createTable()
+     * @see \MwbExporter\Formatter\Formatter::createTable()
      */
     public function createTable(Base $parent, $node)
     {
