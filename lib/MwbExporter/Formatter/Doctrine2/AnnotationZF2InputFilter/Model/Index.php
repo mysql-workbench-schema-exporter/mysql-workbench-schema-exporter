@@ -35,8 +35,6 @@ class Index
 {
 
     /**
-     * COMMENTME
-     * 
      * @return array
      */
     protected function getColumnNames()
@@ -50,8 +48,6 @@ class Index
     }
 
     /**
-     * COMMENTME
-     * 
      * @return array
      */
     public function asAnnotation()

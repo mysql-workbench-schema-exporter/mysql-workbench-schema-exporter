@@ -28,23 +28,16 @@
 
 namespace MwbExporter\Formatter\Sencha\ExtJS42\Model;
 
-class Index extends \MwbExporter\Model\Index
+class Index
+    extends \MwbExporter\Model\Index
 {
+
     /**
-     * COMMENTME
-     *
      * @return string
      */
     public function display()
     {
-//        $return = array();
-//        $return[] = 'name="'.$this->config['name'].'",';
-//        $tmp = 'columns={';
-//        foreach ($this->referencedColumn as $refColumn) {
-//            $tmp .= '"'.$refColumn->getColumnName().'",';
-//        }
-//        $return[] = substr($tmp, 0, -1).'}';
-        //$return[] = '      type: '.strtolower($this->config['indexType']);
-//        return implode("", $return);
+        
     }
+
 }

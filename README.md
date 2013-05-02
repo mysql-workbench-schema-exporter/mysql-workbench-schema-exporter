@@ -14,7 +14,7 @@ What is MySQL Workbench schema exporter?
 The application is intended to create:
 
   * Doctrine 1.0 [YAML Schema](http://docs.doctrine-project.org/projects/doctrine1/en/latest/en/manual/yaml-schema-files.html)
-  * Doctrine 2.0 [YAML Schema](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/yaml-mapping.html) and [Annotation Classes](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/annotations-reference.html)
+  * Doctrine 2.0 [YAML Schema](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/yaml-mapping.html), [Annotation Classes](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/annotations-reference.html) or Annotation Classes with [Zend Framework 2](http://framework.zend.com/) [Input Filter support](http://framework.zend.com/manual/2.1/en/modules/zend.input-filter.intro.html)
   * [Zend DbTable](http://framework.zend.com/manual/en/zend.db.table.html)
   * Zend Rest Controller
   * Sencha ExtJS3 Model
@@ -61,6 +61,7 @@ Where:
       * `doctrine1-yaml`, Doctrine 1.0 YAML schema (default)
       * `doctrine2-yaml`, Doctrine 2.0 YAML schema
       * `doctrine2-annotation`, Doctrine 2.0 Annotation classes
+      * `doctrine2-annotationzf2inputfilter`, Doctrine 2.0 Annotation classes with Zend Framework 2 Inputfilter configuration, Populate and getArrayCopy methods.
       * `propel1-xml`, Propel XML schema
       * `zend-dbtable`, Zend DbTable
       * `zend-restcontroller`, Zend Rest Controller
@@ -252,12 +253,7 @@ General options applied to all formatter.
 #### Additional option list for Doctrine 2.0 Annotation ZF2 Inputfilter
 
   * `generateEntityPopulate`
-
-    TODO
-
   * `generateEntityGetArrayCopy`
-
-    TODO
 
 ### Option list for Propel Xml
 

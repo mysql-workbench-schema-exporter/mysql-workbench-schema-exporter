@@ -37,8 +37,6 @@ class Column
 {
 
     /**
-     * COMMENTME
-     * 
      * @return boolean
      */
     public function asAnnotation()
@@ -64,7 +62,7 @@ class Column
     }
 
     /**
-     * COMMENTME
+     * (non-PHPdoc)
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
      * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Column
@@ -87,7 +85,7 @@ class Column
     }
 
     /**
-     * COMMENTME
+     * Write code to instantiate ArrayCollections for all OneToMany relations.
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
      * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Column
@@ -110,7 +108,7 @@ class Column
     }
 
     /**
-     * COMMENTME
+     * Write OneToOne, OneToMany and ManyToOne relations.
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
      * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Column
@@ -232,7 +230,7 @@ class Column
     }
 
     /**
-     * COMMENTME
+     * Write setters and getters for all columns.
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
      * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Column
@@ -278,7 +276,7 @@ class Column
     }
 
     /**
-     * COMMENTME
+     * Write setters and getters for all relations.
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
      * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Column
@@ -444,7 +442,7 @@ class Column
     }
 
     /**
-     * COMMENTME
+     * Get the is required flag.
      * 
      * @return boolean
      */
