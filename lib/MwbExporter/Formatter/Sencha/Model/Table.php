@@ -51,7 +51,7 @@ class Table extends BaseTable
      * @param bool  $raw        Is raw object
      * @return \MwbExporter\Object\JS
      */
-    public function getJSObject($content, $multiline = false, $raw = false)
+    public function getJSObject($content, $multiline = true, $raw = false)
     {
         return new JS($content, array('multiline' => $multiline, 'raw' => $raw, 'indent' => $this->getDocument()->getConfig()->get(Formatter::CFG_INDENTATION))); 
     }

@@ -64,7 +64,7 @@ class Table extends BaseTable
             'url'    => ZendURLFormatter::fromCamelCaseToDashConnection($this->getModelName()),
             'title'  => str_replace('-', ' ', ZendURLFormatter::fromCamelCaseToDashConnection($this->getModelName())),
             'fields' => $fields,
-        ), true);
+        ));
     }
 
     public function asUI()
@@ -83,6 +83,6 @@ class Table extends BaseTable
                 'layout' => 'form',
                 'items'  => $forms,
             ),
-        ), true);
+        ));
     }
 }
