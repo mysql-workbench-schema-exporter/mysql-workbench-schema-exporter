@@ -4,7 +4,8 @@
  * The MIT License
  *
  * Copyright (c) 2012 Allan Sun <sunajia@gmail.com>
- * Copyright (c) 2012 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2013 WitteStier <development@wittestier.nl>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,27 +26,10 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Sencha\ExtJS3\Model;
+namespace MwbExporter\Formatter\Sencha\ExtJS4;
 
-use MwbExporter\Model\Index as BaseIndex;
+use MwbExporter\Formatter\Sencha\DatatypeConverter as BaseDatatypeConverter;
 
-class Index extends BaseIndex
+class DatatypeConverter extends BaseDatatypeConverter
 {
-    /**
-     *
-     * @return string
-     */
-    public function display()
-    {
-        $return = array();
-        $return[] = 'name="'.$this->config['name'].'",';
-        $tmp = 'columns={';
-        foreach ($this->referencedColumn as $refColumn) {
-            $tmp .= '"'.$refColumn->getColumnName().'",';
-        }
-        $return[] = substr($tmp, 0, -1).'}';
-        //$return[] = '      type: '.strtolower($this->config['indexType']);
-
-        return implode("", $return);
-    }
 }

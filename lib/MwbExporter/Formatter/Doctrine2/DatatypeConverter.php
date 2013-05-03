@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,24 +40,6 @@ class DatatypeConverter
      */
     public function setup()
     {
-        /**
-          Doctrine 2.2 Data Type:
-          const TARRAY = 'array';
-          const BIGINT = 'bigint';
-          const BOOLEAN = 'boolean';
-          const DATETIME = 'datetime';
-          const DATETIMETZ = 'datetimetz';
-          const DATE = 'date';
-          const TIME = 'time';
-          const DECIMAL = 'decimal';
-          const INTEGER = 'integer';
-          const OBJECT = 'object';
-          const SMALLINT = 'smallint';
-          const STRING = 'string';
-          const TEXT = 'text';
-          const BLOB = 'blob';
-          const FLOAT = 'float';
-         */
         $this->register(array(
             static::DATATYPE_TINYINT => 'integer',
             static::DATATYPE_SMALLINT => 'smallint',

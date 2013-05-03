@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -72,6 +72,7 @@ abstract class Formatter implements FormatterInterface
             static::CFG_LOG_TO_CONSOLE         => false,
             static::CFG_LOG_FILE               => '',
         ));
+        $this->setDatatypeConverter($this->createDatatypeConverter());
         $this->init();
     }
 
@@ -130,6 +131,15 @@ abstract class Formatter implements FormatterInterface
     }
 
     /**
+     * Create datatype converter instance.
+     *
+     * @return \MwbExporter\Formatter\DatatypeConverterInterface
+     */
+    protected function createDatatypeConverter()
+    {
+    }
+
+    /**
      * Set data type converter.
      *
      * @param \MwbExporter\Formatter\DatatypeConverterInterface $datatypeConverter
@@ -137,6 +147,9 @@ abstract class Formatter implements FormatterInterface
      */
     protected function setDatatypeConverter(DatatypeConverterInterface $datatypeConverter)
     {
+        if (null == $datatypeConverter) {
+            throw new \RuntimeException('Datatype converted can\'t be null.');
+        }
         $this->datatypeConverter = $datatypeConverter;
         $this->datatypeConverter->setup();
 

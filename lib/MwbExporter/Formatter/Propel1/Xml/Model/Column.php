@@ -3,6 +3,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
+ * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -47,10 +48,10 @@ class Column extends BaseColumn
                 $type,                                                                                                 // type
                 ($this->isPrimary                        == 1  ? ' primaryKey="true"'                           : ''), // primaryKey
                 ($this->parameters->get('length')         > 0  ? ' size="'.$this->parameters->get('length').'"' : ''), // size
-                ($this->parameters->get('isNotNull')     == 1  ? ' required="true"'                             : ''), // required
-                ($this->parameters->get('autoIncrement') == 1  ? ' autoIncrement="true"'                        : ''), // autoIncrement
-                (($this->parameters->get('defaultValue')  != '' && !in_array($this->parameters->get('defaultValue'), array('CURRENT_TIMESTAMP'))) ? ' defaultValue="'.$this->parameters->get('defaultValue').'"' : ''), // defaultValue
-                ($this->parameters->get('defaultValue')  != '' ? ' defaultExpr="'.$this->parameters->get('defaultValue').'"' : '') // defaultExpr
+                ($this->isNotNull()                            ? ' required="true"'                             : ''), // required
+                ($this->isAutoIncrement()                      ? ' autoIncrement="true"'                        : ''), // autoIncrement
+                (($defaultValue = $this->getDefaultValue()) && !in_array($defaultValue, array('CURRENT_TIMESTAMP')) ? ' defaultValue="'.$defaultValue.'"' : ''), // defaultValue
+                ($defaultValue                                 ? ' defaultExpr="'.$defaultValue.'"'             : '') // defaultExpr
             )
         ;
 

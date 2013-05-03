@@ -36,6 +36,26 @@ abstract class Formatter extends BaseFormatter
     const CFG_REPOSITORY_NAMESPACE           = 'repositoryNamespace';
     const CFG_AUTOMATIC_REPOSITORY           = 'useAutomaticRepository';
 
+    protected function init()
+    {
+        parent::init();
+        $this->addConfigurations(array(
+            static::CFG_BUNDLE_NAMESPACE              => '',
+            static::CFG_ENTITY_NAMESPACE              => '',
+            static::CFG_REPOSITORY_NAMESPACE          => '',
+            static::CFG_AUTOMATIC_REPOSITORY          => true,
+        ));
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Formatter\Formatter::createDatatypeConverter()
+     */
+    protected function createDatatypeConverter()
+    {
+        return new DatatypeConverter();
+    }
+
     /**
      * Get owning side of relation.
      *

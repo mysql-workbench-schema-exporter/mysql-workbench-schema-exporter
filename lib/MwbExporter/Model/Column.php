@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -313,5 +313,49 @@ class Column extends Base
         }
 
         return false;
+    }
+
+    /**
+     * Is column not null (aka. required).
+     *
+     * @return boolean
+     */
+    public function isNotNull()
+    {
+        return 1 == $this->parameters->get('isNotNull') ? true : false;
+    }
+
+    /**
+     * Is column auto increment.
+     *
+     * @return boolean
+     */
+    public function isAutoIncrement()
+    {
+        return 1 == $this->parameters->get('autoIncrement') ? true : false;
+    }
+
+    /**
+     * Get column default value.
+     *
+     * @return string
+     */
+    public function getDefaultValue()
+    {
+        if (1 != $this->parameters->get('defaultValueIsNull')) {
+            if (($defaultValue = trim($this->parameters->get('defaultValue'), '\'"')) && ('NULL' != $defaultValue)) {
+                return $defaultValue;
+            }
+        }
+    }
+
+    /**
+     * Get column length.
+     *
+     * @return int
+     */
+    public function getLength()
+    {
+        return $this->parameters->get('length');
     }
 }

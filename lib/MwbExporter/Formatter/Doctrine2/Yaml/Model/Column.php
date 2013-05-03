@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -46,10 +46,10 @@ class Column extends BaseColumn
         if ($this->isUnique) {
             $values['unique'] = true;
         }
-        if ($this->getParameters()->get('isNotNull') != 1) {
+        if (!$this->isNotNull()) {
             $values['nullable'] = true;
         }
-        if ($this->getParameters()->get('autoIncrement') == 1) {
+        if ($this->isAutoIncrement()) {
             $values['generator'] = array('strategy' => 'AUTO');
         }
 
@@ -90,7 +90,7 @@ class Column extends BaseColumn
                         'name'                 => $foreign->getForeign()->getColumnName(),
                         'referencedColumnName' => $foreign->getLocal()->getColumnName(),
                         'onDelete'             => $formatter->getDeleteRule($foreign->getLocal()->getParameters()->get('deleteRule')),
-                        'nullable'             => !$foreign->getForeign()->getParameters()->get('isNotNull') ? null : false,
+                        'nullable'             => !$foreign->getForeign()->isNotNull() ? null : false,
                     ),
                 );
             } else {
@@ -104,7 +104,7 @@ class Column extends BaseColumn
                         'name'                 => $foreign->getForeign()->getColumnName(),
                         'referencedColumnName' => $foreign->getLocal()->getColumnName(),
                         'onDelete'             => $formatter->getDeleteRule($foreign->getLocal()->getParameters()->get('deleteRule')),
-                        'nullable'             => !$foreign->getForeign()->getParameters()->get('isNotNull') ? null : false,
+                        'nullable'             => !$foreign->getForeign()->isNotNull() ? null : false,
                     ),
                 );
             }
@@ -128,7 +128,7 @@ class Column extends BaseColumn
                         'name'                 => $this->local->getForeign()->getColumnName(),
                         'referencedColumnName' => $this->local->getLocal()->getColumnName(),
                         'onDelete'             => $formatter->getDeleteRule($this->local->getParameters()->get('deleteRule')),
-                        'nullable'             => !$this->local->getForeign()->getParameters()->get('isNotNull') ? null : false,
+                        'nullable'             => !$this->local->getForeign()->isNotNull() ? null : false,
                     ),
                 );
             } else {
@@ -142,7 +142,7 @@ class Column extends BaseColumn
                         'name'                 => $this->local->getForeign()->getColumnName(),
                         'referencedColumnName' => $this->local->getLocal()->getColumnName(),
                         'onDelete'             => $formatter->getDeleteRule($this->local->getParameters()->get('deleteRule')),
-                        'nullable'             => !$this->local->getForeign()->getParameters()->get('isNotNull') ? null : false,
+                        'nullable'             => !$this->local->getForeign()->isNotNull() ? null : false,
                     ),
                 );
             }

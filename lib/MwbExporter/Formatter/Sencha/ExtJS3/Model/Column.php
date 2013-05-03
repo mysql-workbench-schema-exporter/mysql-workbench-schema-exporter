@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2012 Allan Sun <sunajia@gmail.com>
- * Copyright (c) 2012 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,17 +33,17 @@ use MwbExporter\Formatter\DatatypeConverter;
 
 class Column extends BaseColumn
 {
-    public function getAsField()
+    public function asField()
     {
-        return $this->getTable()->getJSObject(array('name' => $this->getColumnName(), 'type' => $this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this)));
+        return array('name' => $this->getColumnName(), 'type' => $this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this));
     }
 
-    public function getAsColumn()
+    public function asColumn()
     {
-        return $this->getTable()->getJSObject(array('header' => ucwords(str_replace('_', ' ', $this->getColumnName())), 'dataIndex' => $this->getColumnName()));
+        return array('header' => ucwords(str_replace('_', ' ', $this->getColumnName())), 'dataIndex' => $this->getColumnName());
     }
 
-    public function getAsFormItem()
+    public function asFormItem()
     {
         $result = array();
         // @see http://docs.sencha.com/ext-js/3-4/#!/api/Ext.form.ComboBox-cfg-hiddenName
@@ -80,7 +80,7 @@ class Column extends BaseColumn
         }
         $result['xtype'] = $type;
         $result['fieldLabel'] = ucwords(str_replace('_', ' ', $this->getColumnName()));
-        $result['allowBlank'] = $this->parameters->get('isNotNull') == 1 ? false : true;
+        $result['allowBlank'] = $this->isNotNull() ? false : true;
         if ($anchor) {
             $result['anchor'] = $anchor;
         }
@@ -90,7 +90,7 @@ class Column extends BaseColumn
             $result['mode'] = 'local';
             $result['forceSelection'] = true;
             $result['triggerAction'] = 'all';
-            $result['listeners'] = array('afterrender' => $this->getTable()->getJSObject('function() {this.store.load();}', false, true));
+            $result['listeners'] = array('afterrender' => $this->getTable()->getJSObject('function() {this.store.load();}', true, true));
             $result['store'] = $this->getTable()->getJSObject(sprintf('new Ext.data.JsonStore(%s);',
                 $this->getTable()->getJSObject(array(
                     'id'     => str_replace(' ', '', ucwords(str_replace('_',' ',$this->local->getReferencedTable()->getRawTableName()))).'Store',
@@ -101,6 +101,6 @@ class Column extends BaseColumn
             ), false, true);
         }
 
-        return $this->getTable()->getJSObject($result, true);
+        return $result;
     }
 }

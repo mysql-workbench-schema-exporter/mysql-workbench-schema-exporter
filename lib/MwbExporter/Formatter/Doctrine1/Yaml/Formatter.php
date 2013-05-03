@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,12 +36,21 @@ class Formatter extends BaseFormatter
 
     protected function init()
     {
-        $this->setDatatypeConverter(new DatatypeConverter());
+        parent::init();
         $this->addConfigurations(array(
             static::CFG_INDENTATION                   => 2,
             static::CFG_FILENAME                      => '%entity%.%extension%',
             static::CFG_EXTEND_TABLENAME_WITH_SCHEMA  => false,
         ));
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Formatter\Formatter::createDatatypeConverter()
+     */
+    protected function createDatatypeConverter()
+    {
+        return new DatatypeConverter();
     }
 
     /**

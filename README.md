@@ -18,7 +18,7 @@ The application is intended to create:
   * [Zend DbTable](http://framework.zend.com/manual/en/zend.db.table.html)
   * Zend Rest Controller
   * Sencha ExtJS3 Model
-  * Sencha [ExtJS4.2 Model](http://www.sencha.com/products/extjs/)
+  * Sencha [ExtJS4 Model](http://www.sencha.com/products/extjs/)
   * Propel [XML Schema](http://www.propelorm.org/reference/schema)
   * CakePHP (not implemented)
 
@@ -61,12 +61,12 @@ Where:
       * `doctrine1-yaml`, Doctrine 1.0 YAML schema (default)
       * `doctrine2-yaml`, Doctrine 2.0 YAML schema
       * `doctrine2-annotation`, Doctrine 2.0 Annotation classes
-      * `doctrine2-annotationzf2inputfilter`, Doctrine 2.0 Annotation classes with Zend Framework 2 Inputfilter configuration, Populate and getArrayCopy methods.
+      * `doctrine2-zf2inputfilterannotation`, Doctrine 2.0 Annotation classes with Zend Framework 2 Inputfilter configuration, Populate and getArrayCopy methods.
       * `propel1-xml`, Propel XML schema
       * `zend-dbtable`, Zend DbTable
       * `zend-restcontroller`, Zend Rest Controller
       * `sencha-extjs3`, Sencha ExtJS3 Model
-      * `sencha-extjs4.2`, Sencha ExtJS4.2 Model
+      * `sencha-extjs4`, Sencha ExtJS4 Model
     * `--config=file`, read export parameters from file (in JSON format)
     * `--saveconfig`, save export parameters to file `export.json`, later can be used as value for `--config=file`
     * `--list-exporter`, show all available exporter

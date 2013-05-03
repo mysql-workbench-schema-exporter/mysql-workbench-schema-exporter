@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,6 +37,10 @@ class DatatypeConverter extends BaseDatatypeConverter
      */
     public function setup()
     {
+        /*
+         * http://docs.sencha.com/extjs/3.4.0/#!/api/Ext.data.Field
+         * http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.Types
+         */
         $this->register(array(
             static::DATATYPE_TINYINT            => 'int',
             static::DATATYPE_SMALLINT           => 'int',
@@ -58,23 +62,23 @@ class DatatypeConverter extends BaseDatatypeConverter
             static::DATATYPE_BLOB               => 'string',
             static::DATATYPE_MEDIUMBLOB         => 'string',
             static::DATATYPE_LONGBLOB           => 'string',
-            static::DATATYPE_DATETIME           => 'string',
-            static::DATATYPE_DATE               => 'string',
-            static::DATATYPE_TIME               => 'string',
+            static::DATATYPE_DATETIME           => 'date',
+            static::DATATYPE_DATE               => 'date',
+            static::DATATYPE_TIME               => 'date',
             static::DATATYPE_YEAR               => 'int',
-            static::DATATYPE_TIMESTAMP          => 'string',
-            static::DATATYPE_GEOMETRY           => 'undefined',
+            static::DATATYPE_TIMESTAMP          => 'date',
+            static::DATATYPE_GEOMETRY           => 'auto',
             static::DATATYPE_LINESTRING         => 'string',
-            static::DATATYPE_POLYGON            => 'undefined',
-            static::DATATYPE_MULTIPOINT         => 'undefined',
-            static::DATATYPE_MULTILINESTRING    => 'undefined',
-            static::DATATYPE_MULTIPOLYGON       => 'undefined',
-            static::DATATYPE_GEOMETRYCOLLECTION => 'undefined',
+            static::DATATYPE_POLYGON            => 'auto',
+            static::DATATYPE_MULTIPOINT         => 'auto',
+            static::DATATYPE_MULTILINESTRING    => 'auto',
+            static::DATATYPE_MULTIPOLYGON       => 'auto',
+            static::DATATYPE_GEOMETRYCOLLECTION => 'auto',
             static::DATATYPE_BIT                => 'int',
             static::DATATYPE_ENUM               => 'string',
             static::DATATYPE_SET                => 'string',
-            static::USERDATATYPE_BOOLEAN        => 'bool',
-            static::USERDATATYPE_BOOL           => 'bool',
+            static::USERDATATYPE_BOOLEAN        => 'boolean',
+            static::USERDATATYPE_BOOL           => 'boolean',
             static::USERDATATYPE_FIXED          => 'int',
             static::USERDATATYPE_FLOAT4         => 'float',
             static::USERDATATYPE_FLOAT8         => 'float',
