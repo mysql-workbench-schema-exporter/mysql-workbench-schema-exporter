@@ -51,6 +51,10 @@ class JS extends Base
             $tmp = array();
             $useKey = !$this->isKeysNumeric($value);
             foreach ($value as $k => $v) {
+                // skip null value
+                if (null === $v) {
+                    continue;
+                }
                 $v = $this->asCode($v);
                 $tmp[] = $useKey ? sprintf('%s: %s', $k, $v) : $v;
             }
