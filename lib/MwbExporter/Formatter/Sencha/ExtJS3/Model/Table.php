@@ -50,29 +50,9 @@ class Table extends BaseTable
         if (!$this->isExternal()) {
             $writer
                 ->open($this->getTableFileName())
-                // model
-                ->write($this->getClassPrefix().'.'. $this->getModelName().' = Ext.extend('.$this->getParentClass().', {')
-                ->indent()
-                    ->write("id: '%s',", $this->getModelName())
-                    ->write("url: '%s',", ZendURLFormatter::fromCamelCaseToDashConnection($this->getModelName()))
-                    ->write("title: '%s',", str_replace('-', ' ', ZendURLFormatter::fromCamelCaseToDashConnection($this->getModelName())))
-                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                        $_this->getColumns()->writeFields($writer);
-                    })
-                ->outdent()
-                ->write('});')
+                ->write('%s.%s = Ext.extend(%s, %s);', $this->getClassPrefix(), $this->getModelName(), $this->getParentClass(), $this->asModel())
                 ->write('')
-                // UI
-                ->write($this->getClassPrefix().'.'. $this->getModelName().' = Ext.extend('.$this->getClassPrefix().'.'. $this->getModelName().', {')
-                ->indent()
-                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                        $_this->getColumns()
-                            ->writeColumns($writer)
-                            ->writeFormItems($writer)
-                        ;
-                    })
-                ->outdent()
-                ->write('});')
+                ->write('%1$s.%2$s = Ext.extend(%1$s.%2$s, %3$s);', $this->getClassPrefix(), $this->getModelName(), $this->asUI())
                 ->write('')
                 ->close()
             ;
@@ -94,5 +74,39 @@ class Table extends BaseTable
     public function getJSObject($content, $multiline = false, $raw = false)
     {
         return new JS($content, array('multiline' => $multiline, 'raw' => $raw, 'indent' => $this->getDocument()->getConfig()->get(Formatter::CFG_INDENTATION))); 
+    }
+
+    public function asModel()
+    {
+        $fields = array();
+        foreach ($this->getColumns()->getColumns() as $column) {
+            $fields[] = $column->asField();
+        }
+
+        return $this->getJSObject(array(
+            'id'     => $this->getModelName(),
+            'url'    => ZendURLFormatter::fromCamelCaseToDashConnection($this->getModelName()),
+            'title'  => str_replace('-', ' ', ZendURLFormatter::fromCamelCaseToDashConnection($this->getModelName())),
+            'fields' => $fields,
+        ), true);
+    }
+
+    public function asUI()
+    {
+        $columns = array();
+        $forms = array();
+        foreach ($this->getColumns()->getColumns() as $column) {
+            $columns[] = $column->asColumn();
+            $forms[] = $column->asFormItem();
+        }
+
+        return $this->getJSObject(array(
+            'columns'    => $columns,
+            'formItems'  => array(
+                'title'  => 'Basic Details',
+                'layout' => 'form',
+                'items'  => $forms,
+            ),
+        ), true);
     }
 }
