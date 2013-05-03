@@ -314,4 +314,48 @@ class Column extends Base
 
         return false;
     }
+
+    /**
+     * Is column not null (aka. required).
+     *
+     * @return boolean
+     */
+    public function isNotNull()
+    {
+        return 1 == $this->parameters->get('isNotNull') ? true : false;
+    }
+
+    /**
+     * Is column auto increment.
+     *
+     * @return boolean
+     */
+    public function isAutoIncrement()
+    {
+        return 1 == $this->parameters->get('autoIncrement') ? true : false;
+    }
+
+    /**
+     * Get column default value.
+     *
+     * @return string
+     */
+    public function getDefaultValue()
+    {
+        if (1 != $this->parameters->get('defaultValueIsNull')) {
+            if (($defaultValue = trim($this->parameters->get('defaultValue'), '\'"')) && ('NULL' != $defaultValue)) {
+                return $defaultValue;
+            }
+        }
+    }
+
+    /**
+     * Get column length.
+     *
+     * @return int
+     */
+    public function getLength()
+    {
+        return $this->parameters->get('length');
+    }
 }
