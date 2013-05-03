@@ -37,13 +37,22 @@ class Formatter extends BaseFormatter
 
     protected function init()
     {
-        $this->setDatatypeConverter(new DatatypeConverter());
+        parent::init();
         $this->addConfigurations(array(
             static::CFG_INDENTATION     => 4,
             static::CFG_FILENAME        => 'JS/%schema%/%entity%.%extension%',
             static::CFG_CLASS_PREFIX    => 'SysX.App',
             static::CFG_PARENT_CLASS    => 'SysX.Ui.App',
         ));
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Formatter\Formatter::createDatatypeConverter()
+     */
+    protected function createDatatypeConverter()
+    {
+        return new DatatypeConverter();
     }
 
     /**

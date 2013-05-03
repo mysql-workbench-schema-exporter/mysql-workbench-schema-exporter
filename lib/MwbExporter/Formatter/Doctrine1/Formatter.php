@@ -33,6 +33,15 @@ abstract class Formatter extends BaseFormatter
 {
     /**
      * (non-PHPdoc)
+     * @see \MwbExporter\Formatter\Formatter::createDatatypeConverter()
+     */
+    protected function createDatatypeConverter()
+    {
+        return new DatatypeConverter();
+    }
+
+    /**
+     * (non-PHPdoc)
      * @see \MwbExporter\Formatter\Formatter::getCommentParserIdentifierPrefix()
      */
     public function getCommentParserIdentifierPrefix()

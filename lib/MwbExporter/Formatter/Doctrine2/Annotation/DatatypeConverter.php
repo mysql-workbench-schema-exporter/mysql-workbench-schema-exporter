@@ -28,7 +28,6 @@
 namespace MwbExporter\Formatter\Doctrine2\Annotation;
 
 use MwbExporter\Formatter\Doctrine2\DatatypeConverter as BaseDatatypeConverter;
-use MwbExporter\Model\Column;
 
 class DatatypeConverter extends BaseDatatypeConverter
 {

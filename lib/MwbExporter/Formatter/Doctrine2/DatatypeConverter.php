@@ -34,24 +34,6 @@ class DatatypeConverter extends BaseDatatypeConverter
 {
     public function setup()
     {
-        /**
-        Doctrine 2.2 Data Type:
-        const TARRAY = 'array';
-        const BIGINT = 'bigint';
-        const BOOLEAN = 'boolean';
-        const DATETIME = 'datetime';
-        const DATETIMETZ = 'datetimetz';
-        const DATE = 'date';
-        const TIME = 'time';
-        const DECIMAL = 'decimal';
-        const INTEGER = 'integer';
-        const OBJECT = 'object';
-        const SMALLINT = 'smallint';
-        const STRING = 'string';
-        const TEXT = 'text';
-        const BLOB = 'blob';
-        const FLOAT = 'float';
-        */
         $this->register(array(
             static::DATATYPE_TINYINT            => 'integer',
             static::DATATYPE_SMALLINT           => 'smallint',
