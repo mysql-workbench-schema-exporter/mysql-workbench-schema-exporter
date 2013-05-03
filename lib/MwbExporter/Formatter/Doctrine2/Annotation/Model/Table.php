@@ -56,7 +56,7 @@ class Table extends BaseTable
     }
 
     /**
-     * Get collection interface class.
+     * Get collection interface class name.
      *
      * @param bool $absolute Use absolute class name
      * @return string
@@ -196,10 +196,11 @@ class Table extends BaseTable
                 ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation(), 'uniqueConstraints' => $this->getUniqueConstraintsAnnotation())))
                 ->writeIf($lifecycleCallbacks, ' * @HasLifecycleCallbacks')
                 ->write(' */')
-                ->write('class '.$this->getModelName())
+                ->write('class '.$this->getModelName().(($implements = $this->getClassImplementations()) ? ' implements '.$implements : ''))
                 ->write('{')
                 ->indent()
                     ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity, $lifecycleCallbacks) {
+                        $_this->writePreClassHandler($writer);
                         $_this->getColumns()->write($writer);
                         $_this->writeManyToMany($writer);
                         $_this->writeConstructor($writer);
@@ -207,6 +208,7 @@ class Table extends BaseTable
                             $_this->getColumns()->writeGetterAndSetter($writer);
                             $_this->writeManyToManyGetterAndSetter($writer);
                         }
+                        $_this->writePostClassHandler($writer);
                         foreach ($lifecycleCallbacks as $callback => $handlers) {
                             foreach ($handlers as $handler) {
                                 $writer
@@ -237,16 +239,10 @@ class Table extends BaseTable
 
     public function writeUsedClasses(WriterInterface $writer)
     {
-        $count = 0;
-        if ('@ORM\\' === $this->addPrefix()) {
-            $writer->write('use Doctrine\ORM\Mapping as ORM;');
-            $count++;
-        }
-        if (count($this->getManyToManyRelations()) || $this->getColumns()->hasOneToManyRelation()) {
-            $writer->write('use %s;', $this->getCollectionClass());
-            $count++;
-        }
-        if ($count) {
+        if (count($uses = $this->getUsedClasses())) {
+            foreach ($uses as $use) {
+                $writer->write('use %s;', $use);
+            }
             $writer->write('');
         }
 
@@ -286,13 +282,12 @@ class Table extends BaseTable
             ->outdent()
             ->write('}')
         ;
+
+        return $this;
     }
 
     public function writeManyToMany(WriterInterface $writer)
     {
-        // @TODO D2A ManyToMany relation joinColumns and inverseColumns
-        // referencing wrong column names
-
         $formatter = $this->getDocument()->getFormatter();
         foreach ($this->manyToManyRelations as $relation) {
             $isOwningSide = $formatter->isOwningSide($relation, $mappedRelation);
@@ -398,6 +393,55 @@ class Table extends BaseTable
             ;
         }
 
+        return $this;
+    }
+
+    /**
+     * Get the class name to implements.
+     *
+     * @return string
+     */
+    protected function getClassImplementations()
+    {
+    }
+
+    /**
+     * Get used classes.
+     *
+     * @return array
+     */
+    protected function getUsedClasses()
+    {
+        $uses = array();
+        if ('@ORM\\' === $this->addPrefix()) {
+            $uses[] = 'Doctrine\ORM\Mapping as ORM';
+        }
+        if (count($this->getManyToManyRelations()) || $this->getColumns()->hasOneToManyRelation()) {
+            $uses[] = $this->getCollectionClass();
+        }
+
+        return $uses;
+    }
+
+    /**
+     * Write pre class handler.
+     *
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\Annotation\Model\Table
+     */
+    public function writePreClassHandler(WriterInterface $writer)
+    {
+        return $this;
+    }
+
+    /**
+     * Write post class handler.
+     *
+     * @param \MwbExporter\Writer\WriterInterface $writer
+     * @return \MwbExporter\Formatter\Doctrine2\Annotation\Model\Table
+     */
+    public function writePostClassHandler(WriterInterface $writer)
+    {
         return $this;
     }
 }
