@@ -34,21 +34,6 @@ use MwbExporter\Writer\WriterInterface;
 
 class Table extends BaseTable
 {
-    /**
-     * Get the generate validations flag.
-     * 
-     * @return bool
-     */
-    public function generateValidation()
-    {
-        return $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_VALIDATION);
-    }
-
-    public function generateProxy()
-    {
-        return $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_PROXY);
-    }
-
     public function writeTable(WriterInterface $writer)
     {
         switch (true) {
@@ -75,60 +60,64 @@ class Table extends BaseTable
     public function writeBody(WriterInterface $writer)
     {
         $writer
-            ->write("Ext.define('%s', {", $this->getClassPrefix() . '.' . $this->getModelName())
-            ->indent()
-            ->write("extend: '%s',", $this->getParentClass())
-            ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    $_this->writeUses($writer);
-
-                    $_this->writeBelongsTo($writer);
-
-                    $_this->writeHasOne($writer);
-
-                    $_this->writeHasMany($writer);
-
-                    $_this->getColumns()->write($writer);
-
-                    if ($_this->generateValidation()) {
-                        $_this->getColumns()->writeValidations($writer);
-                    }
-
-                    if ($_this->generateProxy()) {
-                        $_this->writeAjaxProxy($writer);
-                    }
-                })
-            ->outdent()
-            ->write('});')
+            ->write("Ext.define('%s', %s);", $this->getClassPrefix().'.'.$this->getModelName(), $this->asModel())
         ;
 
         return $this;
     }
 
-    /**
-     * Write uses.
-     * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.Class-cfg-uses
-     * 
-     * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Sencha\ExtJS4\Model\Table
-     */
-    public function writeUses(WriterInterface $writer)
+    public function asModel()
     {
-        $uses = array();
+        $result = array('extend' => $this->getParentClass());
+        if (count($data = $this->getUses())) {
+            $result['uses'] = $data;
+        }
+        if (count($data = $this->getBelongsTo())) {
+            $result['belongsTo'] = $data;
+        }
+        if (count($data = $this->getHasOne())) {
+            $result['hasOne'] = $data;
+        }
+        if (count($data = $this->getHasMany())) {
+            $result['hasMany'] = $data;
+        }
+        if (count($data = $this->getFields())) {
+            $result['fields'] = $data;
+        }
+        if ($this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_VALIDATION) && count($data = $this->getValidations())) {
+            $result['validations'] = $data;
+        }
+        if ($this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_PROXY) && count($data = $this->getAjaxProxy())) {
+            $result['proxy'] = $data;
+        }
+
+        return $this->getJSObject($result);
+    }
+
+    /**
+     * Get uses.
+     *
+     * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.Class-cfg-uses
+     * @return array
+     */
+    protected function getUses()
+    {
+        $result = array();
         $current = sprintf('%s.%s', $this->getClassPrefix(), $this->getModelName());
 
         // Collect belongsTo uses.
         foreach ($this->relations as $relation) {
             $refTableName = sprintf('%s.%s', $this->getClassPrefix(), $relation->getReferencedTable()->getModelName());
-            if ($relation->isManyToOne() && !in_array($refTableName, $uses) && ($refTableName !== $current)) {
-                $uses[] = $refTableName;
+            if ($relation->isManyToOne() && !in_array($refTableName, $result) && ($refTableName !== $current)) {
+                $result[] = $refTableName;
             }
         }
 
         // Collect hasOne uses.
         foreach ($this->relations as $relation) {
             $refTableName = sprintf('%s.%s', $this->getClassPrefix(), $relation->getReferencedTable()->getModelName());
-            if (!$relation->isManyToOne() && !in_array($refTableName, $uses) && ($refTableName !== $current)) {
-                $uses[] = $refTableName;
+            if (!$relation->isManyToOne() && !in_array($refTableName, $result) && ($refTableName !== $current)) {
+                $result[] = $refTableName;
             }
         }
 
@@ -136,299 +125,197 @@ class Table extends BaseTable
         foreach ($this->getManyToManyRelations() as $relation) {
             $referencedTable = $relation['refTable'];
             $refTableName = sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName());
-            if (!in_array($refTableName, $uses) && ($refTableName !== $current)) {
-                $uses[] = $refTableName;
+            if (!in_array($refTableName, $result) && ($refTableName !== $current)) {
+                $result[] = $refTableName;
             }
         }
 
-        $usesCount = count($uses);
-
-        if (0 === $usesCount) {
-            // End, No uses found.
-            return $this;
-        }
-
-        $writer
-            ->write('uses: [')
-            ->indent()
-            ->writeCallback(function(WriterInterface $writer) use($uses, $usesCount) {
-                    foreach ($uses as $use) {
-                        $use = sprintf("'%s'", $use);
-                        if (--$usesCount) {
-                            $use .= ',';
-                        }
-
-                        $writer->write($use);
-                    }
-                })
-            ->outdent()
-            ->write('],')
-        ;
-
-        // End.
-        return $this;
+        return $result;
     }
 
     /**
-     * Write BelongsTo relations.
-     * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.data.association.BelongsTo
-     * 
-     * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Sencha\ExtJS4\Model\Table
+     * Get BelongsTo relations.
+     *
+     * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.association.BelongsTo
+     * @return array
      */
-    public function writeBelongsTo(WriterInterface $writer)
+    protected function getBelongsTo()
     {
-        $belongToCount = $this->getBelongToCount();
-
-        if (0 === $belongToCount) {
-            // End, No belongTo relations found.
-            return false;
+        $result = array();
+        foreach ($this->getRelations() as $relation) {
+            if (!$relation->isManyToOne()) {
+                // Do not list OneToOne relations.
+                continue;
+            }
+            $referencedTable = $relation->getReferencedTable();
+            $result[] = array(
+                'model'          => sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName()),
+                'associationKey' => lcfirst($referencedTable->getModelName()),
+                'getterName'     => sprintf('get%s', $referencedTable->getModelName()),
+                'setterName'     => sprintf('set%s', $referencedTable->getModelName()),
+            );
         }
 
-        $writer
-            ->write('belongsTo: [')
-            ->indent()
-            ->writeCallback(function(WriterInterface $writer, Table $_this = null) use($belongToCount) {
-                    foreach ($_this->getRelations() as $relation) {
-                        if (!$relation->isManyToOne()) {
-                            // Do not list OneToOne relations.
-                            continue;
-                        }
-                        $hasMore = (bool) --$belongToCount;
-                        $referencedTable = $relation->getReferencedTable();
-                        $relation = (string) $_this->getJSObject(array(
-                                'model' => sprintf('%s.%s', $_this->getClassPrefix(), $referencedTable->getModelName()),
-                                'associationKey' => lcfirst($referencedTable->getModelName()),
-                                'getterName' => sprintf('get%s', $referencedTable->getModelName()),
-                                'setterName' => sprintf('set%s', $referencedTable->getModelName()),
-                        ));
-
-                        if ($hasMore) {
-                            $relation .= ',';
-                        }
-
-                        $writer->write($relation);
-                    }
-                })
-            ->outdent()
-            ->write('],')
-        ;
-
-        // End.
-        return $this;
+        return $result;
     }
 
     /**
-     * Write HasOne relations.
-     * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.data.association.HasOne
-     * 
-     * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Sencha\ExtJS4\Model\Table
+     * Get HasOne relations.
+     *
+     * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.association.HasOne
+     * @return array
      */
-    public function writeHasOne(WriterInterface $writer)
+    protected function getHasOne()
     {
-        $hasOneCount = $this->getHasOneCount();
-
-        if (0 === $hasOneCount) {
-            // End, No HasOne relations found.
-            return false;
+        $result = array();
+        foreach ($this->getRelations() as $relation) {
+            if ($relation->isManyToOne()) {
+                // Do not list manyToOne relations.
+                continue;
+            }
+            $referencedTable = $relation->getReferencedTable();
+            $result[] = array(
+                'model'          => sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName()),
+                'associationKey' => lcfirst($referencedTable->getModelName()),
+                'getterName'     => sprintf('get%s', $referencedTable->getModelName()),
+                'setterName'     => sprintf('set%s', $referencedTable->getModelName()),
+            );
         }
 
-        $writer
-            ->write('hasOne: [')
-            ->indent()
-            ->writeCallback(function(WriterInterface $writer, Table $_this = null) use($hasOneCount) {
-                    foreach ($_this->getRelations() as $relation) {
-                        if ($relation->isManyToOne()) {
-                            // Do not list manyToOne relations.
-                            continue;
-                        }
-                        $hasMore = (bool) --$hasOneCount;
-                        $referencedTable = $relation->getReferencedTable();
-                        $relation = (string) $_this->getJSObject(array(
-                                'model' => sprintf('%s.%s', $_this->getClassPrefix(), $referencedTable->getModelName()),
-                                'associationKey' => lcfirst($referencedTable->getModelName()),
-                                'getterName' => sprintf('get%s', $referencedTable->getModelName()),
-                                'setterName' => sprintf('set%s', $referencedTable->getModelName()),
-                        ));
-
-                        if ($hasMore) {
-                            $relation .= ',';
-                        }
-
-                        $writer->write($relation);
-                    }
-                })
-            ->outdent()
-            ->write('],')
-        ;
-        // End.
-        return $this;
+        return $result;
     }
 
     /**
-     * Write HasMany relations.
-     * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.data.association.HasMany
-     * 
-     * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Sencha\ExtJS4\Model\Table
+     * Get HasMany relations.
+     *
+     * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.association.HasMany
+     * @return array
      */
-    public function writeHasMany(WriterInterface $writer)
+    protected function getHasMany()
     {
-        $hasManyCount = $this->getHasManyCount();
-
-        if (0 === $hasManyCount) {
-            // End, No HasMany relations found.
-            return false;
+        $result = array();
+        foreach ($this->getManyToManyRelations() as $relation) {
+            $referencedTable = $relation['refTable'];
+            $result[] = array(
+                'model'          => sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName()),
+                'associationKey' => lcfirst($referencedTable->getModelName()),
+                'name'           => sprintf('get%sStore', $referencedTable->getModelName()),
+            );
         }
 
-        $writer
-            ->write('hasMany: [')
-            ->indent()
-            ->writeCallback(function(WriterInterface $writer, Table $_this = null) use($hasManyCount) {
-                    foreach ($_this->getManyToManyRelations() as $relation) {
-                        $referencedTable = $relation['refTable'];
-                        $hasMore = (bool) --$hasManyCount;
-                        $relation = (string) $_this->getJSObject(array(
-                                'model' => sprintf('%s.%s', $_this->getClassPrefix(), $referencedTable->getModelName()),
-                                'associationKey' => lcfirst($referencedTable->getModelName()),
-                                'name' => sprintf('get%sStore', $referencedTable->getModelName()),
-                        ));
-
-                        if ($hasMore) {
-                            $relation .= ',';
-                        }
-
-                        $writer->write($relation);
-                    }
-                })
-            ->outdent()
-            ->write('],')
-        ;
-
-        // End.
-        return $this;
+        return $result;
     }
 
     /**
-     * Write model ajax proxy object.
-     * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.data.proxy.Ajax
-     * 
-     * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Sencha\ExtJS4\Model\Table
+     * Get model fields.
+     *
+     * @return array
      */
-    public function writeAjaxProxy(WriterInterface $writer)
+    protected function getFields()
     {
-        $writer
-            ->write('proxy: ' . $this->getJSObject(array(
-                    'type' => 'ajax',
-                    'url' => sprintf('/data/%s', strtolower($this->getModelName())),
-                    'api' => $this->getApi(),
-                    'reader' => $this->getJsonReader(),
-                    'writer' => $this->getJsonWriter()
-            )))
-        ;
+        $result = array();
+        foreach ($this->getColumns() as $column) {
+            $type = $this->getDocument()->getFormatter()->getDatatypeConverter()->getType($column);
+            $result[] = array(
+                'name'         => $column->getColumnName(),
+                'type'         => $type ? $type : 'auto',
+                'defaultValue' => $column->getDefaultValue(),
+            );
+        }
 
-        // End.
-        return $this;
+        return $result;
+    }
+
+    /**
+     * Get model field validations.
+     *
+     * @return array
+     */
+    protected function getValidations()
+    {
+        $result = array();
+        foreach ($this->getColumns() as $column) {
+            if ($column->isNotNull() && !$column->isPrimary()) {
+                $result[] = array(
+                    'type'  => 'presence',
+                    'field' => $column->getColumnName(),
+                );
+            }
+            if (($len = $column->getLength()) > 0) {
+                $result[] = array(
+                    'type'  => 'length',
+                    'field' => $column->getColumnName(),
+                    'max'   => $len,
+                );
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get model ajax proxy object.
+     *
+     * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.proxy.Ajax
+     * @return array
+     */
+    protected function getAjaxProxy()
+    {
+        return array(
+            'type'   => 'ajax',
+            'url'    => sprintf('/data/%s', strtolower($this->getModelName())),
+            'api'    => $this->getApi(),
+            'reader' => $this->getJsonReader(),
+            'writer' => $this->getJsonWriter(),
+        );
     }
 
     /**
      * Get the model API object.
-     * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.data.proxy.Ajax-cfg-api
-     * 
-     * @return \MwbExporter\Helper\JSObject
+     *
+     * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.proxy.Ajax-cfg-api
+     * @return array
      */
     private function getApi()
     {
         $modelName = strtolower($this->getModelName());
 
-        // End.
-        return $this->getJSObject(array(
-                'read' => sprintf('/data/%s', $modelName),
-                'update' => sprintf('/data/%s/update', $modelName),
-                'create' => sprintf('/data/%s/add', $modelName),
-                'destroy' => sprintf('/data/%s/destroy', $modelName)
-        ));
+        return array(
+            'read'    => sprintf('/data/%s', $modelName),
+            'update'  => sprintf('/data/%s/update', $modelName),
+            'create'  => sprintf('/data/%s/add', $modelName),
+            'destroy' => sprintf('/data/%s/destroy', $modelName),
+        );
     }
 
     /**
      * Get the model json reader.
-     * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.data.reader.Json
-     * 
-     * @return \MwbExporter\Helper\JSObject
+     *
+     * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.reader.Json
+     * @return array
      */
     private function getJsonReader()
     {
-        // End.
-        return $this->getJSObject(array(
-                'type' => 'json',
-                'root' => strtolower($this->getModelName()),
-                'messageProperty' => 'message'
-        ));
+        return array(
+            'type'            => 'json',
+            'root'            => strtolower($this->getModelName()),
+            'messageProperty' => 'message',
+        );
     }
 
     /**
-     * Get the model json writer
-     * http://docs.sencha.com/ext-js/4-2/#!/api/Ext.data.writer.Json
-     * 
-     * @return \MwbExporter\Helper\JSObject
+     * Get the model json writer.
+     *
+     * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.writer.Json
+     * @return array
      */
     private function getJsonWriter()
     {
-        // End.
-        return $this->getJSObject(array(
-                'type' => 'json',
-                'root' => strtolower($this->getModelName()),
-                'encode' => true,
-                'expandData' => true
-        ));
-    }
-
-    /**
-     * Get the number of belong to relations.
-     * 
-     * @return int
-     */
-    private function getBelongToCount()
-    {
-        $count = 0;
-        foreach ($this->relations as $relation) {
-            if ($relation->isManyToOne()) {
-                $count++;
-            }
-        }
-
-        // End.
-        return $count;
-    }
-
-    /**
-     * Get the number of hasOne relations.
-     * 
-     * @return int
-     */
-    private function getHasOneCount()
-    {
-        $count = 0;
-        foreach ($this->relations as $relation) {
-            if (!$relation->isManyToOne()) {
-                $count++;
-            }
-        }
-
-        // End.
-        return $count;
-    }
-
-    /**
-     * Get the number of hasMany relations.
-     * 
-     * @return int
-     */
-    private function getHasManyCount()
-    {
-        // End.
-        return count($this->manyToManyRelations);
+        return array(
+            'type'       => 'json',
+            'root'       => strtolower($this->getModelName()),
+            'encode'     => true,
+            'expandData' => true,
+        );
     }
 }
