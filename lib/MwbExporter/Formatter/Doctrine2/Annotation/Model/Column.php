@@ -46,7 +46,7 @@ class Column extends BaseColumn
             $attributes['precision'] = (int) $precision;
             $attributes['scale'] = (int) $scale;
         }
-        if ($this->parameters->get('isNotNull') != 1) {
+        if (!$this->isNotNull()) {
             $attributes['nullable'] = true;
         }
 
@@ -62,7 +62,7 @@ class Column extends BaseColumn
             ->writeIf($this->isPrimary,
                     ' * '.$this->getTable()->getAnnotation('Id'))
             ->write(' * '.$this->getTable()->getAnnotation('Column', $this->asAnnotation()))
-            ->writeIf($this->parameters->get('autoIncrement') == 1,
+            ->writeIf($this->isAutoIncrement(),
                     ' * '.$this->getTable()->getAnnotation('GeneratedValue', array('strategy' => 'AUTO')))
             ->write(' */')
             ->write('protected $'.$this->getColumnName().';')
@@ -119,7 +119,7 @@ class Column extends BaseColumn
                 'name' => $foreign->getForeign()->getColumnName(),
                 'referencedColumnName' => $foreign->getLocal()->getColumnName(),
                 'onDelete' => $formatter->getDeleteRule($foreign->getLocal()->getParameters()->get('deleteRule')),
-                'nullable' => !$foreign->getForeign()->getParameters()->get('isNotNull') ? null : false,
+                'nullable' => !$foreign->getForeign()->isNotNull() ? null : false,
             );
 
             //check for OneToOne or OneToMany relationship
@@ -162,7 +162,7 @@ class Column extends BaseColumn
                 'name' => $this->local->getForeign()->getColumnName(),
                 'referencedColumnName' => $this->local->getLocal()->getColumnName(),
                 'onDelete' => $formatter->getDeleteRule($this->local->getParameters()->get('deleteRule')),
-                'nullable' => !$this->local->getForeign()->getParameters()->get('isNotNull') ? null : false,
+                'nullable' => !$this->local->getForeign()->isNotNull() ? null : false,
             );
 
             //check for OneToOne or ManyToOne relationship

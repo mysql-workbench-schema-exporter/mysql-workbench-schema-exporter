@@ -80,7 +80,7 @@ class Column extends BaseColumn
         }
         $result['xtype'] = $type;
         $result['fieldLabel'] = ucwords(str_replace('_', ' ', $this->getColumnName()));
-        $result['allowBlank'] = $this->parameters->get('isNotNull') == 1 ? false : true;
+        $result['allowBlank'] = $this->isNotNull() ? false : true;
         if ($anchor) {
             $result['anchor'] = $anchor;
         }

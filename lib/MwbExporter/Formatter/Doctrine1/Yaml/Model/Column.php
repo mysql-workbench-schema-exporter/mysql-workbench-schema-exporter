@@ -39,15 +39,15 @@ class Column extends BaseColumn
             ->indent()
                 ->write('type: %s', $this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this))
                 ->writeIf($this->isPrimary(), 'primary: true')
-                ->writeIf($this->parameters->get('isNotNull') == 1, 'notnull: true')
-                ->writeIf($this->parameters->get('autoIncrement') == 1, 'autoincrement: true')
+                ->writeIf($this->isNotNull(), 'notnull: true')
+                ->writeIf($this->isAutoIncrement(), 'autoincrement: true')
                 // enum and set values
                 ->writeCallback(function(WriterInterface $writer, Column $_this = null) {
                     if ($values = $_this->getParameters()->get('datatypeExplicitParams')) {
                         $writer->write('values: %s', strtr($values, array('(' => '[', ')' => ']')));
                     }
                 })
-                ->writeIf(($default = $this->parameters->get('defaultValue')) && 'NULL' !== $default, 'default: '.$default)
+                ->writeIf(($default = $this->getDefaultValue()), 'default: '.$default)
                 ->writeCallback(function(WriterInterface $writer, Column $_this = null) {
                     foreach ($_this->getNode()->xpath("value[@key='flags']/value") as $flag) {
                         $writer->write(strtolower($flag).': true');

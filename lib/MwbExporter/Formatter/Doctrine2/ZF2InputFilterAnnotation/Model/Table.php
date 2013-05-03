@@ -141,7 +141,7 @@ class Table extends BaseTable
                 ->write('array(')
                 ->indent()
                     ->write('\'name\' => \'%s\',', $column->getColumnName())
-                    ->write('\'required\' => %s,', $column->getParameters()->get('isNotNull') == 1 ? 'true' : 'false')
+                    ->write('\'required\' => %s,', $column->isNotNull() ? 'true' : 'false')
                     ->write('\'filters\' => array(),')
                     ->write('\'validators\' => array(),')
                 ->outdent()
