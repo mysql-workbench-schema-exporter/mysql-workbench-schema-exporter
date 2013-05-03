@@ -27,24 +27,13 @@
 
 namespace MwbExporter\Formatter\Sencha\ExtJS3\Model;
 
-use MwbExporter\Model\Table as BaseTable;
-use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Formatter\Sencha\Model\Table as BaseTable;
 use MwbExporter\Formatter\Sencha\ExtJS3\Formatter;
+use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Helper\ZendURLFormatter;
-use MwbExporter\Object\JS;
 
 class Table extends BaseTable
 {
-    public function getClassPrefix()
-    {
-        return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_CLASS_PREFIX));
-    }
-
-    public function getParentClass()
-    {
-        return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_PARENT_CLASS));
-    }
-
     public function writeTable(WriterInterface $writer)
     {
         if (!$this->isExternal()) {
@@ -61,19 +50,6 @@ class Table extends BaseTable
         }
 
         return self::WRITE_EXTERNAL;
-    }
-
-    /**
-     * Get JSObject.
-     *
-     * @param mixed $content    Object content
-     * @param bool  $multiline  Multiline result
-     * @param bool  $raw        Is raw object
-     * @return \MwbExporter\Object\JS
-     */
-    public function getJSObject($content, $multiline = false, $raw = false)
-    {
-        return new JS($content, array('multiline' => $multiline, 'raw' => $raw, 'indent' => $this->getDocument()->getConfig()->get(Formatter::CFG_INDENTATION))); 
     }
 
     public function asModel()
