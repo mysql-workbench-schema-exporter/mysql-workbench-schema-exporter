@@ -58,7 +58,7 @@ class JS extends Base
                 $v = $this->asCode($v);
                 $tmp[] = $useKey ? sprintf('%s: %s', $k, $v) : $v;
             }
-            $multiline = $this->getOption('multiline') && count($value) > 1;
+            $multiline = $this->getOption('multiline');
             $value = ($multiline ? "\n" : '').implode($multiline ? ",\n" : ', ', $tmp).($multiline ? "\n" : '');
             if ($useKey) {
                 $value = sprintf('{%s}', $value);
