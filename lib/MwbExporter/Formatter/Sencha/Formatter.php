@@ -25,20 +25,23 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Sencha\ExtJS3;
+namespace MwbExporter\Formatter\Sencha;
 
-use MwbExporter\Formatter\Sencha\Formatter as BaseFormatter;
+use MwbExporter\Formatter\Formatter as BaseFormatter;
 use MwbExporter\Model\Base;
 
-class Formatter extends BaseFormatter
+abstract class Formatter extends BaseFormatter
 {
+    const CFG_CLASS_PREFIX   = 'classPrefix';
+    const CFG_PARENT_CLASS   = 'parentClass';
+
     protected function init()
     {
         parent::init();
         $this->addConfigurations(array(
-            static::CFG_FILENAME        => 'JS/%schema%/%entity%.%extension%',
-            static::CFG_CLASS_PREFIX    => 'SysX.App',
-            static::CFG_PARENT_CLASS    => 'SysX.Ui.App',
+            static::CFG_INDENTATION     => 4,
+            static::CFG_CLASS_PREFIX    => '',
+            static::CFG_PARENT_CLASS    => '',
         ));
     }
 
@@ -51,26 +54,8 @@ class Formatter extends BaseFormatter
         return new DatatypeConverter();
     }
 
-    /**
-     * (non-PHPdoc)
-     * @see \MwbExporter\Formatter\Formatter::createTable()
-     */
-    public function createTable(Base $parent, $node)
+    public function getFileExtension()
     {
-        return new Model\Table($parent, $node);
-    }
-
-    /**
-     * (non-PHPdoc)
-     * @see \MwbExporter\Formatter\FormatterInterface::createColumn()
-     */
-    public function createColumn(Base $parent, $node)
-    {
-        return new Model\Column($parent, $node);
-    }
-
-    public function getTitle()
-    {
-        return 'Sencha ExtJS3 Model';
+        return 'js';
     }
 }
