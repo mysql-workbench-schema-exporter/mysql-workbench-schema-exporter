@@ -32,8 +32,10 @@ use MwbExporter\Formatter\Sencha\Model\Table as BaseTable;
 use MwbExporter\Formatter\Sencha\ExtJS4Model\Formatter;
 use MwbExporter\Writer\WriterInterface;
 
-class Table extends BaseTable
+class Table
+    extends BaseTable
 {
+
     public function writeTable(WriterInterface $writer)
     {
         switch (true) {
@@ -60,7 +62,7 @@ class Table extends BaseTable
     public function writeBody(WriterInterface $writer)
     {
         $writer
-            ->write("Ext.define('%s', %s);", $this->getClassPrefix().'.'.$this->getModelName(), $this->asModel())
+            ->write("Ext.define('%s', %s);", $this->getClassPrefix() . '.' . $this->getModelName(), $this->asModel())
         ;
 
         return $this;
@@ -149,10 +151,10 @@ class Table extends BaseTable
             }
             $referencedTable = $relation->getReferencedTable();
             $result[] = array(
-                'model'          => sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName()),
+                'model' => sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName()),
                 'associationKey' => lcfirst($referencedTable->getModelName()),
-                'getterName'     => sprintf('get%s', $referencedTable->getModelName()),
-                'setterName'     => sprintf('set%s', $referencedTable->getModelName()),
+                'getterName' => sprintf('get%s', $referencedTable->getModelName()),
+                'setterName' => sprintf('set%s', $referencedTable->getModelName()),
             );
         }
 
@@ -175,10 +177,10 @@ class Table extends BaseTable
             }
             $referencedTable = $relation->getReferencedTable();
             $result[] = array(
-                'model'          => sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName()),
+                'model' => sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName()),
                 'associationKey' => lcfirst($referencedTable->getModelName()),
-                'getterName'     => sprintf('get%s', $referencedTable->getModelName()),
-                'setterName'     => sprintf('set%s', $referencedTable->getModelName()),
+                'getterName' => sprintf('get%s', $referencedTable->getModelName()),
+                'setterName' => sprintf('set%s', $referencedTable->getModelName()),
             );
         }
 
@@ -197,9 +199,9 @@ class Table extends BaseTable
         foreach ($this->getManyToManyRelations() as $relation) {
             $referencedTable = $relation['refTable'];
             $result[] = array(
-                'model'          => sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName()),
+                'model' => sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName()),
                 'associationKey' => lcfirst($referencedTable->getModelName()),
-                'name'           => sprintf('get%sStore', $referencedTable->getModelName()),
+                'name' => sprintf('get%sStore', $referencedTable->getModelName()),
             );
         }
 
@@ -217,8 +219,10 @@ class Table extends BaseTable
         foreach ($this->getColumns() as $column) {
             $type = $this->getDocument()->getFormatter()->getDatatypeConverter()->getType($column);
             $result[] = array(
-                'name'         => $column->getColumnName(),
-                'type'         => $type ? $type : 'auto',
+                'name' => $column->getColumnName(),
+                'type' => $type
+                    ? $type
+                    : 'auto',
                 'defaultValue' => $column->getDefaultValue(),
             );
         }
@@ -237,15 +241,15 @@ class Table extends BaseTable
         foreach ($this->getColumns() as $column) {
             if ($column->isNotNull() && !$column->isPrimary()) {
                 $result[] = array(
-                    'type'  => 'presence',
+                    'type' => 'presence',
                     'field' => $column->getColumnName(),
                 );
             }
             if (($len = $column->getLength()) > 0) {
                 $result[] = array(
-                    'type'  => 'length',
+                    'type' => 'length',
                     'field' => $column->getColumnName(),
-                    'max'   => $len,
+                    'max' => $len,
                 );
             }
         }
@@ -262,9 +266,9 @@ class Table extends BaseTable
     protected function getAjaxProxy()
     {
         return array(
-            'type'   => 'ajax',
-            'url'    => sprintf('/data/%s', strtolower($this->getModelName())),
-            'api'    => $this->getApi(),
+            'type' => 'ajax',
+            'url' => sprintf('/data/%s', strtolower($this->getModelName())),
+            'api' => $this->getApi(),
             'reader' => $this->getJsonReader(),
             'writer' => $this->getJsonWriter(),
         );
@@ -281,9 +285,9 @@ class Table extends BaseTable
         $modelName = strtolower($this->getModelName());
 
         return array(
-            'read'    => sprintf('/data/%s', $modelName),
-            'update'  => sprintf('/data/%s/update', $modelName),
-            'create'  => sprintf('/data/%s/add', $modelName),
+            'read' => sprintf('/data/%s', $modelName),
+            'update' => sprintf('/data/%s/update', $modelName),
+            'create' => sprintf('/data/%s/create', $modelName),
             'destroy' => sprintf('/data/%s/destroy', $modelName),
         );
     }
@@ -297,8 +301,8 @@ class Table extends BaseTable
     private function getJsonReader()
     {
         return array(
-            'type'            => 'json',
-            'root'            => strtolower($this->getModelName()),
+            'type' => 'json',
+            'root' => strtolower($this->getModelName()),
             'messageProperty' => 'message',
         );
     }
@@ -312,10 +316,11 @@ class Table extends BaseTable
     private function getJsonWriter()
     {
         return array(
-            'type'       => 'json',
-            'root'       => strtolower($this->getModelName()),
-            'encode'     => true,
+            'type' => 'json',
+            'root' => strtolower($this->getModelName()),
+            'encode' => true,
             'expandData' => true,
         );
     }
+
 }
