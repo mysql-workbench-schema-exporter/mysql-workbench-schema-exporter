@@ -3,10 +3,6 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2012 Allan Sun <sunajia@gmail.com>
- * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
- * Copyright (c) 2013 WitteStier <development@wittestier.nl>
- *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -26,10 +22,11 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Sencha\ExtJS4;
-
-use MwbExporter\Formatter\Sencha\DatatypeConverter as BaseDatatypeConverter;
-
-class DatatypeConverter extends BaseDatatypeConverter
-{
-}
+/**
+ * Table.php
+ * Created on May 5, 2013 9:46:52 PM
+ *
+ * @author    Boy van Moorsel <development@wittestier.nl>
+ * @license   license.wittestier.nl
+ * @copyright 2013 WitteStier <copyright@wittestier.nl>
+ */

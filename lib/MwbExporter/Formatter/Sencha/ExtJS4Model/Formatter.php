@@ -26,7 +26,7 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Sencha\ExtJS4;
+namespace MwbExporter\Formatter\Sencha\ExtJS4Model;
 
 use MwbExporter\Formatter\Sencha\Formatter as BaseFormatter;
 use MwbExporter\Model\Base;

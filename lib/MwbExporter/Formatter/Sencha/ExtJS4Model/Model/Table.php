@@ -26,10 +26,10 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Formatter\Sencha\ExtJS4\Model;
+namespace MwbExporter\Formatter\Sencha\ExtJS4Model\Model;
 
 use MwbExporter\Formatter\Sencha\Model\Table as BaseTable;
-use MwbExporter\Formatter\Sencha\ExtJS4\Formatter;
+use MwbExporter\Formatter\Sencha\ExtJS4Model\Formatter;
 use MwbExporter\Writer\WriterInterface;
 
 class Table extends BaseTable
@@ -55,7 +55,7 @@ class Table extends BaseTable
      * Write model body code.
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Sencha\ExtJS4\Model\Table
+     * @return \MwbExporter\Formatter\Sencha\ExtJS4Model\Model\Table
      */
     public function writeBody(WriterInterface $writer)
     {
