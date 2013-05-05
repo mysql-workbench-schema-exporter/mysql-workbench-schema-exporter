@@ -28,34 +28,10 @@
 
 namespace MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model;
 
-use MwbExporter\Model\Index as BaseIndex;
+use MwbExporter\Formatter\Doctrine2\Annotation\Model\Index as BaseIndex;
 
 class Index
     extends BaseIndex
 {
-
-    /**
-     * @return array
-     */
-    protected function getColumnNames()
-    {
-        $columns = array();
-        foreach ($this->columns as $refColumn) {
-            $columns[] = $refColumn->getColumnName();
-        }
-
-        return $columns;
-    }
-
-    /**
-     * @return array
-     */
-    public function asAnnotation()
-    {
-        return array(
-            'name' => $this->parameters->get('name'),
-            'columns' => $this->getColumnNames()
-        );
-    }
-
+    
 }

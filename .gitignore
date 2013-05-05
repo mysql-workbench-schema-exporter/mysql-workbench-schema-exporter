@@ -7,3 +7,4 @@ tests/
 *.zip
 *.sh
 *.7z
+/TODO.md

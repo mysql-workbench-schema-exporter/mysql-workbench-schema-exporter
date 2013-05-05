@@ -1,4 +1,5 @@
 <?php
+
 /*
  * The MIT License
  *
@@ -27,72 +28,11 @@
 
 namespace MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model;
 
-use MwbExporter\Model\Columns as BaseColumns;
-use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Formatter\Doctrine2\Annotation\Model\Columns as BaseColumns;
 
-class Columns extends BaseColumns
+
+class Columns
+    extends BaseColumns
 {
-    /**
-     * (non-PHPdoc)
-     * 
-     * @see MwbExporter\Model\Columns::write() 
-     * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Columns
-     */
-    public function write(WriterInterface $writer)
-    {
-        // display column
-        foreach ($this->columns as $column) {
-            if (!$column->isPrimary() && ($column->getLocalForeignKey() || $column->hasOneToManyRelation())) {
-                // do not output fields of relations.
-                continue;
-            }
-            $column->write($writer);
-        }
-        // display column relations
-        foreach ($this->columns as $column) {
-            $column->writeRelations($writer);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Write entity array collections.
-     * 
-     * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Columns
-     */
-    public function writeArrayCollections(WriterInterface $writer)
-    {
-        foreach ($this->columns as $column) {
-            $column->writeArrayCollection($writer);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Write entity setter and getter methods.
-     * 
-     * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter\Model\Columns
-     */
-    public function writeGetterAndSetter(WriterInterface $writer)
-    {
-        // column getter and setter
-        foreach ($this->columns as $column) {
-            if (!$column->isPrimary() && ($column->getLocalForeignKey() || $column->hasOneToManyRelation())) {
-                // do not output fields of relations.
-                continue;
-            }
-            $column->writeGetterAndSetter($writer);
-        }
-        // column getter and setter for relations
-        foreach ($this->columns as $column) {
-            $column->writeRelationsGetterAndSetter($writer);
-        }
-
-        return $this;
-    }
+    
 }

@@ -28,25 +28,15 @@
 
 namespace MwbExporter\Formatter\Doctrine2\AnnotationZF2InputFilter;
 
-use MwbExporter\Formatter\Doctrine2\Formatter as BaseFormatter;
+use MwbExporter\Formatter\Doctrine2\Annotation\Formatter as BaseFormatter;
 use MwbExporter\Model\Base;
 
 class Formatter
     extends BaseFormatter
 {
 
-    const CFG_ANNOTATION_PREFIX = 'useAnnotationPrefix';
-    const CFG_BUNDLE_NAMESPACE = 'bundleNamespace';
-    const CFG_ENTITY_NAMESPACE = 'entityNamespace';
-    const CFG_REPOSITORY_NAMESPACE = 'repositoryNamespace';
-    const CFG_AUTOMATIC_REPOSITORY = 'useAutomaticRepository';
-    const CFG_SKIP_GETTER_SETTER = 'skipGetterAndSetter';
     const CFG_GENERATE_ENTITY_POPULATE = 'generateEntityPopulate';
     const CFG_GENERATE_ENTITY_GETARRAYCOPY = 'generateEntityGetArrayCopy';
-    const CFG_GENERATE_ENTITY_SERIALIZATION = 'generateEntitySerialization';
-    const CFG_QUOTE_IDENTIFIER = 'quoteIdentifier';
-    const CFG_BACKUP_FILE = 'backupExistingFile';
-    const CFG_ENHANCE_M2M_DETECTION = 'enhanceManyToManyDetection';
 
     /**
      * (non-PHPdoc)
@@ -69,8 +59,6 @@ class Formatter
             static::CFG_GENERATE_ENTITY_GETARRAYCOPY => true,
             static::CFG_GENERATE_ENTITY_SERIALIZATION => true,
             static::CFG_QUOTE_IDENTIFIER => false,
-            static::CFG_BACKUP_FILE => false,
-            static::CFG_ENHANCE_M2M_DETECTION => false,
         ));
     }
 
@@ -121,15 +109,6 @@ class Formatter
     public function getTitle()
     {
         return 'Doctrine 2.0 Annotation with ZF2 input filter Classes';
-    }
-
-    /**
-     * (non-PHPdoc)
-     * @see \MwbExporter\FormatterInterface::getFileExtension()
-     */
-    public function getFileExtension()
-    {
-        return 'php';
     }
 
 }
