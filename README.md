@@ -18,11 +18,12 @@ The application is intended to create:
   * [Zend DbTable](http://framework.zend.com/manual/en/zend.db.table.html)
   * Zend Rest Controller
   * Sencha ExtJS3 Model
-  * Sencha [ExtJS4 Model](http://www.sencha.com/products/extjs/)
+  * Sencha [ExtJS4 Model](http://docs.sencha.com/extjs/4.2.0/#!/guide/data)
+  * Sencha [ExtJS4 Store](http://docs.sencha.com/extjs/4.2.0/#!/guide/data)
   * Propel [XML Schema](http://www.propelorm.org/reference/schema)
   * CakePHP (not implemented)
 
-schema files from MySQL Workbench models (*.mwb).
+Schema files from MySQL Workbench models (*.mwb).
 It is inspired by [mysql-workbench-doctrine-plugin](http://code.google.com/p/mysql-workbench-doctrine-plugin/).
 
 Doctrine behaviours
@@ -66,7 +67,8 @@ Where:
       * `zend-dbtable`, Zend DbTable
       * `zend-restcontroller`, Zend Rest Controller
       * `sencha-extjs3`, Sencha ExtJS3 Model
-      * `sencha-extjs4`, Sencha ExtJS4 Model
+      * `sencha-extjs4model`, Sencha ExtJS4 Model
+      * `sencha-extjs4store`, Sencha ExtJS4 Store
     * `--config=file`, read export parameters from file (in JSON format)
     * `--saveconfig`, save export parameters to file `export.json`, later can be used as value for `--config=file`
     * `--list-exporter`, show all available exporter
@@ -277,12 +279,17 @@ General options applied to all formatter.
   * `classPrefix`
   * `parentClass`
 
-### Option list for Sencha ExtJS4.2 Model
+### Option list for Sencha ExtJS4 Model
 
   * `classPrefix`
   * `parentClass`
   * `generateValidation`
   * `generateProxy`
+
+### Option list for Sencha ExtJS4 Store
+
+  * `classPrefix`
+  * `parentClass`
 
 Requirements
 ------------

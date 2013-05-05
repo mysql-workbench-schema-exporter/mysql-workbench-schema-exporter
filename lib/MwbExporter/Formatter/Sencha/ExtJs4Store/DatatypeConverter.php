@@ -30,3 +30,13 @@
  * @license   license.wittestier.nl
  * @copyright 2013 WitteStier <copyright@wittestier.nl>
  */
+
+namespace MwbExporter\Formatter\Sencha\ExtJS4Store;
+
+use MwbExporter\Formatter\Sencha\DatatypeConverter as BaseDatatypeConverter;
+
+class DatatypeConverter
+    extends BaseDatatypeConverter
+{
+    
+}

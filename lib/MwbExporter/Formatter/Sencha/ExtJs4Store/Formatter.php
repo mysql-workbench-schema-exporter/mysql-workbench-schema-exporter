@@ -30,3 +30,51 @@
  * @license   license.wittestier.nl
  * @copyright 2013 WitteStier <copyright@wittestier.nl>
  */
+
+namespace MwbExporter\Formatter\Sencha\ExtJS4Store;
+
+use MwbExporter\Formatter\Sencha\Formatter as BaseFormatter;
+use MwbExporter\Model\Base;
+
+class Formatter
+    extends BaseFormatter
+{
+
+    const CFG_MODEL_PREFIX = 'modelPrefix';
+    const CFG_GENERATE_PROXY = 'generateProxy';
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Formatter::init()
+     */
+    protected function init()
+    {
+        parent::init();
+        $this->addConfigurations(array(
+            static::CFG_FILENAME => 'store/%entity%.%extension%',
+            static::CFG_CLASS_PREFIX => 'App.store',
+            static::CFG_PARENT_CLASS => 'Ext.data.Store',
+            static::CFG_MODEL_PREFIX => 'App.model',
+            static::CFG_GENERATE_PROXY => false,
+        ));
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Formatter::createTable()
+     */
+    public function createTable(Base $parent, $node)
+    {
+        return new Model\Table($parent, $node);
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\FormatterInterface::getTitle()
+     */
+    public function getTitle()
+    {
+        return 'Sencha ExtJS4 Store';
+    }
+
+}
