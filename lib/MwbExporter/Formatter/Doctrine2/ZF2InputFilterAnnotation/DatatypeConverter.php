@@ -30,6 +30,8 @@ namespace MwbExporter\Formatter\Doctrine2\ZF2InputFilterAnnotation;
 
 use MwbExporter\Formatter\Doctrine2\Annotation\DatatypeConverter as BaseDatatypeConverter;
 
-class DatatypeConverter extends BaseDatatypeConverter
+class DatatypeConverter
+    extends BaseDatatypeConverter
 {
+    
 }

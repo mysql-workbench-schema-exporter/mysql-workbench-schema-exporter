@@ -32,8 +32,10 @@ use MwbExporter\Formatter\Doctrine2\Annotation\Model\Table as BaseTable;
 use MwbExporter\Formatter\Doctrine2\ZF2InputFilterAnnotation\Formatter;
 use MwbExporter\Writer\WriterInterface;
 
-class Table extends BaseTable
+class Table
+    extends BaseTable
 {
+
     protected function getClassImplementations()
     {
         return 'InputFilterAwareInterface';
@@ -98,7 +100,7 @@ class Table extends BaseTable
             ->write('public function setInputFilter(InputFilterInterface $inputFilter)')
             ->write('{')
             ->indent()
-                ->write('throw new \Exception("Not used.");')
+            ->write('throw new \Exception("Not used.");')
             ->outdent()
             ->write('}')
             ->write('')
@@ -110,22 +112,22 @@ class Table extends BaseTable
             ->write('public function getInputFilter()')
             ->write('{')
             ->indent()
-                ->write('if ($this->inputFilter instanceof InputFilterInterface) {')
-                ->indent()
-                    ->write('return $this->inputFilter;')
-                ->outdent()
-                ->write('}')
-                ->write('$factory = new InputFactory();')
-                ->write('$filters = array(')
-                ->indent()
-                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                        $_this->writeInputFilterColumns($writer);
-                    })
-                ->outdent()
-                ->write(');')
-                ->write('$this->inputFilter = $factory->createInputFilter($filters);')
-                ->write('')
-                ->write('return $this->inputFilter;')
+            ->write('if ($this->inputFilter instanceof InputFilterInterface) {')
+            ->indent()
+            ->write('return $this->inputFilter;')
+            ->outdent()
+            ->write('}')
+            ->write('$factory = new InputFactory();')
+            ->write('$filters = array(')
+            ->indent()
+            ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    $_this->writeInputFilterColumns($writer);
+                })
+            ->outdent()
+            ->write(');')
+            ->write('$this->inputFilter = $factory->createInputFilter($filters);')
+            ->write('')
+            ->write('return $this->inputFilter;')
             ->outdent()
             ->write('}')
             ->write('')
@@ -140,10 +142,12 @@ class Table extends BaseTable
             $writer
                 ->write('array(')
                 ->indent()
-                    ->write('\'name\' => \'%s\',', $column->getColumnName())
-                    ->write('\'required\' => %s,', $column->isNotNull() ? 'true' : 'false')
-                    ->write('\'filters\' => array(),')
-                    ->write('\'validators\' => array(),')
+                ->write('\'name\' => \'%s\',', $column->getColumnName())
+                ->write('\'required\' => %s,', $column->isNotNull()
+                        ? 'true'
+                        : 'false')
+                ->write('\'filters\' => array(),')
+                ->write('\'validators\' => array(),')
                 ->outdent()
                 ->write('),')
             ;
@@ -172,22 +176,22 @@ class Table extends BaseTable
             ->write('public function populate(array $data = array())')
             ->write('{')
             ->indent()
-                ->write('foreach ($data as $field => $value) {')
-                ->indent()
-                    ->write('$setter = sprintf(\'set%s\', ucfirst(')
-                    ->indent()
-                        ->write('str_replace(\' \', \'\', ucwords(str_replace(\'_\', \' \', $field)))')
-                    ->outdent()
-                    ->write('));')
-                    ->write('if (method_exists($this, $setter)) {')
-                    ->indent()
-                        ->write('$this->{$setter}($value);')
-                    ->outdent()
-                    ->write('}')
-                ->outdent()
-                ->write('}')
-                ->write('')
-                ->write('return true;')
+            ->write('foreach ($data as $field => $value) {')
+            ->indent()
+            ->write('$setter = sprintf(\'set%s\', ucfirst(')
+            ->indent()
+            ->write('str_replace(\' \', \'\', ucwords(str_replace(\'_\', \' \', $field)))')
+            ->outdent()
+            ->write('));')
+            ->write('if (method_exists($this, $setter)) {')
+            ->indent()
+            ->write('$this->{$setter}($value);')
+            ->outdent()
+            ->write('}')
+            ->outdent()
+            ->write('}')
+            ->write('')
+            ->write('return true;')
             ->outdent()
             ->write('}')
             ->write('')
@@ -205,7 +209,7 @@ class Table extends BaseTable
      */
     public function writeGetArrayCopy(WriterInterface $writer)
     {
-        $columns   = $this->getColumns()->getColumns();
+        $columns = $this->getColumns()->getColumns();
         $relations = $this->getRelations();
 
         $writer
@@ -219,51 +223,51 @@ class Table extends BaseTable
             ->write('public function getArrayCopy(array $fields = array())')
             ->write('{')
             ->indent()
-                ->write('$dataFields = array(%s);', implode(', ', array_map(function($column) {
-                    return sprintf('\'%s\'', $column->getColumnName());
-                }, $columns)))
-                ->write('$relationFields = array(%s);', implode(', ', array_map(function($relation) {
-                    return sprintf('\'%s\'', lcfirst($relation->getReferencedTable()->getModelName()));
-                }, $relations)))
-                ->write('$copiedFields = array();')
-                ->write('foreach ($relationFields as $relationField) {')
-                ->indent()
-                    ->write('$map = null;')
-                    ->write('if (array_key_exists($relationField, $fields)) {')
-                    ->indent()
-                        ->write('$map = $fields[$relationField];')
-                        ->write('$fields[] = $relationField;')
-                        ->write('unset($fields[$relationField]);')
-                    ->outdent()
-                    ->write('}')
-                    ->write('if (!in_array($relationField, $fields)) {')
-                    ->indent()
-                        ->write('continue;')
-                    ->outdent()
-                    ->write('}')
-                    ->write('$getter = sprintf(\'get%s\', ucfirst(str_replace(\' \', \'\', ucwords(str_replace(\'_\', \' \', $relationField)))));')
-                    ->write('$relationEntity = $this->{$getter}();')
-                    ->write('$copiedFields[$relationField] = (!is_null($map))')
-                    ->indent()
-                        ->write('? $relationEntity->getArrayCopy($map)')
-                        ->write(': $relationEntity->getArrayCopy();')
-                    ->outdent()
-                    ->write('$fields = array_diff($fields, array($relationField));')
-                ->outdent()
-                ->write('}')
-                ->write('foreach ($dataFields as $dataField) {')
-                ->indent()
-                    ->write('if (!in_array($dataField, $fields) && !empty($fields)) {')
-                    ->indent()
-                        ->write('continue;')
-                    ->outdent()
-                    ->write('}')
-                    ->write('$getter = sprintf(\'get%s\', ucfirst(str_replace(\' \', \'\', ucwords(str_replace(\'_\', \' \', $dataField)))));')
-                    ->write('$copiedFields[$dataField] = $this->{$getter}();')
-                ->outdent()
-                ->write('}')
-                ->write('')
-                ->write('return $copiedFields;')
+            ->write('$dataFields = array(%s);', implode(', ', array_map(function($column) {
+                            return sprintf('\'%s\'', $column->getColumnName());
+                        }, $columns)))
+            ->write('$relationFields = array(%s);', implode(', ', array_map(function($relation) {
+                            return sprintf('\'%s\'', lcfirst($relation->getReferencedTable()->getModelName()));
+                        }, $relations)))
+            ->write('$copiedFields = array();')
+            ->write('foreach ($relationFields as $relationField) {')
+            ->indent()
+            ->write('$map = null;')
+            ->write('if (array_key_exists($relationField, $fields)) {')
+            ->indent()
+            ->write('$map = $fields[$relationField];')
+            ->write('$fields[] = $relationField;')
+            ->write('unset($fields[$relationField]);')
+            ->outdent()
+            ->write('}')
+            ->write('if (!in_array($relationField, $fields)) {')
+            ->indent()
+            ->write('continue;')
+            ->outdent()
+            ->write('}')
+            ->write('$getter = sprintf(\'get%s\', ucfirst(str_replace(\' \', \'\', ucwords(str_replace(\'_\', \' \', $relationField)))));')
+            ->write('$relationEntity = $this->{$getter}();')
+            ->write('$copiedFields[$relationField] = (!is_null($map))')
+            ->indent()
+            ->write('? $relationEntity->getArrayCopy($map)')
+            ->write(': $relationEntity->getArrayCopy();')
+            ->outdent()
+            ->write('$fields = array_diff($fields, array($relationField));')
+            ->outdent()
+            ->write('}')
+            ->write('foreach ($dataFields as $dataField) {')
+            ->indent()
+            ->write('if (!in_array($dataField, $fields) && !empty($fields)) {')
+            ->indent()
+            ->write('continue;')
+            ->outdent()
+            ->write('}')
+            ->write('$getter = sprintf(\'get%s\', ucfirst(str_replace(\' \', \'\', ucwords(str_replace(\'_\', \' \', $dataField)))));')
+            ->write('$copiedFields[$dataField] = $this->{$getter}();')
+            ->outdent()
+            ->write('}')
+            ->write('')
+            ->write('return $copiedFields;')
             ->outdent()
             ->write('}')
             ->write('')
@@ -271,4 +275,5 @@ class Table extends BaseTable
 
         return $this;
     }
+
 }

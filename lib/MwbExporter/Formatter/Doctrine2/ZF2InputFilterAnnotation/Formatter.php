@@ -31,10 +31,9 @@ namespace MwbExporter\Formatter\Doctrine2\ZF2InputFilterAnnotation;
 use MwbExporter\Formatter\Doctrine2\Annotation\Formatter as BaseFormatter;
 use MwbExporter\Model\Base;
 
-class Formatter extends BaseFormatter
+class Formatter
+    extends BaseFormatter
 {
-    const CFG_GENERATE_ENTITY_POPULATE       = 'generateEntityPopulate';
-    const CFG_GENERATE_ENTITY_GETARRAYCOPY   = 'generateEntityGetArrayCopy';
 
     /**
      * (non-PHPdoc)
@@ -44,9 +43,9 @@ class Formatter extends BaseFormatter
     {
         parent::init();
         $this->addConfigurations(array(
-            static::CFG_FILENAME                      => 'Entity/%entity%.%extension%',
-            static::CFG_GENERATE_ENTITY_POPULATE      => true,
-            static::CFG_GENERATE_ENTITY_GETARRAYCOPY  => true,
+            static::CFG_FILENAME => 'Entity/%entity%.%extension%',
+            static::CFG_GENERATE_ENTITY_POPULATE => true,
+            static::CFG_GENERATE_ENTITY_GETARRAYCOPY => true,
         ));
     }
 
@@ -74,15 +73,7 @@ class Formatter extends BaseFormatter
      */
     public function getTitle()
     {
-        return 'Doctrine 2.0 Annotation with ZF2 input filter Classes';
+        return 'Doctrine 2.0 Annotation with ZF2 inputFilter Classes';
     }
 
-    /**
-     * (non-PHPdoc)
-     * @see \MwbExporter\FormatterInterface::getFileExtension()
-     */
-    public function getFileExtension()
-    {
-        return 'php';
-    }
 }
