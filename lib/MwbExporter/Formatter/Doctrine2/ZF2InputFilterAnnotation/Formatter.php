@@ -35,6 +35,9 @@ class Formatter
     extends BaseFormatter
 {
 
+    const CFG_GENERATE_ENTITY_POPULATE = 'generateEntityPopulate';
+    const CFG_GENERATE_ENTITY_GETARRAYCOPY = 'generateEntityGetArrayCopy';
+
     /**
      * (non-PHPdoc)
      * @see \MwbExporter\Formatter::init()
