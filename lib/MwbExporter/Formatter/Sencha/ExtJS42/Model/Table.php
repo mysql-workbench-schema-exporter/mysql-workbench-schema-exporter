@@ -390,7 +390,7 @@ class Table
         return $this->getJSObject(array(
                 'read' => sprintf('/data/%s', $modelName),
                 'update' => sprintf('/data/%s/update', $modelName),
-                'create' => sprintf('/data/%s/add', $modelName),
+                'create' => sprintf('/data/%s/create', $modelName),
                 'destroy' => sprintf('/data/%s/destroy', $modelName)
         ));
     }
