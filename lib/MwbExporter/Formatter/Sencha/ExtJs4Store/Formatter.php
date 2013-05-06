@@ -41,7 +41,14 @@ class Formatter
 {
 
     const CFG_MODEL_PREFIX = 'modelPrefix';
+    const CFG_GENERATE_DATA = 'generateDefaultDataOptions';
+    const CFG_GENERATE_PAGING = 'generateDefaultPagingOptions';
+    const CFG_GENERATE_BUFFER = 'generateDefaultBufferOptions';
+    const CFG_GENERATE_SORT = 'generateDefaultSortOptions';
+    const CFG_GENERATE_GROUP = 'generateDefaultGroupOptions';
+    const CFG_GENERATE_Filter = 'generateDefaultFilterOptions';
     const CFG_GENERATE_PROXY = 'generateProxy';
+    const CFG_PROXY_URL_PREFIX = 'urlPrefix';
 
     /**
      * (non-PHPdoc)
@@ -55,7 +62,14 @@ class Formatter
             static::CFG_CLASS_PREFIX => 'App.store',
             static::CFG_PARENT_CLASS => 'Ext.data.Store',
             static::CFG_MODEL_PREFIX => 'App.model',
+            static::CFG_GENERATE_DATA => false,
+            static::CFG_GENERATE_PAGING => false,
+            static::CFG_GENERATE_BUFFER => false,
+            static::CFG_GENERATE_SORT => false,
+            static::CFG_GENERATE_GROUP => false,
+            static::CFG_GENERATE_Filter => false,
             static::CFG_GENERATE_PROXY => false,
+            static::CFG_PROXY_URL_PREFIX => '/data/',
         ));
     }
 

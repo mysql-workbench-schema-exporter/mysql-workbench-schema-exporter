@@ -64,116 +64,230 @@ class Table
     public function writeBody(WriterInterface $writer)
     {
         $writer
-            ->write("Ext.define('%s', %s);", $this->getClassPrefix() . '.' . $this->getModelName(), $this->asModel())
+            ->write("Ext.define('%s', %s);", $this->getClassPrefix() . '.' . $this->getModelName(), $this->asStore())
         ;
 
         return $this;
     }
 
-    public function asModel()
+    /**
+     * 
+     * @return type
+     */
+    public function asStore()
     {
+        $config = $this->getDocument()->getConfig();
+        $generateData = $config->get(Formatter::CFG_GENERATE_DATA);
+        $generatePaging = $config->get(Formatter::CFG_GENERATE_PAGING);
+        $generateBuffer = $config->get(Formatter::CFG_GENERATE_BUFFER);
+        $generateSorter = $config->get(Formatter::CFG_GENERATE_SORT);
+        $generateGrouper = $config->get(Formatter::CFG_GENERATE_GROUP);
+        $generateFilter = $config->get(Formatter::CFG_GENERATE_Filter);
+        $generateProxy = $config->get(Formatter::CFG_GENERATE_PROXY);
+
         $result = array(
             'extend' => $this->getParentClass(),
+            'uses' => array(sprintf('%s.%s', $this->getModelPrefix(), $this->getModelName())),
             'model' => sprintf('%s.%s', $this->getModelPrefix(), $this->getModelName()),
         );
-        if (count($data = $this->getUses())) {
-            $result['uses'] = $data;
+
+        if ($generateData) {
+            $result = array_merge($result, $this->getDataOptions());
         }
-        // TODO add model
-        // TODO add config options.
-        if ($this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_PROXY) && count($data = $this->getAjaxProxy())) {
+
+        if ($generatePaging) {
+            $result = array_merge($result, $this->getPagingOptions());
+        }
+
+        if ($generateBuffer) {
+            $result = array_merge($result, $this->getBufferOptions());
+        }
+
+        if ($generateSorter) {
+            $result = array_merge($result, $this->getSortOptions());
+        }
+
+        if ($generateGrouper) {
+            $result = array_merge($result, $this->getGroupOptions());
+        }
+
+        if ($generateFilter) {
+            $result = array_merge($result, $this->getFilterOptions());
+        }
+
+        if ($generateProxy && count($data = $this->getAjaxProxy())) {
             $result['proxy'] = $data;
         }
 
+        // End.
         return $this->getJSObject($result);
     }
 
+    /**
+     * Get model classname prefix.
+     * 
+     * @return type
+     */
     protected function getModelPrefix()
     {
+        // End.
         return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_MODEL_PREFIX));
     }
 
     /**
-     * Get uses.
-     *
-     * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.Class-cfg-uses
-     * @return array
+     * Get the proxy url prefix.
+     * 
+     * @return string
      */
-    protected function getUses()
+    protected function getUrlPrefix()
     {
-        $result = array();
-//        $current = sprintf('%s.%s', $this->getClassPrefix(), $this->getModelName());
-//        // Collect belongsTo uses.
-//        foreach ($this->relations as $relation) {
-//            $refTableName = sprintf('%s.%s', $this->getClassPrefix(), $relation->getReferencedTable()->getModelName());
-//            if ($relation->isManyToOne() && !in_array($refTableName, $result) && ($refTableName !== $current)) {
-//                $result[] = $refTableName;
-//            }
-//        }
-//
-//        // Collect hasOne uses.
-//        foreach ($this->relations as $relation) {
-//            $refTableName = sprintf('%s.%s', $this->getClassPrefix(), $relation->getReferencedTable()->getModelName());
-//            if (!$relation->isManyToOne() && !in_array($refTableName, $result) && ($refTableName !== $current)) {
-//                $result[] = $refTableName;
-//            }
-//        }
-//
-//        // Collect hasMany uses.
-//        foreach ($this->getManyToManyRelations() as $relation) {
-//            $referencedTable = $relation['refTable'];
-//            $refTableName = sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName());
-//            if (!in_array($refTableName, $result) && ($refTableName !== $current)) {
-//                $result[] = $refTableName;
-//            }
-//        }
-
-        return $result;
+        // End.
+        return rtrim($this->getDocument()->getConfig()->get(Formatter::CFG_PROXY_URL_PREFIX), '/');
     }
 
     /**
-     * Get model ajax proxy object.
+     * Get the default date options.
+     * 
+     * @return array
+     */
+    protected function getDataOptions()
+    {
+        // End.
+        return array(
+            'date' => array(),
+            'autoDestroy' => false,
+            'autoLoad' => false,
+            'autoSync' => false,
+            'clearRemovedOnLoad' => true,
+            'batchUpdateMode' => 'operation',
+        );
+    }
+
+    /**
+     * Get the default paging options.
+     * 
+     * @return array
+     */
+    protected function getPagingOptions()
+    {
+        // End.
+        return array(
+            'clearOnPageLoad' => true,
+            'pageSize' => 25,
+        );
+    }
+
+    /**
+     * Get the default buffer options.
+     * 
+     * @return array
+     */
+    protected function getBufferOptions()
+    {
+        // End.
+        return array(
+            'buffered' => false,
+            'purgePageCount' => 5,
+            'leadingBufferZone' => 200,
+            'trailingBufferZone' => 25,
+        );
+    }
+
+    /**
+     * Get the default sort options.
+     * 
+     * @return array
+     */
+    protected function getSortOptions()
+    {
+        // End.
+        return array(
+            'sorters' => array(),
+            'remoteSort' => false,
+            'sortOnFilter' => true,
+            'sortOnLoad' => true,
+            'defaultSortDirection' => 'ASC',
+        );
+    }
+
+    /**
+     * Get default group options.
+     * 
+     * @return array
+     */
+    protected function getGroupOptions()
+    {
+        // End.
+        return array(
+            'remoteGroup' => false,
+            'groupDir' => 'ASC',
+            'groupField' => '',
+        );
+    }
+
+    /**
+     * Get default filter options.
+     * 
+     * @return array
+     */
+    protected function getFilterOptions()
+    {
+        // End.
+        return array(
+            'filters' => array(),
+            'filterOnLoad' => true,
+            'remoteFilter' => false,
+            'statefulFilters' => false,
+        );
+    }
+
+    /**
+     * Get defaul ajax proxy options.
      *
      * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.proxy.Ajax
      * @return array
      */
     protected function getAjaxProxy()
     {
+        // End.
         return array(
             'type' => 'ajax',
-            'url' => sprintf('/data/%s', strtolower($this->getModelName())),
-            'api' => $this->getApi(),
-            'reader' => $this->getJsonReader(),
-            'writer' => $this->getJsonWriter(),
+            'url' => sprintf('%s/%s', $this->getUrlPrefix(), strtolower($this->getModelName())),
+            'api' => $this->getApiOptions(),
+            'reader' => $this->getJsonReaderOptions(),
+            'writer' => $this->getJsonWriterOptions(),
         );
     }
 
     /**
-     * Get the model API object.
+     * Get proxy API options.
      *
      * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.proxy.Ajax-cfg-api
      * @return array
      */
-    private function getApi()
+    private function getApiOptions()
     {
+        $urlPrefix = $this->getUrlPrefix();
         $modelName = strtolower($this->getModelName());
 
+        // End.
         return array(
-            'read' => sprintf('/data/%s', $modelName),
-            'update' => sprintf('/data/%s/update', $modelName),
-            'create' => sprintf('/data/%s/create', $modelName),
-            'destroy' => sprintf('/data/%s/destroy', $modelName),
+            'read' => sprintf('%s/%s', $urlPrefix, $modelName),
+            'update' => sprintf('%s/%s/update', $urlPrefix, $modelName),
+            'create' => sprintf('%s/%s/create', $urlPrefix, $modelName),
+            'destroy' => sprintf('%s/%s/destroy', $urlPrefix, $modelName),
         );
     }
 
     /**
-     * Get the model json reader.
+     * Get default json reader options.
      *
      * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.reader.Json
      * @return array
      */
-    private function getJsonReader()
+    private function getJsonReaderOptions()
     {
+        // End.
         return array(
             'type' => 'json',
             'root' => strtolower($this->getModelName()),
@@ -182,13 +296,14 @@ class Table
     }
 
     /**
-     * Get the model json writer.
+     * Get default json writer options.
      *
      * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.writer.Json
      * @return array
      */
-    private function getJsonWriter()
+    private function getJsonWriterOptions()
     {
+        // End.
         return array(
             'type' => 'json',
             'root' => strtolower($this->getModelName()),
