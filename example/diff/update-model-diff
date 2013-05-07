@@ -1,0 +1,21 @@
+#!/bin/sh
+
+cd `dirname $0`
+
+if [[ `git diff -u Model` != "" ]]; then
+	echo "You have uncommited changes in your model"
+	git status Model
+	exit 1
+fi
+
+# generate the model
+EXPORT=../../cli/export.php
+MODEL=../data/test.mwb
+
+php $EXPORT $MODEL
+
+# create the patch
+git diff --no-color -u Model > model-changes.diff
+
+# recreate the model
+./schema-export

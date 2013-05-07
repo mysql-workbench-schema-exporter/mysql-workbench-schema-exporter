@@ -1,0 +1,14 @@
+#!/bin/sh
+
+cd `dirname $0`
+
+EXPORT=../../cli/export.php
+MODEL=../data/test.mwb
+
+php $EXPORT $MODEL
+
+echo "Applying model changes via patch"
+patch -d Model -R < model-changes.diff
+
+# if you have doctrine in your path or anywhere, you can also regenerate the proxies
+# doctrine orm:generate-proxies
