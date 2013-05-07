@@ -1,0 +1,22 @@
+{
+	"export": "doctrine2-annotation",
+	"zip": false,
+	"dir": "Model",
+	"params": {
+		"indentation": 4,
+		"useTabs": true,
+		"filename": "%entity%.%extension%",
+		"skipPluralNameChecking": false,
+		"backupExistingFile": false,
+		"useLoggedStorage": false,
+		"enhanceManyToManyDetection": true,
+		"useAnnotationPrefix": "ORM\\",
+		"bundleNamespace": "",
+		"entityNamespace": "Test",
+		"repositoryNamespace": "Test",
+		"useAutomaticRepository": false,
+		"skipGetterAndSetter": false,
+		"generateEntitySerialization": true,
+		"quoteIdentifier": false
+	}
+}

@@ -1,0 +1,15 @@
+diff --git a/example/diff/Model/User.php b/example/diff/Model/User.php
+index 7c54947..257e8d5 100644
+--- a/example/diff/Model/User.php
++++ b/example/diff/Model/User.php
+@@ -139,10 +139,6 @@ class User
+ 		return $this->bureaus;
+ 	}
+ 
+-	public function __toString() {
+-		return $this->getName();
+-	}
+-
+ 	public function __sleep()
+ 	{
+ 		return array('id', 'name');
