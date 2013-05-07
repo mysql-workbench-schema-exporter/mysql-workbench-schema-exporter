@@ -12,6 +12,7 @@ Sencha ExtJs4 Models
 2. Add `default configuration options.`
 2. Update README
 3. Add example
+4. Add `useNull` for not required fields.
 
 **Closed**
 
