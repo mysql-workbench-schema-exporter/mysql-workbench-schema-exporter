@@ -16,6 +16,7 @@
         "php": ">=5.3.0",
         "doctrine/inflector": "1.0.*@dev"
     },
+    "bin": ["cli/export"],
     "autoload": {
         "psr-0": { "MwbExporter\\": "lib/" }
     }
