@@ -28,7 +28,7 @@
 namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
 use MwbExporter\Formatter\Doctrine2\Model\Column as BaseColumn;
-use MwbExporter\Helper\Pluralizer;
+use Doctrine\Common\Inflector\Inflector;
 use MwbExporter\Writer\WriterInterface;
 
 class Column extends BaseColumn
@@ -82,7 +82,7 @@ class Column extends BaseColumn
 
             if ($foreign->isManyToOne() && $foreign->parseComment('unidirectional') !== 'true') { // is ManyToOne
                 $related = $this->getRelatedName($foreign);
-                $writer->write('$this->%s = new %s();', lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())).$related, $this->getTable()->getCollectionClass(false));
+                $writer->write('$this->%s = new %s();', lcfirst(Inflector::pluralize($foreign->getOwningTable()->getModelName())).$related, $this->getTable()->getCollectionClass(false));
             }
         }
 
@@ -130,7 +130,7 @@ class Column extends BaseColumn
                     ->write(' * '.$this->getTable()->getAnnotation('OneToMany', $annotationOptions))
                     ->write(' * '.$this->getTable()->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
                     ->write(' */')
-                    ->write('protected $'.lcfirst(Pluralizer::pluralize($targetEntity)).$related.';')
+                    ->write('protected $'.lcfirst(Inflector::pluralize($targetEntity)).$related.';')
                     ->write('')
                 ;
             } else { // is OneToOne
@@ -172,7 +172,7 @@ class Column extends BaseColumn
                 if ($this->local->parseComment('unidirectional') === 'true') {
                     $annotationOptions['inversedBy'] = null;
                 } else {
-                    $annotationOptions['inversedBy'] = lcfirst(Pluralizer::pluralize($annotationOptions['inversedBy'])) . $refRelated;
+                    $annotationOptions['inversedBy'] = lcfirst(Inflector::pluralize($annotationOptions['inversedBy'])) . $refRelated;
                 }
                 $writer
                     ->write('/**')
@@ -272,7 +272,7 @@ class Column extends BaseColumn
                     ->write('public function add'.$this->columnNameBeautifier($foreign->getOwningTable()->getModelName()).$related.'('.$foreign->getOwningTable()->getModelName().' $'.lcfirst($foreign->getOwningTable()->getModelName()).')')
                     ->write('{')
                     ->indent()
-                        ->write('$this->'.lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())).$related.'[] = $'.lcfirst($foreign->getOwningTable()->getModelName()).';')
+                        ->write('$this->'.lcfirst(Inflector::pluralize($foreign->getOwningTable()->getModelName())).$related.'[] = $'.lcfirst($foreign->getOwningTable()->getModelName()).';')
                         ->write('')
                         ->write('return $this;')
                     ->outdent()
@@ -284,10 +284,10 @@ class Column extends BaseColumn
                     ->write(' *')
                     ->write(' * @return '.$table->getCollectionInterface())
                     ->write(' */')
-                    ->write('public function get'.$this->columnNameBeautifier(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())).$related.'()')
+                    ->write('public function get'.$this->columnNameBeautifier(Inflector::pluralize($foreign->getOwningTable()->getModelName())).$related.'()')
                     ->write('{')
                     ->indent()
-                        ->write('return $this->'.lcfirst(Pluralizer::pluralize($foreign->getOwningTable()->getModelName())).$related.';')
+                        ->write('return $this->'.lcfirst(Inflector::pluralize($foreign->getOwningTable()->getModelName())).$related.';')
                     ->outdent()
                     ->write('}')
                 ;

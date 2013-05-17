@@ -31,7 +31,7 @@ use MwbExporter\Formatter\Doctrine2\Model\Table as BaseTable;
 use MwbExporter\Formatter\Doctrine2\Yaml\Formatter;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Object\YAML;
-use MwbExporter\Helper\Pluralizer;
+use Doctrine\Common\Inflector\Inflector;
 
 class Table extends BaseTable
 {
@@ -114,11 +114,11 @@ class Table extends BaseTable
             $mappings = array(
                 'targetEntity' => $relation['refTable']->getModelNameAsFQCN($this->getEntityNamespace()),
                 'mappedBy'     => null,
-                'inversedBy'   => lcfirst(Pluralizer::pluralize($this->getModelName())),
+                'inversedBy'   => lcfirst(Inflector::pluralize($this->getModelName())),
                 'cascade'      => $formatter->getCascadeOption($relation['reference']->parseComment('cascade')),
                 'fetch'        => $formatter->getFetchOption($relation['reference']->parseComment('fetch')),
             );
-            $relationName = Pluralizer::pluralize($relation['refTable']->getRawTableName());
+            $relationName = Inflector::pluralize($relation['refTable']->getRawTableName());
             // if this is the owning side, also output the JoinTable Annotation
             // otherwise use "mappedBy" feature
             if ($isOwningSide) {
