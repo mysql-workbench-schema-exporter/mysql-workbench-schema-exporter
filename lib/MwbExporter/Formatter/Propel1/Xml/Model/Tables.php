@@ -27,7 +27,7 @@
 namespace MwbExporter\Formatter\Propel1\Xml\Model;
 
 use MwbExporter\Model\Tables as BaseTables;
-use MwbExporter\Helper\Pluralizer;
+use Doctrine\Common\Inflector\Inflector;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Formatter\Propel1\Xml\Formatter;
 

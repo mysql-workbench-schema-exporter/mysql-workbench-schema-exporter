@@ -27,7 +27,7 @@
 
 namespace MwbExporter\Helper;
 
-class ZendURLFormatter extends WordTransform
+class ZendURLFormatter
 {
     /**
      * Format a CamelCase word into Camel-Case format.

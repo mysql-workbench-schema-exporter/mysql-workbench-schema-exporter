@@ -28,7 +28,7 @@
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
 use MwbExporter\Formatter\Doctrine2\Model\Column as BaseColumn;
-use MwbExporter\Helper\Pluralizer;
+use Doctrine\Common\Inflector\Inflector;
 
 class Column extends BaseColumn
 {
@@ -80,7 +80,7 @@ class Column extends BaseColumn
                 if (!isset($values[static::RELATION_ONE_TO_MANY])) {
                     $values[static::RELATION_ONE_TO_MANY] = array();
                 }
-                $values[static::RELATION_ONE_TO_MANY][Pluralizer::pluralize($relationName)] = array(
+                $values[static::RELATION_ONE_TO_MANY][Inflector::pluralize($relationName)] = array(
                     'targetEntity'  => $targetEntityFQCN,
                     'mappedBy'      => lcfirst($mappedBy),
                     'cascade'       => $formatter->getCascadeOption($foreign->parseComment('cascade')),
@@ -123,7 +123,7 @@ class Column extends BaseColumn
                 }
                 $values[static::RELATION_MANY_TO_ONE][$relationName] = array(
                     'targetEntity' => $targetEntity,
-                    'inversedBy'   => $this->local->parseComment('unidirectional') === 'true' ? null : lcfirst(Pluralizer::pluralize($inversedBy)),
+                    'inversedBy'   => $this->local->parseComment('unidirectional') === 'true' ? null : lcfirst(Inflector::pluralize($inversedBy)),
                     'joinColumn'   => array(
                         'name'                 => $this->local->getForeign()->getColumnName(),
                         'referencedColumnName' => $this->local->getLocal()->getColumnName(),
