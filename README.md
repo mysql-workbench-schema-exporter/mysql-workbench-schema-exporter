@@ -7,6 +7,19 @@ ATTENTION
 This software is EXPERIMENTAL and not ready for production.
 It is just a proof of concept.
 
+Prerequisites
+-------------
+
+  * PHP 5.3+
+  * Composer to install the dependencies
+
+Installing Dependencies
+-----------------------
+
+To fetch the defined dependencies into your local project, just run the
+`install` command of `composer.phar`.
+
+    $ php composer.phar install
 
 What is MySQL Workbench schema exporter?
 ----------------------------------------
