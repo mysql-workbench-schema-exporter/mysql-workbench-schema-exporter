@@ -1,4 +1,6 @@
 <?php
+// enable autoloading of classes
+require_once(__DIR__ . '/../vendor/autoload.php');
 
 /*
  * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
@@ -163,13 +165,6 @@ function main($filename, $dir, $params, $options)
         $setup = array();
         $configs = array();
 
-        // enable autoloading of classes
-        $libDir = __DIR__.'/../lib';
-        require_once($libDir.'/MwbExporter/SplClassLoader.php');
-
-        $classLoader = new SplClassLoader();
-        $classLoader->setIncludePath($libDir);
-        $classLoader->register();
 
         // bootstrap
         $bootstrap = new Bootstrap();
