@@ -28,7 +28,7 @@
 namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
 use MwbExporter\Formatter\Doctrine2\Model\Table as BaseTable;
-use MwbExporter\Helper\Pluralizer;
+use Doctrine\Common\Inflector\Inflector;
 use MwbExporter\Object\Annotation;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Formatter\Doctrine2\Annotation\Formatter;
@@ -258,7 +258,7 @@ class Table extends BaseTable
                 ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
                     $_this->getColumns()->writeArrayCollections($writer);
                     foreach ($_this->getManyToManyRelations() as $relation) {
-                        $writer->write('$this->%s = new %s();', lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())), $_this->getCollectionClass(false));
+                        $writer->write('$this->%s = new %s();', lcfirst(Inflector::pluralize($relation['refTable']->getModelName())), $_this->getCollectionClass(false));
                     }
                 })
             ->outdent()
@@ -295,7 +295,7 @@ class Table extends BaseTable
             $annotationOptions = array(
                 'targetEntity' => $relation['refTable']->getModelNameAsFQCN($this->getEntityNamespace()),
                 'mappedBy' => null,
-                'inversedBy' => lcfirst(Pluralizer::pluralize($this->getModelName())),
+                'inversedBy' => lcfirst(Inflector::pluralize($this->getModelName())),
                 'cascade' => $formatter->getCascadeOption($relation['reference']->parseComment('cascade')),
                 'fetch' => $formatter->getFetchOption($relation['reference']->parseComment('fetch')),
             );
@@ -344,7 +344,7 @@ class Table extends BaseTable
                 ;
             }
             $writer
-                ->write('protected $'.lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())).';')
+                ->write('protected $'.lcfirst(Inflector::pluralize($relation['refTable']->getModelName())).';')
                 ->write('')
             ;
         }
@@ -372,7 +372,7 @@ class Table extends BaseTable
                             $writer->write('$%s->add%s($this);', lcfirst($relation['refTable']->getModelName()), $_this->getModelName());
                         }
                     })
-                    ->write('$this->'.lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())).'[] = $'.lcfirst($relation['refTable']->getModelName()).';')
+                    ->write('$this->'.lcfirst(Inflector::pluralize($relation['refTable']->getModelName())).'[] = $'.lcfirst($relation['refTable']->getModelName()).';')
                     ->write('')
                     ->write('return $this;')
                 ->outdent()
@@ -383,10 +383,10 @@ class Table extends BaseTable
                 ->write(' *')
                 ->write(' * @return '.$this->getCollectionInterface())
                 ->write(' */')
-                ->write('public function get'.Pluralizer::pluralize($relation['refTable']->getModelName()).'()')
+                ->write('public function get'.Inflector::pluralize($relation['refTable']->getModelName()).'()')
                 ->write('{')
                 ->indent()
-                    ->write('return $this->'.lcfirst(Pluralizer::pluralize($relation['refTable']->getModelName())).';')
+                    ->write('return $this->'.lcfirst(Inflector::pluralize($relation['refTable']->getModelName())).';')
                 ->outdent()
                 ->write('}')
                 ->write('')

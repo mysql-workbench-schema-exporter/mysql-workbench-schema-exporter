@@ -28,7 +28,7 @@
 namespace MwbExporter\Model;
 
 use MwbExporter\Formatter\FormatterInterface;
-use MwbExporter\Helper\Pluralizer;
+use Doctrine\Common\Inflector\Inflector;
 use MwbExporter\Helper\Singularizer;
 use MwbExporter\Writer\WriterInterface;
 
@@ -316,14 +316,18 @@ class Table extends Base
      */
     public function getModelName()
     {
-        $tablename = $this->getRawTableName();
+        $tableName = $this->getRawTableName();
         // check if table name is plural --> convert to singular
-        if (!$this->getDocument()->getConfig()->get(FormatterInterface::CFG_SKIP_PLURAL) && Pluralizer::wordIsPlural($tablename)) {
-            $tablename = Singularizer::singularize($tablename);
+
+        if (
+            !$this->getDocument()->getConfig()->get(FormatterInterface::CFG_SKIP_PLURAL) &&
+            ($tableName == ($singular = Inflector::singularize($tableName)))
+        ) {
+            $tableName = $singular;
         }
 
         // camleCase under scores for model names
-        return ucfirst(preg_replace('@\_(\w)@e', 'ucfirst("$1")', $tablename));
+        return ucfirst(preg_replace('@\_(\w)@e', 'ucfirst("$1")', $tableName));
     }
 
     /**
@@ -333,7 +337,7 @@ class Table extends Base
      */
     public function getModelNameInPlural()
     {
-        return Pluralizer::pluralize($this->getModelName());
+        return Inflector::pluralize($this->getModelName());
     }
 
     /**
