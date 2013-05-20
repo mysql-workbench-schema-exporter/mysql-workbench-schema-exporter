@@ -7,3 +7,5 @@ tests/
 *.zip
 *.sh
 *.7z
+vendor/*
+composer.lock

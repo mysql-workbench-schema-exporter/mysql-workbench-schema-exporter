@@ -1,6 +1,5 @@
 <?php
-// enable autoloading of classes
-require_once(__DIR__ . '/../vendor/autoload.php');
+require_once __DIR__ . '/autoload.php';
 
 /*
  * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>

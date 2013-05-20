@@ -27,14 +27,7 @@
 
 function autoload()
 {
-    $libDir = __DIR__.'/../lib';
-    require_once($libDir.'/MwbExporter/SplClassLoader.php');
-
-    $classLoader = new SplClassLoader();
-    $classLoader->setIncludePath($libDir);
-    $classLoader->register();
-
-    return $classLoader;
+    require_once(__DIR__ . '/../cli/autoload.php');
 }
 
 function output($document, $time)
