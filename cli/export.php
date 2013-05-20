@@ -1,6 +1,6 @@
 <?php
 // enable autoloading of classes
-require_once(__DIR__ . '/../vendor/autoload.php');
+require_once(__DIR__ . '/../../../autoload.php');
 
 /*
  * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
@@ -239,8 +239,8 @@ function main($filename, $dir, $params, $options)
         if ($options[CMD_OPT_SAVE_CONFIG]) {
             file_put_contents('export.json', json_encode(
                 array(
-                    CMD_PARAM_EXPORT => $params[CMD_PARAM_EXPORT], 
-                    CMD_OPT_ZIP => $options[CMD_OPT_ZIP], 
+                    CMD_PARAM_EXPORT => $params[CMD_PARAM_EXPORT],
+                    CMD_OPT_ZIP => $options[CMD_OPT_ZIP],
                     'dir' => $dir, 'params' => $setup
                 )
             ));
