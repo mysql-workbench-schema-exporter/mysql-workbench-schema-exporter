@@ -76,7 +76,7 @@ class Annotation extends Base
             }
             $multiline = $this->getOption('multiline') && count($value) > 1;
             $value = implode($multiline ? ",\n" : ', ', $tmp).($multiline ? "\n" : '');
-            if ($useKey) {
+            if ($useKey || $this->getOption('forceParentesis')) {
                 $value = sprintf('(%s)', $value);
             } else {
                 $value = sprintf('{%s}', $value);

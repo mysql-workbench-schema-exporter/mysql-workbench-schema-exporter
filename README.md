@@ -111,7 +111,8 @@ Sample export paramaters (JSON) for doctrine2-annotation:
             "useAutomaticRepository": true,
             "indentation": 4,
             "filename": "%entity%.%extension%",
-            "quoteIdentifier": false
+            "quoteIdentifier": false,
+            "useBaseClass": true
         }
     }
 
@@ -229,6 +230,10 @@ General options applied to all formatter.
   * `quoteIdentifier`
 
     If this option is enabled, all table names and column names will be quoted using backtick (`` ` ``). Usefull when the table name or column name contains reserved word. Default is `false`.
+
+  * `useBaseClass`
+
+    If this option is enabled, all classes will have a base class, that have the generate code. And a extend class to put the extended class. See http://docs.doctrine-project.org/en/latest/reference/inheritance-mapping.html#single-table-inheritance. Default is `false`.
 
 ### Comment behavior for Doctrine 2.0 Annotation
 

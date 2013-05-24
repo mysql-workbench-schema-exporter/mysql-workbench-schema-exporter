@@ -36,6 +36,7 @@ class Formatter extends BaseFormatter
     const CFG_SKIP_GETTER_SETTER             = 'skipGetterAndSetter';
     const CFG_GENERATE_ENTITY_SERIALIZATION  = 'generateEntitySerialization';
     const CFG_QUOTE_IDENTIFIER               = 'quoteIdentifier';
+    const CFG_USE_BASE_CLASS                 = 'useBaseClass';
 
     protected function init()
     {
@@ -47,6 +48,7 @@ class Formatter extends BaseFormatter
             static::CFG_SKIP_GETTER_SETTER            => false,
             static::CFG_GENERATE_ENTITY_SERIALIZATION => true,
             static::CFG_QUOTE_IDENTIFIER              => false,
+            static::CFG_USE_BASE_CLASS                => false,
         ));
     }
 
@@ -66,6 +68,15 @@ class Formatter extends BaseFormatter
     public function createTable(Base $parent, $node)
     {
         return new Model\Table($parent, $node);
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Formatter\FormatterInterface::createTables()
+     */
+    public function createTables(Base $parent, $node)
+    {
+        return new Model\Tables($parent, $node);
     }
 
     /**
