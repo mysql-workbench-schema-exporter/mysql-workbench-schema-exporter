@@ -62,6 +62,8 @@ class BaseExtend extends BaseTable {
 	            ->write('')
 	            ->write('namespace %s;', $namespace)
 	            ->write('')
+	            ->write('use %s\\Base%s;', $namespace, $this->getModelName())
+	            ->write('')
 	            ->write('/**')
 	            ->write(' * '.$this->getNamespace(null, false))
 	            ->write(' *')
