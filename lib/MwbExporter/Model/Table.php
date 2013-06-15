@@ -321,7 +321,7 @@ class Table extends Base
 
         if (
             !$this->getDocument()->getConfig()->get(FormatterInterface::CFG_SKIP_PLURAL) &&
-            ($tableName == ($singular = Inflector::singularize($tableName)))
+            ($tableName != ($singular = Inflector::singularize($tableName)))
         ) {
             $tableName = $singular;
         }
