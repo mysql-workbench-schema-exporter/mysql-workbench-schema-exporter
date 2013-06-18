@@ -166,6 +166,28 @@ class Table extends BaseTable
     {
         return $this->getAnnotation('JoinColumn', array('name' => $local, 'referencedColumnName' => $foreign, 'onDelete' => $this->getDocument()->getFormatter()->getDeleteRule($deleteRule)));
     }
+    
+    /**
+     * Return the extended class if exists, null otherwise.
+     * 
+     * @return \MwbExporter\Formatter\Doctrine2\Annotation\Model\ExtendedClass
+     */
+    public function getBaseExtend() {
+        return $this->parameters->get('base_extend');
+    }
+
+
+    /**
+     * Add Base in the filename if is a extended class.
+     * 
+     * @see \MwbExporter\Model\Table::getTableFileName()
+     */
+    public function getTableFileName()
+    {
+    	$filename = parent::getTableFileName();
+    
+    	return ($this->getBaseExtend() ? 'Base' : '').$filename;
+    }
 
     public function writeTable(WriterInterface $writer)
     {
@@ -177,6 +199,9 @@ class Table extends BaseTable
             $skipGetterAndSetter = $this->getDocument()->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
             $serializableEntity  = $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
             $lifecycleCallbacks  = $this->getLifecycleCallbacks();
+
+            // If is extended add Base
+            $classname = ($this->getBaseExtend() ? 'Base' : '').$this->getModelName();
 
             $comment = $this->getComment();
             $writer
@@ -195,8 +220,17 @@ class Table extends BaseTable
                 ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
                 ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation(), 'uniqueConstraints' => $this->getUniqueConstraintsAnnotation())))
                 ->writeIf($lifecycleCallbacks, ' * @HasLifecycleCallbacks')
+                
+                // Add Single Table Inheritance if is extended
+                // http://docs.doctrine-project.org/en/2.0.x/reference/inheritance-mapping.html#single-table-inheritance
+                ->writeIf($this->getBaseExtend(), ' * '.$this->getAnnotation('InheritanceType', array('SINGLE_TABLE'), array('forceParentesis' => true)))
+                ->writeIf($this->getBaseExtend(), ' * '.$this->getAnnotation('DiscriminatorColumn', array('name' => 'discr', 'type' => 'string')))
+                ->writeIf($this->getBaseExtend(), ' * '.$this->getAnnotation('DiscriminatorMap', array('base' => 'Base'.$this->getModelName(), 'extended' => $this->getModelName())))
+                
                 ->write(' */')
-                ->write('class '.$this->getModelName().(($implements = $this->getClassImplementations()) ? ' implements '.$implements : ''))
+                ->write('class '.$classname.(($implements = $this->getClassImplementations()) ? ' implements '.$implements : ''))
+                
+                
                 ->write('{')
                 ->indent()
                     ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity, $lifecycleCallbacks) {

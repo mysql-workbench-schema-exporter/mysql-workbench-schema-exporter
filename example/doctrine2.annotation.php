@@ -46,7 +46,7 @@ $setup = array(
     Formatter::CFG_REPOSITORY_NAMESPACE      => '',
     Formatter::CFG_AUTOMATIC_REPOSITORY      => true,
     Formatter::CFG_SKIP_GETTER_SETTER        => false,
+    Formatter::CFG_USE_BASE_CLASS            => false,
 );
-
 // lets do it
 export('doctrine2-annotation', $setup);
