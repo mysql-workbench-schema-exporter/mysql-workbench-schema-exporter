@@ -49,6 +49,9 @@ class Column extends BaseColumn
         if (!$this->isNotNull()) {
             $values['nullable'] = true;
         }
+        if($this->isUnsigned()) {
+            $values['unsigned'] = true;
+        }
         if ($this->isAutoIncrement()) {
             $values['generator'] = array('strategy' => 'AUTO');
         }

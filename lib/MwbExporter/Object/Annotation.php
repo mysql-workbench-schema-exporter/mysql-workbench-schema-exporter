@@ -52,11 +52,18 @@ class Annotation extends Base
     }
 
     /**
-     * (non-PHPdoc)
-     * @see \MwbExporter\Object\Base::asCode()
+     * Convert value as code equivalent.
+     *
+     * @param mixed $value  The value
+     * @param bool $topLevel Is this method being called from top level
+     * @return string
      */
     public function asCode($value)
     {
+        $topLevel = true;
+        if (func_num_args() > 1 && false === func_get_arg(1)) {
+            $topLevel = false;
+        }
         if ($value instanceof Annotation) {
             $value = (string) $value;
         } elseif (is_bool($value)) {
@@ -71,12 +78,15 @@ class Annotation extends Base
                 if (null === $v) {
                     continue;
                 }
-                $v = $this->asCode($v);
+                $v = $this->asCode($v, false);
+                if (false === $topLevel) {
+                    $k = sprintf('"%s"', $k);
+                }
                 $tmp[] = $useKey ? sprintf('%s=%s', $k, $v) : $v;
             }
             $multiline = $this->getOption('multiline') && count($value) > 1;
             $value = implode($multiline ? ",\n" : ', ', $tmp).($multiline ? "\n" : '');
-            if ($useKey) {
+            if ($useKey && true === $topLevel) {
                 $value = sprintf('(%s)', $value);
             } else {
                 $value = sprintf('{%s}', $value);
