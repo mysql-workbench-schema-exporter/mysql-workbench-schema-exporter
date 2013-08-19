@@ -49,6 +49,9 @@ class Column extends BaseColumn
         if (!$this->isNotNull()) {
             $attributes['nullable'] = true;
         }
+        if($this->isUnsigned()) {
+            $attributes['options'] = array('unsigned' => true);
+        }
 
         return $attributes;
     }
