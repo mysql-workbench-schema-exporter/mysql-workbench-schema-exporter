@@ -62,7 +62,18 @@ class Column extends Base
         // iterate on column configuration
         foreach ($this->node->xpath("value") as $key => $node) {
             $attributes         = $node->attributes();
-            $this->parameters->set((string) $attributes['key'], (string) $node[0]);
+
+            // Convert a list to an array
+            if ('list' === (string)$attributes['type']) {
+                $value = array();
+                for ($i = 0; $i < $node->count(); $i++) {
+                    $value[$i] = (string)$node[$i]->value;
+                }
+            } else {
+                $value = (string) $node[0];
+            }
+
+            $this->parameters->set((string) $attributes['key'], $value);
         }
         // iterate on links to other wb objects
         foreach ($this->node->xpath("link") as $key => $node) {
@@ -357,5 +368,19 @@ class Column extends Base
     public function getLength()
     {
         return $this->parameters->get('length');
+    }
+
+    /**
+     * Is the field an unsigned value
+     * 
+     * @return boolean
+     */
+    public function isUnsigned()
+    {
+        $flags = $this->parameters->get('flags');
+        if (is_array($flags)) {
+            return array_key_exists('UNSIGNED', array_flip($flags));
+        }
+        return false;
     }
 }
