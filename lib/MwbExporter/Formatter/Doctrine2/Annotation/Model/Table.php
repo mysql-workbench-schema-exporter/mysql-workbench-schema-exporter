@@ -169,72 +169,81 @@ class Table extends BaseTable
 
     public function writeTable(WriterInterface $writer)
     {
-        if (!$this->isExternal()) {
-            $namespace = $this->getEntityNamespace();
-            if ($repositoryNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) {
-                $repositoryNamespace .= '\\';
-            }
-            $skipGetterAndSetter = $this->getDocument()->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
-            $serializableEntity  = $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
-            $lifecycleCallbacks  = $this->getLifecycleCallbacks();
-
-            $comment = $this->getComment();
-            $writer
-                ->open($this->getTableFileName())
-                ->write('<?php')
-                ->write('')
-                ->write('namespace %s;', $namespace)
-                ->write('')
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    $_this->writeUsedClasses($writer);
-                })
-                ->write('/**')
-                ->write(' * '.$this->getNamespace(null, false))
-                ->write(' *')
-                ->writeIf($comment, $comment)
-                ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
-                ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation(), 'uniqueConstraints' => $this->getUniqueConstraintsAnnotation())))
-                ->writeIf($lifecycleCallbacks, ' * @HasLifecycleCallbacks')
-                ->write(' */')
-                ->write('class '.$this->getModelName().(($implements = $this->getClassImplementations()) ? ' implements '.$implements : ''))
-                ->write('{')
-                ->indent()
-                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity, $lifecycleCallbacks) {
-                        $_this->writePreClassHandler($writer);
-                        $_this->getColumns()->write($writer);
-                        $_this->writeManyToMany($writer);
-                        $_this->writeConstructor($writer);
-                        if (!$skipGetterAndSetter) {
-                            $_this->getColumns()->writeGetterAndSetter($writer);
-                            $_this->writeManyToManyGetterAndSetter($writer);
-                        }
-                        $_this->writePostClassHandler($writer);
-                        foreach ($lifecycleCallbacks as $callback => $handlers) {
-                            foreach ($handlers as $handler) {
-                                $writer
-                                    ->write('/**')
-                                    ->write(' * @%s', ucfirst($callback))
-                                    ->write(' */')
-                                    ->write('public function %s()', $handler)
-                                    ->write('{')
-                                    ->write('}')
-                                    ->write('')
-                                ;
-                            }
-                        }
-                        if ($serializableEntity) {
-                            $_this->writeSerialization($writer);
-                        }
-                    })
-                ->outdent()
-                ->write('}')
-                ->close()
-            ;
-
-            return self::WRITE_OK;
+        switch (true) {
+            case $this->isManyToMany():
+                return self::WRITE_M2M;
+                break;
+            case $this->isExternal():
+                return self::WRITE_EXTERNAL;
+                break;
+            default:
+                $this->writeTableOk($writer);
+                return self::WRITE_OK;
         }
+    }
 
-        return self::WRITE_EXTERNAL;
+    public function writeTableOk(WriterInterface $writer)
+    {
+        $namespace = $this->getEntityNamespace();
+        if ($repositoryNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) {
+            $repositoryNamespace .= '\\';
+        }
+        $skipGetterAndSetter = $this->getDocument()->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
+        $serializableEntity  = $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
+        $lifecycleCallbacks  = $this->getLifecycleCallbacks();
+
+        $comment = $this->getComment();
+        $writer
+            ->open($this->getTableFileName())
+            ->write('<?php')
+            ->write('')
+            ->write('namespace %s;', $namespace)
+            ->write('')
+            ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                $_this->writeUsedClasses($writer);
+            })
+            ->write('/**')
+            ->write(' * '.$this->getNamespace(null, false))
+            ->write(' *')
+            ->writeIf($comment, $comment)
+            ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
+            ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation(), 'uniqueConstraints' => $this->getUniqueConstraintsAnnotation())))
+            ->writeIf($lifecycleCallbacks, ' * @HasLifecycleCallbacks')
+            ->write(' */')
+            ->write('class '.$this->getModelName().(($implements = $this->getClassImplementations()) ? ' implements '.$implements : ''))
+            ->write('{')
+            ->indent()
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity, $lifecycleCallbacks) {
+                    $_this->writePreClassHandler($writer);
+                    $_this->getColumns()->write($writer);
+                    $_this->writeManyToMany($writer);
+                    $_this->writeConstructor($writer);
+                    if (!$skipGetterAndSetter) {
+                        $_this->getColumns()->writeGetterAndSetter($writer);
+                        $_this->writeManyToManyGetterAndSetter($writer);
+                    }
+                    $_this->writePostClassHandler($writer);
+                    foreach ($lifecycleCallbacks as $callback => $handlers) {
+                        foreach ($handlers as $handler) {
+                            $writer
+                                ->write('/**')
+                                ->write(' * @%s', ucfirst($callback))
+                                ->write(' */')
+                                ->write('public function %s()', $handler)
+                                ->write('{')
+                                ->write('}')
+                                ->write('')
+                            ;
+                        }
+                    }
+                    if ($serializableEntity) {
+                        $_this->writeSerialization($writer);
+                    }
+                })
+            ->outdent()
+            ->write('}')
+            ->close()
+        ;
     }
 
     public function writeUsedClasses(WriterInterface $writer)
