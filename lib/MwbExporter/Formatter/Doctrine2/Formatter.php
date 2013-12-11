@@ -139,7 +139,7 @@ abstract class Formatter extends BaseFormatter
      */
     public function getDeleteRule($deleteRule)
     {
-        if ($deleteRule == 'NO ACTION' || $deleteRule == 'RESTRICT') {
+        if ($deleteRule == 'NO ACTION' || $deleteRule == 'RESTRICT' || empty($deleteRule)) {
             // NO ACTION acts the same as RESTRICT,
             // RESTRICT is the default
             // http://dev.mysql.com/doc/refman/5.5/en/innodb-foreign-key-constraints.html

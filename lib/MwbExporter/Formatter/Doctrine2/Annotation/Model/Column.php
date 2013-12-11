@@ -121,9 +121,13 @@ class Column extends BaseColumn
             $joinColumnAnnotationOptions = array(
                 'name' => $foreign->getForeign()->getColumnName(),
                 'referencedColumnName' => $foreign->getLocal()->getColumnName(),
-                'onDelete' => $formatter->getDeleteRule($foreign->getLocal()->getParameters()->get('deleteRule')),
                 'nullable' => !$foreign->getForeign()->isNotNull() ? null : false,
             );
+
+
+            if (null !== ($deleteRule = $formatter->getDeleteRule($foreign->getLocal()->getParameters()->get('deleteRule')))) {
+                $joinColumnAnnotationOptions['onDelete'] = $deleteRule;
+            }
 
             //check for OneToOne or OneToMany relationship
             if ($foreign->isManyToOne()) { // is OneToMany
