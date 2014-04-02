@@ -44,26 +44,50 @@ class YAML extends Base
             // nothing
         } elseif (is_array($value)) {
             $tmp = array();
+            $spacer = str_repeat(' ', max(array($level * $this->getOption('indent', 2), 0)));
             if (!$this->isKeysNumeric($value)) {
-                $spacer = str_repeat(' ', $level * $this->getOption('indent', 2));
+                $inline = $this->getOption('inline', false);
+                $inline_size = $this->getOption('inline_size', 0);
                 foreach ($value as $k => $v) {
                     // skip null value
                     if (null === $v) {
                         continue;
                     }
-                    if ($this->isInline($v)) {
-                        $tmp[] = $spacer.sprintf('%s: %s', $k, $this->asCode($v, $level + 1));
+                    $x = $inline_size > 0 && $level >= 0 ? str_repeat(' ', $inline_size - strlen($k) - strlen($spacer)) : '';
+                    if ($inline && $this->canBeInlined($v)) {
+                        $v = explode("\n", $this->asCode($v, -1));
+                        $tmp[] = $spacer.sprintf('%s: %s{ %s }', $k, $x, implode(", ",  $v));
                     } else {
-                        $tmp[] = $spacer.sprintf('%s:', $k);
-                        $tmp[] = $this->asCode($v, $level + 1);
+                        if ($this->isInline($v)) {
+                            if ($this->isArrayValueArray($v)) {
+                                $tmp[] = $spacer.sprintf('%s:', $k);
+                                $tmp[] = $this->asCode($v, $level + 1);
+                            } else {
+                                $tmp[] = $spacer.sprintf('%s: %s%s', $k, $x, $this->asCode($v, $level + 1));
+                            }
+                        } else {
+                            $tmp[] = $spacer.sprintf('%s:', $k);
+                            $tmp[] = $this->asCode($v, $level + 1);
+                        }
                     }
                 }
                 $value = implode("\n", $tmp);
             } else {
                 foreach ($value as $k => $v) {
-                    $tmp[] = $this->asCode($v, $level + 1);
+                    if (is_array($v) && !$this->isKeysNumeric($v)) {
+                        $v = explode("\n", $this->asCode($v, -1));
+                        $tmp[] = sprintf('{ %s }', implode(", ",  $v));
+                    } else {
+                        $tmp[] = $this->asCode($v, $level + 1);
+                    }
                 }
-                $value = sprintf('[%s]', implode(', ', $tmp));
+                if ($this->isArrayValueArray($value)) {
+                    $value = implode("\n", array_map(function($x) use ($spacer) {
+                        return $spacer.sprintf('- %s', $x);
+                    }, $tmp));
+                } else {
+                    $value = sprintf('[ %s ]', implode(', ', $tmp));
+                }
             }
         }
 
@@ -79,5 +103,45 @@ class YAML extends Base
     protected function isInline($value)
     {
         return is_array($value) && !$this->isKeysNumeric($value) ? false : true;
+    }
+
+    /**
+     * Check if value can be writen as inline array using curly brace.
+     *
+     * @param array $value
+     * @return boolean
+     */
+    protected function canBeInlined($value)
+    {
+        if (!is_array($value) || $this->isKeysNumeric($value)) {
+            return false;
+        }
+        foreach ($value as $v) {
+            if (is_array($v)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if all array values is an array.
+     *
+     * @param array $array
+     * @return boolean
+     */
+    protected function isArrayValueArray($array)
+    {
+        if (!is_array($array)) {
+            return false;
+        }
+        foreach ($array as $k => $v) {
+            if (!is_array($v)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
