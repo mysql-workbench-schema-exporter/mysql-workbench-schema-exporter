@@ -58,16 +58,29 @@ abstract class Base
      */
     protected $parameters = null;
 
-    public function __construct(Base $parent = null, $node)
+    /**
+     * Constructor.
+     *
+     * @param \MwbExporter\Model\Base $parent
+     * @param \SimpleXMLElement $node
+     */
+    public function __construct(Base $parent = null, $node = null)
     {
         $this->parameters = new RegistryHolder();
         $this->parent = $parent;
+        $this->configure($node);
+    }
+
+    protected function configure($node)
+    {
         $this->node = $node;
-        $this->attributes = $node->attributes();
-        $this->id = (string) $this->attributes['id'];
-        $this->init();
-        if ($this->id && ($document = $this->getDocument())) {
-            $document->getReference()->set($this->id, $this);
+        if ($this->node) {
+            $this->attributes = $node->attributes();
+            $this->id = (string) $this->attributes['id'];
+            $this->init();
+            if ($this->id && ($document = $this->getDocument())) {
+                $document->getReference()->set($this->id, $this);
+            }
         }
     }
 

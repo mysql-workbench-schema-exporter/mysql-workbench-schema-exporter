@@ -136,7 +136,7 @@ class Bootstrap
             $storage->setBackup($formatter->getRegistry()->config->get(FormatterInterface::CFG_BACKUP_FILE));
             $writer = $this->getWriter($formatter->getPreferredWriter());
             $writer->setStorage($storage);
-            $document = new Document($formatter, $filename);
+            $document = new Document($formatter);
             if (strlen($logFile = $formatter->getRegistry()->config->get(FormatterInterface::CFG_LOG_FILE))) {
                 $logger = new LoggerFile(array('filename' => $logFile));
             } elseif ($formatter->getRegistry()->config->get(FormatterInterface::CFG_LOG_TO_CONSOLE)) {
@@ -145,6 +145,7 @@ class Bootstrap
                 $logger = new Logger();
             }
             $document->setLogger($logger);
+            $document->load($filename);
             $document->write($writer);
             if ($e = $document->getError()) {
                 throw $e;

@@ -72,15 +72,11 @@ class Document extends Base
      * Constructor.
      *
      * @param FormatterInterface $formatter
-     * @param string $filename
      */
-    public function __construct(FormatterInterface $formatter, $filename)
+    public function __construct(FormatterInterface $formatter)
     {
-        $this->filename = $filename;
         $this->formatter = $formatter;
-        $this->readXML($this->filename);
-        parent::__construct(null, $this->xml->value);
-        $this->parse();
+        parent::__construct();
     }
 
     /**
@@ -189,6 +185,19 @@ class Document extends Base
     public function getPhysicalModel()
     {
         return $this->physicalModel;
+    }
+
+    /**
+     * Load a workbench file.
+     *
+     * @param string $filename
+     */
+    public function load($filename)
+    {
+        $this->filename = $filename;
+        $this->readXML($this->filename);
+        $this->configure($this->xml->value);
+        $this->parse();
     }
 
     protected function readXML($filename)
