@@ -33,7 +33,7 @@ include 'util.php';
 // enable autoloading of classes
 autoload();
 
-use \MwbExporter\Formatter\Doctrine2\ZF2InputFilter\Annotation\Formatter;
+use \MwbExporter\Formatter\Doctrine2\ZF2InputFilterAnnotation\Formatter;
 
 // formatter setup
 $setup = array(
