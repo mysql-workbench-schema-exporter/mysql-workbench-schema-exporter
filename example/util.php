@@ -69,10 +69,11 @@ function export($target, $setup = array())
         $start    = microtime(true);
         $filename = __DIR__.'/data/sakila.mwb';
         $outDir   = __DIR__.'/result';
+        $logFile  = $outDir.'/log.txt';
 
         $bootstrap = new \MwbExporter\Bootstrap();
         $formatter = $bootstrap->getFormatter($target);
-        $formatter->setup($setup);
+        $formatter->setup(array_merge(array(\MwbExporter\Formatter\Formatter::CFG_LOG_FILE => $logFile), $setup));
         $document  = $bootstrap->export($formatter, $filename, $outDir, 'zip');
 
         // show the time needed to parse the mwb file
