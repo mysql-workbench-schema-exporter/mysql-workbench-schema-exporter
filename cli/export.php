@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__ . '/autoload.php';
 
 /*
  * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
@@ -22,6 +21,8 @@ require_once __DIR__ . '/autoload.php';
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+require_once dirname(__FILE__).'/../lib/autoload.php';
 
 use MwbExporter\Bootstrap;
 

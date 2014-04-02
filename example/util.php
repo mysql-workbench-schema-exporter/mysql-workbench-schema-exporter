@@ -27,7 +27,7 @@
 
 function autoload()
 {
-    require_once(__DIR__ . '/../cli/autoload.php');
+    require_once dirname(__FILE__).'/../lib/autoload.php';
 }
 
 function output($document, $time)
