@@ -29,7 +29,6 @@ namespace MwbExporter\Model;
 
 use MwbExporter\Formatter\FormatterInterface;
 use Doctrine\Common\Inflector\Inflector;
-use MwbExporter\Helper\Singularizer;
 use MwbExporter\Writer\WriterInterface;
 
 class Table extends Base
