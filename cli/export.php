@@ -22,7 +22,13 @@
  * SOFTWARE.
  */
 
-require_once dirname(__FILE__).'/../lib/autoload.php';
+try {
+    require_once dirname(__FILE__).'/../lib/autoload.php';
+} catch (\Exception $e) {
+    echo $e->getMessage()."\n";
+
+    die(1);
+}
 
 use MwbExporter\Bootstrap;
 

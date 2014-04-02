@@ -27,7 +27,16 @@
 
 function autoload()
 {
-    require_once dirname(__FILE__).'/../lib/autoload.php';
+    try {
+        require_once dirname(__FILE__).'/../lib/autoload.php';
+    } catch (\Exception $e) {
+        echo "<h2>Error:</h2>\n";
+        echo "<textarea cols=\"100\" rows=\"5\">\n";
+        echo $e->getMessage()."\n";
+        echo "</textarea>\n";
+
+        die(1);
+    }
 }
 
 function output($document, $time)
