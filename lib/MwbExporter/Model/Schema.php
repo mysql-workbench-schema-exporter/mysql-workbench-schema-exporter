@@ -50,6 +50,7 @@ class Schema extends Base
     {
         $elems = $this->node->xpath("value[@key='name']");
         $this->name = (string) $elems[0];
+        $this->getDocument()->addLog(sprintf('Processing schema "%s".', $this->name));
         $elems = $this->node->xpath("value[@key='tables']");
         $this->tables = $this->getDocument()->getFormatter()->createTables($this, $elems[0]);
         $elems = $this->node->xpath("value[@key='views']");

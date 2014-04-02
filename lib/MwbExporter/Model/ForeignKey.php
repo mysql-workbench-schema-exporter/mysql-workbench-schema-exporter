@@ -56,6 +56,7 @@ class ForeignKey extends Base
             $attributes = $node->attributes();
             $this->parameters->set((string) $attributes['key'], (string) $node[0]);
         }
+        $this->getDocument()->addLog(sprintf('Processing foreign key "%s.%s".', $this->getTable()->getRawTableName(), $this->parameters->get('name')));
         // follow references to tables
         foreach ($this->node->link as $key => $node) {
             $attributes         = $node->attributes();
@@ -79,6 +80,16 @@ class ForeignKey extends Base
         // reference for a proper output
         $this->local->markAsForeignReference($this);
         $this->foreign->markAsLocalReference($this);
+    }
+
+    /**
+     * Get the table owner.
+     *
+     * @return \MwbExporter\Model\Table
+     */
+    public function getTable()
+    {
+        return $this->getParent()->getParent();
     }
 
     /**

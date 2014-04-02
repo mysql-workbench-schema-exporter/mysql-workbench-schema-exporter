@@ -41,6 +41,7 @@ class Index extends Base
             $attributes = $node->attributes();
             $this->parameters->set((string) $attributes['key'], (string) $node[0]);
         }
+        $this->getDocument()->addLog(sprintf('Processing index "%s.%s".', $this->getTable()->getRawTableName(), $this->parameters->get('name')));
         // check for primary columns, to notify column
         $nodes = $this->node->xpath("value[@key='columns']/value/link[@key='referencedColumn']");
         foreach ($nodes as $node) {
@@ -60,6 +61,16 @@ class Index extends Base
         if (!$this->isPrimary() && ($table = $this->getDocument()->getReference()->get((string) $this->node->link))) {
             $table->injectIndex($this);
         }
+    }
+
+    /**
+     * Get the table owner.
+     *
+     * @return \MwbExporter\Model\Table
+     */
+    public function getTable()
+    {
+        return $this->getParent()->getParent();
     }
 
     /**

@@ -75,6 +75,7 @@ class Column extends Base
 
             $this->parameters->set((string) $attributes['key'], $value);
         }
+        $this->getDocument()->addLog(sprintf('Processing column "%s.%s".', $this->getTable()->getRawTableName(), $this->getColumnName()));
         // iterate on links to other wb objects
         foreach ($this->node->xpath("link") as $key => $node) {
             $attributes         = $node->attributes();

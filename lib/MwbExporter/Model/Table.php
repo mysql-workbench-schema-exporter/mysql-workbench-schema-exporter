@@ -74,11 +74,12 @@ class Table extends Base
 
     protected function init()
     {
-        $this->initColumns();
         foreach ($this->node->value as $key => $node) {
             $attributes = $node->attributes();
             $this->parameters->set((string) $attributes['key'], (string) $node[0]);
         }
+        $this->getDocument()->addLog(sprintf('Processing table "%s".', $this->getRawTableName()));
+        $this->initColumns();
     }
 
     /**
