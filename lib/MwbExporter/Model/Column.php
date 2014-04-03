@@ -193,7 +193,7 @@ class Column extends Base
      */
     protected function checkForeignKeyOwnerTableName($foreign, $tablename)
     {
-        return $this->checkReferenceTableName($foreign ? $foreign->getOwningTable() : null, $tablename);
+        return $this->checkReferenceTableName($foreign ? $foreign->getReferencedTable() : null, $tablename);
     }
 
     /**
@@ -218,13 +218,21 @@ class Column extends Base
     protected function getForeignKeyReferenceCount($fkey, $max = null)
     {
         $count = 0;
-        $tablename = $fkey->getOwningTable()->getRawTableName();
-        foreach ($this->foreigns as $foreign) {
-            if ($this->checkForeignKeyOwnerTableName($foreign, $tablename)) {
-                $count++;
-            }
-            if ($max && $count == $max) {
-                break;
+        $tablename = $fkey->getReferencedTable()->getRawTableName();
+        $columns = array();
+        foreach ($this->getTable()->getColumns() as $column) {
+            foreach ($column->foreigns as $foreign) {
+                // process only unique foreign key
+                if (in_array($foreign->getId(), $columns)) {
+                    continue;
+                }
+                $columns[] = $foreign->getId();
+                if ($this->checkForeignKeyOwnerTableName($foreign, $tablename)) {
+                    $count++;
+                }
+                if ($max && $count == $max) {
+                    break;
+                }
             }
         }
 
@@ -241,7 +249,7 @@ class Column extends Base
     protected function getRelationReferenceCount($fkey, $max = null)
     {
         $count = 0;
-        $tablename = $fkey->getOwningTable()->getRawTableName();
+        $tablename = $fkey->getReferencedTable()->getRawTableName();
         foreach ($this->getTable()->getManyToManyRelations() as $relation) {
             // $relation key => reference (ForeignKey), refTable (Table)
             if ($this->checkReferenceTableName($relation['refTable'], $tablename)) {
@@ -295,7 +303,7 @@ class Column extends Base
      */
     public function getRelatedName($reference, $code = true)
     {
-        return $this->isMultiReferences($reference) ? $this->formatRelatedName($reference->getForeign()->getColumnName(), $code) : '';
+        return $this->isMultiReferences($reference) ? $this->formatRelatedName($reference->getLocal()->getColumnName(), $code) : '';
     }
 
     /**
