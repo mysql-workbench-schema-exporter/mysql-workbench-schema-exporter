@@ -295,6 +295,7 @@ class Table extends Base
     {
         $key = $rel['refTable']->getModelName();
         $this->manyToManyRelations[$key] = $rel;
+        $this->getDocument()->addLog(sprintf('Applying N <=> N relation "%s" for "%s <=> %s".', $rel['refTable']->getParameters()->get('name'), $this->getModelName(), $key));
 
         return $this;
     }
