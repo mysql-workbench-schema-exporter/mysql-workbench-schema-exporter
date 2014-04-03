@@ -35,14 +35,10 @@ class Index extends BaseIndex
     public function write(WriterInterface $writer)
     {
         $writer
-            ->write('%s:', $this->parameters->get('name'))
+            ->write('%s:', $this->getName())
             ->indent()
                 ->writeCallback(function(WriterInterface $writer, Index $_this = null) {
-                    $columns = array();
-                    foreach ($_this->getColumns() as $column) {
-                        $columns[] = $column->getColumnName();
-                    }
-                    $writer->write('fields: [%s]', implode(', ', $columns));
+                    $writer->write('fields: [%s]', implode(', ', $_this->getColumnNames()));
                 })
                 ->writeIf(($type = strtolower($this->parameters->get('indexType'))) !== 'index', 'type: '.$type)
             ->outdent()

@@ -62,16 +62,16 @@ class Table extends BaseTable
                 ->write('%s:', $this->getModelName())
                 ->indent()
                     ->writeIf($actAs = trim($this->getActAsBehaviour()), $actAs)
-                    ->write('tableName: '.($this->getDocument()->getConfig()->get(Formatter::CFG_EXTEND_TABLENAME_WITH_SCHEMA) ? $this->getSchema()->getName().'.' : '').$this->getRawTableName())
+                    ->write('tableName: '.($this->getConfig()->get(Formatter::CFG_EXTEND_TABLENAME_WITH_SCHEMA) ? $this->getSchema()->getName().'.' : '').$this->getRawTableName())
                     ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
                         $_this->getColumns()->write($writer);
                     })
                     ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
                         $externalRelation = $_this->getExternalRelations();
-                        if (count($_this->getRelations()) || $externalRelation) {
+                        if (count($_this->getTableRelations()) || $externalRelation) {
                             $writer->write('relations:');
                             $writer->indent();
-                            foreach ($_this->getRelations() as $relation) {
+                            foreach ($_this->getTableRelations() as $relation) {
                                 $relation->write($writer);
                             }
                             if ($externalRelation) {
@@ -81,10 +81,10 @@ class Table extends BaseTable
                         }
                     })
                     ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                        if (count($_this->getIndexes())) {
+                        if (count($_this->getTableIndices())) {
                             $writer->write('indexes:');
                             $writer->indent();
-                            foreach ($_this->getIndexes() as $index) {
+                            foreach ($_this->getTableIndices() as $index) {
                                 $index->write($writer);
                             }
                             $writer->outdent();

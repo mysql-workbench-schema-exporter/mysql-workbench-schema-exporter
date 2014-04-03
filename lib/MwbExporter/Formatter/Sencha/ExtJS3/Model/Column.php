@@ -35,7 +35,7 @@ class Column extends BaseColumn
 {
     public function asField()
     {
-        return array('name' => $this->getColumnName(), 'type' => $this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this));
+        return array('name' => $this->getColumnName(), 'type' => $this->getFormatter()->getDatatypeConverter()->getType($this));
     }
 
     public function asColumn()
@@ -47,7 +47,7 @@ class Column extends BaseColumn
     {
         $result = array();
         // @see http://docs.sencha.com/ext-js/3-4/#!/api/Ext.form.ComboBox-cfg-hiddenName
-        if ($this->local) {
+        if (count($this->getLocalForeignKeys())) {
             $result['hiddenName'] = $this->getColumnName();
         } else {
             $result['name'] = $this->getColumnName();
@@ -71,7 +71,7 @@ class Column extends BaseColumn
                 $anchor = '100%';
                 break;
 
-            case $this->local !== null:
+            case count($this->getLocalForeignKeys()):
                 $type = 'combo';
                 break;
 
@@ -84,17 +84,17 @@ class Column extends BaseColumn
         if ($anchor) {
             $result['anchor'] = $anchor;
         }
-        if (null !== $this->local) {
-            $result['valueField'] = $this->local->getForeign()->getColumnName();
-            $result['displayField'] = $this->local->getReferencedTable()->getRawTableName();
+        foreach ($this->getLocalForeignKeys() as $local) {
+            $result['valueField'] = $local->getForeign()->getColumnName();
+            $result['displayField'] = $local->getReferencedTable()->getRawTableName();
             $result['mode'] = 'local';
             $result['forceSelection'] = true;
             $result['triggerAction'] = 'all';
             $result['listeners'] = array('afterrender' => $this->getTable()->getJSObject('function() {this.store.load();}', true, true));
             $result['store'] = $this->getTable()->getJSObject(sprintf('new Ext.data.JsonStore(%s);',
                 $this->getTable()->getJSObject(array(
-                    'id'     => str_replace(' ', '', ucwords(str_replace('_',' ',$this->local->getReferencedTable()->getRawTableName()))).'Store',
-                    'url'    => ZendURLFormatter::fromUnderscoreConnectionToDashConnection($this->local->getReferencedTable()->getRawTableName()),
+                    'id'     => str_replace(' ', '', ucwords(str_replace('_',' ',$local->getReferencedTable()->getRawTableName()))).'Store',
+                    'url'    => ZendURLFormatter::fromUnderscoreConnectionToDashConnection($local->getReferencedTable()->getRawTableName()),
                     'root'   => 'data',
                     'fields' => array('id', 'name'),
                 ), true)

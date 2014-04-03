@@ -27,12 +27,12 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
-use MwbExporter\Formatter\Doctrine2\Model\Index as BaseIndex;
+use MwbExporter\Model\Index as BaseIndex;
 
 class Index extends BaseIndex
 {
     public function asAnnotation()
     {
-        return array('name' => $this->parameters->get('name'), 'columns' => $this->getColumnNames());
+        return array('name' => $this->getName(), 'columns' => $this->getColumnNames());
     }
 }

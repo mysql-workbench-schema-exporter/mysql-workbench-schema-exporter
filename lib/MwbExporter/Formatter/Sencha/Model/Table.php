@@ -35,12 +35,12 @@ class Table extends BaseTable
 {
     public function getClassPrefix()
     {
-        return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_CLASS_PREFIX));
+        return $this->translateVars($this->getConfig()->get(Formatter::CFG_CLASS_PREFIX));
     }
 
     public function getParentClass()
     {
-        return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_PARENT_CLASS));
+        return $this->translateVars($this->getConfig()->get(Formatter::CFG_PARENT_CLASS));
     }
 
     /**
@@ -53,6 +53,6 @@ class Table extends BaseTable
      */
     public function getJSObject($content, $multiline = true, $raw = false)
     {
-        return new JS($content, array('multiline' => $multiline, 'raw' => $raw, 'indent' => $this->getDocument()->getConfig()->get(Formatter::CFG_INDENTATION))); 
+        return new JS($content, array('multiline' => $multiline, 'raw' => $raw, 'indent' => $this->getConfig()->get(Formatter::CFG_INDENTATION))); 
     }
 }

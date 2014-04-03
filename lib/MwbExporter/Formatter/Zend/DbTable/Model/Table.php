@@ -35,12 +35,12 @@ class Table extends BaseTable
 {
     public function getTablePrefix()
     {
-        return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_TABLE_PREFIX));
+        return $this->translateVars($this->getConfig()->get(Formatter::CFG_TABLE_PREFIX));
     }
 
     public function getParentTable()
     {
-        return $this->translateVars($this->getDocument()->getConfig()->get(Formatter::CFG_PARENT_TABLE));
+        return $this->translateVars($this->getConfig()->get(Formatter::CFG_PARENT_TABLE));
     }
 
     public function writeTable(WriterInterface $writer)
@@ -70,7 +70,7 @@ class Table extends BaseTable
                     ->write('protected $_name = \''. $this->getRawTableName() .'\';')
                     ->write('')
                     ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                        if ($_this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_DRI)) {
+                        if ($_this->getConfig()->get(Formatter::CFG_GENERATE_DRI)) {
                             $_this->writeDependencies($writer);
                         }
                     })

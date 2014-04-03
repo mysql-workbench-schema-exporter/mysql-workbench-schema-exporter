@@ -35,7 +35,7 @@ class View extends BaseView
     public function writeView(WriterInterface $writer)
     {
         if (!$this->isExternal()) {
-            $namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_NAMESPACE);
+            $namespace = $this->getConfig()->get(Formatter::CFG_NAMESPACE);
             $writer
                 ->indent()
                     // views do not consist of columns just SQL queries

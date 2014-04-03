@@ -35,14 +35,14 @@ class Table extends BaseTable
     public function writeTable(WriterInterface $writer)
     {
         if (!$this->isExternal()) {
-            $namespace = $this->getDocument()->getConfig()->get(Formatter::CFG_NAMESPACE);
+            $namespace = $this->getConfig()->get(Formatter::CFG_NAMESPACE);
 
             $writer
                 ->indent()
                     ->write('<table name="%s" phpName="%s" namespace="%s">', $this->getRawTableName(), $this->getModelName(), $namespace)
                     ->indent()
                         ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                            if ($_this->getDocument()->getConfig()->get(Formatter::CFG_ADD_VENDOR)) {
+                            if ($_this->getConfig()->get(Formatter::CFG_ADD_VENDOR)) {
                                 $_this->writeVendor($writer);
                             }
                             $_this->getColumns()->write($writer);
@@ -74,7 +74,7 @@ class Table extends BaseTable
 
     public function writeIndex(WriterInterface $writer)
     {
-        foreach ($this->indexes as $index) {
+        foreach ($this->getTableIndices() as $index) {
             $index->write($writer);
         }
 
@@ -87,9 +87,9 @@ class Table extends BaseTable
             $writer
                 ->write('<foreign-key name="%s" foreignTable="%s" phpName="%s" refPhpName="%s" onDelete="%s" onUpdate="%s">',
                     $foreign->parameters->get('name'),
-                    $foreign->getOwningTable()->getRawTableName(),
-                    $foreign->getOwningTable()->getModelName(),
+                    $foreign->getReferencedTable()->getRawTableName(),
                     $foreign->getReferencedTable()->getModelName(),
+                    $foreign->getOwningTable()->getModelName(),
                     (strtolower($foreign->parameters->get('deleteRule')) == 'no action' ? 'none' : strtolower($foreign->parameters->get('deleteRule'))),
                     (strtolower($foreign->parameters->get('updateRule')) == 'no action' ? 'none' : strtolower($foreign->parameters->get('updateRule')))
                 )

@@ -69,10 +69,10 @@ class Table extends BaseTable
     public function writePostClassHandler(WriterInterface $writer)
     {
         $this->writeInputFilter($writer);
-        if ($this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_POPULATE)) {
+        if ($this->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_POPULATE)) {
             $this->writePopulate($writer);
         }
-        if ($this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_GETARRAYCOPY)) {
+        if ($this->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_GETARRAYCOPY)) {
             $this->writeGetArrayCopy($writer);
         }
 
@@ -136,7 +136,7 @@ class Table extends BaseTable
 
     public function writeInputFilterColumns(WriterInterface $writer)
     {
-        foreach ($this->getColumns()->getColumns() as $column) {
+        foreach ($this->getColumns() as $column) {
             $writer
                 ->write('array(')
                 ->indent()
@@ -205,8 +205,8 @@ class Table extends BaseTable
      */
     public function writeGetArrayCopy(WriterInterface $writer)
     {
-        $columns   = $this->getColumns()->getColumns();
-        $relations = $this->getRelations();
+        $columns   = $this->getColumns();
+        $relations = $this->getTableRelations();
 
         $writer
             ->write('/**')
@@ -220,8 +220,8 @@ class Table extends BaseTable
             ->write('{')
             ->indent()
                 ->write('$dataFields = array(%s);', implode(', ', array_map(function($column) {
-                    return sprintf('\'%s\'', $column->getColumnName());
-                }, $columns)))
+                    return sprintf('\'%s\'', $column);
+                }, $columns->getColumnNames())))
                 ->write('$relationFields = array(%s);', implode(', ', array_map(function($relation) {
                     return sprintf('\'%s\'', lcfirst($relation->getReferencedTable()->getModelName()));
                 }, $relations)))

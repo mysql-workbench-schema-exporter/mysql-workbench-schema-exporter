@@ -33,7 +33,7 @@ class Column extends BaseColumn
 {
     public function write(WriterInterface $writer)
     {
-        $type = strtoupper($this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this));
+        $type = strtoupper($this->getFormatter()->getDatatypeConverter()->getType($this));
 
         if($type == 'DECIMAL'){
             $type = $type.'" size="'.$this->parameters->get('precision').'" scale="'.$this->parameters->get('scale');

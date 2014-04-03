@@ -35,7 +35,7 @@ class Column extends BaseColumn
     public function asYAML()
     {
         $values = array();
-        $values['type'] = $this->getDocument()->getFormatter()->getDatatypeConverter()->getMappedType($this);
+        $values['type'] = $this->getFormatter()->getDatatypeConverter()->getMappedType($this);
         if (($length = $this->getParameters()->get('length')) && ($length != -1)) {
             $values['length'] = (int) $length;
         }
@@ -62,21 +62,21 @@ class Column extends BaseColumn
     public function relationsAsYAML()
     {
         $values = array();
-        $formatter = $this->getDocument()->getFormatter();
+        $formatter = $this->getFormatter();
         // one to many references
         foreach ($this->foreigns as $foreign) {
+            // do not create entities for many2many tables
             if ($foreign->getForeign()->getTable()->isManyToMany()) {
-                // do not create entities for many2many tables
                 continue;
             }
+            // do not output mapping in foreign table when the unidirectional option is set
             if ($foreign->parseComment('unidirectional') === 'true') {
-                // do not output mapping in foreign table when the unidirectional option is set
                 continue;
             }
-            $targetEntity     = $foreign->getOwningTable()->getModelName();
-            $targetEntityFQCN = $foreign->getOwningTable()->getModelNameAsFQCN($foreign->getReferencedTable()->getEntityNamespace());
-            $mappedBy         = $foreign->getReferencedTable()->getModelName();
-            $relationName     = $foreign->getOwningTable()->getRawTableName();
+            $targetEntity     = $foreign->getReferencedTable()->getModelName();
+            $targetEntityFQCN = $foreign->getReferencedTable()->getModelNameAsFQCN($foreign->getOwningTable()->getEntityNamespace());
+            $mappedBy         = $foreign->getOwningTable()->getModelName();
+            $relationName     = $foreign->getReferencedTable()->getRawTableName();
             // check for OneToOne or OneToMany relationship
             if ($foreign->isManyToOne()) {
                 // OneToMany
@@ -90,9 +90,9 @@ class Column extends BaseColumn
                     'fetch'         => $formatter->getFetchOption($foreign->parseComment('fetch')),
                     'orphanRemoval' => $formatter->getBooleanOption($foreign->parseComment('orphanRemoval')),
                     'joinColumn'    => array(
-                        'name'                 => $foreign->getForeign()->getColumnName(),
-                        'referencedColumnName' => $foreign->getLocal()->getColumnName(),
-                        'onDelete'             => $formatter->getDeleteRule($foreign->getLocal()->getParameters()->get('deleteRule')),
+                        'name'                 => $foreign->getLocal()->getColumnName(),
+                        'referencedColumnName' => $foreign->getForeign()->getColumnName(),
+                        'onDelete'             => $formatter->getDeleteRule($foreign->getForeign()->getParameters()->get('deleteRule')),
                         'nullable'             => !$foreign->getForeign()->isNotNull() ? null : false,
                     ),
                 );
@@ -104,34 +104,34 @@ class Column extends BaseColumn
                 $values[static::RELATION_ONE_TO_ONE][$relationName] = array(
                     'targetEntity'  => $targetEntityFQCN,
                     'joinColumn'    => array(
-                        'name'                 => $foreign->getForeign()->getColumnName(),
-                        'referencedColumnName' => $foreign->getLocal()->getColumnName(),
-                        'onDelete'             => $formatter->getDeleteRule($foreign->getLocal()->getParameters()->get('deleteRule')),
+                        'name'                 => $foreign->getLocal()->getColumnName(),
+                        'referencedColumnName' => $foreign->getForeign()->getColumnName(),
+                        'onDelete'             => $formatter->getDeleteRule($foreign->getForeign()->getParameters()->get('deleteRule')),
                         'nullable'             => !$foreign->getForeign()->isNotNull() ? null : false,
                     ),
                 );
             }
         }
         // many to one references
-        if (null !== $this->local) {
-            $targetEntity     = $this->local->getReferencedTable()->getModelName();
-            $targetEntityFQCN = $this->local->getReferencedTable()->getModelNameAsFQCN($this->local->getOwningTable()->getEntityNamespace());
-            $inversedBy       = $this->local->getOwningTable()->getModelName();
-            $relationName     = $this->local->getReferencedTable()->getRawTableName();
+        foreach ($this->getLocalForeignKeys() as $local) {
+            $targetEntity     = $local->getReferencedTable()->getModelName();
+            $targetEntityFQCN = $local->getReferencedTable()->getModelNameAsFQCN($local->getOwningTable()->getEntityNamespace());
+            $inversedBy       = $local->getOwningTable()->getModelName();
+            $relationName     = $local->getReferencedTable()->getRawTableName();
             // check for OneToOne or ManyToOne relationship
-            if ($this->local->isManyToOne()) {
+            if ($local->isManyToOne()) {
                 // ManyToOne
                 if (!isset($values[static::RELATION_MANY_TO_ONE])) {
                     $values[static::RELATION_MANY_TO_ONE] = array();
                 }
                 $values[static::RELATION_MANY_TO_ONE][$relationName] = array(
                     'targetEntity' => $targetEntity,
-                    'inversedBy'   => $this->local->parseComment('unidirectional') === 'true' ? null : lcfirst(Inflector::pluralize($inversedBy)),
+                    'inversedBy'   => $local->parseComment('unidirectional') === 'true' ? null : lcfirst(Inflector::pluralize($inversedBy)),
                     'joinColumn'   => array(
-                        'name'                 => $this->local->getForeign()->getColumnName(),
-                        'referencedColumnName' => $this->local->getLocal()->getColumnName(),
-                        'onDelete'             => $formatter->getDeleteRule($this->local->getParameters()->get('deleteRule')),
-                        'nullable'             => !$this->local->getForeign()->isNotNull() ? null : false,
+                        'name'                 => $local->getForeign()->getColumnName(),
+                        'referencedColumnName' => $local->getLocal()->getColumnName(),
+                        'onDelete'             => $formatter->getDeleteRule($local->getParameters()->get('deleteRule')),
+                        'nullable'             => !$local->getForeign()->isNotNull() ? null : false,
                     ),
                 );
             } else {
@@ -142,10 +142,10 @@ class Column extends BaseColumn
                 $values[static::RELATION_ONE_TO_ONE][$relationName] = array(
                     'targetEntity' => $targetEntity,
                     'joinColumn'   => array(
-                        'name'                 => $this->local->getForeign()->getColumnName(),
-                        'referencedColumnName' => $this->local->getLocal()->getColumnName(),
-                        'onDelete'             => $formatter->getDeleteRule($this->local->getParameters()->get('deleteRule')),
-                        'nullable'             => !$this->local->getForeign()->isNotNull() ? null : false,
+                        'name'                 => $local->getForeign()->getColumnName(),
+                        'referencedColumnName' => $local->getLocal()->getColumnName(),
+                        'onDelete'             => $formatter->getDeleteRule($local->getParameters()->get('deleteRule')),
+                        'nullable'             => !$local->getForeign()->isNotNull() ? null : false,
                     ),
                 );
             }

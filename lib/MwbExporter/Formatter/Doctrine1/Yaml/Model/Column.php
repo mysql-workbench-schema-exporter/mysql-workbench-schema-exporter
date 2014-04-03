@@ -37,7 +37,7 @@ class Column extends BaseColumn
         $writer
             ->write('%s:', $this->getColumnName())
             ->indent()
-                ->write('type: %s', $this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this))
+                ->write('type: %s', $this->getFormatter()->getDatatypeConverter()->getType($this))
                 ->writeIf($this->isPrimary(), 'primary: true')
                 ->writeIf($this->isNotNull(), 'notnull: true')
                 ->writeIf($this->isAutoIncrement(), 'autoincrement: true')

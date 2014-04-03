@@ -61,16 +61,16 @@ class Table extends BaseTable
             'type' => 'entity',
             'table' => $this->getRawTableName(), 
         );
-        if ($this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY)) {
-            if ($repositoryNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) {
+        if ($this->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY)) {
+            if ($repositoryNamespace = $this->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) {
                 $repositoryNamespace .= '\\';
             }
             $values['repositoryClass'] = $repositoryNamespace.$this->getModelName().'Repository';
         }
         // indices
-        if (count($this->getIndexes())) {
+        if (count($this->getTableIndices())) {
             $values['indexes'] = array();
-            foreach ($this->getIndexes() as $index) {
+            foreach ($this->getTableIndices() as $index) {
                 $values['indexes'][$index->getParameters()->get('name')] = $index->asYAML();
             }
         }
@@ -108,8 +108,8 @@ class Table extends BaseTable
             }
         }
         // many to many relations
-        $formatter = $this->getDocument()->getFormatter();
-        foreach ($this->manyToManyRelations as $relation) {
+        $formatter = $this->getFormatter();
+        foreach ($this->getTableM2MRelations() as $relation) {
             $isOwningSide = $formatter->isOwningSide($relation, $mappedRelation);
             $mappings = array(
                 'targetEntity' => $relation['refTable']->getModelNameAsFQCN($this->getEntityNamespace()),
@@ -177,7 +177,7 @@ class Table extends BaseTable
             $values['lifecycleCallbacks'] = $lifecycleCallbacks;
         }
 
-        return new YAML(array($namespace => $values), array('indent' => $this->getDocument()->getConfig()->get(Formatter::CFG_INDENTATION)));
+        return new YAML(array($namespace => $values), array('indent' => $this->getConfig()->get(Formatter::CFG_INDENTATION)));
     }
 
     protected function getVars()

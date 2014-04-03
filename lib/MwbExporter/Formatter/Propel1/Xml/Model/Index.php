@@ -41,7 +41,7 @@ class Index extends BaseIndex
             return $this;
         }
         $writer
-            ->write('<%s name="%s">', $type, $this->parameters->get('name'))
+            ->write('<%s name="%s">', $type, $this->getName())
             ->indent()
         ;
         foreach ($this->columns as $refColumn) {

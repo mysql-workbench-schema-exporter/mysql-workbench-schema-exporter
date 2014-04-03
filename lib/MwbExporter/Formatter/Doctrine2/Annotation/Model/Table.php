@@ -75,7 +75,7 @@ class Table extends BaseTable
     public function addPrefix($annotation = null)
     {
         if (null === $this->ormPrefix) {
-            $this->ormPrefix = '@'.$this->getDocument()->getConfig()->get(Formatter::CFG_ANNOTATION_PREFIX);
+            $this->ormPrefix = '@'.$this->getConfig()->get(Formatter::CFG_ANNOTATION_PREFIX);
         }
 
         return $this->ormPrefix.($annotation ? $annotation : '');
@@ -90,7 +90,7 @@ class Table extends BaseTable
      */
     public function quoteIdentifier($value)
     {
-        return $this->getDocument()->getConfig()->get(Formatter::CFG_QUOTE_IDENTIFIER) ? '`'.$value.'`' : $value;
+        return $this->getConfig()->get(Formatter::CFG_QUOTE_IDENTIFIER) ? '`'.$value.'`' : $value;
     }
 
     /**
@@ -114,7 +114,7 @@ class Table extends BaseTable
     protected function getIndexesAnnotation()
     {
         $indices = array();
-        foreach ($this->indexes as $index) {
+        foreach ($this->getTableIndices() as $index) {
             if($index->isIndex()){
                 $indices[] = $this->getAnnotation('Index', $index->asAnnotation());
             }
@@ -131,7 +131,7 @@ class Table extends BaseTable
     protected function getUniqueConstraintsAnnotation()
     {
         $uniques = array();
-        foreach ($this->indexes as $index) {
+        foreach ($this->getTableIndices() as $index) {
             if($index->isUnique()){
                 $uniques[] = $this->getAnnotation('UniqueConstraint', $index->asAnnotation());
             }
@@ -164,7 +164,7 @@ class Table extends BaseTable
      */
     public function getJoinColumnAnnotation($local, $foreign, $deleteRule = null)
     {
-        return $this->getAnnotation('JoinColumn', array('name' => $local, 'referencedColumnName' => $foreign, 'onDelete' => $this->getDocument()->getFormatter()->getDeleteRule($deleteRule)));
+        return $this->getAnnotation('JoinColumn', array('name' => $local, 'referencedColumnName' => $foreign, 'onDelete' => $this->getFormatter()->getDeleteRule($deleteRule)));
     }
 
     public function writeTable(WriterInterface $writer)
@@ -187,11 +187,11 @@ class Table extends BaseTable
         $this->getDocument()->addLog(sprintf('Writing table "%s".', $this->getModelName()));
 
         $namespace = $this->getEntityNamespace();
-        if ($repositoryNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) {
+        if ($repositoryNamespace = $this->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) {
             $repositoryNamespace .= '\\';
         }
-        $skipGetterAndSetter = $this->getDocument()->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
-        $serializableEntity  = $this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
+        $skipGetterAndSetter = $this->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
+        $serializableEntity  = $this->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
         $lifecycleCallbacks  = $this->getLifecycleCallbacks();
 
         $comment = $this->getComment();
@@ -208,7 +208,7 @@ class Table extends BaseTable
             ->write(' * '.$this->getNamespace(null, false))
             ->write(' *')
             ->writeIf($comment, $comment)
-            ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getDocument()->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
+            ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
             ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation(), 'uniqueConstraints' => $this->getUniqueConstraintsAnnotation())))
             ->writeIf($lifecycleCallbacks, ' * @HasLifecycleCallbacks')
             ->write(' */')
@@ -268,7 +268,7 @@ class Table extends BaseTable
             ->indent()
                 ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
                     $_this->getColumns()->writeArrayCollections($writer);
-                    foreach ($_this->getManyToManyRelations() as $relation) {
+                    foreach ($_this->getTableM2MRelations() as $relation) {
                         $_this->getDocument()->addLog(sprintf('  Writing constructor "%s".', $relation['refTable']->getModelName()));
                         $writer->write('$this->%s = new %s();', lcfirst(Inflector::pluralize($relation['refTable']->getModelName())), $_this->getCollectionClass(false));
                     }
@@ -283,14 +283,13 @@ class Table extends BaseTable
 
     public function writeSerialization(WriterInterface $writer)
     {
-        $columns = $this->getColumns()->getColumns();
         $writer
             ->write('public function __sleep()')
             ->write('{')
             ->indent()
                 ->write('return array(%s);', implode(', ', array_map(function($column) {
-                    return sprintf('\'%s\'', $column->getColumnName());
-                }, $columns)))
+                    return sprintf('\'%s\'', $column);
+                }, $this->getColumns()->getColumnNames())))
             ->outdent()
             ->write('}')
         ;
@@ -300,8 +299,8 @@ class Table extends BaseTable
 
     public function writeManyToMany(WriterInterface $writer)
     {
-        $formatter = $this->getDocument()->getFormatter();
-        foreach ($this->manyToManyRelations as $relation) {
+        $formatter = $this->getFormatter();
+        foreach ($this->getTableM2MRelations() as $relation) {
             $this->getDocument()->addLog(sprintf('  Writing setter/getter for N <=> N "%s".', $relation['refTable']->getModelName()));
 
             $isOwningSide = $formatter->isOwningSide($relation, $mappedRelation);
@@ -371,8 +370,8 @@ class Table extends BaseTable
 
     public function writeManyToManyGetterAndSetter(WriterInterface $writer)
     {
-        $formatter = $this->getDocument()->getFormatter();
-        foreach ($this->manyToManyRelations as $relation) {
+        $formatter = $this->getFormatter();
+        foreach ($this->getTableM2MRelations() as $relation) {
             $this->getDocument()->addLog(sprintf('  Writing N <=> N relation "%s".', $relation['refTable']->getModelName()));
 
             $isOwningSide = $formatter->isOwningSide($relation, $mappedRelation);
@@ -435,7 +434,7 @@ class Table extends BaseTable
         if ('@ORM\\' === $this->addPrefix()) {
             $uses[] = 'Doctrine\ORM\Mapping as ORM';
         }
-        if (count($this->getManyToManyRelations()) || $this->getColumns()->hasOneToManyRelation()) {
+        if (count($this->getTableM2MRelations()) || $this->getColumns()->hasOneToManyRelation()) {
             $uses[] = $this->getCollectionClass();
         }
 

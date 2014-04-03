@@ -46,7 +46,7 @@ class ForeignKey extends BaseForeignKey
             ;
         } else {
             $writer
-                ->write('%s:', 0 === strpos($this->parameters->get('name'), 'd:') ? substr($this->parameters->get('name'), 2) : $this->referencedTable->getModelName())
+                ->write('%s:', 0 === strpos($this->getName(), 'd:') ? substr($this->getName(), 2) : $this->referencedTable->getModelName())
                 ->indent()
                     ->write('class: '.$this->referencedTable->getModelName())
                     ->write('local: '.$this->getLocal()->getColumnName())

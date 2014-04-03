@@ -34,7 +34,7 @@ class Column extends BaseColumn
     public function asYAML()
     {
         $attributes = array();
-        $type = strtolower($this->getDocument()->getFormatter()->getDatatypeConverter()->getType($this));
+        $type = strtolower($this->getFormatter()->getDatatypeConverter()->getType($this));
         $attributes['type'] = $type;
         switch ($type) {
             case 'decimal':

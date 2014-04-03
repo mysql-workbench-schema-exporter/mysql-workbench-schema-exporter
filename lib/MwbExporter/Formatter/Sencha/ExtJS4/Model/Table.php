@@ -84,10 +84,10 @@ class Table extends BaseTable
         if (count($data = $this->getFields())) {
             $result['fields'] = $data;
         }
-        if ($this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_VALIDATION) && count($data = $this->getValidations())) {
+        if ($this->getConfig()->get(Formatter::CFG_GENERATE_VALIDATION) && count($data = $this->getValidations())) {
             $result['validations'] = $data;
         }
-        if ($this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_PROXY) && count($data = $this->getAjaxProxy())) {
+        if ($this->getConfig()->get(Formatter::CFG_GENERATE_PROXY) && count($data = $this->getAjaxProxy())) {
             $result['proxy'] = $data;
         }
 
@@ -106,7 +106,7 @@ class Table extends BaseTable
         $current = sprintf('%s.%s', $this->getClassPrefix(), $this->getModelName());
 
         // Collect belongsTo uses.
-        foreach ($this->relations as $relation) {
+        foreach ($this->getTableRelations() as $relation) {
             $refTableName = sprintf('%s.%s', $this->getClassPrefix(), $relation->getReferencedTable()->getModelName());
             if ($relation->isManyToOne() && !in_array($refTableName, $result) && ($refTableName !== $current)) {
                 $result[] = $refTableName;
@@ -114,7 +114,7 @@ class Table extends BaseTable
         }
 
         // Collect hasOne uses.
-        foreach ($this->relations as $relation) {
+        foreach ($this->getTableRelations() as $relation) {
             $refTableName = sprintf('%s.%s', $this->getClassPrefix(), $relation->getReferencedTable()->getModelName());
             if (!$relation->isManyToOne() && !in_array($refTableName, $result) && ($refTableName !== $current)) {
                 $result[] = $refTableName;
@@ -122,7 +122,7 @@ class Table extends BaseTable
         }
 
         // Collect hasMany uses.
-        foreach ($this->getManyToManyRelations() as $relation) {
+        foreach ($this->getTableM2MRelations() as $relation) {
             $referencedTable = $relation['refTable'];
             $refTableName = sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName());
             if (!in_array($refTableName, $result) && ($refTableName !== $current)) {
@@ -142,7 +142,7 @@ class Table extends BaseTable
     protected function getBelongsTo()
     {
         $result = array();
-        foreach ($this->getRelations() as $relation) {
+        foreach ($this->getTableRelations() as $relation) {
             if (!$relation->isManyToOne()) {
                 // Do not list OneToOne relations.
                 continue;
@@ -168,9 +168,9 @@ class Table extends BaseTable
     protected function getHasOne()
     {
         $result = array();
-        foreach ($this->getRelations() as $relation) {
+        foreach ($this->getTableRelations() as $relation) {
+            // Do not list manyToOne relations.
             if ($relation->isManyToOne()) {
-                // Do not list manyToOne relations.
                 continue;
             }
             $referencedTable = $relation->getReferencedTable();
@@ -194,7 +194,7 @@ class Table extends BaseTable
     protected function getHasMany()
     {
         $result = array();
-        foreach ($this->getManyToManyRelations() as $relation) {
+        foreach ($this->getTableM2MRelations() as $relation) {
             $referencedTable = $relation['refTable'];
             $result[] = array(
                 'model'          => sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName()),
@@ -215,7 +215,7 @@ class Table extends BaseTable
     {
         $result = array();
         foreach ($this->getColumns() as $column) {
-            $type = $this->getDocument()->getFormatter()->getDatatypeConverter()->getType($column);
+            $type = $this->getFormatter()->getDatatypeConverter()->getType($column);
             $result[] = array(
                 'name'         => $column->getColumnName(),
                 'type'         => $type ? $type : 'auto',

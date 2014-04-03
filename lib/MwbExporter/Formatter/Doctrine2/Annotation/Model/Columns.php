@@ -49,7 +49,7 @@ class Columns extends BaseColumns
     public function write(WriterInterface $writer)
     {
         // display column
-        foreach ($this->columns as $column) {
+        foreach ($this->childs as $column) {
             // do not output fields of relations.
             if (!$column->isPrimary() && (count($column->getLocalForeignKeys()) || $column->hasOneToManyRelation())) {
                 continue;
@@ -58,7 +58,7 @@ class Columns extends BaseColumns
         }
         $this->emptyCollectedForeignKeys();
         // display column relations
-        foreach ($this->columns as $column) {
+        foreach ($this->childs as $column) {
             $column->writeRelations($writer);
         }
 
@@ -68,7 +68,7 @@ class Columns extends BaseColumns
     public function writeArrayCollections(WriterInterface $writer)
     {
         $this->emptyCollectedForeignKeys();
-        foreach ($this->columns as $column) {
+        foreach ($this->childs as $column) {
             $column->writeArrayCollection($writer);
         }
 
@@ -78,7 +78,7 @@ class Columns extends BaseColumns
     public function writeGetterAndSetter(WriterInterface $writer)
     {
         // column getter and setter
-        foreach ($this->columns as $column) {
+        foreach ($this->childs as $column) {
             // do not output fields of relations.
             if (!$column->isPrimary() && (count($column->getLocalForeignKeys()) || $column->hasOneToManyRelation())) {
                 continue;
@@ -87,7 +87,7 @@ class Columns extends BaseColumns
         }
         $this->emptyCollectedForeignKeys();
         // column getter and setter for relations
-        foreach ($this->columns as $column) {
+        foreach ($this->childs as $column) {
             $column->writeRelationsGetterAndSetter($writer);
         }
 

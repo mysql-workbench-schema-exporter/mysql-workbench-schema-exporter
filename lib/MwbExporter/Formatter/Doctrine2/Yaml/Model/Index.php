@@ -27,7 +27,7 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
-use MwbExporter\Formatter\Doctrine2\Model\Index as BaseIndex;
+use MwbExporter\Model\Index as BaseIndex;
 
 class Index extends BaseIndex
 {

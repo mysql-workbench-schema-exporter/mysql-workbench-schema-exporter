@@ -43,7 +43,7 @@ class Schema extends BaseSchema
     public function write(WriterInterface $writer)
     {
         $data = $this->asYAML();
-        $indent = $this->getDocument()->getConfig()->get(Formatter::CFG_INDENTATION);
+        $indent = $this->getConfig()->get(Formatter::CFG_INDENTATION);
         $yaml = new YAML($data, array(
             'indent' => $indent,
             'inline' => true,

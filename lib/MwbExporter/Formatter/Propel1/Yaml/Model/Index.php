@@ -33,11 +33,6 @@ class Index extends BaseIndex
 {
     public function asYAML()
     {
-        $columns = array();
-        foreach ($this->columns as $refColumn) {
-            $columns[] = $refColumn->getColumnName();
-        }
-
-        return array($this->parameters->get('name') => $columns);
+        return array($this->getName() => $this->getColumnNames());
     }
 }

@@ -55,7 +55,7 @@ class Table extends BaseTable
     public function asModel()
     {
         $fields = array();
-        foreach ($this->getColumns()->getColumns() as $column) {
+        foreach ($this->getColumns() as $column) {
             $fields[] = $column->asField();
         }
 
@@ -71,7 +71,7 @@ class Table extends BaseTable
     {
         $columns = array();
         $forms = array();
-        foreach ($this->getColumns()->getColumns() as $column) {
+        foreach ($this->getColumns() as $column) {
             $columns[] = $column->asColumn();
             $forms[] = $column->asFormItem();
         }

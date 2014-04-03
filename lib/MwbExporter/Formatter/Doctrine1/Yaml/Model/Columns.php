@@ -38,7 +38,7 @@ class Columns extends BaseColumns
             ->write('columns:')
             ->indent()
                 ->writeCallback(function(WriterInterface $writer, Columns $_this = null) {
-                    foreach ($_this->getColumns() as $column) {
+                    foreach ($_this as $column) {
                         $column->write($writer);
                     }
                 })

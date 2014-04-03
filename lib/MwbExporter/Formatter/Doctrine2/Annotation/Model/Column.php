@@ -54,7 +54,7 @@ class Column extends BaseColumn
 
     public function writeArrayCollection(WriterInterface $writer)
     {
-        foreach ($this->foreigns as $foreign) {
+        foreach ($this->getForeignKeys() as $foreign) {
             if ($this->isForeignKeyIgnored($foreign) || !$foreign->isManyToOne()) {
                 continue;
             }
@@ -69,9 +69,9 @@ class Column extends BaseColumn
 
     public function writeRelations(WriterInterface $writer)
     {
-        $formatter = $this->getDocument()->getFormatter();
+        $formatter = $this->getFormatter();
         // one to many references
-        foreach ($this->foreigns as $foreign) {
+        foreach ($this->getForeignKeys() as $foreign) {
             if ($this->isForeignKeyIgnored($foreign)) {
                 continue;
             }
@@ -107,7 +107,7 @@ class Column extends BaseColumn
                 $this->getDocument()->addLog('  Relation considered as "1 <=> N".');
 
                 $related = $this->getRelatedName($foreign);
-                if (count($foreign->getLocals()) == 1) {
+                if (!$foreign->isComposite()) {
                     $writer
                         ->write('/**')
                         ->write(' * '.$this->getTable()->getAnnotation('OneToMany', $annotationOptions))
@@ -151,7 +151,7 @@ class Column extends BaseColumn
             }
         }
         // many to references
-        foreach ($this->locals as $local) {
+        foreach ($this->getLocalForeignKeys() as $local) {
             if (!$this->isLocalForeignKeyIgnored($local)) {
                 $targetEntity = $local->getOwningTable()->getModelName();
                 $targetEntityFQCN = $local->getOwningTable()->getModelNameAsFQCN($local->getReferencedTable()->getEntityNamespace());
@@ -185,7 +185,7 @@ class Column extends BaseColumn
                     } else {
                         $annotationOptions['inversedBy'] = lcfirst(Inflector::pluralize($annotationOptions['inversedBy'])) . $refRelated;
                     }
-                    if (count($local->getLocals()) == 1) {
+                    if (!$local->isComposite()) {
                         $writer
                             ->write('/**')
                             ->write(' * '.$this->getTable()->getAnnotation('ManyToOne', $annotationOptions))
@@ -245,7 +245,7 @@ class Column extends BaseColumn
         $this->getDocument()->addLog(sprintf('  Writing setter/getter for column "%s" .', $this->getColumnName()));
 
         $table = $this->getTable();
-        $converter = $this->getDocument()->getFormatter()->getDatatypeConverter();
+        $converter = $this->getFormatter()->getDatatypeConverter();
         $nativeType = $converter->getNativeType($converter->getMappedType($this));
         $writer
             // setter
@@ -286,7 +286,7 @@ class Column extends BaseColumn
     {
         $table = $this->getTable();
         // one to many references
-        foreach ($this->foreigns as $foreign) {
+        foreach ($this->getForeignKeys() as $foreign) {
             if ($this->isForeignKeyIgnored($foreign)) {
                 continue;
             }
@@ -367,7 +367,7 @@ class Column extends BaseColumn
             ;
         }
         // many to one references
-        foreach ($this->locals as $local) {
+        foreach ($this->getLocalForeignKeys() as $local) {
             if (!$this->isLocalForeignKeyIgnored($local)) {
                 $this->getDocument()->addLog(sprintf('  Writing setter/getter for N <=> ? "%s".', $local->getParameters()->get('name')));
 
@@ -454,7 +454,7 @@ class Column extends BaseColumn
     {
         $attributes = array(
             'name' => ($columnName = $this->getTable()->quoteIdentifier($this->getColumnName())) !== $this->getColumnName() ? $columnName : null,
-            'type' => $this->getDocument()->getFormatter()->getDatatypeConverter()->getMappedType($this),
+            'type' => $this->getFormatter()->getDatatypeConverter()->getMappedType($this),
         );
         if (($length = $this->parameters->get('length')) && ($length != -1)) {
             $attributes['length'] = (int) $length;
