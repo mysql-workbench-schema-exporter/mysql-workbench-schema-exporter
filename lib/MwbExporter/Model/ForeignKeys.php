@@ -34,47 +34,47 @@ class ForeignKeys extends Base implements \ArrayAccess, \IteratorAggregate, \Cou
     /**
      * @var array
      */
-    protected $foreignKeys = array();
+    protected $childs = array();
 
     protected function init()
     {
         foreach ($this->node->value as $key => $node) {
-            $this->foreignKeys[] = $this->getDocument()->getFormatter()->createForeignKey($this, $node);
+            $this->childs[] = $this->getFormatter()->createForeignKey($this, $node);
         }
     }
 
     public function offsetExists($offset)
     {
-        return array_key_exists($offset, $this->foreignKeys);
+        return array_key_exists($offset, $this->childs);
     }
 
     public function offsetGet($offset)
     {
-        return $this->foreignKeys[$offset];
+        return $this->childs[$offset];
     }
 
     public function offsetSet($offset, $value)
     {
         if (null === $offset) {
-            $this->foreignKeys[] = $value;
+            $this->childs[] = $value;
         } else {
-            $this->foreignKeys[$offset] = $value;
+            $this->childs[$offset] = $value;
         }
     }
 
     public function offsetUnset($offset)
     {
-        unset($this->foreignKeys[$offset]);
+        unset($this->childs[$offset]);
     }
 
     public function getIterator()
     {
-        return new \ArrayIterator($this->foreignKeys);
+        return new \ArrayIterator($this->childs);
     }
 
     public function count()
     {
-        return count($this->foreignKeys);
+        return count($this->childs);
     }
 
     /**
@@ -83,7 +83,7 @@ class ForeignKeys extends Base implements \ArrayAccess, \IteratorAggregate, \Cou
      */
     public function write(WriterInterface $writer)
     {
-        foreach ($this->foreignKeys as $foreignKey) {
+        foreach ($this->childs as $foreignKey) {
             $foreignKey->write($writer);
         }
 

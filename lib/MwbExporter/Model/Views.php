@@ -34,48 +34,48 @@ class Views extends Base implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * @var array
      */
-    protected $views = array();
+    protected $childs = array();
 
     protected  function init()
     {
-        // iterate on views
+        // iterate on childs
         foreach ($this->node->value as $key => $node) {
-            $this->views[] = $this->getDocument()->getFormatter()->createView($this, $node);
+            $this->childs[] = $this->getFormatter()->createView($this, $node);
         }
     }
 
     public function offsetExists($offset)
     {
-        return array_key_exists($offset, $this->views);
+        return array_key_exists($offset, $this->childs);
     }
 
     public function offsetGet($offset)
     {
-        return $this->views[$offset];
+        return $this->childs[$offset];
     }
 
     public function offsetSet($offset, $value)
     {
         if (null === $offset) {
-            $this->views[] = $value;
+            $this->childs[] = $value;
         } else {
-            $this->views[$offset] = $value;
+            $this->childs[$offset] = $value;
         }
     }
 
     public function offsetUnset($offset)
     {
-        unset($this->views[$offset]);
+        unset($this->childs[$offset]);
     }
 
     public function getIterator()
     {
-        return new \ArrayIterator($this->views);
+        return new \ArrayIterator($this->childs);
     }
 
     public function count()
     {
-        return count($this->views);
+        return count($this->childs);
     }
 
     /**
@@ -84,7 +84,7 @@ class Views extends Base implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function write(WriterInterface $writer)
     {
-        foreach ($this->views as $view) {
+        foreach ($this->childs as $view) {
             $view->write($writer);
         }
 

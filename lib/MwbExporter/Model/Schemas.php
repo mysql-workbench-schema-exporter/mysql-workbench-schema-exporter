@@ -34,47 +34,47 @@ class Schemas extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
     /**
      * @var array
      */
-    protected $schemas = array();
+    protected $childs = array();
 
     protected function init()
     {
         foreach ($this->node->xpath("value") as $key => $node) {
-            $this->schemas[] = $this->getDocument()->getFormatter()->createSchema($this, $node);
+            $this->childs[] = $this->getFormatter()->createSchema($this, $node);
         }
     }
 
     public function offsetExists($offset)
     {
-        return array_key_exists($offset, $this->schemas);
+        return array_key_exists($offset, $this->childs);
     }
 
     public function offsetGet($offset)
     {
-        return $this->schemas[$offset];
+        return $this->childs[$offset];
     }
 
     public function offsetSet($offset, $value)
     {
         if (null === $offset) {
-            $this->schemas[] = $value;
+            $this->childs[] = $value;
         } else {
-            $this->schemas[$offset] = $value;
+            $this->childs[$offset] = $value;
         }
     }
 
     public function offsetUnset($offset)
     {
-        unset($this->schemas[$offset]);
+        unset($this->childs[$offset]);
     }
 
     public function getIterator()
     {
-        return new \ArrayIterator($this->schemas);
+        return new \ArrayIterator($this->childs);
     }
 
     public function count()
     {
-        return count($this->schemas);
+        return count($this->childs);
     }
 
     /**
@@ -83,7 +83,7 @@ class Schemas extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
      */
     public function write(WriterInterface $writer)
     {
-        foreach ($this->schemas as $schema) {
+        foreach ($this->childs as $schema) {
             $schema->write($writer);
         }
 

@@ -56,25 +56,20 @@ class Column extends Base
      */
     protected $foreigns = array();
 
-    protected function init()
+    /**
+     * Constructor.
+     *
+     * @param \MwbExporter\Model\Base $parent
+     * @param \SimpleXMLElement $node
+     */
+    public function __construct(Base $parent = null, $node = null)
     {
         $this->links = new RegistryHolder();
-        // iterate on column configuration
-        foreach ($this->node->xpath("value") as $key => $node) {
-            $attributes         = $node->attributes();
+        parent::__construct($parent, $node);
+    }
 
-            // Convert a list to an array
-            if ('list' === (string)$attributes['type']) {
-                $value = array();
-                for ($i = 0; $i < $node->count(); $i++) {
-                    $value[$i] = (string)$node[$i]->value;
-                }
-            } else {
-                $value = (string) $node[0];
-            }
-
-            $this->parameters->set((string) $attributes['key'], $value);
-        }
+    protected function init()
+    {
         $this->getDocument()->addLog(sprintf('Processing column "%s.%s".', $this->getTable()->getRawTableName(), $this->getColumnName()));
         // iterate on links to other wb objects
         foreach ($this->node->xpath("link") as $key => $node) {
@@ -82,6 +77,11 @@ class Column extends Base
             $key                = (string) $attributes['key'];
             $this->links->set((string) $attributes['key'], (string) $node[0]);
         }
+    }
+
+    protected function hasParameters()
+    {
+        return true;
     }
 
     /**
@@ -101,7 +101,7 @@ class Column extends Base
      */
     public function getColumnName()
     {
-        return $this->parameters->get('name');
+        return $this->getName();
     }
 
     /**
@@ -124,16 +124,6 @@ class Column extends Base
     public function markAsPrimary()
     {
         $this->isPrimary = true;
-    }
-
-    /**
-     * return true if the column is a primary key
-     *
-     * @return boolean
-     */
-    public function isPrimary()
-    {
-        return $this->isPrimary;
     }
 
     /**
@@ -260,7 +250,7 @@ class Column extends Base
     {
         $count = 0;
         $tablename = $fkey->getReferencedTable()->getRawTableName();
-        foreach ($this->getTable()->getManyToManyRelations() as $relation) {
+        foreach ($this->getTable()->getTableM2MRelations() as $relation) {
             // $relation key => reference (ForeignKey), refTable (Table)
             if ($this->checkReferenceTableName($relation['refTable'], $tablename)) {
                 $count++;
@@ -346,6 +336,16 @@ class Column extends Base
     }
 
     /**
+     * return true if the column is a primary key
+     *
+     * @return boolean
+     */
+    public function isPrimary()
+    {
+        return $this->isPrimary;
+    }
+
+    /**
      * Is column not null (aka. required).
      *
      * @return boolean
@@ -363,6 +363,20 @@ class Column extends Base
     public function isAutoIncrement()
     {
         return 1 == $this->parameters->get('autoIncrement') ? true : false;
+    }
+
+    /**
+     * Is the field an unsigned value
+     * 
+     * @return boolean
+     */
+    public function isUnsigned()
+    {
+        $flags = $this->parameters->get('flags');
+        if (is_array($flags)) {
+            return array_key_exists('UNSIGNED', array_flip($flags));
+        }
+        return false;
     }
 
     /**
@@ -387,19 +401,5 @@ class Column extends Base
     public function getLength()
     {
         return $this->parameters->get('length');
-    }
-
-    /**
-     * Is the field an unsigned value
-     * 
-     * @return boolean
-     */
-    public function isUnsigned()
-    {
-        $flags = $this->parameters->get('flags');
-        if (is_array($flags)) {
-            return array_key_exists('UNSIGNED', array_flip($flags));
-        }
-        return false;
     }
 }

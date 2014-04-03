@@ -35,34 +35,34 @@ class Tables extends Base implements \ArrayAccess, \IteratorAggregate, \Countabl
     /**
      * @var array
      */
-    protected $tables = array();
+    protected $childs = array();
 
     public function init()
     {
-        // collect tables
+        // collect childs
         foreach ($this->node->xpath("value") as $key => $node) {
-            $table = $this->getDocument()->getFormatter()->createTable($this, $node);
-            // skip translation tables
+            $table = $this->getFormatter()->createTable($this, $node);
+            // skip translation childs
             if ($table->isTranslationTable()) {
                 continue;
             }
-            $this->tables[] = $table;
+            $this->childs[] = $table;
         }
-        usort($this->tables, function($a, $b) {
+        usort($this->childs, function($a, $b) {
             return strcmp($a->getModelName(), $b->getModelName());
         });
         /*
          * before you can check for foreign keys
-         * you have to store at first all tables in the
+         * you have to store at first all childs in the
          * object registry
          */
-        foreach ($this->tables as $table) {
+        foreach ($this->childs as $table) {
             $table->initIndices();
             $table->initForeignKeys();
         }
         // initialize many to many relation
-        if ($this->getDocument()->getConfig()->get(FormatterInterface::CFG_ENHANCE_M2M_DETECTION)) {
-            foreach ($this->tables as $table) {
+        if ($this->getConfig()->get(FormatterInterface::CFG_ENHANCE_M2M_DETECTION)) {
+            foreach ($this->childs as $table) {
                 $table->initManyToManyRelations();
             }
         }
@@ -70,36 +70,36 @@ class Tables extends Base implements \ArrayAccess, \IteratorAggregate, \Countabl
 
     public function offsetExists($offset)
     {
-        return array_key_exists($offset, $this->tables);
+        return array_key_exists($offset, $this->childs);
     }
 
     public function offsetGet($offset)
     {
-        return $this->tables[$offset];
+        return $this->childs[$offset];
     }
 
     public function offsetSet($offset, $value)
     {
         if (null === $offset) {
-            $this->tables[] = $value;
+            $this->childs[] = $value;
         } else {
-            $this->tables[$offset] = $value;
+            $this->childs[$offset] = $value;
         }
     }
 
     public function offsetUnset($offset)
     {
-        unset($this->tables[$offset]);
+        unset($this->childs[$offset]);
     }
 
     public function getIterator()
     {
-        return new \ArrayIterator($this->tables);
+        return new \ArrayIterator($this->childs);
     }
 
     public function count()
     {
-        return count($this->tables);
+        return count($this->childs);
     }
 
     /**
@@ -118,7 +118,7 @@ class Tables extends Base implements \ArrayAccess, \IteratorAggregate, \Countabl
      */
     public function write(WriterInterface $writer)
     {
-        foreach ($this->tables as $table) {
+        foreach ($this->childs as $table) {
             $table->write($writer);
         }
 

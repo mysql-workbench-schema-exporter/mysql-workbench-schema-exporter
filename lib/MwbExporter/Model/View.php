@@ -43,17 +43,17 @@ class View extends Base
     protected function init()
     {
         $elems = $this->node->xpath("value[@key='columns']");
-        $this->columns = $this->getDocument()->getFormatter()->createColumns($this, $elems[0]);
-        // iterate on column configuration
-        foreach ($this->node->value as $key => $node) {
-            $attributes = $node->attributes();
-            $this->parameters->set((string) $attributes['key'], (string) $node[0]);
-        }
+        $this->columns = $this->getFormatter()->createColumns($this, $elems[0]);
+    }
+
+    protected function hasParameters()
+    {
+        return true;
     }
 
     public function getRawViewName()
     {
-        return $this->parameters->get('name');
+        return $this->getName();
     }
 
     public function getModelName()

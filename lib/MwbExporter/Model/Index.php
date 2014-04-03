@@ -36,12 +36,7 @@ class Index extends Base
 
     protected function init()
     {
-        // iterate on column configuration
-        foreach ($this->node->value as $key => $node) {
-            $attributes = $node->attributes();
-            $this->parameters->set((string) $attributes['key'], (string) $node[0]);
-        }
-        $this->getDocument()->addLog(sprintf('Processing index "%s.%s".', $this->getTable()->getRawTableName(), $this->parameters->get('name')));
+        $this->getDocument()->addLog(sprintf('Processing index "%s.%s".', $this->getTable()->getRawTableName(), $this->getName()));
         // check for primary columns, to notify column
         $nodes = $this->node->xpath("value[@key='columns']/value/link[@key='referencedColumn']");
         foreach ($nodes as $node) {
@@ -61,6 +56,11 @@ class Index extends Base
         if (!$this->isPrimary() && ($table = $this->getDocument()->getReference()->get((string) $this->node->link))) {
             $table->injectIndex($this);
         }
+    }
+
+    protected function hasParameters()
+    {
+        return true;
     }
 
     /**
@@ -111,5 +111,20 @@ class Index extends Base
     public function getColumns()
     {
         return $this->columns;
+    }
+
+    /**
+     * Get index column names.
+     *
+     * @return array
+     */
+    public function getColumnNames()
+    {
+        $columns = array();
+        foreach ($this->columns as $refColumn) {
+            $columns[] = $refColumn->getColumnName();
+        }
+
+        return $columns;
     }
 }

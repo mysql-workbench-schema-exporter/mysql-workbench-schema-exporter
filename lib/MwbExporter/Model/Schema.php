@@ -52,9 +52,9 @@ class Schema extends Base
         $this->name = (string) $elems[0];
         $this->getDocument()->addLog(sprintf('Processing schema "%s".', $this->name));
         $elems = $this->node->xpath("value[@key='tables']");
-        $this->tables = $this->getDocument()->getFormatter()->createTables($this, $elems[0]);
+        $this->tables = $this->getFormatter()->createTables($this, $elems[0]);
         $elems = $this->node->xpath("value[@key='views']");
-        $this->views  = $this->getDocument()->getFormatter()->createViews($this, $elems[0]);
+        $this->views  = $this->getFormatter()->createViews($this, $elems[0]);
     }
 
     /**

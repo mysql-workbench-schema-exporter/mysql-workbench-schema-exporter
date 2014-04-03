@@ -51,12 +51,7 @@ class ForeignKey extends Base
 
     protected function init()
     {
-        // iterate on foreign key configuration
-        foreach ($this->node->value as $key => $node) {
-            $attributes = $node->attributes();
-            $this->parameters->set((string) $attributes['key'], (string) $node[0]);
-        }
-        $this->getDocument()->addLog(sprintf('Processing foreign key "%s.%s".', $this->getTable()->getRawTableName(), $this->parameters->get('name')));
+        $this->getDocument()->addLog(sprintf('Processing foreign key "%s.%s".', $this->getTable()->getRawTableName(), $this->getName()));
         // follow references to tables
         foreach ($this->node->link as $key => $node) {
             $attributes         = $node->attributes();
@@ -96,6 +91,11 @@ class ForeignKey extends Base
                 $column->getTable()->getRawTableName(), $column->getColumnName(), $this->getReferencedTable()->getRawTableName()));
             $column->markAsLocalReference($this);
         }
+    }
+
+    protected function hasParameters()
+    {
+        return true;
     }
 
     /**
@@ -182,5 +182,15 @@ class ForeignKey extends Base
     public function isManyToOne()
     {
         return (bool) $this->parameters->get('many');
+    }
+
+    /**
+     * Check if foreign key is a composite relation.
+     *
+     * @return boolean
+     */
+    public function isComposite()
+    {
+        return count($this->local) > 1 ? true : false;
     }
 }

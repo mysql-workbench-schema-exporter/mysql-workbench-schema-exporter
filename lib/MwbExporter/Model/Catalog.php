@@ -39,7 +39,7 @@ class Catalog extends Base
     protected function init()
     {
         $elems = $this->node->xpath("value[@key='schemata']");
-        $this->schemas = $this->getDocument()->getFormatter()->createSchemas($this, $elems[0]);
+        $this->schemas = $this->getFormatter()->createSchemas($this, $elems[0]);
     }
 
     /**

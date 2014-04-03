@@ -55,17 +55,17 @@ class Table extends Base
     /**
      * @var array
      */
-    protected $indexes     = array();
+    protected $_indexes = array();
 
     /**
      * @var array
      */
-    protected $relations   = array();
+    protected $_relations = array();
 
     /**
      * @var array
      */
-    protected $manyToManyRelations = array();
+    protected $_m2mRelations = array();
 
     /**
      * @var bool
@@ -74,12 +74,13 @@ class Table extends Base
 
     protected function init()
     {
-        foreach ($this->node->value as $key => $node) {
-            $attributes = $node->attributes();
-            $this->parameters->set((string) $attributes['key'], (string) $node[0]);
-        }
         $this->getDocument()->addLog(sprintf('Processing table "%s".', $this->getRawTableName()));
         $this->initColumns();
+    }
+
+    protected function hasParameters()
+    {
+        return true;
     }
 
     /**
@@ -90,7 +91,7 @@ class Table extends Base
     public function initColumns()
     {
         $elems = $this->node->xpath("value[@key='columns']");
-        $this->columns = $this->getDocument()->getFormatter()->createColumns($this, $elems[0]);
+        $this->columns = $this->getFormatter()->createColumns($this, $elems[0]);
 
         return $this;
     }
@@ -103,7 +104,7 @@ class Table extends Base
     public function initIndices()
     {
         $elems = $this->node->xpath("value[@key='indices']");
-        $this->indices = $this->getDocument()->getFormatter()->createIndices($this, $elems[0]);
+        $this->indices = $this->getFormatter()->createIndices($this, $elems[0]);
 
         return $this;
     }
@@ -116,7 +117,7 @@ class Table extends Base
     public function initForeignKeys()
     {
         $elems = $this->node->xpath("value[@key='foreignKeys']");
-        $this->foreignKeys = $this->getDocument()->getFormatter()->createForeignKeys($this, $elems[0]);
+        $this->foreignKeys = $this->getFormatter()->createForeignKeys($this, $elems[0]);
 
         return $this;
     }
@@ -180,16 +181,6 @@ class Table extends Base
     public function getIndices()
     {
         return $this->indices;
-    }
-
-    /**
-     * Get indexes.
-     *
-     * @return array
-     */
-    public function getIndexes()
-    {
-        return $this->indexes;
     }
 
     /**
@@ -259,6 +250,8 @@ class Table extends Base
 
                 default:
                     $this->isM2M = true;
+                    $this->getDocument()->addLog(sprintf('  * %s: is M2M.', $this->getRawTableName()));
+                    break;
             }
         }
 
@@ -281,16 +274,6 @@ class Table extends Base
     }
 
     /**
-     * Get many to many relations.
-     *
-     * @return array
-     */
-    public function getManyToManyRelations()
-    {
-        return $this->manyToManyRelations;
-    }
-
-    /**
      * Add a many to many relation.
      *
      * @param array $rel  The relation
@@ -299,7 +282,7 @@ class Table extends Base
     public function setManyToManyRelation($rel)
     {
         $key = $rel['refTable']->getModelName();
-        $this->manyToManyRelations[$key] = $rel;
+        $this->_m2mRelations[$key] = $rel;
         $this->getDocument()->addLog(sprintf('Applying N <=> N relation "%s" for "%s <=> %s".', $rel['refTable']->getParameters()->get('name'), $this->getModelName(), $key));
 
         return $this;
@@ -312,7 +295,7 @@ class Table extends Base
      */
     public function getRawTableName()
     {
-        return $this->parameters->get('name');
+        return $this->getName();
     }
 
     /**
@@ -326,7 +309,7 @@ class Table extends Base
         // check if table name is plural --> convert to singular
 
         if (
-            !$this->getDocument()->getConfig()->get(FormatterInterface::CFG_SKIP_PLURAL) &&
+            !$this->getConfig()->get(FormatterInterface::CFG_SKIP_PLURAL) &&
             ($tableName != ($singular = Inflector::singularize($tableName)))
         ) {
             $tableName = $singular;
@@ -353,12 +336,12 @@ class Table extends Base
      */
     public function injectIndex(Index $index)
     {
-        foreach ($this->indexes as $_index) {
+        foreach ($this->_indexes as $_index) {
             if ($_index->getId() === $index->getId()) {
                 return;
             }
         }
-        $this->indexes[] = $index;
+        $this->_indexes[] = $index;
     }
 
     /**
@@ -368,32 +351,53 @@ class Table extends Base
      */
     public function injectRelation(ForeignKey $foreignKey)
     {
-        foreach ($this->relations as $_relation) {
+        foreach ($this->_relations as $_relation) {
             if ($_relation->getId() === $foreignKey->getId()) {
                 return;
             }
         }
-        $this->relations[] = $foreignKey;
+        $this->_relations[] = $foreignKey;
     }
 
     /**
+     * Get indexes.
      *
      * @return array
      */
-    public function getRelations()
+    public function getTableIndices()
     {
-        return $this->relations;
+        return $this->_indexes;
+    }
+
+    /**
+     * Get relations.
+     *
+     * @return array
+     */
+    public function getTableRelations()
+    {
+        return $this->_relations;
+    }
+
+    /**
+     * Get many to many relations.
+     *
+     * @return array
+     */
+    public function getTableM2MRelations()
+    {
+        return $this->_m2mRelations;
     }
 
     /**
      * Return relation betweens the current table and the $rawTableName table
      *
      * @param string $rawTableName
-     * @return MwbExporter\Model\ForeignKey|null
+     * @return \MwbExporter\Model\ForeignKey|null
      */
     public function getRelationToTable($rawTableName)
     {
-        foreach ($this->relations as $relation) {
+        foreach ($this->_relations as $relation) {
             if ($relation->getReferencedTable()->getRawTableName() === $rawTableName) {
                 return $relation;
             }
@@ -406,7 +410,7 @@ class Table extends Base
      */
     protected function getVars()
     {
-      return array('%schema%' => $this->getSchema()->getName(), '%table%' => $this->getRawTableName(), '%entity%' => $this->getModelName(), '%extension%' => $this->getDocument()->getFormatter()->getFileExtension());
+      return array('%schema%' => $this->getSchema()->getName(), '%table%' => $this->getRawTableName(), '%entity%' => $this->getModelName(), '%extension%' => $this->getFormatter()->getFileExtension());
     }
 
     /**
@@ -419,10 +423,50 @@ class Table extends Base
     {
         if (0 === strlen($filename = $this->getDocument()->translateFilename($this)))
         {
-            $filename = $this->getSchema()->getName().'.'.$this->getRawTableName().'.'.$this->getDocument()->getFormatter()->getFileExtension();
+            $filename = $this->getSchema()->getName().'.'.$this->getRawTableName().'.'.$this->getFormatter()->getFileExtension();
         }
 
         return $filename;
+    }
+
+    /**
+     * Get all foreign keys references.
+     *
+     * @return array \MwbExporter\Model\ForeignKey
+     */
+    public function getAllForeignKeys()
+    {
+        $columns = array();
+        foreach ($this->getColumns() as $column) {
+            foreach ($column->getForeignKeys() as $foreignKey) {
+                if (array_key_exists($foreignKey->getId(), $columns)) {
+                    continue;
+                }
+                $column[$foreignKey->getId()] = $foreignKey;
+            }
+        }
+
+        return $columns;
+    }
+
+    /**
+     * Get all local foreign keys references.
+     *
+     * @return array \MwbExporter\Model\ForeignKey
+     */
+    public function getAllLocalForeignKeys()
+    {
+        $columns = array();
+        foreach ($this->getColumns() as $column) {
+            foreach ($column->getLocalForeignKeys() as $foreignKey) {
+                if (array_key_exists($foreignKey->getId(), $columns)) {
+                    continue;
+                }
+                $column[$foreignKey->getId()] = $foreignKey;
+            }
+        }
+
+        return $columns;
     }
 
     /**

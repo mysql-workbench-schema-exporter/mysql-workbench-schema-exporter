@@ -34,29 +34,19 @@ class Columns extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
     /**
      * @var array
      */
-    protected $columns = array();
+    protected $childs = array();
 
     protected function init()
     {
         foreach ($this->node as $key => $node) {
-            $this->columns[] = $this->getDocument()->getFormatter()->createColumn($this, $node);
+            $this->childs[] = $this->getFormatter()->createColumn($this, $node);
         }
-    }
-
-    /**
-     * Get columns column.
-     *
-     * @return array
-     */
-    public function getColumns()
-    {
-        return $this->columns;
     }
 
     public function getManyToManyCount($tablename)
     {
         $count = 0;
-        foreach ($this->columns as $column) {
+        foreach ($this->childs as $column) {
             foreach ($column->getLocalForeignKeys() as $foreign) {
                 if ($foreign->getReferencedTable()->getRawTableName() === $tablename) {
                     $count++;
@@ -74,7 +64,7 @@ class Columns extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
      */
     public function hasOneToManyRelation()
     {
-        foreach ($this->columns as $column) {
+        foreach ($this->childs as $column) {
             if ($column->hasOneToManyRelation()) {
                 return true;
             }
@@ -83,38 +73,53 @@ class Columns extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
         return false;
     }
 
+    /**
+     * Get column names.
+     *
+     * @return array
+     */
+    public function getColumnNames()
+    {
+        $columns = array();
+        foreach ($this->childs as $column) {
+            $columns[] = $column->getColumnName();
+        }
+
+        return $columns;
+    }
+
     public function offsetExists($offset)
     {
-        return array_key_exists($offset, $this->columns);
+        return array_key_exists($offset, $this->childs);
     }
 
     public function offsetGet($offset)
     {
-        return $this->columns[$offset];
+        return $this->childs[$offset];
     }
 
     public function offsetSet($offset, $value)
     {
         if (null === $offset) {
-            $this->columns[] = $value;
+            $this->childs[] = $value;
         } else {
-            $this->columns[$offset] = $value;
+            $this->childs[$offset] = $value;
         }
     }
 
     public function offsetUnset($offset)
     {
-        unset($this->columns[$offset]);
+        unset($this->childs[$offset]);
     }
 
     public function getIterator()
     {
-        return new \ArrayIterator($this->columns);
+        return new \ArrayIterator($this->childs);
     }
 
     public function count()
     {
-        return count($this->columns);
+        return count($this->childs);
     }
 
     /**
@@ -123,7 +128,7 @@ class Columns extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
      */
     public function write(WriterInterface $writer)
     {
-        foreach ($this->columns as $column) {
+        foreach ($this->childs as $column) {
             $column->write($writer);
         }
 

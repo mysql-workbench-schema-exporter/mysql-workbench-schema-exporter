@@ -34,47 +34,47 @@ class Indices extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
     /**
      * @var array
      */
-    protected $indices = array();
+    protected $childs = array();
 
     protected function init()
     {
         foreach ($this->node as $key => $node) {
-            $this->indices[] = $this->getDocument()->getFormatter()->createIndex($this, $node);
+            $this->childs[] = $this->getFormatter()->createIndex($this, $node);
         }
     }
 
     public function offsetExists($offset)
     {
-        return array_key_exists($offset, $this->indices);
+        return array_key_exists($offset, $this->childs);
     }
 
     public function offsetGet($offset)
     {
-        return $this->indices[$offset];
+        return $this->childs[$offset];
     }
 
     public function offsetSet($offset, $value)
     {
         if (null === $offset) {
-            $this->indices[] = $value;
+            $this->childs[] = $value;
         } else {
-            $this->indices[$offset] = $value;
+            $this->childs[$offset] = $value;
         }
     }
 
     public function offsetUnset($offset)
     {
-        unset($this->indices[$offset]);
+        unset($this->childs[$offset]);
     }
 
     public function getIterator()
     {
-        return new \ArrayIterator($this->indices);
+        return new \ArrayIterator($this->childs);
     }
 
     public function count()
     {
-        return count($this->indices);
+        return count($this->childs);
     }
 
     /**
@@ -83,7 +83,7 @@ class Indices extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
      */
     public function write(WriterInterface $writer)
     {
-        foreach ($this->indices as $indice) {
+        foreach ($this->childs as $indice) {
             $indice->write($writer);
         }
 

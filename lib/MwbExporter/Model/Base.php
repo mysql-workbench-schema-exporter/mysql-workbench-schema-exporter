@@ -59,6 +59,11 @@ abstract class Base
     protected $parameters = null;
 
     /**
+     * @var \MwbExporter\Model\Document
+     */
+    protected $document = null;
+
+    /**
      * Constructor.
      *
      * @param \MwbExporter\Model\Base $parent
@@ -77,6 +82,7 @@ abstract class Base
         if ($this->node) {
             $this->attributes = $node->attributes();
             $this->id = (string) $this->attributes['id'];
+            $this->populateParameters();
             $this->init();
             if ($this->id && ($document = $this->getDocument())) {
                 $document->getReference()->set($this->id, $this);
@@ -86,6 +92,50 @@ abstract class Base
 
     protected function init()
     {
+    }
+
+    /**
+     * Populate parameters from XML node.
+     */
+    protected function populateParameters()
+    {
+        $this->parameters->clear();
+        if ($this->hasParameters() && $this->node) {
+            foreach ($this->node->value as $key => $node) {
+                $attributes = $node->attributes();
+                switch ((string) $attributes['type']) {
+                    case 'list':
+                        $value = array();
+                        foreach ($node->children() as $c) {
+                            $value[] = (string) $c;
+                        }
+                        break;
+
+                    case 'int':
+                        if (strlen($value = (string) $node[0])) {
+                            $value = (int) $value;
+                        } else {
+                            $value = null;
+                        }
+                        break;
+
+                    default:
+                        $value = (string) $node[0];
+                        break;
+                }
+                $this->parameters->set((string) $attributes['key'], $value);
+            }
+        }
+    }
+
+    /**
+     * Is parameters available.
+     *
+     * @return boolean
+     */
+    protected function hasParameters()
+    {
+        return false;
     }
 
     /**
@@ -129,6 +179,16 @@ abstract class Base
     }
 
     /**
+     * Get name from parameter.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->parameters->get('name');
+    }
+
+    /**
      * Get parameters holder.
      * 
      * @return \MwbExporter\Registry\RegistryHolder
@@ -145,19 +205,62 @@ abstract class Base
      */
     public function getDocument()
     {
-        $parent = $this->parent;
-        while (true) {
-            if (!$parent) {
-                break;
+        if (null === $this->document) {
+            $parent = $this->parent;
+            while (true) {
+                if (!$parent) {
+                    break;
+                }
+                if ($parent->parent) {
+                    $parent = $parent->parent;
+                } else {
+                    break;
+                }
             }
-            if ($parent->parent) {
-                $parent = $parent->parent;
-            } else {
-                break;
-            }
+            $this->document = $parent;
         }
 
-        return $parent;
+        return $this->document;
+    }
+
+    /**
+     * Get document formatter.
+     *
+     * @return \MwbExporter\Formatter\FormatterInterface
+     */
+    public function getFormatter()
+    {
+        return $this->getDocument()->getFormatter();
+    }
+
+    /**
+     * Get document config.
+     *
+     * @return \MwbExporter\Registry\RegistryHolder
+     */
+    public function getConfig()
+    {
+        return $this->getDocument()->getConfig();
+    }
+
+    /**
+     * Get document factory.
+     *
+     * @return \MwbExporter\Registry\RegistryHolder
+     */
+    public function getFactory()
+    {
+        return $this->getDocument()->getFactory();
+    }
+
+    /**
+     * Get document reference.
+     *
+     * @return \MwbExporter\Registry\RegistryHolder
+     */
+    public function getReference()
+    {
+        return $this->getDocument()->getReference();
     }
 
     /**
@@ -173,7 +276,7 @@ abstract class Base
             $comment = $this->parameters->get('comment');
         }
         $needle_quoted = preg_quote($needle_raw);
-        $pattern = sprintf('@\{(%1$s):%2$s\}(.+)\{\/(%1$s):%2$s\}@si', $this->getDocument()->getFormatter()->getCommentParserIdentifierPrefix(), $needle_quoted);
+        $pattern = sprintf('@\{(%1$s):%2$s\}(.+)\{\/(%1$s):%2$s\}@si', $this->getFormatter()->getCommentParserIdentifierPrefix(), $needle_quoted);
         if (preg_match($pattern, $comment, $matches) && isset($matches[2])) {
             return $matches[2];
         }
@@ -190,7 +293,7 @@ abstract class Base
         $comment = $this->parameters->get('comment');
         // strip hints for mysql-exporter in comments (starting with {d:keyword}
         // or {doctrine:keyword} and ending with {/d:keyword}
-        if ($comment = trim(preg_replace(sprintf('/\{(%s):([^\}]+)\}(.+?)\{\/\1:\2\}/si', $this->getDocument()->getFormatter()->getCommentParserIdentifierPrefix()), '', $comment))) {
+        if ($comment = trim(preg_replace(sprintf('/\{(%s):([^\}]+)\}(.+?)\{\/\1:\2\}/si', $this->getFormatter()->getCommentParserIdentifierPrefix()), '', $comment))) {
             if ($asPhpComment) {
                 // start the comment with a "*"" and add a " * " after each newline
                 $comment = str_replace("\n", "\n * ", $comment);
@@ -245,5 +348,17 @@ abstract class Base
     protected function getVars()
     {
       return array();
+    }
+
+    /**
+     * Get parameter value.
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    public function getParameter($key, $default = null)
+    {
+        return $this->parameters->get($key, $default);
     }
 }

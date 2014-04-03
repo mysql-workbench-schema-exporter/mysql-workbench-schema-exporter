@@ -39,7 +39,7 @@ class PhysicalModel extends Base
     protected function init()
     {
         $elems = $this->node->xpath("value[@key='catalog']");
-        $this->catalog = $this->getDocument()->getFormatter()->createCatalog($this, $elems[0]);
+        $this->catalog = $this->getFormatter()->createCatalog($this, $elems[0]);
     }
 
     /**
