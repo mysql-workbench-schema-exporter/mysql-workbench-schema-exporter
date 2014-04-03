@@ -184,6 +184,8 @@ class Table extends BaseTable
 
     public function writeTableOk(WriterInterface $writer)
     {
+        $this->getDocument()->addLog(sprintf('Writing table "%s".', $this->getModelName()));
+
         $namespace = $this->getEntityNamespace();
         if ($repositoryNamespace = $this->getDocument()->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) {
             $repositoryNamespace .= '\\';
@@ -267,6 +269,7 @@ class Table extends BaseTable
                 ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
                     $_this->getColumns()->writeArrayCollections($writer);
                     foreach ($_this->getManyToManyRelations() as $relation) {
+                        $_this->getDocument()->addLog(sprintf('  Writing constructor "%s".', $relation['refTable']->getModelName()));
                         $writer->write('$this->%s = new %s();', lcfirst(Inflector::pluralize($relation['refTable']->getModelName())), $_this->getCollectionClass(false));
                     }
                 })
@@ -299,8 +302,9 @@ class Table extends BaseTable
     {
         $formatter = $this->getDocument()->getFormatter();
         foreach ($this->manyToManyRelations as $relation) {
-            $isOwningSide = $formatter->isOwningSide($relation, $mappedRelation);
+            $this->getDocument()->addLog(sprintf('  Writing setter/getter for N <=> N "%s".', $relation['refTable']->getModelName()));
 
+            $isOwningSide = $formatter->isOwningSide($relation, $mappedRelation);
             $annotationOptions = array(
                 'targetEntity' => $relation['refTable']->getModelNameAsFQCN($this->getEntityNamespace()),
                 'mappedBy' => null,
@@ -312,6 +316,8 @@ class Table extends BaseTable
             // if this is the owning side, also output the JoinTable Annotation
             // otherwise use "mappedBy" feature
             if ($isOwningSide) {
+                $this->getDocument()->addLog(sprintf('  Applying setter/getter for N <=> N "%s".', "owner"));
+
                 if ($mappedRelation->parseComment('unidirectional') === 'true') {
                     unset($annotationOptions['inversedBy']);
                 }
@@ -324,15 +330,15 @@ class Table extends BaseTable
                             'name'               => $relation['reference']->getOwningTable()->getRawTableName(),
                             'joinColumns'        => array(
                                 $this->getJoinColumnAnnotation(
-                                    $relation['reference']->getForeign()->getColumnName(),
                                     $relation['reference']->getLocal()->getColumnName(),
+                                    $relation['reference']->getForeign()->getColumnName(),
                                     $relation['reference']->getParameters()->get('deleteRule')
                                 )
                             ),
                             'inverseJoinColumns' => array(
                                 $this->getJoinColumnAnnotation(
-                                    $mappedRelation->getForeign()->getColumnName(),
                                     $mappedRelation->getLocal()->getColumnName(),
+                                    $mappedRelation->getForeign()->getColumnName(),
                                     $mappedRelation->getParameters()->get('deleteRule')
                                 )
                             )
@@ -340,6 +346,8 @@ class Table extends BaseTable
                     ->write(' */')
                 ;
             } else {
+                $this->getDocument()->addLog(sprintf('  Applying setter/getter for N <=> N "%s".', "inverse"));
+
                 if ($relation['reference']->parseComment('unidirectional') === 'true') {
                     continue;
                 }
@@ -365,6 +373,8 @@ class Table extends BaseTable
     {
         $formatter = $this->getDocument()->getFormatter();
         foreach ($this->manyToManyRelations as $relation) {
+            $this->getDocument()->addLog(sprintf('  Writing N <=> N relation "%s".', $relation['refTable']->getModelName()));
+
             $isOwningSide = $formatter->isOwningSide($relation, $mappedRelation);
             $writer
                 ->write('/**')

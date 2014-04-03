@@ -32,16 +32,31 @@ use MwbExporter\Writer\WriterInterface;
 
 class Columns extends BaseColumns
 {
+    /**
+     * Collected unique foreign keys for all columns.
+     *
+     * @var array
+     */
+    protected $collectedForeignKeys = array();
+
+    /**
+     * Collected unique local foreign keys for all columns.
+     *
+     * @var array
+     */
+    protected $collectedLocalForeignKeys = array();
+
     public function write(WriterInterface $writer)
     {
         // display column
         foreach ($this->columns as $column) {
-            if (!$column->isPrimary() && ($column->getLocalForeignKey() || $column->hasOneToManyRelation())) {
-                // do not output fields of relations.
+            // do not output fields of relations.
+            if (!$column->isPrimary() && (count($column->getLocalForeignKeys()) || $column->hasOneToManyRelation())) {
                 continue;
             }
             $column->write($writer);
         }
+        $this->emptyCollectedForeignKeys();
         // display column relations
         foreach ($this->columns as $column) {
             $column->writeRelations($writer);
@@ -52,6 +67,7 @@ class Columns extends BaseColumns
 
     public function writeArrayCollections(WriterInterface $writer)
     {
+        $this->emptyCollectedForeignKeys();
         foreach ($this->columns as $column) {
             $column->writeArrayCollection($writer);
         }
@@ -63,17 +79,76 @@ class Columns extends BaseColumns
     {
         // column getter and setter
         foreach ($this->columns as $column) {
-            if (!$column->isPrimary() && ($column->getLocalForeignKey() || $column->hasOneToManyRelation())) {
-                // do not output fields of relations.
+            // do not output fields of relations.
+            if (!$column->isPrimary() && (count($column->getLocalForeignKeys()) || $column->hasOneToManyRelation())) {
                 continue;
             }
             $column->writeGetterAndSetter($writer);
         }
+        $this->emptyCollectedForeignKeys();
         // column getter and setter for relations
         foreach ($this->columns as $column) {
             $column->writeRelationsGetterAndSetter($writer);
         }
 
         return $this;
+    }
+
+    protected function emptyCollectedForeignKeys()
+    {
+        $this->collectedForeignKeys = array();
+        $this->collectedLocalForeignKeys = array();
+    }
+
+    /**
+     * Collect column foreign key.
+     *
+     * @param \MwbExporter\Model\ForeignKey $foreignKey
+     * @return \MwbExporter\Formatter\Doctrine2\Annotation\Model\Columns
+     */
+    public function collectForeignKey($foreignKey)
+    {
+        if (!array_key_exists($foreignKey->getId(), $this->collectedForeignKeys)) {
+            $this->collectedForeignKeys[$foreignKey->getId()] = $foreignKey;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Check if foreign key already collected.
+     *
+     * @param \MwbExporter\Model\ForeignKey $foreignKey
+     * @return boolean
+     */
+    public function isCollectedForeignKeyExist($foreignKey)
+    {
+        return array_key_exists($foreignKey->getId(), $this->collectedForeignKeys);
+    }
+
+    /**
+     * Collect local column foreign key.
+     *
+     * @param \MwbExporter\Model\ForeignKey $foreignKey
+     * @return \MwbExporter\Formatter\Doctrine2\Annotation\Model\Columns
+     */
+    public function collectLocalForeignKey($foreignKey)
+    {
+        if (!array_key_exists($foreignKey->getId(), $this->collectedLocalForeignKeys)) {
+            $this->collectedLocalForeignKeys[$foreignKey->getId()] = $foreignKey;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Check if local foreign key already collected.
+     *
+     * @param \MwbExporter\Model\ForeignKey $foreignKey
+     * @return boolean
+     */
+    public function isCollectedLocalForeignKeyExist($foreignKey)
+    {
+        return array_key_exists($foreignKey->getId(), $this->collectedLocalForeignKeys);
     }
 }
