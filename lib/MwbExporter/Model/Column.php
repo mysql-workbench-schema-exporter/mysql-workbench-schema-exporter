@@ -44,12 +44,12 @@ class Column extends Base
     /**
      * @var bool
      */
-    protected $isUnique  = false;
+    protected $isUnique = false;
 
     /**
-     * @var \MwbExporter\Model\ForeignKey
+     * @var array \MwbExporter\Model\ForeignKey
      */
-    protected $local    = null;
+    protected $locals = array();
 
     /**
      * @var array \MwbExporter\Model\ForeignKey
@@ -147,11 +147,11 @@ class Column extends Base
     /**
      * Set the local foreign key.
      *
-     * @param \MwbExporter\Model\ForeignKey
+     * @param \MwbExporter\Model\ForeignKey $foreign
      */
-    public function markAsLocalReference(ForeignKey $local)
+    public function markAsLocalReference(ForeignKey $foreign)
     {
-        $this->local = $local;
+        $this->locals[$foreign->getId()] = $foreign;
     }
 
     /**
@@ -161,17 +161,27 @@ class Column extends Base
      */
     public function markAsForeignReference(ForeignKey $foreign)
     {
-        $this->foreigns[($foreign->getId())] = $foreign;
+        $this->foreigns[$foreign->getId()] = $foreign;
     }
 
     /**
-     * Get local foreign key.
+     * Get local foreign keys reference.
      *
-     * @return \MwbExporter\Model\ForeignKey
+     * @return array \MwbExporter\Model\ForeignKey
      */
-    public function getLocalForeignKey()
+    public function getLocalForeignKeys()
     {
-        return $this->local;
+        return $this->locals;
+    }
+
+    /**
+     * Get foreign keys reference.
+     *
+     * @return array \MwbExporter\Model\ForeignKey
+     */
+    public function getForeignKeys()
+    {
+        return $this->foreigns;
     }
 
     /**

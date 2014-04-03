@@ -57,8 +57,10 @@ class Columns extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
     {
         $count = 0;
         foreach ($this->columns as $column) {
-            if (($local = $column->getLocalForeignKey()) && ($local->getReferencedTable()->getRawTableName() === $tablename)) {
-                $count++;
+            foreach ($column->getLocalForeignKeys() as $foreign) {
+                if ($foreign->getReferencedTable()->getRawTableName() === $tablename) {
+                    $count++;
+                }
             }
         }
 
