@@ -36,7 +36,10 @@ class ZendURLFormatter
      */
     public static function fromCamelCaseToDashConnection($string)
     {
-        $return = preg_replace('/([A-Z])/e', "'-'.ucwords(strtolower('\\1'))", $string);
+        $return = preg_replace_callback('/([A-Z])/', function($matches){
+            return '-' . ucwords(strtolower($matches[1]));
+        }, $string);
+
         if (substr($return, 0,1) === '-') {
             $return = substr($return, 1, strlen($return));
         }

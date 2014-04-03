@@ -316,7 +316,9 @@ class Table extends Base
         }
 
         // camleCase under scores for model names
-        return ucfirst(preg_replace('@\_(\w)@e', 'ucfirst("$1")', $tableName));
+        return ucfirst(preg_replace_callback('@\_(\w)@', function($matches){
+            return ucfirst($matches[1]);
+        }, $tableName));
     }
 
     /**
