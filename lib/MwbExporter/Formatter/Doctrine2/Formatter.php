@@ -99,6 +99,28 @@ abstract class Formatter extends BaseFormatter
     }
 
     /**
+     * get the cascade option as array. Only returns values allowed by Doctrine.
+     *
+     * @param $cascadeValue string cascade options separated by comma
+     * @return array array with the values or null, if no cascade values are available
+     */
+    public function getOrderOption($sortValue)
+    {
+    	if ($sortValue) {
+    		$sortValue = array_map('trim', explode(',', $sortValue));
+    		if (count($sortValue) == 2)
+    		{
+    			$sortValue[1] = strtoupper($sortValue[1]);
+    			if ($sortValue[1] == "DESC" || $sortValue[1] == "ASC")
+    			{
+    				return $sortValue;
+    			}
+    		}
+    	}
+    	return null;
+    }
+    
+    /**
      * get the fetch option for a relation
      *
      * @param $fetchValue string fetch option as given in comment for foreign key

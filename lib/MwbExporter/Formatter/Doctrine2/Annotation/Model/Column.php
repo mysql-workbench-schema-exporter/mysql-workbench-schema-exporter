@@ -124,6 +124,12 @@ class Column extends BaseColumn
                 'nullable' => !$foreign->getForeign()->isNotNull() ? null : false,
             );
 
+            $order = $formatter->getOrderOption($foreign->parseComment('order'));
+            $orderOptions = array();
+            if ($order != null)
+            {
+            	$orderOptions[][$order[0]] = $order[1];
+            }
 
             if (null !== ($deleteRule = $formatter->getDeleteRule($foreign->getLocal()->getParameters()->get('deleteRule')))) {
                 $joinColumnAnnotationOptions['onDelete'] = $deleteRule;
@@ -135,7 +141,12 @@ class Column extends BaseColumn
                 $writer
                     ->write('/**')
                     ->write(' * '.$this->getTable()->getAnnotation('OneToMany', $annotationOptions))
-                    ->write(' * '.$this->getTable()->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
+                    ->write(' * '.$this->getTable()->getAnnotation('JoinColumn', $joinColumnAnnotationOptions));
+                if (count($orderOptions) > 0) {
+                	$writer
+                	    ->write(' * '.$this->getTable()->getAnnotation('OrderBy', $orderOptions, array('parentheses' => true)));
+                }
+                $writer
                     ->write(' */')
                     ->write('protected $'.lcfirst(Inflector::pluralize($targetEntity)).$related.';')
                     ->write('')
