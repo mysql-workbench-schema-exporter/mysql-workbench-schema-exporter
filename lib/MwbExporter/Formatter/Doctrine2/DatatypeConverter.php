@@ -35,7 +35,7 @@ class DatatypeConverter extends BaseDatatypeConverter
     public function setup()
     {
         $this->register(array(
-            static::DATATYPE_TINYINT            => 'integer',
+            static::DATATYPE_TINYINT            => 'smallint',
             static::DATATYPE_SMALLINT           => 'smallint',
             static::DATATYPE_MEDIUMINT          => 'integer',
             static::DATATYPE_INT                => 'integer',
