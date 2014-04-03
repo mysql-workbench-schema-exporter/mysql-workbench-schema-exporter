@@ -37,9 +37,9 @@ class ForeignKey extends BaseForeignKey
         $writer
             ->write('\''. $this->getReferencedTable()->getRawTableName() .'\' => array(')
             ->indent()
-                ->write('\'columns\'       => \''. $this->foreign->getColumnName() .'\',')
+                ->write('\'columns\'       => \''. $this->getLocal()->getColumnName() .'\',')
                 ->write('\'refTableClass\' => \''. $this->getReferencedTable()->getRawTableName() .'\',')
-                ->write('\'refColumns\'    => \''. $this->local->getColumnName() .'\',')
+                ->write('\'refColumns\'    => \''. $this->getForeign()->getColumnName() .'\',')
             ->outdent()
             ->write('),')
         ;

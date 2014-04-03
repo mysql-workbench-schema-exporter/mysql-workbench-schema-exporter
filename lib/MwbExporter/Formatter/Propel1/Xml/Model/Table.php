@@ -47,6 +47,7 @@ class Table extends BaseTable
                             }
                             $_this->getColumns()->write($writer);
                             $_this->writeIndex($writer);
+                            $_this->writeRelations($writer);
                         })
                     ->outdent()
                     ->write('</table>')
@@ -75,6 +76,37 @@ class Table extends BaseTable
     {
         foreach ($this->indexes as $index) {
             $index->write($writer);
+        }
+
+        return $this;
+    }
+
+    public function writeRelations(WriterInterface $writer)
+    {
+        foreach ($this->foreignKeys as $foreign) {
+            $writer
+                ->write('<foreign-key name="%s" foreignTable="%s" phpName="%s" refPhpName="%s" onDelete="%s" onUpdate="%s">',
+                    $foreign->parameters->get('name'),
+                    $foreign->getOwningTable()->getRawTableName(),
+                    $foreign->getOwningTable()->getModelName(),
+                    $foreign->getReferencedTable()->getModelName(),
+                    (strtolower($foreign->parameters->get('deleteRule')) == 'no action' ? 'none' : strtolower($foreign->parameters->get('deleteRule'))),
+                    (strtolower($foreign->parameters->get('updateRule')) == 'no action' ? 'none' : strtolower($foreign->parameters->get('updateRule')))
+                )
+            ;
+            $writer->indent();
+            $locals = $foreign->getLocals();
+            $foreigns = $foreign->getForeigns();
+            for ($i = 0; $i < count($locals); $i++) {
+                $writer
+                    ->write('<reference local="%s" foreign="%s" />',
+                        $locals[$i]->getColumnName(),
+                        $foreigns[$i]->getColumnName()
+                    )
+                ;
+            }
+            $writer->outdent();
+            $writer->write('</foreign-key>');
         }
 
         return $this;

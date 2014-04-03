@@ -37,10 +37,6 @@ class Columns extends BaseColumns
         foreach ($this->columns as $column) {
             $column->write($writer);
         }
-        // display column relations
-        foreach ($this->columns as $column) {
-            $column->writeRelations($writer);
-        }
 
         return $this;
     }

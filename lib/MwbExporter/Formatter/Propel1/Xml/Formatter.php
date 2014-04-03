@@ -120,7 +120,7 @@ class Formatter extends BaseFormatter
 
     public function getTitle()
     {
-        return 'Propel1 Xml Classes';
+        return 'Propel 1.x XML Schema';
     }
 
     public function getFileExtension()

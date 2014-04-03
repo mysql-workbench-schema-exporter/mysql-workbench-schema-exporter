@@ -40,14 +40,14 @@ class ForeignKey extends Base
     protected $owningTable = null;
 
     /**
-     * @var \MwbExporter\Model\Column
+     * @var array \MwbExporter\Model\Column
      */
-    protected $local = null;
+    protected $local = array();
 
     /**
-     * @var \MwbExporter\Model\Column
+     * @var array \MwbExporter\Model\Column
      */
-    protected $foreign = null;
+    protected $foreign = array();
 
     protected function init()
     {
@@ -70,16 +70,32 @@ class ForeignKey extends Base
             }
         }
 
-        $referencedColumn = $this->node->xpath("value[@key='referencedColumns']");
-        $this->local = $this->getDocument()->getReference()->get((string) $referencedColumn[0]->link);
+        $this->local = array();
+        foreach ($this->node->xpath("value[@key='columns']") as $column) {
+            foreach ($column->children() as $link) {
+                $this->local[] = $this->getDocument()->getReference()->get((string) $link);
+            }
+        }
 
-        $ownerColumn = $this->node->xpath("value[@key='columns']");
-        $this->foreign = $this->getDocument()->getReference()->get((string) $ownerColumn[0]->link);
+        $this->foreign = array();
+        foreach ($this->node->xpath("value[@key='referencedColumns']") as $column) {
+            foreach ($column->children() as $link) {
+                $this->foreign[] = $this->getDocument()->getReference()->get((string) $link);
+            }
+        }
 
         // for doctrine2 annotations switch the local and the foreign
         // reference for a proper output
-        $this->local->markAsForeignReference($this);
-        $this->foreign->markAsLocalReference($this);
+        foreach ($this->local as $column) {
+            $this->getDocument()->addLog(sprintf('Mark column %s.%s as foreign reference for %s.',
+                $column->getTable()->getRawTableName(), $column->getColumnName(), $this->getReferencedTable()->getRawTableName()));
+            $column->markAsForeignReference($this);
+        }
+        foreach ($this->foreign as $column) {
+            $this->getDocument()->addLog(sprintf('Mark column %s.%s as local reference for %s.',
+                $column->getTable()->getRawTableName(), $column->getColumnName(), $this->getReferencedTable()->getRawTableName()));
+            $column->markAsLocalReference($this);
+        }
     }
 
     /**
@@ -116,8 +132,21 @@ class ForeignKey extends Base
      * Get local column.
      * 
      * @return \MwbExporter\Model\Column
+     * @deprecated
      */
     public function getLocal()
+    {
+        if (count($this->local)) {
+            return $this->local[0];
+        }
+    }
+
+    /**
+     * Get local column references.
+     *
+     * @return array
+     */
+    public function getLocals()
     {
         return $this->local;
     }
@@ -126,8 +155,21 @@ class ForeignKey extends Base
      * Get foreign column.
      *
      * @return \MwbExporter\Model\Column
+     * @deprecated
      */
     public function getForeign()
+    {
+        if (count($this->foreign)) {
+            return $this->foreign[0];
+        }
+    }
+
+    /**
+     * Get foreign column references.
+     *
+     * @return array
+     */
+    public function getForeigns()
     {
         return $this->foreign;
     }

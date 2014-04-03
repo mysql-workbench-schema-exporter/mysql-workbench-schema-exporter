@@ -57,34 +57,4 @@ class Column extends BaseColumn
 
         return $this;
     }
-
-    public function writeRelations(WriterInterface $writer)
-    {
-        $parentTable = $this->getParent()->getParent();
-        foreach ($this->foreigns as $foreign) {
-            //if($foreign->getParent()->getParent()->getRawTableName() == $parentTable->getRawTableName()){
-                $writer
-                    ->write('<foreign-key name="%s" foreignTable="%s" phpName="%s" refPhpName="%s" onDelete="%s" onUpdate="%s">',
-                        $foreign->parameters->get('name'),
-                        $foreign->getOwningTable()->getRawTableName(),
-                        $foreign->getOwningTable()->getModelName(),
-                        $foreign->getReferencedTable()->getModelName(),
-                        (strtolower($foreign->parameters->get('deleteRule')) == 'no action' ? 'none' : strtolower($foreign->parameters->get('deleteRule'))),
-                        (strtolower($foreign->parameters->get('updateRule')) == 'no action' ? 'none' : strtolower($foreign->parameters->get('updateRule')))
-                    )
-                ;
-                $writer->indent();
-                $writer
-                    ->write('<reference local="%s" foreign="%s" />',
-                        $foreign->getLocal()->getColumnName(),
-                        $foreign->getForeign()->getColumnName()
-                    )
-                ;
-                $writer->outdent();
-                $writer->write('</foreign-key>');
-            //}
-        }
-
-        return $this;
-    }
 }
