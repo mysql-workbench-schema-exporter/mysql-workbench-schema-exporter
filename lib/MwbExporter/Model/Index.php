@@ -44,18 +44,24 @@ class Index extends Base
         $this->getDocument()->addLog(sprintf('Processing index "%s.%s".', $this->getTable()->getRawTableName(), $this->parameters->get('name')));
         // check for primary columns, to notify column
         $nodes = $this->node->xpath("value[@key='columns']/value/link[@key='referencedColumn']");
+        $isSingle = count($nodes) == 1;
         foreach ($nodes as $node) {
             // for primary indexes ignore external index
             // definition and set column to primary instead
             if (!($column = $this->getDocument()->getReference()->get((string) $node))) {
                 continue;
             }
-            if ($this->isPrimary()) {
-                $column->markAsPrimary();
+
+            if ($isSingle) {
+                // Columns in composite keys should not be marked primary or unique
+                if ($this->isPrimary()) {
+                    $column->markAsPrimary();
+                }
+                if ($this->isUnique()) {
+                    $column->markAsUnique();
+                }
             }
-            if ($this->isUnique()) {
-                $column->markAsUnique();
-            }
+
             $this->columns[] = $column;
         }
         if (!$this->isPrimary() && ($table = $this->getDocument()->getReference()->get((string) $this->node->link))) {
