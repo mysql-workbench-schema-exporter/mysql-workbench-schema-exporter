@@ -86,7 +86,7 @@ class Annotation extends Base
             }
             $multiline = $this->getOption('multiline') && count($value) > 1;
             $value = implode($multiline ? ",\n" : ', ', $tmp).($multiline ? "\n" : '');
-            if ($useKey && true === $topLevel) {
+            if ($topLevel) {
                 $value = sprintf('(%s)', $value);
             } else {
                 $value = sprintf('{%s}', $value);
