@@ -42,7 +42,7 @@ class Index extends Base
         foreach ($nodes as $node) {
             // for primary indexes ignore external index
             // definition and set column to primary instead
-            if (!($column = $this->getDocument()->getReference()->get((string) $node))) {
+            if (!($column = $this->getReference()->get((string) $node))) {
                 continue;
             }
             if ($this->isPrimary()) {
@@ -53,7 +53,7 @@ class Index extends Base
             }
             $this->columns[] = $column;
         }
-        if (!$this->isPrimary() && ($table = $this->getDocument()->getReference()->get((string) $this->node->link))) {
+        if (!$this->isPrimary() && ($table = $this->getReference()->get((string) $this->node->link))) {
             $table->injectIndex($this);
         }
     }

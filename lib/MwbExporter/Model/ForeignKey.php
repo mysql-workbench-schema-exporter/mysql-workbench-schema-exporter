@@ -42,12 +42,12 @@ class ForeignKey extends Base
     /**
      * @var array \MwbExporter\Model\Column
      */
-    protected $local = array();
+    protected $locals = array();
 
     /**
      * @var array \MwbExporter\Model\Column
      */
-    protected $foreign = array();
+    protected $foreigns = array();
 
     protected function init()
     {
@@ -57,36 +57,36 @@ class ForeignKey extends Base
             $attributes         = $node->attributes();
             $key                = (string) $attributes['key'];
             if ($key === 'referencedTable') {
-                $this->referencedTable = $this->getDocument()->getReference()->get((string) $node);
+                $this->referencedTable = $this->getReference()->get((string) $node);
             }
             if ($key === 'owner') {
-                $this->owningTable = $this->getDocument()->getReference()->get((string) $node);
+                $this->owningTable = $this->getReference()->get((string) $node);
                 $this->owningTable->injectRelation($this);
             }
         }
 
-        $this->local = array();
+        $this->locals = array();
         foreach ($this->node->xpath("value[@key='columns']") as $column) {
             foreach ($column->children() as $link) {
-                $this->local[] = $this->getDocument()->getReference()->get((string) $link);
+                $this->locals[] = $this->getReference()->get((string) $link);
             }
         }
 
-        $this->foreign = array();
+        $this->foreigns = array();
         foreach ($this->node->xpath("value[@key='referencedColumns']") as $column) {
             foreach ($column->children() as $link) {
-                $this->foreign[] = $this->getDocument()->getReference()->get((string) $link);
+                $this->foreigns[] = $this->getReference()->get((string) $link);
             }
         }
 
         // for doctrine2 annotations switch the local and the foreign
         // reference for a proper output
-        foreach ($this->local as $column) {
+        foreach ($this->locals as $column) {
             $this->getDocument()->addLog(sprintf('Mark column %s.%s as foreign reference for %s.',
                 $column->getTable()->getRawTableName(), $column->getColumnName(), $this->getReferencedTable()->getRawTableName()));
             $column->markAsForeignReference($this);
         }
-        foreach ($this->foreign as $column) {
+        foreach ($this->foreigns as $column) {
             $this->getDocument()->addLog(sprintf('Mark column %s.%s as local reference for %s.',
                 $column->getTable()->getRawTableName(), $column->getColumnName(), $this->getReferencedTable()->getRawTableName()));
             $column->markAsLocalReference($this);
@@ -111,7 +111,7 @@ class ForeignKey extends Base
     /**
      * Get the referenced table.
      *
-     * @return \MwbExporter\Model\ForeignKey
+     * @return \MwbExporter\Model\Table
      */
     public function getReferencedTable()
     {
@@ -136,8 +136,8 @@ class ForeignKey extends Base
      */
     public function getLocal()
     {
-        if (count($this->local)) {
-            return $this->local[0];
+        if (count($this->locals)) {
+            return $this->locals[0];
         }
     }
 
@@ -148,7 +148,7 @@ class ForeignKey extends Base
      */
     public function getLocals()
     {
-        return $this->local;
+        return $this->locals;
     }
 
     /**
@@ -159,8 +159,8 @@ class ForeignKey extends Base
      */
     public function getForeign()
     {
-        if (count($this->foreign)) {
-            return $this->foreign[0];
+        if (count($this->foreigns)) {
+            return $this->foreigns[0];
         }
     }
 
@@ -171,7 +171,53 @@ class ForeignKey extends Base
      */
     public function getForeigns()
     {
-        return $this->foreign;
+        return $this->foreigns;
+    }
+
+    /**
+     * Get local columns name.
+     *
+     * @return array
+     */
+    public function getLocalColumns()
+    {
+        return array_map(function($column) {
+            return $column->getColumnName();
+        }, $this->getLocals());
+    }
+
+    /**
+     * Get foreigns columns name.
+     *
+     * @return array
+     */
+    public function getForeignColumns()
+    {
+        return array_map(function($column) {
+            return $column->getColumnName();
+        }, $this->getForeigns());
+    }
+
+    /**
+     * Get local related name.
+     *
+     * @param boolean $code
+     * @return string
+     */
+    public function getLocalM2MRelatedName($code = true)
+    {
+        return $this->getReferencedTable()->getManyToManyRelatedName($this->getReferencedTable()->getRawTableName(), implode('_', $this->getLocalColumns()), $code);
+    }
+
+    /**
+     * Get foreign related name.
+     *
+     * @param boolean $code
+     * @return string
+     */
+    public function getForeignM2MRelatedName($code = true)
+    {
+        return $this->getOwningTable()->getManyToManyRelatedName($this->getReferencedTable()->getRawTableName(), implode('_', $this->getForeignColumns()), $code);
     }
 
     /**
@@ -191,6 +237,6 @@ class ForeignKey extends Base
      */
     public function isComposite()
     {
-        return count($this->local) > 1 ? true : false;
+        return count($this->locals) > 1 ? true : false;
     }
 }

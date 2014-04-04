@@ -418,7 +418,6 @@ class Table extends Base
     /**
      * Get table file name.
      *
-     * @throws \Exception
      * @return string
      */
     public function getTableFileName()
