@@ -68,55 +68,160 @@ class Table extends BaseTable
             $values['repositoryClass'] = $repositoryNamespace.$this->getModelName().'Repository';
         }
         // indices
-        if (count($this->getTableIndices())) {
-            $values['indexes'] = array();
-            foreach ($this->getTableIndices() as $index) {
-                $values['indexes'][$index->getParameters()->get('name')] = $index->asYAML();
-            }
+        $this->getIndicesAsYAML($values);
+        // columns => ids & fields
+        $this->getColumnsAsYAML($values);
+        // table relations
+        $this->getRelationsAsYAML($values);
+        // table m2m relations
+        $this->getM2MRelationsAsYAML($values);
+        // lifecycle callback
+        if (count($lifecycleCallbacks = $this->getLifecycleCallbacks())) {
+            $values['lifecycleCallbacks'] = $lifecycleCallbacks;
         }
-        // id, fields, relations
-        $ids = array();
-        $fields = array();
-        $oneToOne = array();
-        $oneToMany = array();
-        $manyToOne = array();
-        $manyToMany = array();
+
+        return new YAML(array($namespace => $values), array('indent' => $this->getConfig()->get(Formatter::CFG_INDENTATION)));
+    }
+
+    protected function getIndicesAsYAML(&$values)
+    {
+        foreach ($this->getTableIndices() as $index) {
+            if (!isset($values['indexes'])) {
+                $values['indexes'] = array();
+            }
+            $values['indexes'][$index->getName()] = $index->asYAML();
+        }
+
+        return $this;
+    }
+
+    protected function getColumnsAsYAML(&$values)
+    {
         foreach ($this->getColumns() as $column) {
             if ($column->isPrimary()) {
-                $ids[$column->getParameters()->get('name')] = $column->asYAML();
-            } else {
-                $fields[$column->getParameters()->get('name')] = $column->asYAML();
-            }
-            foreach ($column->relationsAsYAML() as $key => $relation) {
-                switch ($key) {
-                    case Column::RELATION_ONE_TO_ONE:
-                        $oneToOne = array_merge($oneToOne, $relation);
-                        break;
-
-                    case Column::RELATION_ONE_TO_MANY:
-                        $oneToMany = array_merge($oneToMany, $relation);
-                        break;
-
-                    case Column::RELATION_MANY_TO_ONE:
-                        $manyToOne = array_merge($manyToOne, $relation);
-                        break;
-
-                    case Column::RELATION_MANY_TO_MANY:
-                        $manyToMany = array_merge($manyToMany, $relation);
-                        break;
+                if (!isset($values['id'])) {
+                    $values['id'] = array();
                 }
+                $values['id'][$column->getColumnName()] = $column->asYAML();
+            } else {
+                if (!isset($values['fields'])) {
+                    $values['fields'] = array();
+                }
+                $values['fields'][$column->getColumnName()] = $column->asYAML();
             }
         }
+
+        return $this;
+    }
+
+    protected function getRelationsAsYAML(&$values)
+    {
+        // one to many references
+        foreach ($this->getAllForeignKeys() as $foreign) {
+            if ($this->isForeignKeyIgnored($foreign)) {
+                continue;
+            }
+            $targetEntity     = $foreign->getReferencedTable()->getModelName();
+            $targetEntityFQCN = $foreign->getReferencedTable()->getModelNameAsFQCN($foreign->getOwningTable()->getEntityNamespace());
+            $mappedBy         = $foreign->getOwningTable()->getModelName();
+            $relationName     = $foreign->getReferencedTable()->getRawTableName();
+            // check for OneToOne or OneToMany relationship
+            if ($foreign->isManyToOne()) {
+                $related = $this->getRelatedName($foreign);
+                // OneToMany
+                $type = 'oneToMany';
+                if (!isset($values[$type])) {
+                    $values[$type] = array();
+                }
+                $values[$type][Inflector::pluralize($relationName).$related] = array(
+                    'targetEntity'  => $targetEntityFQCN,
+                    'mappedBy'      => lcfirst($mappedBy),
+                    'cascade'       => $this->getFormatter()->getCascadeOption($foreign->parseComment('cascade')),
+                    'fetch'         => $this->getFormatter()->getFetchOption($foreign->parseComment('fetch')),
+                    'orphanRemoval' => $this->getFormatter()->getBooleanOption($foreign->parseComment('orphanRemoval')),
+                    'joinColumn'    => array(
+                        'name'                 => $foreign->getLocal()->getColumnName(),
+                        'referencedColumnName' => $foreign->getForeign()->getColumnName(),
+                        'onDelete'             => $this->getFormatter()->getDeleteRule($foreign->getForeign()->getParameters()->get('deleteRule')),
+                        'nullable'             => !$foreign->getForeign()->isNotNull() ? null : false,
+                    ),
+                );
+            } else {
+                // OneToOne
+                $type = 'oneToOne';
+                if (!isset($values[$type])) {
+                    $values[$type] = array();
+                }
+                $values[$type][$relationName] = array(
+                    'targetEntity'  => $targetEntityFQCN,
+                    'joinColumn'    => array(
+                        'name'                 => $foreign->getLocal()->getColumnName(),
+                        'referencedColumnName' => $foreign->getForeign()->getColumnName(),
+                        'onDelete'             => $this->getFormatter()->getDeleteRule($foreign->getForeign()->getParameters()->get('deleteRule')),
+                        'nullable'             => !$foreign->getForeign()->isNotNull() ? null : false,
+                    ),
+                );
+            }
+        }
+        // many to one references
+        foreach ($this->getAllLocalForeignKeys() as $local) {
+            if ($this->isLocalForeignKeyIgnored($local)) {
+                continue;
+            }
+            $targetEntity     = $local->getOwningTable()->getModelName();
+            $targetEntityFQCN = $local->getOwningTable()->getModelNameAsFQCN($local->getReferencedTable()->getEntityNamespace());
+            $inversedBy       = $local->getReferencedTable()->getModelName();
+            $relationName     = $local->getOwningTable()->getRawTableName();
+            $related          = $local->getForeignM2MRelatedName();
+            // check for OneToOne or ManyToOne relationship
+            if ($local->isManyToOne()) {
+                // ManyToOne
+                $type = 'manyToOne';
+                if (!isset($values[$type])) {
+                    $values[$type] = array();
+                }
+                $values[$type][$relationName.$related] = array(
+                    'targetEntity' => $targetEntity,
+                    'inversedBy'   => $local->parseComment('unidirectional') === 'true' ? null : lcfirst(Inflector::pluralize($inversedBy)),
+                    'joinColumn'   => array(
+                        'name'                 => $local->getForeign()->getColumnName(),
+                        'referencedColumnName' => $local->getLocal()->getColumnName(),
+                        'onDelete'             => $this->getFormatter()->getDeleteRule($local->getParameters()->get('deleteRule')),
+                        'nullable'             => !$local->getForeign()->isNotNull() ? null : false,
+                    ),
+                );
+            } else {
+                // OneToOne
+                $type = 'oneToOne';
+                if (!isset($values[$type])) {
+                    $values[$type] = array();
+                }
+                $values[$type][$relationName.$related] = array(
+                    'targetEntity' => $targetEntity,
+                    'joinColumn'   => array(
+                        'name'                 => $local->getForeign()->getColumnName(),
+                        'referencedColumnName' => $local->getLocal()->getColumnName(),
+                        'onDelete'             => $this->getFormatter()->getDeleteRule($local->getParameters()->get('deleteRule')),
+                        'nullable'             => !$local->getForeign()->isNotNull() ? null : false,
+                    ),
+                );
+            }
+        }
+
+        return $this;
+    }
+
+    protected function getM2MRelationsAsYAML(&$values)
+    {
         // many to many relations
-        $formatter = $this->getFormatter();
         foreach ($this->getTableM2MRelations() as $relation) {
-            $isOwningSide = $formatter->isOwningSide($relation, $mappedRelation);
+            $isOwningSide = $this->getFormatter()->isOwningSide($relation, $mappedRelation);
             $mappings = array(
                 'targetEntity' => $relation['refTable']->getModelNameAsFQCN($this->getEntityNamespace()),
                 'mappedBy'     => null,
                 'inversedBy'   => lcfirst(Inflector::pluralize($this->getModelName())),
-                'cascade'      => $formatter->getCascadeOption($relation['reference']->parseComment('cascade')),
-                'fetch'        => $formatter->getFetchOption($relation['reference']->parseComment('fetch')),
+                'cascade'      => $this->getFormatter()->getCascadeOption($relation['reference']->parseComment('cascade')),
+                'fetch'        => $this->getFormatter()->getFetchOption($relation['reference']->parseComment('fetch')),
             );
             $relationName = Inflector::pluralize($relation['refTable']->getRawTableName());
             // if this is the owning side, also output the JoinTable Annotation
@@ -125,21 +230,26 @@ class Table extends BaseTable
                 if ($mappedRelation->parseComment('unidirectional') === 'true') {
                     unset($mappings['inversedBy']);
                 }
-                $manyToMany[$relationName] = array_merge($mappings, array(
+
+                $type = 'manyToMany';
+                if (!isset($values[$type])) {
+                    $values[$type] = array();
+                }
+                $values[$type][$relationName] = array_merge($mappings, array(
                     'joinTable' => array(
                         'name'               => $relation['reference']->getOwningTable()->getRawTableName(),
                         'joinColumns'        => array(
                             'joinColumn'     => array(
                                 'name'                 => $relation['reference']->getForeign()->getColumnName(),
                                 'referencedColumnName' => $relation['reference']->getLocal()->getColumnName(),
-                                'onDelete'             => $formatter->getDeleteRule($relation['reference']->getParameters()->get('deleteRule')),
+                                'onDelete'             => $this->getFormatter()->getDeleteRule($relation['reference']->getParameters()->get('deleteRule')),
                             ),
                         ),
                         'inverseJoinColumns' => array(
                             'joinColumn'     => array(
                                 'name'                 => $mappedRelation->getForeign()->getColumnName(),
                                 'referencedColumnName' => $mappedRelation->getLocal()->getColumnName(),
-                                'onDelete'             => $formatter->getDeleteRule($mappedRelation->getParameters()->get('deleteRule')),
+                                'onDelete'             => $this->getFormatter()->getDeleteRule($mappedRelation->getParameters()->get('deleteRule')),
                             ),
                         )
                     ),
@@ -150,34 +260,16 @@ class Table extends BaseTable
                 }
                 $mappings['mappedBy'] = $mappings['inversedBy'];
                 $mappings['inversedBy'] = null;
-                $manyToMany[$relationName] = $mappings;
+
+                $type = 'manyToMany';
+                if (!isset($values[$type])) {
+                    $values[$type] = array();
+                }
+                $values[$type][$relationName] = $mappings;
             }
         }
 
-        // update values
-        if (count($ids)) {
-            $values['id'] = $ids;
-        }
-        if (count($fields)) {
-            $values['fields'] = $fields;
-        }
-        if (count($oneToOne)) {
-            $values['oneToOne'] = $oneToOne;
-        }
-        if (count($oneToMany)) {
-            $values['oneToMany'] = $oneToMany;
-        }
-        if (count($manyToOne)) {
-            $values['manyToOne'] = $manyToOne;
-        }
-        if (count($manyToMany)) {
-            $values['manyToMany'] = $manyToMany;
-        }
-        if (count($lifecycleCallbacks = $this->getLifecycleCallbacks())) {
-            $values['lifecycleCallbacks'] = $lifecycleCallbacks;
-        }
-
-        return new YAML(array($namespace => $values), array('indent' => $this->getConfig()->get(Formatter::CFG_INDENTATION)));
+        return $this;
     }
 
     protected function getVars()
