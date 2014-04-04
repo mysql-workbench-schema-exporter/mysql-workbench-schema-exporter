@@ -99,6 +99,32 @@ abstract class Formatter extends BaseFormatter
     }
 
     /**
+     * Parse order option.
+     *
+     * @param string $sortValue
+     * @return array
+     */
+    public function getOrderOption($sortValue)
+    {
+        $orders = array();
+        if ($sortValue = trim($sortValue)) {
+            $lines = array_map('trim', explode("\n", $sortValue));
+            foreach ($lines as $line) {
+                if (count($values = array_map('trim', explode(',', $line)))) {
+                    $column = $values[0];
+                    $order = (count($values) > 1) ? strtoupper($values[1]) : null;
+                    if (!in_array($order, array('ASC', 'DESC'))) {
+                        $order = 'ASC';
+                    }
+                    $orders[$column] = $order;
+                }
+            }
+        }
+
+        return $orders;
+    }
+
+    /**
      * get the fetch option for a relation
      *
      * @param $fetchValue string fetch option as given in comment for foreign key

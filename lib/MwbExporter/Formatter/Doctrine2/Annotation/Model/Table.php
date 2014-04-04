@@ -357,6 +357,13 @@ class Table extends BaseTable
                         ->write('/**')
                         ->write(' * '.$this->getAnnotation('OneToMany', $annotationOptions))
                         ->write(' * '.$this->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
+                        ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($foreign) {
+                            if (count($orders = $_this->getFormatter()->getOrderOption($foreign->parseComment('order')))) {
+                                $writer
+                                    ->write(' * '.$_this->getAnnotation('OrderBy', array($orders)))
+                                ;
+                            }
+                        })
                         ->write(' */')
                         ->write('protected $'.lcfirst(Inflector::pluralize($targetEntity)).$related.';')
                         ->write('')
@@ -377,6 +384,13 @@ class Table extends BaseTable
                         ->write('/**')
                         ->write(' * '.$this->getAnnotation('OneToMany', $annotationOptions))
                         ->write(' * '.$this->getAnnotation('JoinColumns', array($joins), array('multiline' => true, 'wrapper' => ' * %s')))
+                        ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($foreign) {
+                            if (count($orders = $_this->getFormatter()->getOrderOption($foreign->parseComment('order')))) {
+                                $writer
+                                    ->write(' * '.$_this->getAnnotation('OrderBy', array($orders)))
+                                ;
+                            }
+                        })
                         ->write(' */')
                         ->write('protected $'.lcfirst(Inflector::pluralize($targetEntity)).$related.';')
                         ->write('')
@@ -531,7 +545,14 @@ class Table extends BaseTable
                                 )
                             )
                         ), array('multiline' => true, 'wrapper' => ' * %s')))
-                    ->write(' */')
+                        ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($mappedRelation) {
+                            if (count($orders = $_this->getFormatter()->getOrderOption($mappedRelation->parseComment('order')))) {
+                                $writer
+                                    ->write(' * '.$_this->getAnnotation('OrderBy', array($orders)))
+                                ;
+                            }
+                        })
+                        ->write(' */')
                 ;
             } else {
                 $this->getDocument()->addLog(sprintf('  Applying setter/getter for N <=> N "%s".', "inverse"));
