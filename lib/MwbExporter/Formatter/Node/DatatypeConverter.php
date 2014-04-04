@@ -33,10 +33,6 @@ class DatatypeConverter extends BaseDatatypeConverter
 {
     public function setup()
     {
-        /*
-         * http://docs.sencha.com/extjs/3.4.0/#!/api/Ext.data.Field
-         * http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.Types
-         */
         $this->register(array(
             static::DATATYPE_TINYINT            => 'INTEGER',
             static::DATATYPE_SMALLINT           => 'INTEGER',
@@ -63,13 +59,13 @@ class DatatypeConverter extends BaseDatatypeConverter
             static::DATATYPE_TIME               => 'DATE',
             static::DATATYPE_YEAR               => 'INTEGER',
             static::DATATYPE_TIMESTAMP          => 'DATE',
-            //static::DATATYPE_GEOMETRY           => 'STRING', //??
+            static::DATATYPE_GEOMETRY           => 'STRING', //??
             static::DATATYPE_LINESTRING         => 'STRING',
-            //static::DATATYPE_POLYGON            => 'STRING', //??
-            //static::DATATYPE_MULTIPOINT         => 'STRING', //??
-            //static::DATATYPE_MULTILINESTRING    => 'STRING', //??
-            //static::DATATYPE_MULTIPOLYGON       => 'STRING', //??
-            //static::DATATYPE_GEOMETRYCOLLECTION => 'STRING', //??
+            static::DATATYPE_POLYGON            => 'STRING', //??
+            static::DATATYPE_MULTIPOINT         => 'STRING', //??
+            static::DATATYPE_MULTILINESTRING    => 'STRING', //??
+            static::DATATYPE_MULTIPOLYGON       => 'STRING', //??
+            static::DATATYPE_GEOMETRYCOLLECTION => 'STRING', //??
             static::DATATYPE_BIT                => 'INTEGER',
             static::DATATYPE_ENUM               => 'STRING',
             static::DATATYPE_SET                => 'STRING',

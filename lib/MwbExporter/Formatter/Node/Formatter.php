@@ -32,19 +32,6 @@ use MwbExporter\Model\Base;
 
 abstract class Formatter extends BaseFormatter
 {
-    const CFG_CLASS_PREFIX   = 'classPrefix';
-    const CFG_PARENT_CLASS   = 'parentClass';
-
-    protected function init()
-    {
-        parent::init();
-        $this->addConfigurations(array(
-            static::CFG_INDENTATION     => 4,
-            static::CFG_CLASS_PREFIX    => '',
-            static::CFG_PARENT_CLASS    => '',
-        ));
-    }
-
     /**
      * (non-PHPdoc)
      * @see \MwbExporter\Formatter\Formatter::createDatatypeConverter()

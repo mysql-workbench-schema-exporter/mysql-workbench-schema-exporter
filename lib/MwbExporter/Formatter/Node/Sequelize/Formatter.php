@@ -33,9 +33,6 @@ use MwbExporter\Model\Base;
 
 class Formatter extends BaseFormatter
 {
-    const CFG_GENERATE_VALIDATION    = 'generateValidation';
-    const CFG_GENERATE_PROXY         = 'generateProxy';
-
     /**
      * (non-PHPdoc)
      * @see \MwbExporter\Formatter::init()
@@ -44,10 +41,17 @@ class Formatter extends BaseFormatter
     {
         parent::init();
         $this->addConfigurations(array(
-            static::CFG_FILENAME             => '%entity%.%extension%',
-            static::CFG_GENERATE_VALIDATION  => true,
-            static::CFG_GENERATE_PROXY       => true,
+            static::CFG_INDENTATION     => 4,
         ));
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Formatter\Formatter::createDatatypeConverter()
+     */
+    protected function createDatatypeConverter()
+    {
+        return new DatatypeConverter();
     }
 
     /**

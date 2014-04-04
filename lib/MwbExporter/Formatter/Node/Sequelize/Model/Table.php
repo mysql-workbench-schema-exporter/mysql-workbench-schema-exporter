@@ -28,12 +28,35 @@
 
 namespace MwbExporter\Formatter\Node\Sequelize\Model;
 
-use MwbExporter\Formatter\Node\Model\Table as BaseTable;
+use MwbExporter\Model\Table as BaseTable;
 use MwbExporter\Formatter\Node\Sequelize\Formatter;
 use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Object\JS;
 
 class Table extends BaseTable
 {
+    /**
+     * Get JSObject.
+     *
+     * @param mixed $content    Object content
+     * @param bool  $multiline  Multiline result
+     * @param bool  $raw        Is raw object
+     * @return \MwbExporter\Object\JS
+     */
+    public function getJSObject($content, $multiline = true, $raw = false)
+    {
+        return new JS($content, array('multiline' => $multiline, 'raw' => $raw, 'indent' => $this->getConfig()->get(Formatter::CFG_INDENTATION))); 
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Model\Base::getVars()
+     */
+    protected function getVars()
+    {
+      return array('%schema%' => $this->getSchema()->getName(), '%table%' => $this->getRawTableName(), '%entity%' => strtolower($this->getModelName()), '%extension%' => $this->getDocument()->getFormatter()->getFileExtension());
+    }
+
     public function writeTable(WriterInterface $writer)
     {
         switch (true) {
@@ -55,19 +78,22 @@ class Table extends BaseTable
      * Write model body code.
      * 
      * @param \MwbExporter\Writer\WriterInterface $writer
-     * @return \MwbExporter\Formatter\Sencha\ExtJS4\Model\Table
+     * @return \MwbExporter\Formatter\Node\Sequelize\Model\Table
      */
-    public function writeBody(WriterInterface $writer)
+    protected function writeBody(WriterInterface $writer)
     {
         $writer
             ->write("module.exports = function(sequelize, DataTypes) {")
-            ->write("  return sequelize.define('%s', %s, %s)};", $this->getModelName(), $this->asModel(), $this->asOptions())
-            ;
-            
+            ->indent()
+                ->write("return sequelize.define('%s', %s, %s);", $this->getModelName(), $this->asModel(), $this->asOptions())
+            ->outdent()
+            ->write("}")
+        ;
+
         return $this;
     }
 
-    public function asOptions()
+    protected function asOptions()
     {
         $result = array(
             'timestamps' => false,
@@ -75,151 +101,15 @@ class Table extends BaseTable
             'tableName' => $this->getRawTableName(),
             'syncOnAssociation' => false
         );
-        
-        return $this->getJSObject($result);
-        /*
-        $result = array('extend' => $this->getParentClass());
-        if (count($data = $this->getUses())) {
-            $result['uses'] = $data;
-        }
-        if (count($data = $this->getBelongsTo())) {
-            $result['belongsTo'] = $data;
-        }
-        if (count($data = $this->getHasOne())) {
-            $result['hasOne'] = $data;
-        }
-        if (count($data = $this->getHasMany())) {
-            $result['hasMany'] = $data;
-        }
-        if (count($data = $this->getFields())) {
-            $result['fields'] = $data;
-        }
-        if ($this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_VALIDATION) && count($data = $this->getValidations())) {
-            $result['validations'] = $data;
-        }
-        if ($this->getDocument()->getConfig()->get(Formatter::CFG_GENERATE_PROXY) && count($data = $this->getAjaxProxy())) {
-            $result['proxy'] = $data;
-        }
 
-        return $this->getJSObject($result);*/        
+        return $this->getJSObject($result);
     }
-    public function asModel()
+
+    protected function asModel()
     {
         $result = $this->getFields();
-        
-        return str_replace("'","",$this->getJSObject($result)); // hacky
-    }
 
-    /**
-     * Get uses.
-     *
-     * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.Class-cfg-uses
-     * @return array
-     */
-    protected function getUses()
-    {
-        $result = array();
-        $current = sprintf('%s.%s', $this->getClassPrefix(), $this->getModelName());
-
-        // Collect belongsTo uses.
-        foreach ($this->relations as $relation) {
-            $refTableName = sprintf('%s.%s', $this->getClassPrefix(), $relation->getReferencedTable()->getModelName());
-            if ($relation->isManyToOne() && !in_array($refTableName, $result) && ($refTableName !== $current)) {
-                $result[] = $refTableName;
-            }
-        }
-
-        // Collect hasOne uses.
-        foreach ($this->relations as $relation) {
-            $refTableName = sprintf('%s.%s', $this->getClassPrefix(), $relation->getReferencedTable()->getModelName());
-            if (!$relation->isManyToOne() && !in_array($refTableName, $result) && ($refTableName !== $current)) {
-                $result[] = $refTableName;
-            }
-        }
-
-        // Collect hasMany uses.
-        foreach ($this->getManyToManyRelations() as $relation) {
-            $referencedTable = $relation['refTable'];
-            $refTableName = sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName());
-            if (!in_array($refTableName, $result) && ($refTableName !== $current)) {
-                $result[] = $refTableName;
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Get BelongsTo relations.
-     *
-     * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.association.BelongsTo
-     * @return array
-     */
-    protected function getBelongsTo()
-    {
-        $result = array();
-        foreach ($this->getRelations() as $relation) {
-            if (!$relation->isManyToOne()) {
-                // Do not list OneToOne relations.
-                continue;
-            }
-            $referencedTable = $relation->getReferencedTable();
-            $result[] = array(
-                'model'          => sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName()),
-                'associationKey' => lcfirst($referencedTable->getModelName()),
-                'getterName'     => sprintf('get%s', $referencedTable->getModelName()),
-                'setterName'     => sprintf('set%s', $referencedTable->getModelName()),
-            );
-        }
-
-        return $result;
-    }
-
-    /**
-     * Get HasOne relations.
-     *
-     * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.association.HasOne
-     * @return array
-     */
-    protected function getHasOne()
-    {
-        $result = array();
-        foreach ($this->getRelations() as $relation) {
-            if ($relation->isManyToOne()) {
-                // Do not list manyToOne relations.
-                continue;
-            }
-            $referencedTable = $relation->getReferencedTable();
-            $result[] = array(
-                'model'          => sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName()),
-                'associationKey' => lcfirst($referencedTable->getModelName()),
-                'getterName'     => sprintf('get%s', $referencedTable->getModelName()),
-                'setterName'     => sprintf('set%s', $referencedTable->getModelName()),
-            );
-        }
-
-        return $result;
-    }
-
-    /**
-     * Get HasMany relations.
-     *
-     * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.association.HasMany
-     * @return array
-     */
-    protected function getHasMany()
-    {
-        $result = array();
-        foreach ($this->getManyToManyRelations() as $relation) {
-            $referencedTable = $relation['refTable'];
-            $result[] = array(
-                'model'          => sprintf('%s.%s', $this->getClassPrefix(), $referencedTable->getModelName()),
-                'associationKey' => lcfirst($referencedTable->getModelName()),
-                'name'           => sprintf('get%sStore', $referencedTable->getModelName()),
-            );
-        }
-
-        return $result;
+        return $this->getJSObject($result);
     }
 
     /**
@@ -232,114 +122,18 @@ class Table extends BaseTable
         $result = array();
         foreach ($this->getColumns() as $column) 
         {
-            $type = $this->getDocument()->getFormatter()->getDatatypeConverter()->getType($column);
+            $type = $this->getFormatter()->getDatatypeConverter()->getType($column);
             $c = array();
-            $c['type'] = 'DataTypes.' . ($type ? $type : 'STRING.BINARY');
-            
-            if($column->isAutoIncrement()) {
-                $c['autoIncrement'] = true;
-            }
-            if($column->isPrimary()) {
+            $c['type'] = $this->getJSObject(sprintf('DataTypes.%s', $type ? $type : 'STRING.BINARY'), true, true);
+            if ($column->isPrimary()) {
                 $c['primaryKey'] = true;
             }
+            if ($column->isAutoIncrement()) {
+                $c['autoIncrement'] = true;
+            }
             $result[$column->getColumnName()] = $c;
-            //$result[strtolower($column->getColumnName())] = $c;
-            //$result[strtolower($column->getColumnName())] = $c;
         }
 
         return $result;
-    }
-
-    /**
-     * Get model field validations.
-     *
-     * @return array
-     */
-    protected function getValidations()
-    {
-        $result = array();
-        foreach ($this->getColumns() as $column) {
-            if ($column->isNotNull() && !$column->isPrimary()) {
-                $result[] = array(
-                    'type'  => 'presence',
-                    'field' => $column->getColumnName(),
-                );
-            }
-            if (($len = $column->getLength()) > 0) {
-                $result[] = array(
-                    'type'  => 'length',
-                    'field' => $column->getColumnName(),
-                    'max'   => $len,
-                );
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Get model ajax proxy object.
-     *
-     * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.proxy.Ajax
-     * @return array
-     */
-    protected function getAjaxProxy()
-    {
-        return array(
-            'type'   => 'ajax',
-            'url'    => sprintf('/data/%s', strtolower($this->getModelName())),
-            'api'    => $this->getApi(),
-            'reader' => $this->getJsonReader(),
-            'writer' => $this->getJsonWriter(),
-        );
-    }
-
-    /**
-     * Get the model API object.
-     *
-     * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.proxy.Ajax-cfg-api
-     * @return array
-     */
-    private function getApi()
-    {
-        $modelName = strtolower($this->getModelName());
-
-        return array(
-            'read'    => sprintf('/data/%s', $modelName),
-            'update'  => sprintf('/data/%s/update', $modelName),
-            'create'  => sprintf('/data/%s/add', $modelName),
-            'destroy' => sprintf('/data/%s/destroy', $modelName),
-        );
-    }
-
-    /**
-     * Get the model json reader.
-     *
-     * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.reader.Json
-     * @return array
-     */
-    private function getJsonReader()
-    {
-        return array(
-            'type'            => 'json',
-            'root'            => strtolower($this->getModelName()),
-            'messageProperty' => 'message',
-        );
-    }
-
-    /**
-     * Get the model json writer.
-     *
-     * @link http://docs.sencha.com/extjs/4.2.0/#!/api/Ext.data.writer.Json
-     * @return array
-     */
-    private function getJsonWriter()
-    {
-        return array(
-            'type'       => 'json',
-            'root'       => strtolower($this->getModelName()),
-            'encode'     => true,
-            'expandData' => true,
-        );
     }
 }
