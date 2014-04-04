@@ -506,12 +506,14 @@ class Table extends Base
         if ($foreignKey->getOwningTable()->getId() == $this->getId()) {
             return true;
         }
+
+        return false;
     }
 
     /**
      * Get the foreign key reference count.
      *
-     * @param ForeignKey $fkey   The foreign key
+     * @param \MwbExporter\Model\ForeignKey $fkey   The foreign key
      * @param int        $max    The maximum count
      * @return int
      */
@@ -542,7 +544,7 @@ class Table extends Base
     /**
      * Get the relation reference count.
      *
-     * @param ForeignKey $fkey   The foreign key
+     * @param \MwbExporter\Model\ForeignKey $fkey   The foreign key
      * @param int        $max    The maximum count
      * @return int
      */
@@ -621,7 +623,7 @@ class Table extends Base
     /**
      * Get the related name for one-to-many relation.
      *
-     * @param ForeignKey $reference   The foreign key
+     * @param \MwbExporter\Model\ForeignKey $reference   The foreign key
      * @param bool       $code        If true, use result as PHP code or false, use as comment
      * @return string
      */
