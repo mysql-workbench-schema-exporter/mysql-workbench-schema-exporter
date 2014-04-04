@@ -545,14 +545,14 @@ class Table extends BaseTable
                                 )
                             )
                         ), array('multiline' => true, 'wrapper' => ' * %s')))
-                        ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($mappedRelation) {
-                            if (count($orders = $_this->getFormatter()->getOrderOption($mappedRelation->parseComment('order')))) {
-                                $writer
-                                    ->write(' * '.$_this->getAnnotation('OrderBy', array($orders)))
-                                ;
-                            }
-                        })
-                        ->write(' */')
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($mappedRelation) {
+                        if (count($orders = $_this->getFormatter()->getOrderOption($mappedRelation->parseComment('order')))) {
+                            $writer
+                                ->write(' * '.$_this->getAnnotation('OrderBy', array($orders)))
+                            ;
+                        }
+                    })
+                    ->write(' */')
                 ;
             } else {
                 $this->getDocument()->addLog(sprintf('  Applying setter/getter for N <=> N "%s".', "inverse"));
