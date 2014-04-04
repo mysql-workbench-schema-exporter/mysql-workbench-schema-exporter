@@ -1,23 +1,40 @@
 {
-    "name": "mysql-workbench-schema-exporter/mysql-workbench-schema-exporter",
-    "type": "cli",
-    "description": "MySQL Workbench Schema Exporter",
-    "keywords": ["mysql","workbench","database","doctrine","cli"],
-    "homepage": "https://github.com/johmue/mysql-workbench-schema-exporter",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Johannes Mueller",
-            "email": "circus2@web.de",
-            "role": "Developer"
-        }
-    ],
-    "require": {
-        "php": ">=5.3.0",
-        "doctrine/inflector": "1.0.*@dev"
-    },
-    "bin": ["cli/export.php"],
-    "autoload": {
-        "psr-0": { "MwbExporter\\": "lib/" }
-    }
+	"name" : "mysql-workbench-schema-exporter/mysql-workbench-schema-exporter",
+	"type" : "library",
+	"description" : "MySQL Workbench Schema Exporter",
+	"keywords" : [
+		"mysql",
+		"workbench",
+		"database",
+		"cli",
+		"doctrine",
+		"propel",
+		"extjs",
+		"zend",
+		"sequelizejs"
+	],
+	"homepage" : "https://github.com/johmue/mysql-workbench-schema-exporter",
+	"license" : "MIT",
+	"authors" : [{
+			"name" : "Johannes Mueller",
+			"email" : "circus2@web.de",
+			"role" : "Developer"
+		}, {
+			"name" : "Toha",
+			"email" : "tohenk@yahoo.com",
+			"role" : "Developer"
+		}
+	],
+	"require" : {
+		"php" : ">=5.3.0",
+		"doctrine/inflector" : "dev-master"
+	},
+	"bin" : [
+		"cli/export.php"
+	],
+	"autoload" : {
+		"psr-0" : {
+			"MwbExporter\\" : "lib/"
+		}
+	}
 }
