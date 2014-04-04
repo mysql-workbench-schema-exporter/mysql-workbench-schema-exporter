@@ -165,28 +165,49 @@ function setupFormatter(&$setup)
     }
 }
 
+function listFormatter($bootstrap, $ordered = false)
+{
+    $i = 0;
+    $formatters = $bootstrap->getFormatters();
+    // find the longest formatter name
+    $len = max(array_map('strlen', array_keys($formatters))) + 1;
+    $nlen = strlen((string) count($formatters));
+    foreach ($formatters as $name => $class) {
+        $i++;
+        $formatter = $bootstrap->getFormatter($name);
+        echo sprintf("%s %-${len}s %s\n", $ordered ? str_pad((string) $i, $nlen, ' ', STR_PAD_LEFT).'.' : '-', $name, $formatter->getTitle());
+    }
+
+    return $formatters;
+}
+
+function chooseFormatter($bootstrap)
+{
+    $choice = 1;
+    $formatters = listFormatter($bootstrap, true);
+    while (true) {
+        askValue("Enter choice", $choice);
+        if ($choice > 0 && $choice <= count($formatters)) {
+            break;
+        }
+    }
+    $keys = array_keys($formatters);
+
+    return $keys[$choice - 1];
+}
+
 function main($filename, $dir, $params, $options)
 {
     try {
         $setup = array();
         $configs = array();
 
-
         // bootstrap
         $bootstrap = new Bootstrap();
         if ($options[CMD_OPT_LIST_EXPORTER]) {
-            $formatters = $bootstrap->getFormatters();
-            // find the longest formatter name
-            $len = max(array_map('strlen', array_keys($formatters))) + 1;
             echo "Supported exporter:\n";
-            foreach ($formatters as $name => $class) {
-                $formatter = $bootstrap->getFormatter($name);
-                echo sprintf("- %-".$len."s %s\n", $name, $formatter->getTitle());
-            }
+            listFormatter($bootstrap, true);
             die(0);
-        }
-        if ('default' === $params[CMD_PARAM_EXPORT] && $formatters = array_keys($bootstrap->getFormatters())) {
-            $params[CMD_PARAM_EXPORT] = $formatters[0];
         }
 
         // lookup config file export.json
@@ -222,7 +243,15 @@ function main($filename, $dir, $params, $options)
             }
         }
 
-        //get formatter after getting the parameter export either from command line or config file
+        // choose exporter to use if not specified
+        if (null === $params[CMD_PARAM_EXPORT]) {
+            // choose exporter to use
+            echo "Choose which exporter to use:\n";
+            $params[CMD_PARAM_EXPORT] = chooseFormatter($bootstrap);
+            echo "\n";
+        }
+
+        // get formatter after getting the parameter export either from command line or config file
         if (!$formatter = $bootstrap->getFormatter($params[CMD_PARAM_EXPORT])) {
             echo sprintf("Unsupported exporter %s. Use --%s option to show all available exporter.", $params[CMD_PARAM_EXPORT], CMD_OPT_LIST_EXPORTER);
             die(1);
@@ -239,6 +268,7 @@ function main($filename, $dir, $params, $options)
             if ($ask) {
                 setupFormatter($setup);
             }
+            echo "\n";
         }
 
         // save export parameters
@@ -263,7 +293,7 @@ function main($filename, $dir, $params, $options)
         $end = microtime(true);
 
         if ($document) {
-            echo sprintf("File exported to %s\n\n", $document->getWriter()->getStorage()->getResult());
+            echo sprintf("File exported to %s.\n\n", $document->getWriter()->getStorage()->getResult());
             // show some information about used memory
             // show the time needed to parse the mwb file
             echo sprintf("Done in %0.3f second, %0.3f MB memory used.\n", $end - $start, memory_get_peak_usage(true) / 1024 / 1024);
@@ -291,7 +321,7 @@ $options = array(
     CMD_OPT_NO_AUTO_CONFIG => false,
 );
 $params = array(
-    CMD_PARAM_EXPORT        => 'default',
+    CMD_PARAM_EXPORT        => null,
     CMD_PARAM_CONFIG        => null,
 );
 
