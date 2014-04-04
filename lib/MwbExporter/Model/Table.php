@@ -444,7 +444,7 @@ class Table extends Base
                 if (array_key_exists($foreignKey->getId(), $columns)) {
                     continue;
                 }
-                $column[$foreignKey->getId()] = $foreignKey;
+                $columns[$foreignKey->getId()] = $foreignKey;
             }
         }
 
@@ -464,11 +464,196 @@ class Table extends Base
                 if (array_key_exists($foreignKey->getId(), $columns)) {
                     continue;
                 }
-                $column[$foreignKey->getId()] = $foreignKey;
+                $columns[$foreignKey->getId()] = $foreignKey;
             }
         }
 
         return $columns;
+    }
+
+    /**
+     * Check if foreign key should be ignored.
+     *
+     * @param \MwbExporter\Model\ForeignKey
+     * @return boolean
+     */
+    public function isForeignKeyIgnored($foreignKey)
+    {
+        // do not create entities for many2many tables
+        if ($foreignKey->getReferencedTable()->isManyToMany()) {
+            return true;
+        }
+        // do not output mapping in foreign table when the unidirectional option is set
+        if ($foreignKey->parseComment('unidirectional') === 'true') {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if local foreign key should be ignored.
+     *
+     * @param \MwbExporter\Model\ForeignKey
+     * @return boolean
+     */
+    public function isLocalForeignKeyIgnored($foreignKey)
+    {
+        // do not create entities for many2many tables
+        if ($foreignKey->getOwningTable()->isManyToMany()) {
+            return true;
+        }
+        if ($foreignKey->getOwningTable()->getId() == $this->getId()) {
+            return true;
+        }
+    }
+
+    /**
+     * Get the foreign key reference count.
+     *
+     * @param ForeignKey $fkey   The foreign key
+     * @param int        $max    The maximum count
+     * @return int
+     */
+    protected function getForeignKeyReferenceCount($fkey, $max = null)
+    {
+        $count = 0;
+        $tablename = $fkey->getReferencedTable()->getRawTableName();
+        $columns = array();
+        foreach ($this->getColumns() as $column) {
+            foreach ($column->getForeignKeys() as $foreignKey) {
+                // process only unique foreign key
+                if (in_array($foreignKey->getId(), $columns)) {
+                    continue;
+                }
+                $columns[] = $foreignKey->getId();
+                if ($this->checkForeignKeyOwnerTableName($foreignKey, $tablename)) {
+                    $count++;
+                }
+                if ($max && $count == $max) {
+                    break;
+                }
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * Get the relation reference count.
+     *
+     * @param ForeignKey $fkey   The foreign key
+     * @param int        $max    The maximum count
+     * @return int
+     */
+    protected function getRelationReferenceCount($fkey, $max = null)
+    {
+        $count = 0;
+        $tablename = $fkey->getReferencedTable()->getRawTableName();
+        foreach ($this->getTableM2MRelations() as $relation) {
+            // $relation key => reference (ForeignKey), refTable (Table)
+            if ($this->checkReferenceTableName($relation['refTable'], $tablename)) {
+                $count++;
+            }
+            if ($max && $count == $max) {
+                break;
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * Check if foreign table reference is referenced by more than one column.
+     *
+     * @param \MwbExporter\Model\ForeignKey $reference   The foreign key to check
+     * @return bool
+     */
+    public function isMultiReferences($reference)
+    {
+        $count = 0;
+        if ($reference) {
+            // check foreign keys
+            $count += $this->getForeignKeyReferenceCount($reference);
+            // check relations
+            $count += $this->getRelationReferenceCount($reference);
+        }
+
+        return $count > 1 ? true : false;
+    }
+
+    /**
+     * Check if foreign key owner tablename matched.
+     *
+     * @param \MwbExporter\Model\ForeignKey $foreign    The foreign key
+     * @param string     $tablename  The table name
+     * @return bool
+     */
+    protected function checkForeignKeyOwnerTableName($foreign, $tablename)
+    {
+        return $this->checkReferenceTableName($foreign ? $foreign->getReferencedTable() : null, $tablename);
+    }
+
+    /**
+     * Check if reference tablename matched.
+     *
+     * @param \MwbExporter\Model\Table   $table      The reference table
+     * @param string  $tablename  The table name
+     * @return bool
+     */
+    protected function checkReferenceTableName($table, $tablename)
+    {
+        return ($table && $table->getRawTableName() === $tablename) ? true : false;
+    }
+
+    /**
+     * Format column name as relation to foreign table.
+     *
+     * @param string $column  The column name
+     * @param bool   $code    If true, use result as PHP code or false, use as comment
+     * @return string
+     */
+    public function formatRelatedName($column, $code = true)
+    {
+        return $code ? sprintf('RelatedBy%s', $this->columnNameBeautifier($column)) : sprintf('related by `%s`', $column);
+    }
+
+    /**
+     * Get the related name for one-to-many relation.
+     *
+     * @param ForeignKey $reference   The foreign key
+     * @param bool       $code        If true, use result as PHP code or false, use as comment
+     * @return string
+     */
+    public function getRelatedName($reference, $code = true)
+    {
+        return $this->isMultiReferences($reference) ? $this->formatRelatedName($reference->getLocal()->getColumnName(), $code) : '';
+    }
+
+    /**
+     * Get the related name for many-to-many relation.
+     *
+     * @param string $tablename   The foreign tablename
+     * @param string $column      The foreign column name
+     * @param bool   $code        If true, use result as PHP code or false, use as comment
+     * @return string
+     */
+    public function getManyToManyRelatedName($tablename, $column, $code = true)
+    {
+        return $this->getColumns()->getManyToManyCount($tablename) > 1 ? $this->formatRelatedName($column, $code) : '';
+    }
+
+    /**
+     * Beautify column name.
+     *
+     * @param string $columnName
+     * @return string
+     */
+    public function columnNameBeautifier($columnName)
+    {
+        return ucfirst(preg_replace_callback('@\_(\w)@', function($matches){
+            return ucfirst($matches[1]);
+        }, $columnName));
     }
 
     /**
