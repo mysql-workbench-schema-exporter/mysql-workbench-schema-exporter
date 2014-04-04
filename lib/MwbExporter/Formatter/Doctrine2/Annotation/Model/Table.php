@@ -324,7 +324,7 @@ class Table extends BaseTable
             $targetEntity = $foreign->getReferencedTable()->getModelName();
             $targetEntityFQCN = $foreign->getReferencedTable()->getModelNameAsFQCN($foreign->getOwningTable()->getEntityNamespace());
             $mappedBy = $foreign->getOwningTable()->getModelName();
-            $related = $foreign->getOwningTable()->getManyToManyRelatedName($foreign->getOwningTable()->getRawTableName(), $foreign->getLocal()->getColumnName());
+            $related = $foreign->getLocalM2MRelatedName();
 
             $this->getDocument()->addLog(sprintf('  Writing 1 <=> ? relation "%s".', $targetEntity));
 
@@ -440,7 +440,7 @@ class Table extends BaseTable
             if ($local->isManyToOne()) { // is ManyToOne
                 $this->getDocument()->addLog('  Relation considered as "N <=> 1".');
 
-                $related = $local->getOwningTable()->getManyToManyRelatedName($local->getOwningTable()->getRawTableName(), $local->getLocal()->getColumnName());
+                $related = $local->getForeignM2MRelatedName();
                 $refRelated = $local->getOwningTable()->getRelatedName($local);
                 if ($local->parseComment('unidirectional') === 'true') {
                     $annotationOptions['inversedBy'] = null;
@@ -728,8 +728,8 @@ class Table extends BaseTable
             if ($local->isManyToOne()) { // is ManyToOne
                 $this->getDocument()->addLog(sprintf('  Applying setter/getter for "%s".', 'N <=> 1'));
 
-                $related = $local->getOwningTable()->getManyToManyRelatedName($local->getOwningTable()->getRawTableName(), $local->getLocal()->getColumnName());
-                $related_text = $local->getOwningTable()->getManyToManyRelatedName($local->getOwningTable()->getRawTableName(), $local->getForeign()->getColumnName(), false);
+                $related = $local->getForeignM2MRelatedName();
+                $related_text = $local->getForeignM2MRelatedName(false);
                 $writer
                     // setter
                     ->write('/**')
