@@ -324,13 +324,12 @@ class Table extends BaseTable
             $targetEntity = $foreign->getReferencedTable()->getModelName();
             $targetEntityFQCN = $foreign->getReferencedTable()->getModelNameAsFQCN($foreign->getOwningTable()->getEntityNamespace());
             $mappedBy = $foreign->getOwningTable()->getModelName();
-            $related = $foreign->getLocalM2MRelatedName();
 
             $this->getDocument()->addLog(sprintf('  Writing 1 <=> ? relation "%s".', $targetEntity));
 
             $annotationOptions = array(
                 'targetEntity' => $targetEntityFQCN,
-                'mappedBy' => lcfirst($mappedBy).$related,
+                'mappedBy' => lcfirst($mappedBy),
                 'cascade' => $this->getFormatter()->getCascadeOption($foreign->parseComment('cascade')),
                 'fetch' => $this->getFormatter()->getFetchOption($foreign->parseComment('fetch')),
                 'orphanRemoval' => $this->getFormatter()->getBooleanOption($foreign->parseComment('orphanRemoval')),
