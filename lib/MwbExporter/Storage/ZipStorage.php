@@ -46,6 +46,13 @@ class ZipStorage extends Storage
         return $this;
     }
 
+    public function hasFile($filename)
+    {
+        if ($this->zip) {
+            return false !== $this->zip->locateName($filename) ? true : false;
+        }
+    }
+
     public function save($filename, $content)
     {
         $this->zip->addFromString($filename, $content);

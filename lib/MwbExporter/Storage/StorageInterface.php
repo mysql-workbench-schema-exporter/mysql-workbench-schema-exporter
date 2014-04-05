@@ -61,6 +61,14 @@ interface StorageInterface
     public function getFile($filename);
 
     /**
+     * Check file if already exist.
+     *
+     * @param string $filename  The file name
+     * @return boolean
+     */
+    public function hasFile($filename);
+
+    /**
      * Initialize storage for writing.
      *
      * @return \MwbExporter\Storage\StorageInterface

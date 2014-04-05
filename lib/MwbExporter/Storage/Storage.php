@@ -88,17 +88,28 @@ abstract class Storage implements StorageInterface
      * Check file if already exist and do backup if necessary.
      *
      * @param string $filename  The file name
-     * @return \MwbExporter\Storage\StorageInterface
+     * @return string
      */
     public function getFile($filename)
     {
         $filename = $this->outDir.DIRECTORY_SEPARATOR.$filename;
         $this->mkdir(dirname($filename));
-        if (is_readable($filename) && $this->backup) {
+        if (is_file($filename) && $this->backup) {
             @rename($filename, sprintf('%s.bak', $filename));
         }
 
         return $filename;
+    }
+
+    /**
+     * Check file if already exist.
+     *
+     * @param string $filename  The file name
+     * @return boolean
+     */
+    public function hasFile($filename)
+    {
+        return is_file($filename = $this->outDir.DIRECTORY_SEPARATOR.$filename) ? true : false;
     }
 
     /**
