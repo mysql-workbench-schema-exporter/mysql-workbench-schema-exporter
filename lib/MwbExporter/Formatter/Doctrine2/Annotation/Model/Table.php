@@ -192,11 +192,12 @@ class Table extends BaseTable
         }
         $skipGetterAndSetter = $this->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
         $serializableEntity  = $this->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
+        $extendableEntity    = $this->getConfig()->get(Formatter::CFG_GENERATE_EXTENDABLE_ENTITY);
         $lifecycleCallbacks  = $this->getLifecycleCallbacks();
 
         $comment = $this->getComment();
         $writer
-            ->open($this->getTableFileName())
+            ->open($this->getClassFileName($extendableEntity ? true : false))
             ->write('<?php')
             ->write('')
             ->write('namespace %s;', $namespace)
@@ -210,9 +211,12 @@ class Table extends BaseTable
             ->writeIf($comment, $comment)
             ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
             ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation(), 'uniqueConstraints' => $this->getUniqueConstraintsAnnotation())))
+            ->writeIf($extendableEntity, ' * '.$this->getAnnotation('InheritanceType', array('SINGLE_TABLE')))
+            ->writeIf($extendableEntity, ' * '.$this->getAnnotation('DiscriminatorColumn', $this->getInheritanceDiscriminatorColumn()))
+            ->writeIf($extendableEntity, ' * '.$this->getAnnotation('DiscriminatorMap', array($this->getInheritanceDiscriminatorMap())))
             ->writeIf($lifecycleCallbacks, ' * @HasLifecycleCallbacks')
             ->write(' */')
-            ->write('class '.$this->getModelName().(($implements = $this->getClassImplementations()) ? ' implements '.$implements : ''))
+            ->write('class '.$this->getClassName($extendableEntity ? true : false).(($implements = $this->getClassImplementations()) ? ' implements '.$implements : ''))
             ->write('{')
             ->indent()
                 ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity, $lifecycleCallbacks) {
@@ -244,20 +248,49 @@ class Table extends BaseTable
             ->write('}')
             ->close()
         ;
-    }
-
-    public function writeUsedClasses(WriterInterface $writer)
-    {
-        if (count($uses = $this->getUsedClasses())) {
-            foreach ($uses as $use) {
-                $writer->write('use %s;', $use);
-            }
-            $writer->write('');
+        if ($extendableEntity && !$writer->getStorage()->hasFile($this->getClassFileName())) {
+            $writer
+                ->open($this->getClassFileName())
+                ->write('<?php')
+                ->write('')
+                ->write('namespace %s;', $namespace)
+                ->write('')
+                ->write('use %s\%s;', $namespace, $this->getClassName(true))
+                ->write('')
+                ->write('/**')
+                ->write(' * '.$this->getNamespace(null, false))
+                ->write(' *')
+                ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
+                ->write(' */')
+                ->write('class %s extends %s', $this->getClassName(), $this->getClassName(true))
+                ->write('{')
+                ->write('}')
+                ->close()
+            ;
         }
-
-        return $this;
     }
 
+    /**
+     * Get the generated class name.
+     *
+     * @param bool $base
+     * @return string
+     */
+    protected function getClassFileName($base = false)
+    {
+        return ($base ? 'Base' : '').$this->getTableFileName();
+    }
+
+    /**
+     * Get the generated class name.
+     *
+     * @param bool $base
+     * @return string
+     */
+    protected function getClassName($base = false)
+    {
+        return ($base ? 'Base' : '').$this->getModelName();
+    }
 
     /**
      * Get the class name to implements.
@@ -284,6 +317,42 @@ class Table extends BaseTable
         }
 
         return $uses;
+    }
+
+    protected function getInheritanceDiscriminatorColumn()
+    {
+        $result = array();
+        if ($column = trim($this->parseComment('discriminator'))) {
+            $result['name'] = $column;
+            foreach ($this->getColumns() as $col) {
+                if ($column == $col->getColumnName()) {
+                    $result['type'] = $this->getFormatter()->getDatatypeConverter()->getDataType($col->getColumnType());
+                    break;
+                }
+            }
+        } else {
+            $result['name'] = 'discr';
+            $result['type'] = 'string';
+        }
+
+        return $result;
+    }
+
+    protected function getInheritanceDiscriminatorMap()
+    {
+        return array('base' => $this->getClassName(true), 'extended' => $this->getClassName());
+    }
+
+    public function writeUsedClasses(WriterInterface $writer)
+    {
+        if (count($uses = $this->getUsedClasses())) {
+            foreach ($uses as $use) {
+                $writer->write('use %s;', $use);
+            }
+            $writer->write('');
+        }
+
+        return $this;
     }
 
     /**
