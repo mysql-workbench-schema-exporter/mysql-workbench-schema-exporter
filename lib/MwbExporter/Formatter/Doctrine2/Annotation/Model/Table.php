@@ -255,8 +255,9 @@ class Table extends BaseTable
                 ->write('')
                 ->write('namespace %s;', $namespace)
                 ->write('')
-                ->write('use %s\%s;', $namespace, $this->getClassName(true))
-                ->write('')
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    $_this->writeExtendedUsedClasses($writer);
+                })
                 ->write('/**')
                 ->write(' * '.$this->getNamespace(null, false))
                 ->write(' *')
@@ -278,7 +279,7 @@ class Table extends BaseTable
      */
     protected function getClassFileName($base = false)
     {
-        return ($base ? 'Base' : '').$this->getTableFileName();
+        return ($base ? $this->getTableFileName(array('%entity%' => 'Base'.$this->getModelName())) : $this->getTableFileName());
     }
 
     /**
@@ -302,6 +303,18 @@ class Table extends BaseTable
     }
 
     /**
+     * Get the use class for ORM if applicable.
+     *
+     * @return string
+     */
+    protected function getOrmUse()
+    {
+        if ('@ORM\\' === $this->addPrefix()) {
+            return 'Doctrine\ORM\Mapping as ORM';
+        }
+    }
+
+    /**
      * Get used classes.
      *
      * @return array
@@ -309,8 +322,8 @@ class Table extends BaseTable
     protected function getUsedClasses()
     {
         $uses = array();
-        if ('@ORM\\' === $this->addPrefix()) {
-            $uses[] = 'Doctrine\ORM\Mapping as ORM';
+        if ($orm = $this->getOrmUse()) {
+            $uses[] = $orm;
         }
         if (count($this->getTableM2MRelations()) || $this->getColumns()->hasOneToManyRelation()) {
             $uses[] = $this->getCollectionClass();
@@ -345,7 +358,26 @@ class Table extends BaseTable
 
     public function writeUsedClasses(WriterInterface $writer)
     {
-        if (count($uses = $this->getUsedClasses())) {
+        $this->writeUses($writer, $this->getUsedClasses());
+
+        return $this;
+    }
+
+    public function writeExtendedUsedClasses(WriterInterface $writer)
+    {
+        $uses = array();
+        if ($orm = $this->getOrmUse()) {
+            $uses[] = $orm;
+        }
+        $uses[] = sprintf('%s\%s', $this->getEntityNamespace(), $this->getClassName(true));
+        $this->writeUses($writer, $uses);
+
+        return $this;
+    }
+
+    protected function writeUses(WriterInterface $writer, $uses = array())
+    {
+        if (count($uses)) {
             foreach ($uses as $use) {
                 $writer->write('use %s;', $use);
             }
