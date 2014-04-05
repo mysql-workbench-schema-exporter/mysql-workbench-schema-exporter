@@ -255,13 +255,14 @@ class Document extends Base
      * to ensure no variables tag ('%var%') left.
      *
      * @param \MwbExporter\Model\Base $object  The object to translate
-     * @param bool                    $check   True to check the translated filename
+     * @param array $vars  The overriden variables
+     * @param bool $check  True to check the translated filename
      * @throws \Exception
      * @return string
      */
-    public function translateFilename(Base $object, $check = true)
+    public function translateFilename(Base $object, $vars = array(), $check = true)
     {
-        if ($object && ($filename = $object->translateVars($this->getConfig()->get(FormatterInterface::CFG_FILENAME))))
+        if ($object && ($filename = $object->translateVars($this->getConfig()->get(FormatterInterface::CFG_FILENAME), $vars)))
         {
             if ($check && false !== strpos($filename, '%')) {
                 throw new \Exception(sprintf('All filename variable where not converted. Perhaps a misstyped name (%s) ?', substr($filename, strpos($filename, '%'), strrpos($filename, '%'))));

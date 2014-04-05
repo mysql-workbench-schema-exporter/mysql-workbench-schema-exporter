@@ -331,11 +331,12 @@ abstract class Base
      * Translate text with object contextual data.
      *
      * @param string $text  The text to translate
+     * @param array $vars   The overriden variables
      * @return string
      */
-    public function translateVars($text)
+    public function translateVars($text, $vars = array())
     {
-        return strtr($text, $this->getVars());
+        return strtr($text, array_merge($this->getVars(), $vars));
     }
 
     /**
