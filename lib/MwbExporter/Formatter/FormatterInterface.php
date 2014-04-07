@@ -42,6 +42,13 @@ interface FormatterInterface {
     const CFG_LOG_FILE               = 'logFile';
 
     /**
+     * Get formatter name.
+     *
+     * @return string
+     */
+    public function getName();
+
+    /**
      * Get the registry object.
      *
      * @return \MwbExporter\Registry\Registry

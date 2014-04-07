@@ -30,7 +30,15 @@ namespace MwbExporter\Storage;
 interface StorageInterface
 {
     /**
-     * Set writer output directory.
+     * Set storage name.
+     *
+     * @param string $name  Storage name
+     * @return \MwbExporter\Storage\StorageInterface
+     */
+    public function setName($name);
+
+    /**
+     * Set the output directory.
      *
      * @param string $dir  Directory name
      * @return \MwbExporter\Storage\StorageInterface
@@ -38,7 +46,7 @@ interface StorageInterface
     public function setOutdir($dir);
 
     /**
-     * Enable/disbale backup.
+     * Enable/disable backup.
      *
      * @return \MwbExporter\Storage\StorageInterface
      */

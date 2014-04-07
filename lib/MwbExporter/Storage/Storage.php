@@ -32,6 +32,11 @@ abstract class Storage implements StorageInterface
     /**
      * @var string
      */
+    protected $name;
+
+    /**
+     * @var string
+     */
     protected $outDir;
 
     /**
@@ -43,6 +48,19 @@ abstract class Storage implements StorageInterface
      * @var string
      */
     protected $result;
+
+    /**
+     * Set storage name.
+     *
+     * @param string $name  Storage name
+     * @return \MwbExporter\Storage\StorageInterface
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
 
     /**
      * Set the output directory.

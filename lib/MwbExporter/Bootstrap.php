@@ -78,7 +78,7 @@ class Bootstrap
         }
         $class = $formatters[$name];
 
-        return new $class();
+        return new $class($name);
     }
 
     /**
@@ -132,6 +132,7 @@ class Bootstrap
             if ($formatter->getRegistry()->config->get(FormatterInterface::CFG_USE_LOGGED_STORAGE)) {
                 $storage = new LoggedStorage($storage); 
             }
+            $storage->setName(basename($filename, '.mwb'));
             $storage->setOutdir(realpath($outDir) ? realpath($outDir) : $outDir);
             $storage->setBackup($formatter->getRegistry()->config->get(FormatterInterface::CFG_BACKUP_FILE));
             $writer = $this->getWriter($formatter->getPreferredWriter());

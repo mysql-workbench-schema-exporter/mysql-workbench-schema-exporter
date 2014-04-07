@@ -46,6 +46,11 @@ use MwbExporter\Model\View;
 abstract class Formatter implements FormatterInterface
 {
     /**
+     * @var string
+     */
+    private $name;
+
+    /**
      * @var \MwbExporter\Registry\Registry
      */
     private $registry = null;
@@ -57,9 +62,12 @@ abstract class Formatter implements FormatterInterface
 
     /**
      * Constructor.
+     *
+     * @param string $name  Formatter name
      */
-    public function __construct()
+    public function __construct($name = null)
     {
+        $this->name = $name;
         $this->registry = new Registry();
         $this->addConfigurations(array(
             static::CFG_INDENTATION            => 2,
@@ -154,6 +162,16 @@ abstract class Formatter implements FormatterInterface
         $this->datatypeConverter->setup();
 
         return $this;
+    }
+
+    /**
+     * Get formatter name.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**

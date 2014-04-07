@@ -36,7 +36,10 @@ class ZipStorage extends Storage
 
     public function initialize()
     {
-        $filename = $this->getFile(date('Y-m-d_h-i-s').'_'.sprintf('%03d', mt_rand(1, 999)).'.zip');
+        if (null === ($filename = $this->name)) {
+            $filename = date('Y-m-d_h-i-s').'_'.sprintf('%03d', mt_rand(1, 999));
+        }
+        $filename = $this->getFile($filename.'.zip');
         $this->zip = new \ZipArchive();
         if (false === $this->zip->open($filename, \ZipArchive::CREATE)) {
             throw new \Exception(sprintf('Can\'t create archive %s.', $filename));
