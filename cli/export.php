@@ -31,6 +31,7 @@ try {
 }
 
 use MwbExporter\Bootstrap;
+use MwbExporter\Formatter\FormatterInterface;
 
 // ----------------------------------------- CONST --------------------------------------------------- //
 
@@ -44,9 +45,24 @@ const CMD_OPT_HELP           = 'help';
 
 // ----------------------------------------- COMMAND LINE -------------------------------------------- //
 
+function showTitle()
+{
+    $version = FormatterInterface::VERSION;
+    echo <<<EOF
+MySQL Workbench Schema Exporter version $version.
+Copyright (c) 2010-2014 Johannes Mueller <circus2@web.de>
+Copyright (c) 2010-2014 Toha <tohenk@yahoo.com>
+
+
+EOF;
+}
+
 function usage()
 {
     $self = basename($_SERVER['argv'][0]);
+
+    showTitle();
+
     echo <<<EOF
 Usage:
 $self [options] FILENAME [DEST]
@@ -201,6 +217,8 @@ function main($filename, $dir, $params, $options)
     try {
         $setup = array();
         $configs = array();
+
+        showTitle();
 
         // bootstrap
         $bootstrap = new Bootstrap();
