@@ -28,7 +28,7 @@
 namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
 use MwbExporter\Formatter\Doctrine2\Model\Column as BaseColumn;
-use Doctrine\Common\Inflector\Inflector;
+use MwbExporter\Formatter\Doctrine2\Annotation\Formatter;
 use MwbExporter\Writer\WriterInterface;
 
 class Column extends BaseColumn
@@ -128,7 +128,7 @@ class Column extends BaseColumn
      */
     protected function isIgnored()
     {
-        if (!$this->isPrimary() && (count($this->getLocalForeignKeys()) || $this->hasOneToManyRelation())) {
+        if ($this->getConfig()->get(Formatter::CFG_SKIP_COLUMN_WITH_MANY_RELATION) && !$this->isPrimary() && (count($this->getLocalForeignKeys()) || $this->hasOneToManyRelation())) {
             return true;
         }
 
