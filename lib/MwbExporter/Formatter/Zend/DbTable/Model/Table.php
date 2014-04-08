@@ -30,6 +30,7 @@ namespace MwbExporter\Formatter\Zend\DbTable\Model;
 use MwbExporter\Model\Table as BaseTable;
 use MwbExporter\Formatter\Zend\DbTable\Formatter;
 use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Helper\Comment;
 
 class Table extends BaseTable
 {
@@ -56,6 +57,14 @@ class Table extends BaseTable
                 ->open($this->getTableFileName())
                 ->write('<?php')
                 ->write('')
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    if ($_this->getConfig()->get(Formatter::CFG_ADD_COMMENT)) {
+                        $writer
+                            ->write($_this->getFormatter()->getComment(Comment::FORMAT_PHP))
+                            ->write('')
+                        ;
+                    }
+                })
                 ->write('class '.$this->getTablePrefix().$this->getSchema()->getName().'_'. $this->getModelName().' extends '.$this->getParentTable())
                 ->write('{')
                 ->indent()

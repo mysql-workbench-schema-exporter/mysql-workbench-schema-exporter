@@ -31,6 +31,7 @@ use MwbExporter\Formatter\Doctrine2\Model\Table as BaseTable;
 use MwbExporter\Formatter\Doctrine2\Yaml\Formatter;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Object\YAML;
+use MwbExporter\Helper\Comment;
 use Doctrine\Common\Inflector\Inflector;
 
 class Table extends BaseTable
@@ -47,6 +48,14 @@ class Table extends BaseTable
             default:
                 $writer
                     ->open($this->getTableFileName())
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                        if ($_this->getConfig()->get(Formatter::CFG_ADD_COMMENT)) {
+                            $writer
+                                ->write($_this->getFormatter()->getComment(Comment::FORMAT_YAML))
+                                ->write('')
+                            ;
+                        }
+                    })
                     ->write($this->asYAML())
                     ->close()
                 ;

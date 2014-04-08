@@ -30,6 +30,7 @@ namespace MwbExporter\Model;
 use MwbExporter\Registry\Registry;
 use MwbExporter\Registry\RegistryHolder;
 use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Helper\Comment;
 
 abstract class Base
 {
@@ -295,11 +296,7 @@ abstract class Base
         // or {doctrine:keyword} and ending with {/d:keyword}
         if ($comment = trim(preg_replace(sprintf('/\{(%s):([^\}]+)\}(.+?)\{\/\1:\2\}/si', $this->getFormatter()->getCommentParserIdentifierPrefix()), '', $comment))) {
             if ($asPhpComment) {
-                // start the comment with a "*"" and add a " * " after each newline
-                $comment = str_replace("\n", "\n * ", $comment);
-    
-                // comments are wrapped at 80 chars and will end with a newline
-                $comment = ' * ' . wordwrap($comment, 77, "\n * ") . "\n *";
+                $comment = implode("\n", Comment::wrap($comment."\n", ' * %s'));
             }
 
             return $comment;

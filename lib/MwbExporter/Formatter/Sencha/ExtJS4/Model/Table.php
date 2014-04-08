@@ -31,6 +31,7 @@ namespace MwbExporter\Formatter\Sencha\ExtJS4\Model;
 use MwbExporter\Formatter\Sencha\Model\Table as BaseTable;
 use MwbExporter\Formatter\Sencha\ExtJS4\Formatter;
 use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Helper\Comment;
 
 class Table extends BaseTable
 {
@@ -60,6 +61,14 @@ class Table extends BaseTable
     public function writeBody(WriterInterface $writer)
     {
         $writer
+            ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                if ($_this->getConfig()->get(Formatter::CFG_ADD_COMMENT)) {
+                    $writer
+                        ->write($_this->getFormatter()->getComment(Comment::FORMAT_JS))
+                        ->write('')
+                    ;
+                }
+            })
             ->write("Ext.define('%s', %s);", $this->getClassPrefix().'.'.$this->getModelName(), $this->asModel())
         ;
 

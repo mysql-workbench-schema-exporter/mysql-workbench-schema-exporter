@@ -35,7 +35,7 @@ class Annotation extends Base
 
     /**
      * Constructor.
-     * 
+     *
      * @param string $annotation  Annotation name
      * @param mixed  $content     Object content
      * @param array  $options     Object options

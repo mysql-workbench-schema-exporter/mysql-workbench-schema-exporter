@@ -67,6 +67,12 @@ General options applied to all formatter.
 
     Default is `%entity%.%extension%`.
 
+  * `addGeneratorInfoAsComment`
+
+    Add generator information to the generated code as a comment.
+
+    Default is `true`.
+
   * `skipPluralNameChecking`
 
     Skip checking the plural name of model and leave as is, useful for non English table names.

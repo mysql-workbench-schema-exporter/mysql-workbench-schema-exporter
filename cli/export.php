@@ -51,7 +51,7 @@ function showTitle()
     echo <<<EOF
 MySQL Workbench Schema Exporter version $version.
 Copyright (c) 2010-2014 Johannes Mueller <circus2@web.de>
-Copyright (c) 2010-2014 Toha <tohenk@yahoo.com>
+Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
 
 
 EOF;

@@ -36,6 +36,7 @@ interface FormatterInterface {
     const CFG_INDENTATION            = 'indentation';
     const CFG_USE_TABS               = 'useTabs';
     const CFG_FILENAME               = 'filename';
+    const CFG_ADD_COMMENT            = 'addGeneratorInfoAsComment';
     const CFG_SKIP_PLURAL            = 'skipPluralNameChecking';
     const CFG_BACKUP_FILE            = 'backupExistingFile';
     const CFG_USE_LOGGED_STORAGE     = 'useLoggedStorage';
@@ -224,4 +225,31 @@ interface FormatterInterface {
      * @return string
      */
     public function getCommentParserIdentifierPrefix();
+
+    /**
+     * Get generated comment format.
+     *
+     * Variable placeholders supported:
+     *   %VERSION%      Exporter version
+     *   %FORMATTER%    Formatter name
+     *   %TIME%         The date and time of code generation
+     *
+     * @return string
+     */
+    public function getCommentFormat();
+
+    /**
+     * Get comment variable substitution.
+     *
+     * @return array
+     */
+    public function getCommentVars();
+
+    /**
+     * Get comment.
+     *
+     * @param string $format  Comment wrapper format
+     * @return string
+     */
+    public function getComment($format);
 }

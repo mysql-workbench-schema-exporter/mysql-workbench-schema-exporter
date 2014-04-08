@@ -31,6 +31,7 @@ use MwbExporter\Formatter\Sencha\Model\Table as BaseTable;
 use MwbExporter\Formatter\Sencha\ExtJS3\Formatter;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Helper\ZendURLFormatter;
+use MwbExporter\Helper\Comment;
 
 class Table extends BaseTable
 {
@@ -39,6 +40,14 @@ class Table extends BaseTable
         if (!$this->isExternal()) {
             $writer
                 ->open($this->getTableFileName())
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    if ($_this->getConfig()->get(Formatter::CFG_ADD_COMMENT)) {
+                        $writer
+                            ->write($_this->getFormatter()->getComment(Comment::FORMAT_JS))
+                            ->write('')
+                        ;
+                    }
+                })
                 ->write('%s.%s = Ext.extend(%s, %s);', $this->getClassPrefix(), $this->getModelName(), $this->getParentClass(), $this->asModel())
                 ->write('')
                 ->write('%1$s.%2$s = Ext.extend(%1$s.%2$s, %3$s);', $this->getClassPrefix(), $this->getModelName(), $this->asUI())

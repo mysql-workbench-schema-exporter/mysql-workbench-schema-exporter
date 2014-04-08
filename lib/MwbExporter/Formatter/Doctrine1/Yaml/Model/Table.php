@@ -30,6 +30,7 @@ namespace MwbExporter\Formatter\Doctrine1\Yaml\Model;
 use MwbExporter\Model\Table as BaseTable;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Formatter\Doctrine1\Yaml\Formatter;
+use MwbExporter\Helper\Comment;
 
 class Table extends BaseTable
 {
@@ -59,6 +60,14 @@ class Table extends BaseTable
         if (!$this->isExternal()) {
             $writer
                 ->open($this->getTableFileName())
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    if ($_this->getConfig()->get(Formatter::CFG_ADD_COMMENT)) {
+                        $writer
+                            ->write($_this->getFormatter()->getComment(Comment::FORMAT_YAML))
+                            ->write('')
+                        ;
+                    }
+                })
                 ->write('%s:', $this->getModelName())
                 ->indent()
                     ->writeIf($actAs = trim($this->getActAsBehaviour()), $actAs)

@@ -28,10 +28,11 @@
 namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
 use MwbExporter\Formatter\Doctrine2\Model\Table as BaseTable;
-use Doctrine\Common\Inflector\Inflector;
 use MwbExporter\Object\Annotation;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Formatter\Doctrine2\Annotation\Formatter;
+use MwbExporter\Helper\Comment;
+use Doctrine\Common\Inflector\Inflector;
 
 class Table extends BaseTable
 {
@@ -200,6 +201,14 @@ class Table extends BaseTable
             ->open($this->getClassFileName($extendableEntity ? true : false))
             ->write('<?php')
             ->write('')
+            ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                if ($_this->getConfig()->get(Formatter::CFG_ADD_COMMENT)) {
+                    $writer
+                        ->write($_this->getFormatter()->getComment(Comment::FORMAT_PHP))
+                        ->write('')
+                    ;
+                }
+            })
             ->write('namespace %s;', $namespace)
             ->write('')
             ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
@@ -253,14 +262,24 @@ class Table extends BaseTable
                 ->open($this->getClassFileName())
                 ->write('<?php')
                 ->write('')
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    if ($_this->getConfig()->get(Formatter::CFG_ADD_COMMENT)) {
+                        $writer
+                            ->write($_this->getFormatter()->getComment(Comment::FORMAT_PHP))
+                            ->write('')
+                        ;
+                    }
+                })
                 ->write('namespace %s;', $namespace)
                 ->write('')
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    $_this->writeExtendedUsedClasses($writer);
-                })
                 ->write('/**')
                 ->write(' * '.$this->getNamespace(null, false))
                 ->write(' *')
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    if ($_this->getConfig()->get(Formatter::CFG_ADD_COMMENT)) {
+                        $writer->write($_this->getFormatter()->getComment(' * %s'));
+                    }
+                })
                 ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
                 ->write(' */')
                 ->write('class %s extends %s', $this->getClassName(), $this->getClassName(true))

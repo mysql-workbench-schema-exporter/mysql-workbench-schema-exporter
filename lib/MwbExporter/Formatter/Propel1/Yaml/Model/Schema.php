@@ -31,6 +31,7 @@ use MwbExporter\Model\Schema as BaseSchema;
 use MwbExporter\Formatter\Propel1\Yaml\Formatter;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Object\YAML;
+use MwbExporter\Helper\Comment;
 
 class Schema extends BaseSchema
 {
@@ -51,6 +52,14 @@ class Schema extends BaseSchema
         ));
         $writer
             ->open($this->getDocument()->translateFilename($this))
+            ->writeCallback(function(WriterInterface $writer, Schema $_this = null) {
+                if ($_this->getConfig()->get(Formatter::CFG_ADD_COMMENT)) {
+                    $writer
+                        ->write($_this->getFormatter()->getComment(Comment::FORMAT_YAML))
+                        ->write('')
+                    ;
+                }
+            })
             ->write($yaml)
             ->close()
         ;

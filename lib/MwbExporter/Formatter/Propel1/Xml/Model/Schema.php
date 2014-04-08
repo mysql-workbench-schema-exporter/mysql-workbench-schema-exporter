@@ -29,6 +29,8 @@ namespace MwbExporter\Formatter\Propel1\Xml\Model;
 
 use MwbExporter\Model\Schema as BaseSchema;
 use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Formatter\Propel1\Xml\Formatter;
+use MwbExporter\Helper\Comment;
 
 class Schema extends BaseSchema
 {
@@ -41,6 +43,13 @@ class Schema extends BaseSchema
         $writer
             ->open($this->getDocument()->translateFilename($this))
             ->write('<?xml version="1.0" encoding="UTF-8"?>')
+            ->writeCallback(function(WriterInterface $writer, Schema $_this = null) {
+                if ($_this->getConfig()->get(Formatter::CFG_ADD_COMMENT)) {
+                    $writer
+                        ->write($_this->getFormatter()->getComment(Comment::FORMAT_XML))
+                    ;
+                }
+            })
             ->write('<database name="%s" defaultIdMethod="native">', $this->getName())
             ->writeCallback(function(WriterInterface $writer, Schema $_this = null) {
                 $_this->writeSchema($writer);

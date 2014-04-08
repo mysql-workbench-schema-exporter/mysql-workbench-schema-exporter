@@ -32,6 +32,7 @@ use MwbExporter\Model\Table as BaseTable;
 use MwbExporter\Formatter\Node\Sequelize\Formatter;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Object\JS;
+use MwbExporter\Helper\Comment;
 
 class Table extends BaseTable
 {
@@ -83,6 +84,14 @@ class Table extends BaseTable
     protected function writeBody(WriterInterface $writer)
     {
         $writer
+            ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                if ($_this->getConfig()->get(Formatter::CFG_ADD_COMMENT)) {
+                    $writer
+                        ->write($_this->getFormatter()->getComment(Comment::FORMAT_JS))
+                        ->write('')
+                    ;
+                }
+            })
             ->write("module.exports = function(sequelize, DataTypes) {")
             ->indent()
                 ->write("return sequelize.define('%s', %s, %s);", $this->getModelName(), $this->asModel(), $this->asOptions())
