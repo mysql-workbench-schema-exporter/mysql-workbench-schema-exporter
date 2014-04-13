@@ -36,7 +36,7 @@ class Column extends BaseColumn
     public function asAnnotation()
     {
         $attributes = array(
-            'name' => ($columnName = $this->getTable()->quoteIdentifier($this->getColumnName())) !== $this->getColumnName() ? $columnName : null,
+            'name' => ($columnName = $this->getTable()->quoteIdentifier($this->getColumnName())) !== $this->getColumnName() ? $columnName : $this->getColumnName(),
             'type' => $this->getDocument()->getFormatter()->getDatatypeConverter()->getMappedType($this),
         );
         if (($length = $this->parameters->get('length')) && ($length != -1)) {
@@ -68,7 +68,7 @@ class Column extends BaseColumn
             ->writeIf($this->isAutoIncrement(),
                     ' * '.$this->getTable()->getAnnotation('GeneratedValue', array('strategy' => 'AUTO')))
             ->write(' */')
-            ->write('protected $'.$this->getColumnName().';')
+            ->write('protected $'.lcfirst($this->columnNameBeautifier($this->getColumnName())).';')
             ->write('')
         ;
 
@@ -215,15 +215,15 @@ class Column extends BaseColumn
         $writer
             // setter
             ->write('/**')
-            ->write(' * Set the value of '.$this->getColumnName().'.')
+            ->write(' * Set the value of '.lcfirst($this->columnNameBeautifier($this->getColumnName())).'.')
             ->write(' *')
-            ->write(' * @param '.$nativeType.' $'.$this->getColumnName())
+            ->write(' * @param '.$nativeType.' $'.lcfirst($this->columnNameBeautifier($this->getColumnName())))
             ->write(' * @return '.$table->getNamespace())
             ->write(' */')
-            ->write('public function set'.$this->columnNameBeautifier($this->getColumnName()).'($'.$this->getColumnName().')')
+            ->write('public function set'.$this->columnNameBeautifier($this->getColumnName()).'($'.lcfirst($this->columnNameBeautifier($this->getColumnName())).')')
             ->write('{')
             ->indent()
-                ->write('$this->'.$this->getColumnName().' = $'.$this->getColumnName().';')
+                ->write('$this->'.lcfirst($this->columnNameBeautifier($this->getColumnName())).' = $'.lcfirst($this->columnNameBeautifier($this->getColumnName())).';')
                 ->write('')
                 ->write('return $this;')
             ->outdent()
@@ -231,14 +231,14 @@ class Column extends BaseColumn
             ->write('')
             // getter
             ->write('/**')
-            ->write(' * Get the value of '.$this->getColumnName().'.')
+            ->write(' * Get the value of '.lcfirst($this->columnNameBeautifier($this->getColumnName())).'.')
             ->write(' *')
             ->write(' * @return '.$nativeType)
             ->write(' */')
             ->write('public function get'.$this->columnNameBeautifier($this->getColumnName()).'()')
             ->write('{')
             ->indent()
-                ->write('return $this->'.$this->getColumnName().';')
+                ->write('return $this->'.lcfirst($this->columnNameBeautifier($this->getColumnName())).';')
             ->outdent()
             ->write('}')
             ->write('')
