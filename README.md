@@ -52,20 +52,24 @@ and exporter (formatter) specific options.
 
 General options applied to all formatter.
 
-  * `indentation`
-
-    The indentation size for generated code.
-
-  * `useTabs`
-
-    Use tabs for indentation instead of spaces. Setting this option will ignore the `indentation`-option
-
   * `filename`
 
     The output filename format, use the following tag `%schema%`, `%table%`, `%entity%`, and `%extension%` to allow
     the filename to be replaced with contextual data.
 
     Default is `%entity%.%extension%`.
+
+  * `indentation`
+
+    The indentation size for generated code.
+
+  * `useTabs`
+
+    Use tabs for indentation instead of spaces. Setting this option will ignore the `indentation`-option.
+
+  * `eolDelimeter`
+
+    EOL type for generated code. Supported EOLs are `win` and `unix`.
 
   * `addGeneratorInfoAsComment`
 

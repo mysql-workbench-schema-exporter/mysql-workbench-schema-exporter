@@ -56,6 +56,13 @@ interface WriterInterface
     public function setDocument(Document $document);
 
     /**
+     * Get writer buffer.
+     *
+     * @return \MwbExporter\Buffer\Buffer.
+     */
+    public function getBuffer();
+
+    /**
      * Mark the beginning of the writer.
      * 
      * @return \MwbExporter\Writer\WriterInterface

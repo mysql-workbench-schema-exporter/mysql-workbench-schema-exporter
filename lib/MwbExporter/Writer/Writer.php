@@ -120,6 +120,16 @@ abstract class Writer implements WriterInterface
     }
 
     /**
+     * Get writer buffer.
+     *
+     * @return \MwbExporter\Buffer\Buffer.
+     */
+    public function getBuffer()
+    {
+        return $this->buffer;
+    }
+
+    /**
      * (non-PHPdoc)
      * @see \MwbExporter\Writer\WriterInterface::begin()
      */

@@ -137,6 +137,17 @@ class Bootstrap
             $storage->setBackup($formatter->getRegistry()->config->get(FormatterInterface::CFG_BACKUP_FILE));
             $writer = $this->getWriter($formatter->getPreferredWriter());
             $writer->setStorage($storage);
+            if ($eol = strtolower(trim($formatter->getRegistry()->config->get(FormatterInterface::CFG_EOL)))) {
+                switch ($eol) {
+                    case 'win':
+                        $writer->getBuffer()->setEol("\r\n");
+                        break;
+
+                    case 'unix':
+                        $writer->getBuffer()->setEol("\n");
+                        break;
+                }
+            }
             $document = new Document($formatter);
             if (strlen($logFile = $formatter->getRegistry()->config->get(FormatterInterface::CFG_LOG_FILE))) {
                 $logger = new LoggerFile(array('filename' => $logFile));

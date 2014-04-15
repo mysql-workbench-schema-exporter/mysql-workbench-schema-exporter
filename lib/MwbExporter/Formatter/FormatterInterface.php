@@ -33,9 +33,10 @@ interface FormatterInterface {
 
     const VERSION                    = '2.1.1-dev';
 
+    const CFG_FILENAME               = 'filename';
     const CFG_INDENTATION            = 'indentation';
     const CFG_USE_TABS               = 'useTabs';
-    const CFG_FILENAME               = 'filename';
+    const CFG_EOL                    = 'eolDelimeter';
     const CFG_ADD_COMMENT            = 'addGeneratorInfoAsComment';
     const CFG_SKIP_PLURAL            = 'skipPluralNameChecking';
     const CFG_BACKUP_FILE            = 'backupExistingFile';
