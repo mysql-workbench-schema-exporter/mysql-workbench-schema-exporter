@@ -43,6 +43,12 @@ class Views extends Base implements \ArrayAccess, \IteratorAggregate, \Countable
         foreach ($this->node->value as $key => $node) {
             $this->childs[] = $this->getFormatter()->createView($this, $node);
         }
+        // apply sorting
+        if ($this->getConfig()->get(FormatterInterface::CFG_SORT_TABLES_AND_VIEWS)) {
+            usort($this->childs, function($a, $b) {
+                return strcmp($a->getModelName(), $b->getModelName());
+            });
+        }
     }
 
     public function offsetExists($offset)
@@ -85,17 +91,7 @@ class Views extends Base implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function write(WriterInterface $writer)
     {
-        // sort views
-        if ($this->getConfig()->get(FormatterInterface::CFG_SORT_TABLES_AND_VIEWS)) {
-            $childs = array();
-            foreach ($this->childs as $view) {
-                $childs[$view->getRawViewName()] = $view;
-            }
-            ksort($childs);
-        } else {
-            $childs = $this->childs;
-        }
-        foreach ($childs as $view) {
+        foreach ($this->childs as $view) {
             $view->write($writer);
         }
 

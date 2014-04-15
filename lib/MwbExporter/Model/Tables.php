@@ -48,9 +48,12 @@ class Tables extends Base implements \ArrayAccess, \IteratorAggregate, \Countabl
             }
             $this->childs[] = $table;
         }
-        usort($this->childs, function($a, $b) {
-            return strcmp($a->getModelName(), $b->getModelName());
-        });
+        // apply sorting
+        if ($this->getConfig()->get(FormatterInterface::CFG_SORT_TABLES_AND_VIEWS)) {
+            usort($this->childs, function($a, $b) {
+                return strcmp($a->getModelName(), $b->getModelName());
+            });
+        }
         /*
          * before you can check for foreign keys
          * you have to store at first all childs in the
@@ -118,17 +121,7 @@ class Tables extends Base implements \ArrayAccess, \IteratorAggregate, \Countabl
      */
     public function write(WriterInterface $writer)
     {
-        // sort tables
-        if ($this->getConfig()->get(FormatterInterface::CFG_SORT_TABLES_AND_VIEWS)) {
-            $childs = array();
-            foreach ($this->childs as $table) {
-                $childs[$table->getRawTableName()] = $table;
-            }
-            ksort($childs);
-        } else {
-            $childs = $this->childs;
-        }
-        foreach ($childs as $table) {
+        foreach ($this->childs as $table) {
             $table->write($writer);
         }
 
