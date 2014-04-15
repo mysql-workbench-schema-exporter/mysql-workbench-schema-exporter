@@ -28,50 +28,62 @@ namespace MwbExporter\Formatter\Propel1\Yaml\Model;
 
 use MwbExporter\Model\Column as BaseColumn;
 use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Formatter\Propel1\Yaml\Formatter;
 
 class Column extends BaseColumn
 {
+    /**
+     * List of column names considered as simple column.
+     *
+     * @var array
+     */
+    protected $simpleColumns = array('created_at', 'updated_at');
+
     public function asYAML()
     {
-        $attributes = array();
-        $type = strtolower($this->getFormatter()->getDatatypeConverter()->getType($this));
-        $attributes['type'] = $type;
-        switch ($type) {
-            case 'decimal':
-                $attributes['size'] = $this->parameters->get('precision');
-                $attributes['scale'] = $this->parameters->get('scale');
-                break;
-
-            case 'enum':
-                break;
-        }
-        if (1 == $this->isPrimary()) {
-            $attributes['primaryKey'] = true;
-        }
-        if ($this->parameters->get('length') > 0) {
-            $attributes['size'] = $this->parameters->get('length');
-        }
-        if ($this->isNotNull()) {
-            $attributes['required'] = true;
-        }
-        if ($this->isAutoIncrement()) {
-            $attributes['autoIncrement'] = true;
-        }
-        if (($defaultValue = $this->getDefaultValue()) && !in_array($defaultValue, array('CURRENT_TIMESTAMP'))) {
-            $attributes['defaultExpr'] = $defaultValue;
-        }
-        // simple foreign key
-        foreach ($this->foreigns as $foreign) {
-            if (count($foreign->getLocals()) > 1) {
-                continue;
+        if ($this->getConfig()->get(Formatter::CFG_GENERATE_SIMPLE_COLUMN) && in_array($this->getColumnName(), $this->simpleColumns)) {
+            $attributes = null;
+        } else {
+            $attributes = array();
+            $type = strtolower($this->getFormatter()->getDatatypeConverter()->getType($this));
+            $attributes['type'] = $type;
+            switch ($type) {
+                case 'decimal':
+                    $attributes['size'] = $this->parameters->get('precision');
+                    $attributes['scale'] = $this->parameters->get('scale');
+                    break;
+    
+                case 'enum':
+                    break;
             }
-            $attributes['foreignTable'] = $foreign->getReferencedTable()->getRawTableName();
-            $attributes['foreignReference'] = $foreign->getForeign()->getColumnName();
-            if (($action = strtolower($foreign->parameters->get('updateRule'))) !== 'no action') {
-                $attributes['onUpdate'] = $action;
+            if (1 == $this->isPrimary()) {
+                $attributes['primaryKey'] = true;
             }
-            if (($action = strtolower($foreign->parameters->get('deleteRule'))) !== 'no action') {
-                $attributes['onDelete'] = $action;
+            if ($this->parameters->get('length') > 0) {
+                $attributes['size'] = $this->parameters->get('length');
+            }
+            if ($this->isNotNull()) {
+                $attributes['required'] = true;
+            }
+            if ($this->isAutoIncrement()) {
+                $attributes['autoIncrement'] = true;
+            }
+            if (($defaultValue = $this->getDefaultValue()) && !in_array($defaultValue, array('CURRENT_TIMESTAMP'))) {
+                $attributes['defaultExpr'] = $defaultValue;
+            }
+            // simple foreign key
+            foreach ($this->foreigns as $foreign) {
+                if (count($foreign->getLocals()) > 1) {
+                    continue;
+                }
+                $attributes['foreignTable'] = $foreign->getReferencedTable()->getRawTableName();
+                $attributes['foreignReference'] = $foreign->getForeign()->getColumnName();
+                if (($action = strtolower($foreign->parameters->get('updateRule'))) !== 'no action') {
+                    $attributes['onUpdate'] = $action;
+                }
+                if (($action = strtolower($foreign->parameters->get('deleteRule'))) !== 'no action') {
+                    $attributes['onDelete'] = $action;
+                }
             }
         }
 

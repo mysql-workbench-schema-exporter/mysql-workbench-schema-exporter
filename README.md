@@ -341,7 +341,14 @@ exactly the same as Doctrine 2.0 Annotation with the following addons.
 
 #### Propel 1.x YAML Schema
 
-Currently, none of specific option can be configured for Propel 1.x YAML Schema. 
+##### Setup Options
+
+  * `generateSimpleColumn`
+
+    If enabled, use simple column definition. Table columns considered as
+    simple column are `created_at` and `updated_at`. 
+
+    Default is `false`.
 
 ### Zend
 

@@ -50,7 +50,7 @@ class YAML extends Base
                 $inline_size = $this->getOption('inline_size', 0);
                 foreach ($value as $k => $v) {
                     // skip null value
-                    if (null === $v) {
+                    if (null === $v && $this->getOption('skip_null_value', false)) {
                         continue;
                     }
                     $x = $inline_size > 0 && $level >= 0 ? str_repeat(' ', $inline_size - strlen($k) - strlen($spacer)) : '';
