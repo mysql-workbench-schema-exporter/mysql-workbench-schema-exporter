@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2013 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
  * Copyright (c) 2013 WitteStier <development@wittestier.nl>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
