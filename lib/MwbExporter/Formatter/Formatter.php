@@ -79,6 +79,7 @@ abstract class Formatter implements FormatterInterface
             static::CFG_BACKUP_FILE            => true,
             static::CFG_USE_LOGGED_STORAGE     => false,
             static::CFG_ENHANCE_M2M_DETECTION  => true,
+            static::CFG_SORT_TABLES_AND_VIEWS  => false,
             static::CFG_LOG_TO_CONSOLE         => false,
             static::CFG_LOG_FILE               => '',
         ));

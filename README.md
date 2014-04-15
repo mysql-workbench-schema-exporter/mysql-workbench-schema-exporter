@@ -91,6 +91,13 @@ General options applied to all formatter.
 
     Default is `true`.
 
+  * `sortTablesAndViews`
+
+    If enabled, sorting of tables and views is performed prior to code generation for each table
+    and view. For table, it sorted by table name and for view sorted by view name. 
+
+    Default is `false`.
+
   * `logToConsole`
 
     If enabled, output the log to console.

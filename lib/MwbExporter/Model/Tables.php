@@ -118,7 +118,17 @@ class Tables extends Base implements \ArrayAccess, \IteratorAggregate, \Countabl
      */
     public function write(WriterInterface $writer)
     {
-        foreach ($this->childs as $table) {
+        // sort tables
+        if ($this->getConfig()->get(FormatterInterface::CFG_SORT_TABLES_AND_VIEWS)) {
+            $childs = array();
+            foreach ($this->childs as $table) {
+                $childs[$table->getRawTableName()] = $table;
+            }
+            ksort($childs);
+        } else {
+            $childs = $this->childs;
+        }
+        foreach ($childs as $table) {
             $table->write($writer);
         }
 
