@@ -85,6 +85,10 @@ class Column extends BaseColumn
                     $attributes['onDelete'] = $action;
                 }
             }
+            // column description
+            if ($comment = $this->getComment(false)) {
+                $attributes['description'] = $comment;
+            }
         }
 
         return array($this->getColumnName() => $attributes);
