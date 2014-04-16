@@ -271,4 +271,13 @@ class Document extends Base
             return $filename;
         }
     }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Model\Base::getVars()
+     */
+    protected function getVars()
+    {
+        return array('%extension%' => $this->getFormatter()->getFileExtension());
+    }
 }

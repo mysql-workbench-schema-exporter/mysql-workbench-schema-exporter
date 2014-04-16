@@ -333,7 +333,24 @@ abstract class Base
      */
     public function translateVars($text, $vars = array())
     {
-        return strtr($text, array_merge($this->getVars(), $vars));
+        return strtr($text, array_merge($this->getParentVars(), $this->getVars(), $vars));
+    }
+
+    /**
+     * Get parent variables.
+     *
+     * @return array
+     */
+    protected function getParentVars()
+    {
+        $vars = array();
+        $p = $this->getParent();
+        while ($p) {
+            $vars = array_merge($p->getVars(), $vars);
+            $p = $p->getParent();
+        }
+
+        return $vars;
     }
 
     /**
@@ -345,7 +362,7 @@ abstract class Base
      */
     protected function getVars()
     {
-      return array();
+        return array();
     }
 
     /**

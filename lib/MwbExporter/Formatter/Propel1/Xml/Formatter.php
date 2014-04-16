@@ -40,7 +40,7 @@ class Formatter extends BaseFormatter
         parent::init();
         $this->addConfigurations(array(
             static::CFG_INDENTATION            => 4,
-            static::CFG_FILENAME               => '%schema%.schema.xml',
+            static::CFG_FILENAME               => '%schema%.schema.%extension%',
             static::CFG_NAMESPACE              => '',
             static::CFG_ADD_VENDOR             => false,
         ));

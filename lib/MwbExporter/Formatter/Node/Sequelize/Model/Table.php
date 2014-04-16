@@ -55,7 +55,7 @@ class Table extends BaseTable
      */
     protected function getVars()
     {
-      return array('%schema%' => $this->getSchema()->getName(), '%table%' => $this->getRawTableName(), '%entity%' => strtolower($this->getModelName()), '%extension%' => $this->getDocument()->getFormatter()->getFileExtension());
+        return array_merge(parent::getVars(), array('%entity%' => strtolower($this->getModelName())));
     }
 
     public function writeTable(WriterInterface $writer)

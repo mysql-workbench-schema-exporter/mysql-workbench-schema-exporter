@@ -281,11 +281,12 @@ class Table extends BaseTable
         return $this;
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Model\Base::getVars()
+     */
     protected function getVars()
     {
-        $vars = parent::getVars();
-        $vars['%entity%'] = str_replace('\\', '.', $this->getModelNameAsFQCN());
-
-        return $vars;
+        return array_merge(parent::getVars(), array('%entity%' => str_replace('\\', '.', $this->getModelNameAsFQCN())));
     }
 }

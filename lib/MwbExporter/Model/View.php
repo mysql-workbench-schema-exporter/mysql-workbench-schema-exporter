@@ -125,10 +125,8 @@ class View extends Base
     protected function getVars()
     {
       return array(
-          '%schema%'    => $this->getSchema()->getName(),
           '%view%'      => $this->getRawViewName(),
           '%entity%'    => $this->getModelName(),
-          '%extension%' => $this->getFormatter()->getFileExtension(),
           '%category%'  => $this->getCategory(),
       );
     }
