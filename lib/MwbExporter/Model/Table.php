@@ -194,12 +194,25 @@ class Table extends Base
     }
 
     /**
+     * Get table category.
+     *
+     * @return string
+     */
+    public function getCategory()
+    {
+        if ($category = trim($this->parseComment('category'))) {
+            return $category;
+        }
+    }
+
+    /**
+     * Check if table is an external entity.
      *
      * @return boolean
      */
     public function isExternal()
     {
-        $external = trim($this->parseComment('external', $this->parameters->get('comment')));
+        $external = trim($this->parseComment('external'));
         if ($external === 'true') {
             return true;
         }
@@ -299,7 +312,7 @@ class Table extends Base
     }
 
     /**
-     * Get the table name in the form of camel cased.
+     * Get the table model name.
      *
      * @return string
      */
@@ -319,7 +332,7 @@ class Table extends Base
     }
 
     /**
-     * Return the model in the plural form
+     * Get the table model name in plural form.
      *
      * @return string
      */
@@ -409,7 +422,13 @@ class Table extends Base
      */
     protected function getVars()
     {
-      return array('%schema%' => $this->getSchema()->getName(), '%table%' => $this->getRawTableName(), '%entity%' => $this->getModelName(), '%extension%' => $this->getFormatter()->getFileExtension());
+      return array(
+          '%schema%'    => $this->getSchema()->getName(),
+          '%table%'     => $this->getRawTableName(),
+          '%entity%'    => $this->getModelName(),
+          '%extension%' => $this->getFormatter()->getFileExtension(),
+          '%category%'  => $this->getCategory(),
+      );
     }
 
     /**

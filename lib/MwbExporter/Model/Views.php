@@ -46,7 +46,7 @@ class Views extends Base implements \ArrayAccess, \IteratorAggregate, \Countable
         // apply sorting
         if ($this->getConfig()->get(FormatterInterface::CFG_SORT_TABLES_AND_VIEWS)) {
             usort($this->childs, function($a, $b) {
-                return strcmp($a->getModelName(), $b->getModelName());
+                return strcmp($a->getCategory().$a->getModelName(), $b->getCategory().$b->getModelName());
             });
         }
     }

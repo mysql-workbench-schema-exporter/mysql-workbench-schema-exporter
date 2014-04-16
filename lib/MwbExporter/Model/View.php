@@ -51,32 +51,102 @@ class View extends Base
         return true;
     }
 
+    /**
+     * Get the owner schema.
+     *
+     * @return \MwbExporter\Model\Schema
+     */
+    public function getSchema()
+    {
+        return $this->getParent()->getParent();
+    }
+
+    /**
+     * Get raw view name.
+     *
+     * @return string
+     */
     public function getRawViewName()
     {
         return $this->getName();
     }
 
+    /**
+     * Get the view model name.
+     *
+     * @return string
+     */
     public function getModelName()
     {
         return $this->beautify($this->getRawViewName());
     }
 
+    /**
+     * Get the view model name in plural form.
+     *
+     * @return string
+     */
     public function getPluralModelName()
     {
         return Inflector::pluralize($this->getModelName());
     }
 
     /**
+     * Get table category.
+     *
+     * @return string
+     */
+    public function getCategory()
+    {
+        if ($category = trim($this->parseComment('category'))) {
+            return $category;
+        }
+    }
+
+    /**
+     * Check if view is an external entity.
      *
      * @return boolean
      */
     public function isExternal()
     {
-        $external = trim($this->parseComment('external', $this->parameters->get('comment')));
+        $external = trim($this->parseComment('external'));
         if ($external === 'true') {
             return true;
         }
+
         return false;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Model\Base::getVars()
+     */
+    protected function getVars()
+    {
+      return array(
+          '%schema%'    => $this->getSchema()->getName(),
+          '%view%'      => $this->getRawViewName(),
+          '%entity%'    => $this->getModelName(),
+          '%extension%' => $this->getFormatter()->getFileExtension(),
+          '%category%'  => $this->getCategory(),
+      );
+    }
+
+    /**
+     * Get table file name.
+     *
+     * @param array $vars  The overriden variables
+     * @return string
+     */
+    public function getViewFileName($vars = array())
+    {
+        if (0 === strlen($filename = $this->getDocument()->translateFilename($this, $vars)))
+        {
+            $filename = $this->getSchema()->getName().'.'.$this->getRawViewName().'.'.$this->getFormatter()->getFileExtension();
+        }
+
+        return $filename;
     }
 
     /**
