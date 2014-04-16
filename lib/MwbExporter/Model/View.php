@@ -58,9 +58,7 @@ class View extends Base
 
     public function getModelName()
     {
-        return ucfirst(preg_replace_callback('@\_(\w)@', function($matches) {
-            return ucfirst($matches[1]);
-        }, $this->getRawViewName()));
+        return $this->beautify($this->getRawViewName());
     }
 
     public function getModelNameInPlural()

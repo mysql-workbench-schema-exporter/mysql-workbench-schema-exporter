@@ -306,8 +306,8 @@ class Table extends Base
     public function getModelName()
     {
         $tableName = $this->getRawTableName();
-        // check if table name is plural --> convert to singular
 
+        // check if table name is plural --> convert to singular
         if (
             !$this->getConfig()->get(FormatterInterface::CFG_SKIP_PLURAL) &&
             ($tableName != ($singular = Inflector::singularize($tableName)))
@@ -315,10 +315,7 @@ class Table extends Base
             $tableName = $singular;
         }
 
-        // camleCase under scores for model names
-        return ucfirst(preg_replace_callback('@\_(\w)@', function($matches){
-            return ucfirst($matches[1]);
-        }, $tableName));
+        return $this->beautify($tableName);
     }
 
     /**
@@ -653,9 +650,7 @@ class Table extends Base
      */
     public function columnNameBeautifier($columnName)
     {
-        return ucfirst(preg_replace_callback('@\_(\w)@', function($matches){
-            return ucfirst($matches[1]);
-        }, $columnName));
+        return $this->beautify($columnName);
     }
 
     /**

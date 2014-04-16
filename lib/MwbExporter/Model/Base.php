@@ -359,4 +359,17 @@ abstract class Base
     {
         return $this->parameters->get($key, $default);
     }
+
+    /**
+     * Beautify an underscored_text and change into CamelCaseText.
+     *
+     * @param string $underscored_text
+     * @return string
+     */
+    public function beautify($underscored_text)
+    {
+        return ucfirst(preg_replace_callback('@\_(\w)@', function($matches) {
+            return ucfirst($matches[1]);
+        }, $underscored_text));
+    }
 }
