@@ -329,12 +329,22 @@ abstract class Formatter implements FormatterInterface
     }
 
     /**
-     * (non-PHPdoc)
-     * @see \MwbExporter\Formatter\FormatterInterface::getCommentParserIdentifierPrefix()
+     * Get comment tag prefixes.
+     *
+     * @return array
      */
-    public function getCommentParserIdentifierPrefix()
+    protected function getCommentTagPrefixes()
     {
-        return 'MwbExporter';
+        return array('MwbExporter');
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Formatter\FormatterInterface::getCommentTagPrefix()
+     */
+    public function getCommentTagPrefix()
+    {
+        return implode('|', $this->getCommentTagPrefixes());
     }
 
     /**

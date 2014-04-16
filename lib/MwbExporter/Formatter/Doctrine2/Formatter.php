@@ -175,12 +175,8 @@ abstract class Formatter extends BaseFormatter
         return $deleteRule;
     }
 
-    /**
-     * (non-PHPdoc)
-     * @see \MwbExporter\Formatter\Formatter::getCommentParserIdentifierPrefix()
-     */
-    public function getCommentParserIdentifierPrefix()
+    protected function getCommentTagPrefixes()
     {
-        return 'd|doctrine';
+        return array_merge(parent::getCommentTagPrefixes(), array('d', 'doctrine'));
     }
 }

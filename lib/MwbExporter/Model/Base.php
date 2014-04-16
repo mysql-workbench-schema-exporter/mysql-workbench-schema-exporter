@@ -277,7 +277,7 @@ abstract class Base
             $comment = $this->parameters->get('comment');
         }
         $needle_quoted = preg_quote($needle_raw);
-        $pattern = sprintf('@\{(%1$s):%2$s\}(.+)\{\/(%1$s):%2$s\}@si', $this->getFormatter()->getCommentParserIdentifierPrefix(), $needle_quoted);
+        $pattern = sprintf('@\{(%1$s):%2$s\}(.+)\{\/(%1$s):%2$s\}@si', $this->getFormatter()->getCommentTagPrefix(), $needle_quoted);
         if (preg_match($pattern, $comment, $matches) && isset($matches[2])) {
             return $matches[2];
         }
@@ -294,7 +294,7 @@ abstract class Base
         $comment = $this->parameters->get('comment');
         // strip hints for mysql-exporter in comments (starting with {d:keyword}
         // or {doctrine:keyword} and ending with {/d:keyword}
-        if ($comment = trim(preg_replace(sprintf('/\{(%s):([^\}]+)\}(.+?)\{\/\1:\2\}/si', $this->getFormatter()->getCommentParserIdentifierPrefix()), '', $comment))) {
+        if ($comment = trim(preg_replace(sprintf('/\{(%s):([^\}]+)\}(.+?)\{\/\1:\2\}/si', $this->getFormatter()->getCommentTagPrefix()), '', $comment))) {
             if ($asPhpComment) {
                 $comment = implode("\n", Comment::wrap($comment."\n", ' * %s'));
             }
