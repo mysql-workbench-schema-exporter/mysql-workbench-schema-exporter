@@ -41,7 +41,7 @@ class Schema extends BaseSchema
     public function write(WriterInterface $writer)
     {
         $writer
-            ->open($this->getDocument()->translateFilename($this))
+            ->open($this->getDocument()->translateFilename(null, $this))
             ->write('<?xml version="1.0" encoding="UTF-8"?>')
             ->writeCallback(function(WriterInterface $writer, Schema $_this = null) {
                 if ($_this->getConfig()->get(Formatter::CFG_ADD_COMMENT)) {

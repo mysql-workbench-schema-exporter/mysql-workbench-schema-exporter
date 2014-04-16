@@ -250,19 +250,22 @@ class Document extends Base
     }
 
     /**
-     * Get translated filename if provided in the configuration `FormatterInterface::CFG_FILENAME`.
+     * Translate and replace variable tags with contextual data from object using supplied format.
+     *
+     * If format omitted, it considered equal to configuration `FormatterInterface::CFG_FILENAME`.
      * By default, the translated filename will be checked against the variables provided by the object
      * to ensure no variables tag ('%var%') left.
      *
+     * @param string $format  Filename format
      * @param \MwbExporter\Model\Base $object  The object to translate
      * @param array $vars  The overriden variables
      * @param bool $check  True to check the translated filename
      * @throws \Exception
      * @return string
      */
-    public function translateFilename(Base $object, $vars = array(), $check = true)
+    public function translateFilename($format, Base $object, $vars = array(), $check = true)
     {
-        if ($object && ($filename = $object->translateVars($this->getConfig()->get(FormatterInterface::CFG_FILENAME), $vars)))
+        if ($object && ($filename = $object->translateVars(null !== $format ? $format : $this->getConfig()->get(FormatterInterface::CFG_FILENAME), $vars)))
         {
             if ($check && false !== strpos($filename, '%')) {
                 throw new \Exception(sprintf('All filename variable where not converted. Perhaps a misstyped name (%s) ?', substr($filename, strpos($filename, '%'), strrpos($filename, '%'))));

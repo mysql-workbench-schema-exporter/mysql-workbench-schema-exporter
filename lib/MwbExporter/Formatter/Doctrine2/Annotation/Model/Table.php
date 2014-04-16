@@ -293,7 +293,7 @@ class Table extends BaseTable
      */
     protected function getClassFileName($base = false)
     {
-        return ($base ? $this->getTableFileName(array('%entity%' => 'Base'.$this->getModelName())) : $this->getTableFileName());
+        return ($base ? $this->getTableFileName(null, array('%entity%' => 'Base'.$this->getModelName())) : $this->getTableFileName());
     }
 
     /**

@@ -132,16 +132,17 @@ class View extends Base
     }
 
     /**
-     * Get table file name.
+     * Get view file name.
      *
+     * @param string $format  The filename format
      * @param array $vars  The overriden variables
      * @return string
      */
-    public function getViewFileName($vars = array())
+    public function getViewFileName($format = null, $vars = array())
     {
-        if (0 === strlen($filename = $this->getDocument()->translateFilename($this, $vars)))
+        if (0 === strlen($filename = $this->getDocument()->translateFilename($format, $this, $vars)))
         {
-            $filename = $this->getSchema()->getName().'.'.$this->getRawViewName().'.'.$this->getFormatter()->getFileExtension();
+            $filename = implode('.', array($this->getSchema()->getName(), $this->getRawViewName(), $this->getFormatter()->getFileExtension()));
         }
 
         return $filename;

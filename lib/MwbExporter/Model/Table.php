@@ -432,14 +432,15 @@ class Table extends Base
     /**
      * Get table file name.
      *
+     * @param string $format  The filename format
      * @param array $vars  The overriden variables
      * @return string
      */
-    public function getTableFileName($vars = array())
+    public function getTableFileName($format = null, $vars = array())
     {
-        if (0 === strlen($filename = $this->getDocument()->translateFilename($this, $vars)))
+        if (0 === strlen($filename = $this->getDocument()->translateFilename($format, $this, $vars)))
         {
-            $filename = $this->getSchema()->getName().'.'.$this->getRawTableName().'.'.$this->getFormatter()->getFileExtension();
+            $filename = implode('.', array($this->getSchema()->getName(), $this->getRawTableName(), $this->getFormatter()->getFileExtension()));
         }
 
         return $filename;

@@ -51,7 +51,7 @@ class Schema extends BaseSchema
             'inline_size' => $this->getInlineSize($data) + (($this->getArrayLevel($data) - 1) * $indent),
         ));
         $writer
-            ->open($this->getDocument()->translateFilename($this))
+            ->open($this->getDocument()->translateFilename(null, $this))
             ->writeCallback(function(WriterInterface $writer, Schema $_this = null) {
                 if ($_this->getConfig()->get(Formatter::CFG_ADD_COMMENT)) {
                     $writer
