@@ -32,6 +32,7 @@ use MwbExporter\Model\Base;
 
 class Formatter extends BaseFormatter
 {
+    const CFG_PACKAGE                 = 'package';
     const CFG_GENERATE_SIMPLE_COLUMN  = 'generateSimpleColumn';
 
     protected function init()
@@ -39,7 +40,8 @@ class Formatter extends BaseFormatter
         parent::init();
         $this->addConfigurations(array(
             static::CFG_INDENTATION             => 2,
-            static::CFG_FILENAME                => '%schema%.schema.%extension%',
+            static::CFG_FILENAME                => '%schema%.schema.yml',
+            static::CFG_PACKAGE                 => 'lib.model',
             static::CFG_GENERATE_SIMPLE_COLUMN  => false,
         ));
     }

@@ -72,7 +72,7 @@ class Schema extends BaseSchema
         $data = array(
             'connection'      => 'propel',
             'defaultIdMethod' => 'native',
-            'package'         => 'lib.model'
+            'package'         => $this->getConfig()->get(Formatter::CFG_PACKAGE)
         );
         $classes = array();
         foreach ($this->getTables() as $table) {

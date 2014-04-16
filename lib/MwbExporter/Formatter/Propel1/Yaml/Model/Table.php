@@ -37,6 +37,10 @@ class Table extends BaseTable
         $data = array(
             'tableName' => $this->getRawTableName(),
         );
+        if ($category = $this->getCategory()) {
+            $basePackage = $this->getConfig()->get(Formatter::CFG_PACKAGE);
+            $data['package'] = ($basePackage ? $basePackage.'.' : '').$category;
+        }
         $columns = array();
         foreach ($this->getColumns() as $column) {
             if (!count($attributes = $column->asYAML())) {
