@@ -624,7 +624,7 @@ class Table extends BaseTable
             $annotationOptions = array(
                 'targetEntity' => $relation['refTable']->getModelNameAsFQCN($this->getEntityNamespace()),
                 'mappedBy' => null,
-                'inversedBy' => lcfirst(Inflector::pluralize($this->getModelName())),
+                'inversedBy' => lcfirst($this->getModelNameInPlural()),
                 'cascade' => $this->getFormatter()->getCascadeOption($relation['reference']->parseComment('cascade')),
                 'fetch' => $this->getFormatter()->getFetchOption($relation['reference']->parseComment('fetch')),
             );
@@ -684,7 +684,7 @@ class Table extends BaseTable
                 ;
             }
             $writer
-                ->write('protected $'.lcfirst(Inflector::pluralize($relation['refTable']->getModelName())).';')
+                ->write('protected $'.lcfirst($relation['refTable']->getModelNameInPlural()).';')
                 ->write('')
             ;
         }
@@ -719,7 +719,7 @@ class Table extends BaseTable
             $this->getDocument()->addLog(sprintf('  Writing 1 <=> N constructor "%s".', $foreign->getOwningTable()->getModelName()));
 
             $related = $this->getRelatedName($foreign);
-            $writer->write('$this->%s = new %s();', lcfirst(Inflector::pluralize($foreign->getReferencedTable()->getModelName())).$related, $this->getCollectionClass(false));
+            $writer->write('$this->%s = new %s();', lcfirst($foreign->getReferencedTable()->getModelNameInPlural()).$related, $this->getCollectionClass(false));
         }
     }
 
@@ -727,7 +727,7 @@ class Table extends BaseTable
     {
         foreach ($this->getTableM2MRelations() as $relation) {
             $this->getDocument()->addLog(sprintf('  Writing M2M constructor "%s".', $relation['refTable']->getModelName()));
-            $writer->write('$this->%s = new %s();', lcfirst(Inflector::pluralize($relation['refTable']->getModelName())), $this->getCollectionClass(false));
+            $writer->write('$this->%s = new %s();', lcfirst($relation['refTable']->getModelNameInPlural()), $this->getCollectionClass(false));
         }
     }
 
@@ -770,10 +770,10 @@ class Table extends BaseTable
                     ->write(' * @param '.$foreign->getReferencedTable()->getNamespace().' $'.lcfirst($foreign->getReferencedTable()->getModelName()))
                     ->write(' * @return '.$this->getNamespace())
                     ->write(' */')
-                    ->write('public function add'.$this->columnNameBeautifier($foreign->getReferencedTable()->getModelName()).$related.'('.$foreign->getReferencedTable()->getModelName().' $'.lcfirst($foreign->getReferencedTable()->getModelName()).')')
+                    ->write('public function add'.$foreign->getReferencedTable()->getModelName().$related.'('.$foreign->getReferencedTable()->getModelName().' $'.lcfirst($foreign->getReferencedTable()->getModelName()).')')
                     ->write('{')
                     ->indent()
-                        ->write('$this->'.lcfirst(Inflector::pluralize($foreign->getReferencedTable()->getModelName())).$related.'[] = $'.lcfirst($foreign->getReferencedTable()->getModelName()).';')
+                        ->write('$this->'.lcfirst($foreign->getReferencedTable()->getModelNameInPlural()).$related.'[] = $'.lcfirst($foreign->getReferencedTable()->getModelName()).';')
                         ->write('')
                         ->write('return $this;')
                     ->outdent()
@@ -785,10 +785,10 @@ class Table extends BaseTable
                     ->write(' *')
                     ->write(' * @return '.$this->getCollectionInterface())
                     ->write(' */')
-                    ->write('public function get'.$this->columnNameBeautifier(Inflector::pluralize($foreign->getReferencedTable()->getModelName())).$related.'()')
+                    ->write('public function get'.$foreign->getReferencedTable()->getModelNameInPlural().$related.'()')
                     ->write('{')
                     ->indent()
-                        ->write('return $this->'.lcfirst(Inflector::pluralize($foreign->getReferencedTable()->getModelName())).$related.';')
+                        ->write('return $this->'.lcfirst($foreign->getReferencedTable()->getModelNameInPlural()).$related.';')
                     ->outdent()
                     ->write('}')
                 ;
@@ -803,7 +803,7 @@ class Table extends BaseTable
                     ->write(' * @param '.$foreign->getReferencedTable()->getNamespace().' $'.lcfirst($foreign->getReferencedTable()->getModelName()))
                     ->write(' * @return '.$this->getNamespace())
                     ->write(' */')
-                    ->write('public function set'.$this->columnNameBeautifier($foreign->getReferencedTable()->getModelName()).'('.$foreign->getReferencedTable()->getModelName().' $'.lcfirst($foreign->getReferencedTable()->getModelName()).')')
+                    ->write('public function set'.$foreign->getReferencedTable()->getModelName().'('.$foreign->getReferencedTable()->getModelName().' $'.lcfirst($foreign->getReferencedTable()->getModelName()).')')
                     ->write('{')
                     ->indent()
                         ->write('$this->'.lcfirst($foreign->getReferencedTable()->getModelName()).' = $'.lcfirst($foreign->getReferencedTable()->getModelName()).';')
@@ -818,7 +818,7 @@ class Table extends BaseTable
                     ->write(' *')
                     ->write(' * @return '.$foreign->getReferencedTable()->getNamespace())
                     ->write(' */')
-                    ->write('public function get'.$this->columnNameBeautifier($foreign->getReferencedTable()->getModelName()).'()')
+                    ->write('public function get'.$foreign->getReferencedTable()->getModelName().'()')
                     ->write('{')
                     ->indent()
                         ->write('return $this->'.lcfirst($foreign->getReferencedTable()->getModelName()).';')
@@ -852,7 +852,7 @@ class Table extends BaseTable
                     ->write(' * @param '.$local->getOwningTable()->getNamespace().' $'.lcfirst($local->getOwningTable()->getModelName()))
                     ->write(' * @return '.$this->getNamespace())
                     ->write(' */')
-                    ->write('public function set'.$this->columnNameBeautifier($local->getOwningTable()->getModelName()).$related.'('.$local->getOwningTable()->getModelName().' $'.lcfirst($local->getOwningTable()->getModelName()).' = null)')
+                    ->write('public function set'.$local->getOwningTable()->getModelName().$related.'('.$local->getOwningTable()->getModelName().' $'.lcfirst($local->getOwningTable()->getModelName()).' = null)')
                     ->write('{')
                     ->indent()
                         ->write('$this->'.lcfirst($local->getOwningTable()->getModelName()).$related.' = $'.lcfirst($local->getOwningTable()->getModelName()).';')
@@ -867,7 +867,7 @@ class Table extends BaseTable
                     ->write(' *')
                     ->write(' * @return '.$local->getOwningTable()->getNamespace())
                     ->write(' */')
-                    ->write('public function get'.$this->columnNameBeautifier($local->getOwningTable()->getModelName()).$related.'()')
+                    ->write('public function get'.$local->getOwningTable()->getModelName().$related.'()')
                     ->write('{')
                     ->indent()
                         ->write('return $this->'.lcfirst($local->getOwningTable()->getModelName()).$related.';')
@@ -886,10 +886,10 @@ class Table extends BaseTable
                     ->write(' * @param '.$local->getReferencedTable()->getNamespace().' $'.lcfirst($local->getReferencedTable()->getModelName()))
                     ->write(' * @return '.$this->getNamespace())
                     ->write(' */')
-                    ->write('public function set'.$this->columnNameBeautifier($local->getReferencedTable()->getModelName()).'('.$local->getReferencedTable()->getModelName().' $'.lcfirst($local->getReferencedTable()->getModelName()).' = null)')
+                    ->write('public function set'.$local->getReferencedTable()->getModelName().'('.$local->getReferencedTable()->getModelName().' $'.lcfirst($local->getReferencedTable()->getModelName()).' = null)')
                     ->write('{')
                     ->indent()
-                        ->writeIf(!$unidirectional, '$'.lcfirst($local->getReferencedTable()->getModelName()).'->set'.$this->columnNameBeautifier($local->getOwningTable()->getModelName()).'($this);')
+                        ->writeIf(!$unidirectional, '$'.lcfirst($local->getReferencedTable()->getModelName()).'->set'.$local->getOwningTable()->getModelName().'($this);')
                         ->write('$this->'.lcfirst($local->getReferencedTable()->getModelName()).' = $'.lcfirst($local->getReferencedTable()->getModelName()).';')
                         ->write('')
                         ->write('return $this;')
@@ -902,7 +902,7 @@ class Table extends BaseTable
                     ->write(' *')
                     ->write(' * @return '.$local->getReferencedTable()->getNamespace())
                     ->write(' */')
-                    ->write('public function get'.$this->columnNameBeautifier($local->getReferencedTable()->getModelName()).'()')
+                    ->write('public function get'.$local->getReferencedTable()->getModelName().'()')
                     ->write('{')
                     ->indent()
                         ->write('return $this->'.lcfirst($local->getReferencedTable()->getModelName()).';')
@@ -937,7 +937,7 @@ class Table extends BaseTable
                             $writer->write('$%s->add%s($this);', lcfirst($relation['refTable']->getModelName()), $_this->getModelName());
                         }
                     })
-                    ->write('$this->'.lcfirst(Inflector::pluralize($relation['refTable']->getModelName())).'[] = $'.lcfirst($relation['refTable']->getModelName()).';')
+                    ->write('$this->'.lcfirst($relation['refTable']->getModelNameInPlural()).'[] = $'.lcfirst($relation['refTable']->getModelName()).';')
                     ->write('')
                     ->write('return $this;')
                 ->outdent()
@@ -948,10 +948,10 @@ class Table extends BaseTable
                 ->write(' *')
                 ->write(' * @return '.$this->getCollectionInterface())
                 ->write(' */')
-                ->write('public function get'.Inflector::pluralize($relation['refTable']->getModelName()).'()')
+                ->write('public function get'.$relation['refTable']->getModelNameInPlural().'()')
                 ->write('{')
                 ->indent()
-                    ->write('return $this->'.lcfirst(Inflector::pluralize($relation['refTable']->getModelName())).';')
+                    ->write('return $this->'.lcfirst($relation['refTable']->getModelNameInPlural()).';')
                 ->outdent()
                 ->write('}')
                 ->write('')

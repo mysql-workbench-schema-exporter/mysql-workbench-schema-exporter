@@ -105,6 +105,16 @@ class Column extends Base
     }
 
     /**
+     * Get beautified column name aka CamelCased column name.
+     *
+     * @return string
+     */
+    public function getBeautifiedColumnName()
+    {
+        return $this->beautify($this->getColumnName());
+    }
+
+    /**
      * Get column type, either by its simpleType or userType.
      *
      * @return string
@@ -172,17 +182,6 @@ class Column extends Base
     public function getForeignKeys()
     {
         return $this->foreigns;
-    }
-
-    /**
-     * Beautify column name.
-     *
-     * @param string $columnName
-     * @return string
-     */
-    public function columnNameBeautifier($columnName)
-    {
-        return $this->getTable()->columnNameBeautifier($columnName);
     }
 
     /**

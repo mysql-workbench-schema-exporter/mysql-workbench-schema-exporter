@@ -614,7 +614,7 @@ class Table extends Base
      */
     public function formatRelatedName($column, $code = true)
     {
-        return $code ? sprintf('RelatedBy%s', $this->columnNameBeautifier($column)) : sprintf('related by `%s`', $column);
+        return $code ? sprintf('RelatedBy%s', $this->beautify($column)) : sprintf('related by `%s`', $column);
     }
 
     /**
@@ -640,17 +640,6 @@ class Table extends Base
     public function getManyToManyRelatedName($tablename, $column, $code = true)
     {
         return $this->getColumns()->getManyToManyCount($tablename) > 1 ? $this->formatRelatedName($column, $code) : '';
-    }
-
-    /**
-     * Beautify column name.
-     *
-     * @param string $columnName
-     * @return string
-     */
-    public function columnNameBeautifier($columnName)
-    {
-        return $this->beautify($columnName);
     }
 
     /**
