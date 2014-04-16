@@ -61,7 +61,7 @@ class View extends Base
         return $this->beautify($this->getRawViewName());
     }
 
-    public function getModelNameInPlural()
+    public function getPluralModelName()
     {
         return Inflector::pluralize($this->getModelName());
     }

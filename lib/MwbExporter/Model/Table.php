@@ -323,7 +323,7 @@ class Table extends Base
      *
      * @return string
      */
-    public function getModelNameInPlural()
+    public function getPluralModelName()
     {
         return Inflector::pluralize($this->getModelName());
     }
