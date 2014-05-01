@@ -316,6 +316,7 @@ class Column extends BaseColumn
                             ->write('return ;')
                         ->outdent()
                         ->write('}')
+                        ->write('$%s->set%s($this);', lcfirst($foreign->getOwningTable()->getModelName()), $table->getModelName())
                         ->write('$this->'.lcfirst(Inflector::pluralize($foreign->getOwningTable()->getModelName())).$related.'[] = $'.lcfirst($foreign->getOwningTable()->getModelName()).';')
                         ->write('')
                         ->write('return $this;')
