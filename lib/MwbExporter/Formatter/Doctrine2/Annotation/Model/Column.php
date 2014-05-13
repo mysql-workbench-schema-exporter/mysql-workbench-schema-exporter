@@ -295,6 +295,7 @@ class Column extends BaseColumn
                         ->indent()
                         ->write('foreach ($'.lcfirst(Inflector::pluralize($foreign->getOwningTable()->getModelName())).' as $'.lcfirst($foreign->getOwningTable()->getModelName()).') {')
                             ->indent()
+                            ->write('$%s->set%s(null);', lcfirst($foreign->getOwningTable()->getModelName()), $table->getModelName())
                             ->write('$this->remove'.$this->columnNameBeautifier($foreign->getOwningTable()->getModelName()).$related.'($'.lcfirst($foreign->getOwningTable()->getModelName()).');')
                             ->outdent()
                         ->write('}')
