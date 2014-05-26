@@ -128,6 +128,9 @@ class Bootstrap
      */
     public function export(FormatterInterface $formatter, $filename, $outDir, $storage = 'file')
     {
+        if (!is_readable($filename)) {
+            throw new \InvalidArgumentException(sprintf('Document not found "%s".', $filename));
+        }
         if ($formatter && $storage = $this->getStorage($storage)) {
             if ($formatter->getRegistry()->config->get(FormatterInterface::CFG_USE_LOGGED_STORAGE)) {
                 $storage = new LoggedStorage($storage); 

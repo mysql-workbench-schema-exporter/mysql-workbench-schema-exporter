@@ -215,10 +215,16 @@ function chooseFormatter($bootstrap)
 function main($filename, $dir, $params, $options)
 {
     try {
+        showTitle();
+
+        // check the existance of filename
+        if (!is_readable($filename)) {
+            echo sprintf("Can't find document %s.\n\n", $filename);
+            die(1);
+        }
+
         $setup = array();
         $configs = array();
-
-        showTitle();
 
         // bootstrap
         $bootstrap = new Bootstrap();
