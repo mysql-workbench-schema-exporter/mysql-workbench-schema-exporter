@@ -438,16 +438,16 @@ class Table extends BaseTable
 
             $targetEntity = $foreign->getReferencedTable()->getModelName();
             $targetEntityFQCN = $foreign->getReferencedTable()->getModelNameAsFQCN($foreign->getOwningTable()->getEntityNamespace());
-            $mappedBy = $foreign->getOwningTable()->getModelName();
+            $inversedBy = Inflector::pluralize($foreign->getOwningTable()->getModelName());
+            $related = $foreign->getForeignM2MRelatedName();
 
             $this->getDocument()->addLog(sprintf('  Writing 1 <=> ? relation "%s".', $targetEntity));
 
             $annotationOptions = array(
                 'targetEntity' => $targetEntityFQCN,
-                'mappedBy' => lcfirst($mappedBy),
+                'inversedBy' => lcfirst($inversedBy).$related,
                 'cascade' => $this->getFormatter()->getCascadeOption($foreign->parseComment('cascade')),
                 'fetch' => $this->getFormatter()->getFetchOption($foreign->parseComment('fetch')),
-                'orphanRemoval' => $this->getFormatter()->getBooleanOption($foreign->parseComment('orphanRemoval')),
             );
 
             $joinColumnAnnotationOptions = array(
@@ -461,7 +461,7 @@ class Table extends BaseTable
                 $joinColumnAnnotationOptions['onDelete'] = $deleteRule;
             }
 
-            //check for OneToOne or OneToMany relationship
+            // check for OneToOne or OneToMany relationship
             if ($foreign->isManyToOne()) { // is OneToMany
                 $this->getDocument()->addLog('  Relation considered as "1 <=> N".');
 
@@ -469,17 +469,10 @@ class Table extends BaseTable
                 if (!$foreign->isComposite()) {
                     $writer
                         ->write('/**')
-                        ->write(' * '.$this->getAnnotation('OneToMany', $annotationOptions))
+                        ->write(' * '.$this->getAnnotation('ManyToOne', $annotationOptions))
                         ->write(' * '.$this->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
-                        ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($foreign) {
-                            if (count($orders = $_this->getFormatter()->getOrderOption($foreign->parseComment('order')))) {
-                                $writer
-                                    ->write(' * '.$_this->getAnnotation('OrderBy', array($orders)))
-                                ;
-                            }
-                        })
                         ->write(' */')
-                        ->write('protected $'.lcfirst(Inflector::pluralize($targetEntity)).$related.';')
+                        ->write('protected $'.lcfirst($targetEntity).$related.';')
                         ->write('')
                     ;
                 } else {
@@ -496,7 +489,7 @@ class Table extends BaseTable
                     }
                     $writer
                         ->write('/**')
-                        ->write(' * '.$this->getAnnotation('OneToMany', $annotationOptions))
+                        ->write(' * '.$this->getAnnotation('ManyToOne', $annotationOptions))
                         ->write(' * '.$this->getAnnotation('JoinColumns', array($joins), array('multiline' => true, 'wrapper' => ' * %s')))
                         ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($foreign) {
                             if (count($orders = $_this->getFormatter()->getOrderOption($foreign->parseComment('order')))) {
@@ -513,6 +506,12 @@ class Table extends BaseTable
             } else { // is OneToOne
                 $this->getDocument()->addLog('  Relation considered as "1 <=> 1".');
 
+                if ($foreign->parseComment('unidirectional') === 'true') {
+                    $annotationOptions['inversedBy'] = null;
+                } else {
+                    $annotationOptions['inversedBy'] = lcfirst($annotationOptions['inversedBy']);
+                }
+                $annotationOptions['cascade'] = $this->getFormatter()->getCascadeOption($foreign->parseComment('cascade'));
                 $writer
                     ->write('/**')
                     ->write(' * '.$this->getAnnotation('OneToOne', $annotationOptions))
@@ -531,17 +530,18 @@ class Table extends BaseTable
 
             $targetEntity = $local->getOwningTable()->getModelName();
             $targetEntityFQCN = $local->getOwningTable()->getModelNameAsFQCN($local->getReferencedTable()->getEntityNamespace());
-            $inversedBy = $local->getReferencedTable()->getModelName();
+            $mappedBy = $local->getReferencedTable()->getModelName();
+            $related = $local->getForeignM2MRelatedName();
+            $refRelated = $local->getOwningTable()->getRelatedName($local);
 
             $this->getDocument()->addLog(sprintf('  Writing N <=> ? relation "%s".', $targetEntity));
 
             $annotationOptions = array(
                 'targetEntity' => $targetEntityFQCN,
-                'mappedBy' => null,
-                'inversedBy' => $inversedBy,
-                // 'cascade' => $this->getFormatter()->getCascadeOption($local->parseComment('cascade')),
-                // 'fetch' => $this->getFormatter()->getFetchOption($local->parseComment('fetch')),
-                // 'orphanRemoval' => $this->getFormatter()->getBooleanOption($local->parseComment('orphanRemoval')),
+                'mappedBy' => lcfirst($mappedBy).$related,
+                'cascade' => $this->getFormatter()->getCascadeOption($local->parseComment('cascade')),
+                'fetch' => $this->getFormatter()->getFetchOption($local->parseComment('fetch')),
+                'orphanRemoval' => $this->getFormatter()->getBooleanOption($local->parseComment('orphanRemoval')),
             );
             $joinColumnAnnotationOptions = array(
                 'name' => $local->getForeign()->getColumnName(),
@@ -554,20 +554,20 @@ class Table extends BaseTable
             if ($local->isManyToOne()) { // is ManyToOne
                 $this->getDocument()->addLog('  Relation considered as "N <=> 1".');
 
-                $related = $local->getForeignM2MRelatedName();
-                $refRelated = $local->getOwningTable()->getRelatedName($local);
-                if ($local->parseComment('unidirectional') === 'true') {
-                    $annotationOptions['inversedBy'] = null;
-                } else {
-                    $annotationOptions['inversedBy'] = lcfirst(Inflector::pluralize($annotationOptions['inversedBy'])) . $refRelated;
-                }
                 if (!$local->isComposite()) {
                     $writer
                         ->write('/**')
-                        ->write(' * '.$this->getAnnotation('ManyToOne', $annotationOptions))
+                        ->write(' * '.$this->getAnnotation('OneToMany', $annotationOptions))
                         ->write(' * '.$this->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
+                        ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($local) {
+                            if (count($orders = $_this->getFormatter()->getOrderOption($local->parseComment('order')))) {
+                                $writer
+                                    ->write(' * '.$_this->getAnnotation('OrderBy', array($orders)))
+                                ;
+                            }
+                        })
                         ->write(' */')
-                        ->write('protected $'.lcfirst($targetEntity).$related.';')
+                        ->write('protected $'.lcfirst(Inflector::pluralize($targetEntity)).$related.';')
                         ->write('')
                     ;
                 } else {
@@ -584,8 +584,15 @@ class Table extends BaseTable
                     }
                     $writer
                         ->write('/**')
-                        ->write(' * '.$this->getAnnotation('ManyToOne', $annotationOptions))
+                        ->write(' * '.$this->getAnnotation('OneToMany', $annotationOptions))
                         ->write(' * '.$this->getAnnotation('JoinColumns', array($joins), array('multiline' => true, 'wrapper' => ' * %s')))
+                        ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($local) {
+                            if (count($orders = $_this->getFormatter()->getOrderOption($local->parseComment('order')))) {
+                                $writer
+                                    ->write(' * '.$_this->getAnnotation('OrderBy', array($orders)))
+                                ;
+                            }
+                        })
                         ->write(' */')
                         ->write('protected $'.lcfirst($targetEntity).$related.';')
                         ->write('')
@@ -593,13 +600,6 @@ class Table extends BaseTable
                 }
             } else { // is OneToOne
                 $this->getDocument()->addLog('  Relation considered as "1 <=> 1".');
-
-                if ($local->parseComment('unidirectional') === 'true') {
-                    $annotationOptions['inversedBy'] = null;
-                } else {
-                    $annotationOptions['inversedBy'] = lcfirst($annotationOptions['inversedBy']);
-                }
-                $annotationOptions['cascade'] = $this->getFormatter()->getCascadeOption($local->parseComment('cascade'));
 
                 $writer
                     ->write('/**')
@@ -712,14 +712,14 @@ class Table extends BaseTable
 
     public function writeRelationsConstructor(WriterInterface $writer)
     {
-        foreach ($this->getAllForeignKeys() as $foreign) {
-            if ($this->isForeignKeyIgnored($foreign) || !$foreign->isManyToOne()) {
+        foreach ($this->getAllLocalForeignKeys() as $local) {
+            if ($this->isLocalForeignKeyIgnored($local)) {
                 continue;
             }
-            $this->getDocument()->addLog(sprintf('  Writing 1 <=> N constructor "%s".', $foreign->getOwningTable()->getModelName()));
+            $this->getDocument()->addLog(sprintf('  Writing N <=> 1 constructor "%s".', $local->getOwningTable()->getModelName()));
 
-            $related = $this->getRelatedName($foreign);
-            $writer->write('$this->%s = new %s();', lcfirst($foreign->getReferencedTable()->getPluralModelName()).$related, $this->getCollectionClass(false));
+            $related = $local->getForeignM2MRelatedName();
+            $writer->write('$this->%s = new %s();', lcfirst($local->getOwningTable()->getPluralModelName()).$related, $this->getCollectionClass(false));
         }
     }
 
@@ -760,20 +760,20 @@ class Table extends BaseTable
             if ($foreign->isManyToOne()) { // is ManyToOne
                 $this->getDocument()->addLog(sprintf('  Applying setter/getter for "%s".', '1 <=> N'));
 
-                $related = $this->getRelatedName($foreign);
-                $related_text = $this->getRelatedName($foreign, false);
+                $related = $foreign->getForeignM2MRelatedName();
+                $related_text = $foreign->getForeignM2MRelatedName(false);
                 $writer
                     // setter
                     ->write('/**')
-                    ->write(' * Add '.trim($foreign->getReferencedTable()->getModelName().' '.$related_text). ' entity to collection (one to many).')
+                    ->write(' * Set '.trim($foreign->getReferencedTable()->getModelName().' '.$related_text).' entity (many to one).')
                     ->write(' *')
                     ->write(' * @param '.$foreign->getReferencedTable()->getNamespace().' $'.lcfirst($foreign->getReferencedTable()->getModelName()))
                     ->write(' * @return '.$this->getNamespace())
                     ->write(' */')
-                    ->write('public function add'.$foreign->getReferencedTable()->getModelName().$related.'('.$foreign->getReferencedTable()->getModelName().' $'.lcfirst($foreign->getReferencedTable()->getModelName()).')')
+                    ->write('public function set'.$foreign->getReferencedTable()->getModelName().$related.'('.$foreign->getReferencedTable()->getModelName().' $'.lcfirst($foreign->getReferencedTable()->getModelName()).' = null)')
                     ->write('{')
                     ->indent()
-                        ->write('$this->'.lcfirst($foreign->getReferencedTable()->getPluralModelName()).$related.'[] = $'.lcfirst($foreign->getReferencedTable()->getModelName()).';')
+                        ->write('$this->'.lcfirst($foreign->getReferencedTable()->getModelName()).$related.' = $'.lcfirst($foreign->getReferencedTable()->getModelName()).';')
                         ->write('')
                         ->write('return $this;')
                     ->outdent()
@@ -781,16 +781,17 @@ class Table extends BaseTable
                     ->write('')
                     // getter
                     ->write('/**')
-                    ->write(' * Get '.trim($foreign->getReferencedTable()->getModelName().' '.$related_text).' entity collection (one to many).')
+                    ->write(' * Get '.trim($foreign->getReferencedTable()->getModelName().' '.$related_text).' entity (many to one).')
                     ->write(' *')
-                    ->write(' * @return '.$this->getCollectionInterface())
+                    ->write(' * @return '.$foreign->getReferencedTable()->getNamespace())
                     ->write(' */')
-                    ->write('public function get'.$foreign->getReferencedTable()->getPluralModelName().$related.'()')
+                    ->write('public function get'.$foreign->getReferencedTable()->getModelName().$related.'()')
                     ->write('{')
                     ->indent()
-                        ->write('return $this->'.lcfirst($foreign->getReferencedTable()->getPluralModelName()).$related.';')
+                        ->write('return $this->'.lcfirst($foreign->getReferencedTable()->getModelName()).$related.';')
                     ->outdent()
                     ->write('}')
+                    ->write('')
                 ;
             } else { // OneToOne
                 $this->getDocument()->addLog(sprintf('  Applying setter/getter for "%s".', '1 <=> 1'));
@@ -824,11 +825,9 @@ class Table extends BaseTable
                         ->write('return $this->'.lcfirst($foreign->getReferencedTable()->getModelName()).';')
                     ->outdent()
                     ->write('}')
+                    ->write('')
                 ;
             }
-            $writer
-                ->write('')
-            ;
         }
         // many to one references
         foreach ($this->getAllLocalForeignKeys() as $local) {
@@ -847,15 +846,15 @@ class Table extends BaseTable
                 $writer
                     // setter
                     ->write('/**')
-                    ->write(' * Set '.trim($local->getOwningTable()->getModelName().' '.$related_text).' entity (many to one).')
+                    ->write(' * Add '.trim($local->getOwningTable()->getModelName().' '.$related_text). ' entity to collection (one to many).')
                     ->write(' *')
                     ->write(' * @param '.$local->getOwningTable()->getNamespace().' $'.lcfirst($local->getOwningTable()->getModelName()))
                     ->write(' * @return '.$this->getNamespace())
                     ->write(' */')
-                    ->write('public function set'.$local->getOwningTable()->getModelName().$related.'('.$local->getOwningTable()->getModelName().' $'.lcfirst($local->getOwningTable()->getModelName()).' = null)')
+                    ->write('public function add'.$local->getOwningTable()->getModelName().$related.'('.$local->getOwningTable()->getModelName().' $'.lcfirst($local->getOwningTable()->getModelName()).')')
                     ->write('{')
                     ->indent()
-                        ->write('$this->'.lcfirst($local->getOwningTable()->getModelName()).$related.' = $'.lcfirst($local->getOwningTable()->getModelName()).';')
+                        ->write('$this->'.lcfirst($local->getOwningTable()->getPluralModelName()).$related.'[] = $'.lcfirst($local->getOwningTable()->getModelName()).';')
                         ->write('')
                         ->write('return $this;')
                     ->outdent()
@@ -863,14 +862,14 @@ class Table extends BaseTable
                     ->write('')
                     // getter
                     ->write('/**')
-                    ->write(' * Get '.trim($local->getOwningTable()->getModelName().' '.$related_text).' entity (many to one).')
+                    ->write(' * Get '.trim($local->getOwningTable()->getModelName().' '.$related_text).' entity collection (one to many).')
                     ->write(' *')
-                    ->write(' * @return '.$local->getOwningTable()->getNamespace())
+                    ->write(' * @return '.$this->getCollectionInterface())
                     ->write(' */')
-                    ->write('public function get'.$local->getOwningTable()->getModelName().$related.'()')
+                    ->write('public function get'.$local->getOwningTable()->getPluralModelName().$related.'()')
                     ->write('{')
                     ->indent()
-                        ->write('return $this->'.lcfirst($local->getOwningTable()->getModelName()).$related.';')
+                        ->write('return $this->'.lcfirst($local->getOwningTable()->getPluralModelName()).$related.';')
                     ->outdent()
                     ->write('}')
                     ->write('')
