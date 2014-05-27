@@ -27,7 +27,7 @@
 
 namespace MwbExporter\Formatter\Propel1\Xml;
 
-use MwbExporter\Formatter\Formatter as BaseFormatter;
+use MwbExporter\Formatter\Propel1\Formatter as BaseFormatter;
 use MwbExporter\Model\Base;
 
 class Formatter extends BaseFormatter
