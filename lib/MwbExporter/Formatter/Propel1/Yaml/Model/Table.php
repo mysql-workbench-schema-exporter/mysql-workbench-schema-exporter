@@ -29,6 +29,7 @@ namespace MwbExporter\Formatter\Propel1\Yaml\Model;
 use MwbExporter\Model\Table as BaseTable;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Formatter\Propel1\Yaml\Formatter;
+use Symfony\Component\Yaml\Yaml;
 
 class Table extends BaseTable
 {
@@ -37,9 +38,12 @@ class Table extends BaseTable
         $data = array(
             'tableName' => $this->getRawTableName(),
         );
-        if ($category = $this->getCategory()) {
+        if ($package = $this->parseComment('package')) {
             $basePackage = $this->getConfig()->get(Formatter::CFG_PACKAGE);
-            $data['package'] = ($basePackage ? $basePackage.'.' : '').$category;
+            $data['package'] = ($basePackage ? $basePackage.'.' : '').$package;
+        }
+        if ('true' == trim($this->parseComment('allowPkInsert'))) {
+            $data['allowPkInsert'] = true;
         }
         $columns = array();
         foreach ($this->getColumns() as $column) {
@@ -101,6 +105,16 @@ class Table extends BaseTable
         }
         if (count($foreignKeys)) {
             $data['foreignKeys'] = $foreignKeys;
+        }
+        foreach (array('propel_behaviors', 'behaviors') as $key) {
+            if ($behavior = trim($this->parseComment($key))) {
+                try {
+                    $behavior = Yaml::parse($behavior);
+                    $data[$key] = $behavior;
+                } catch (\Exception $e) {
+                    $this->getDocument()->addLog(sprintf('  Skip %s: %s.', $key, $e->getMessage()));
+                }
+            }
         }
 
         return array($this->getModelName() => $data);

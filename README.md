@@ -350,6 +350,32 @@ exactly the same as Doctrine 2.0 Annotation with the following addons.
 
     Default is `false`.
 
+  * `package`
+
+    Model package. 
+
+    Default is `lib.model`.
+
+##### Model Comment Behavior
+
+  * `{propel:allowPkInsert}true{/propel:allowPkInsert}` (applied to Table)
+
+    Allow primary key value insertion if its an auto increment column. 
+
+  * `{propel:propel_behaviors}behavior{/propel:propel_behaviors}` (applied to Table)
+
+    Propel behaviors definition, written in YAML format.
+
+    Example usage:
+
+        {propel:propel_behaviors}
+        timestampable:
+        {/propel:propel_behaviors}
+
+  * `{propel:behaviors}behavior{/propel:behaviors}` (applied to Table)
+
+    Custom behaviors definition, written in YAML format.
+
 ### Zend
 
 #### Zend DbTable
