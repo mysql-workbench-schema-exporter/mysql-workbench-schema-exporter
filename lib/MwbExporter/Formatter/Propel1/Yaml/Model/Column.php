@@ -56,14 +56,14 @@ class Column extends BaseColumn
                 case 'enum':
                     break;
             }
-            if (1 == $this->isPrimary()) {
-                $attributes['primaryKey'] = true;
-            }
             if ($this->parameters->get('length') > 0) {
                 $attributes['size'] = $this->parameters->get('length');
             }
             if ($this->isNotNull()) {
                 $attributes['required'] = true;
+            }
+            if (1 == $this->isPrimary()) {
+                $attributes['primaryKey'] = true;
             }
             if ($this->isAutoIncrement()) {
                 $attributes['autoIncrement'] = true;
@@ -83,6 +83,14 @@ class Column extends BaseColumn
                 }
                 if (($action = strtolower($foreign->parameters->get('deleteRule'))) !== 'no action') {
                     $attributes['onDelete'] = $action;
+                }
+                // validate foreign referenced table name for name conflict with
+                // table columns
+                if ($this->getConfig()->get(Formatter::CFG_VALIDATE_FK_PHP_NAME)) {
+                    $columns = array_map('strtolower', $this->getTable()->getColumns()->getColumnNames());
+                    if (in_array(strtolower($foreign->getReferencedTable()->getRawTableName()), $columns)) {
+                        $attributes['fkPhpName'] = $foreign->getReferencedTable()->getModelName().'FK';
+                    }
                 }
             }
             // column description
