@@ -54,7 +54,7 @@ class DatatypeConverter extends BaseDatatypeConverter
             static::DATATYPE_TINYBLOB           => 'blob',
             static::DATATYPE_BLOB               => 'binary',
             static::DATATYPE_MEDIUMBLOB         => 'varbinary',
-            static::DATATYPE_LONGBLOB           => 'blob',
+            static::DATATYPE_LONGBLOB           => 'longvarbinary',
             static::DATATYPE_DATETIME           => 'timestamp',
             static::DATATYPE_DATE               => 'date',
             static::DATATYPE_TIME               => 'time',
