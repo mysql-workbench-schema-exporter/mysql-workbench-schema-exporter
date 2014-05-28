@@ -217,7 +217,7 @@ class ForeignKey extends Base
      */
     public function getForeignM2MRelatedName($code = true)
     {
-        return $this->getOwningTable()->getManyToManyRelatedName($this->getReferencedTable()->getRawTableName(), implode('_', $this->getLocalColumns()), $code);
+        return $this->getReferencedTable()->getManyToManyRelatedName($this->getOwningTable()->getRawTableName(), implode('_', $this->getLocalColumns()), $code);
     }
 
     /**

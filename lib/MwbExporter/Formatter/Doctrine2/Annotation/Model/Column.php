@@ -57,7 +57,7 @@ class Column extends BaseColumn
     public function writeGetterAndSetter(WriterInterface $writer)
     {
         if (!$this->isIgnored()) {
-            $this->getDocument()->addLog(sprintf('  Writing setter/getter for column "%s" .', $this->getColumnName()));
+            $this->getDocument()->addLog(sprintf('  Writing setter/getter for column "%s"', $this->getColumnName()));
     
             $table = $this->getTable();
             $converter = $this->getFormatter()->getDatatypeConverter();

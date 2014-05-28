@@ -47,8 +47,8 @@ class Columns extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
     {
         $count = 0;
         foreach ($this->childs as $column) {
-            foreach ($column->getForeignKeys() as $foreign) {
-                if ($foreign->getReferencedTable()->getRawTableName() === $tablename) {
+            foreach ($column->getLocalForeignKeys() as $foreign) {
+                if ($foreign->getOwningTable()->getRawTableName() === $tablename) {
                     $count++;
                 }
             }

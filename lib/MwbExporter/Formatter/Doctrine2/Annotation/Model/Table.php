@@ -174,18 +174,20 @@ class Table extends BaseTable
             case $this->isManyToMany():
                 return self::WRITE_M2M;
                 break;
+
             case $this->isExternal():
                 return self::WRITE_EXTERNAL;
                 break;
+
             default:
-                $this->writeTableOk($writer);
+                $this->writeEntity($writer);
                 return self::WRITE_OK;
         }
     }
 
-    protected function writeTableOk(WriterInterface $writer)
+    protected function writeEntity(WriterInterface $writer)
     {
-        $this->getDocument()->addLog(sprintf('Writing table "%s".', $this->getModelName()));
+        $this->getDocument()->addLog(sprintf('Writing table "%s"', $this->getModelName()));
 
         $namespace = $this->getEntityNamespace();
         if ($repositoryNamespace = $this->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) {
@@ -339,7 +341,7 @@ class Table extends BaseTable
         if ($orm = $this->getOrmUse()) {
             $uses[] = $orm;
         }
-        if (count($this->getTableM2MRelations()) || $this->getColumns()->hasOneToManyRelation()) {
+        if (count($this->getTableM2MRelations()) || count($this->getAllLocalForeignKeys())) {
             $uses[] = $this->getCollectionClass();
         }
 
@@ -430,7 +432,99 @@ class Table extends BaseTable
 
     protected function writeRelationsVar(WriterInterface $writer)
     {
-        // one to many references
+        // 1 <=> N references
+        foreach ($this->getAllLocalForeignKeys() as $local) {
+            if ($this->isLocalForeignKeyIgnored($local)) {
+                continue;
+            }
+
+            $targetEntity = $local->getOwningTable()->getModelName();
+            $targetEntityFQCN = $local->getOwningTable()->getModelNameAsFQCN($local->getReferencedTable()->getEntityNamespace());
+            $mappedBy = $local->getReferencedTable()->getModelName();
+            $related = $local->getForeignM2MRelatedName();
+
+            $this->getDocument()->addLog(sprintf('  Writing 1 <=> ? relation "%s"', $targetEntity));
+
+            $annotationOptions = array(
+                'targetEntity' => $targetEntityFQCN,
+                'mappedBy' => lcfirst($mappedBy).$related,
+                'cascade' => $this->getFormatter()->getCascadeOption($local->parseComment('cascade')),
+                'fetch' => $this->getFormatter()->getFetchOption($local->parseComment('fetch')),
+                'orphanRemoval' => $this->getFormatter()->getBooleanOption($local->parseComment('orphanRemoval')),
+            );
+
+            $joinColumnAnnotationOptions = array(
+                'name' => $local->getLocal()->getColumnName(),
+                'referencedColumnName' => $local->getForeign()->getColumnName(),
+                'onDelete' => $this->getFormatter()->getDeleteRule($local->getParameters()->get('deleteRule')),
+                'nullable' => !$local->getLocal()->isNotNull() ? null : false,
+            );
+
+            if ($local->isManyToOne()) {
+                $this->getDocument()->addLog('  Relation considered as "1 <=> N"');
+
+                // is composite foreign keys?
+                if (!$local->isComposite()) {
+                    $writer
+                        ->write('/**')
+                        ->write(' * '.$this->getAnnotation('OneToMany', $annotationOptions))
+                        ->write(' * '.$this->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
+                        ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($local) {
+                            if (count($orders = $_this->getFormatter()->getOrderOption($local->parseComment('order')))) {
+                                $writer
+                                    ->write(' * '.$_this->getAnnotation('OrderBy', array($orders)))
+                                ;
+                            }
+                        })
+                        ->write(' */')
+                        ->write('protected $'.lcfirst(Inflector::pluralize($targetEntity)).$related.';')
+                        ->write('')
+                    ;
+                } else {
+                    $joins = array();
+                    $lcols = $local->getLocals();
+                    $fcols = $local->getForeigns();
+                    for ($i = 0; $i < count($lcols); $i++) {
+                        $joins[] = $this->getAnnotation('JoinColumn', array(
+                            'name' => $lcols[$i]->getColumnName(),
+                            'referencedColumnName' => $fcols[$i]->getColumnName(),
+                            'nullable' => $lcols[$i]->isNotNull() ? null : false,
+                        ));
+                    }
+                    $writer
+                        ->write('/**')
+                        ->write(' * '.$this->getAnnotation('OneToMany', $annotationOptions))
+                        ->write(' * '.$this->getAnnotation('JoinColumns', array($joins), array('multiline' => true, 'wrapper' => ' * %s')))
+                        ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($local) {
+                            if (count($orders = $_this->getFormatter()->getOrderOption($local->parseComment('order')))) {
+                                $writer
+                                    ->write(' * '.$_this->getAnnotation('OrderBy', array($orders)))
+                                ;
+                            }
+                        })
+                        ->write(' */')
+                        ->write('protected $'.lcfirst(Inflector::pluralize($targetEntity)).$related.';')
+                        ->write('')
+                    ;
+                }
+            } else {
+                $this->getDocument()->addLog('  Relation considered as "1 <=> 1"');
+
+                $annotationOptions['inversedBy'] = $annotationOptions['mappedBy'];
+                $annotationOptions['mappedBy'] = null;
+
+                $writer
+                    ->write('/**')
+                    ->write(' * '.$this->getAnnotation('OneToOne', $annotationOptions))
+                    ->write(' * '.$this->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
+                    ->write(' */')
+                    ->write('protected $'.lcfirst($targetEntity).';')
+                    ->write('')
+                ;
+            }
+        }
+
+        // N <=> 1 references
         foreach ($this->getAllForeignKeys() as $foreign) {
             if ($this->isForeignKeyIgnored($foreign)) {
                 continue;
@@ -438,34 +532,29 @@ class Table extends BaseTable
 
             $targetEntity = $foreign->getReferencedTable()->getModelName();
             $targetEntityFQCN = $foreign->getReferencedTable()->getModelNameAsFQCN($foreign->getOwningTable()->getEntityNamespace());
-            $inversedBy = Inflector::pluralize($foreign->getOwningTable()->getModelName());
-            $related = $foreign->getForeignM2MRelatedName();
+            $inversedBy = $foreign->getOwningTable()->getModelName();
+            $related = $this->getRelatedName($foreign);
 
-            $this->getDocument()->addLog(sprintf('  Writing 1 <=> ? relation "%s".', $targetEntity));
+            $this->getDocument()->addLog(sprintf('  Writing N <=> ? relation "%s"', $targetEntity));
 
             $annotationOptions = array(
                 'targetEntity' => $targetEntityFQCN,
-                'inversedBy' => lcfirst($inversedBy).$related,
+                'inversedBy' => lcfirst(Inflector::pluralize($inversedBy)).$related,
                 'cascade' => $this->getFormatter()->getCascadeOption($foreign->parseComment('cascade')),
                 'fetch' => $this->getFormatter()->getFetchOption($foreign->parseComment('fetch')),
             );
 
-            $joinColumnAnnotationOptions = array(
-                'name' => $foreign->getLocal()->getColumnName(),
-                'referencedColumnName' => $foreign->getForeign()->getColumnName(),
-                'nullable' => !$foreign->getLocal()->isNotNull() ? null : false,
-            );
+            if ($foreign->isManyToOne()) {
+                $this->getDocument()->addLog('  Relation considered as "N <=> 1"');
 
+                $joinColumnAnnotationOptions = array(
+                    'name' => $foreign->getLocal()->getColumnName(),
+                    'referencedColumnName' => $foreign->getForeign()->getColumnName(),
+                    'onDelete' => $this->getFormatter()->getDeleteRule($foreign->getLocal()->getParameters()->get('deleteRule')),
+                    'nullable' => !$foreign->getLocal()->isNotNull() ? null : false,
+                );
 
-            if (null !== ($deleteRule = $this->getFormatter()->getDeleteRule($foreign->getLocal()->getParameters()->get('deleteRule')))) {
-                $joinColumnAnnotationOptions['onDelete'] = $deleteRule;
-            }
-
-            // check for OneToOne or OneToMany relationship
-            if ($foreign->isManyToOne()) { // is OneToMany
-                $this->getDocument()->addLog('  Relation considered as "1 <=> N".');
-
-                $related = $this->getRelatedName($foreign);
+                // is composite foreign keys?
                 if (!$foreign->isComposite()) {
                     $writer
                         ->write('/**')
@@ -476,7 +565,6 @@ class Table extends BaseTable
                         ->write('')
                     ;
                 } else {
-                    // composite foreign keys
                     $joins = array();
                     $lcols = $foreign->getLocals();
                     $fcols = $foreign->getForeigns();
@@ -499,107 +587,25 @@ class Table extends BaseTable
                             }
                         })
                         ->write(' */')
-                        ->write('protected $'.lcfirst(Inflector::pluralize($targetEntity)).$related.';')
-                        ->write('')
-                    ;
-                }
-            } else { // is OneToOne
-                $this->getDocument()->addLog('  Relation considered as "1 <=> 1".');
-
-                if ($foreign->parseComment('unidirectional') === 'true') {
-                    $annotationOptions['inversedBy'] = null;
-                } else {
-                    $annotationOptions['inversedBy'] = lcfirst($annotationOptions['inversedBy']);
-                }
-                $annotationOptions['cascade'] = $this->getFormatter()->getCascadeOption($foreign->parseComment('cascade'));
-                $writer
-                    ->write('/**')
-                    ->write(' * '.$this->getAnnotation('OneToOne', $annotationOptions))
-                    ->write(' * '.$this->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
-                    ->write(' */')
-                    ->write('protected $'.lcfirst($targetEntity).';')
-                    ->write('')
-                ;
-            }
-        }
-        // many to references
-        foreach ($this->getAllLocalForeignKeys() as $local) {
-            if ($this->isLocalForeignKeyIgnored($local)) {
-                continue;
-            }
-
-            $targetEntity = $local->getOwningTable()->getModelName();
-            $targetEntityFQCN = $local->getOwningTable()->getModelNameAsFQCN($local->getReferencedTable()->getEntityNamespace());
-            $mappedBy = $local->getReferencedTable()->getModelName();
-            $related = $local->getForeignM2MRelatedName();
-            $refRelated = $local->getOwningTable()->getRelatedName($local);
-
-            $this->getDocument()->addLog(sprintf('  Writing N <=> ? relation "%s".', $targetEntity));
-
-            $annotationOptions = array(
-                'targetEntity' => $targetEntityFQCN,
-                'mappedBy' => lcfirst($mappedBy).$related,
-                'cascade' => $this->getFormatter()->getCascadeOption($local->parseComment('cascade')),
-                'fetch' => $this->getFormatter()->getFetchOption($local->parseComment('fetch')),
-                'orphanRemoval' => $this->getFormatter()->getBooleanOption($local->parseComment('orphanRemoval')),
-            );
-            $joinColumnAnnotationOptions = array(
-                'name' => $local->getForeign()->getColumnName(),
-                'referencedColumnName' => $local->getLocal()->getColumnName(),
-                'onDelete' => $this->getFormatter()->getDeleteRule($local->getParameters()->get('deleteRule')),
-                'nullable' => !$local->getForeign()->isNotNull() ? null : false,
-            );
-
-            //check for OneToOne or ManyToOne relationship
-            if ($local->isManyToOne()) { // is ManyToOne
-                $this->getDocument()->addLog('  Relation considered as "N <=> 1".');
-
-                if (!$local->isComposite()) {
-                    $writer
-                        ->write('/**')
-                        ->write(' * '.$this->getAnnotation('OneToMany', $annotationOptions))
-                        ->write(' * '.$this->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
-                        ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($local) {
-                            if (count($orders = $_this->getFormatter()->getOrderOption($local->parseComment('order')))) {
-                                $writer
-                                    ->write(' * '.$_this->getAnnotation('OrderBy', array($orders)))
-                                ;
-                            }
-                        })
-                        ->write(' */')
-                        ->write('protected $'.lcfirst(Inflector::pluralize($targetEntity)).$related.';')
-                        ->write('')
-                    ;
-                } else {
-                    // composite foreign keys
-                    $joins = array();
-                    $lcols = $local->getLocals();
-                    $fcols = $local->getForeigns();
-                    for ($i = 0; $i < count($lcols); $i++) {
-                        $joins[] = $this->getAnnotation('JoinColumn', array(
-                            'name' => $fcols[$i]->getColumnName(),
-                            'referencedColumnName' => $lcols[$i]->getColumnName(),
-                            'nullable' => $fcols[$i]->isNotNull() ? null : false,
-                        ));
-                    }
-                    $writer
-                        ->write('/**')
-                        ->write(' * '.$this->getAnnotation('OneToMany', $annotationOptions))
-                        ->write(' * '.$this->getAnnotation('JoinColumns', array($joins), array('multiline' => true, 'wrapper' => ' * %s')))
-                        ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($local) {
-                            if (count($orders = $_this->getFormatter()->getOrderOption($local->parseComment('order')))) {
-                                $writer
-                                    ->write(' * '.$_this->getAnnotation('OrderBy', array($orders)))
-                                ;
-                            }
-                        })
-                        ->write(' */')
                         ->write('protected $'.lcfirst($targetEntity).$related.';')
                         ->write('')
                     ;
                 }
-            } else { // is OneToOne
-                $this->getDocument()->addLog('  Relation considered as "1 <=> 1".');
+            } else {
+                $this->getDocument()->addLog('  Relation considered as "1 <=> 1"');
+
+                if ($foreign->parseComment('unidirectional') === 'true') {
+                    $annotationOptions['inversedBy'] = null;
+                } else {
+                    $annotationOptions['inversedBy'] = lcfirst($inversedBy).$related;
+                }
+                $annotationOptions['cascade'] = $this->getFormatter()->getCascadeOption($foreign->parseComment('cascade'));
+                $joinColumnAnnotationOptions = array(
+                    'name' => $foreign->getForeign()->getColumnName(),
+                    'referencedColumnName' => $foreign->getLocal()->getColumnName(),
+                    'onDelete' => $this->getFormatter()->getDeleteRule($foreign->getForeign()->getParameters()->get('deleteRule')),
+                    'nullable' => !$foreign->getForeign()->isNotNull() ? null : false,
+                );
 
                 $writer
                     ->write('/**')
@@ -618,7 +624,7 @@ class Table extends BaseTable
     protected function writeManyToManyVar(WriterInterface $writer)
     {
         foreach ($this->getTableM2MRelations() as $relation) {
-            $this->getDocument()->addLog(sprintf('  Writing setter/getter for N <=> N "%s".', $relation['refTable']->getModelName()));
+            $this->getDocument()->addLog(sprintf('  Writing setter/getter for N <=> N "%s"', $relation['refTable']->getModelName()));
 
             $isOwningSide = $this->getFormatter()->isOwningSide($relation, $mappedRelation);
             $annotationOptions = array(
@@ -632,7 +638,7 @@ class Table extends BaseTable
             // if this is the owning side, also output the JoinTable Annotation
             // otherwise use "mappedBy" feature
             if ($isOwningSide) {
-                $this->getDocument()->addLog(sprintf('  Applying setter/getter for N <=> N "%s".', "owner"));
+                $this->getDocument()->addLog(sprintf('  Applying setter/getter for N <=> N "%s"', "owner"));
 
                 if ($mappedRelation->parseComment('unidirectional') === 'true') {
                     unset($annotationOptions['inversedBy']);
@@ -669,7 +675,7 @@ class Table extends BaseTable
                     ->write(' */')
                 ;
             } else {
-                $this->getDocument()->addLog(sprintf('  Applying setter/getter for N <=> N "%s".', "inverse"));
+                $this->getDocument()->addLog(sprintf('  Applying setter/getter for N <=> N "%s"', "inverse"));
 
                 if ($relation['reference']->parseComment('unidirectional') === 'true') {
                     continue;
@@ -716,7 +722,7 @@ class Table extends BaseTable
             if ($this->isLocalForeignKeyIgnored($local)) {
                 continue;
             }
-            $this->getDocument()->addLog(sprintf('  Writing N <=> 1 constructor "%s".', $local->getOwningTable()->getModelName()));
+            $this->getDocument()->addLog(sprintf('  Writing N <=> 1 constructor "%s"', $local->getOwningTable()->getModelName()));
 
             $related = $local->getForeignM2MRelatedName();
             $writer->write('$this->%s = new %s();', lcfirst($local->getOwningTable()->getPluralModelName()).$related, $this->getCollectionClass(false));
@@ -726,7 +732,7 @@ class Table extends BaseTable
     public function writeManyToManyConstructor(WriterInterface $writer)
     {
         foreach ($this->getTableM2MRelations() as $relation) {
-            $this->getDocument()->addLog(sprintf('  Writing M2M constructor "%s".', $relation['refTable']->getModelName()));
+            $this->getDocument()->addLog(sprintf('  Writing M2M constructor "%s"', $relation['refTable']->getModelName()));
             $writer->write('$this->%s = new %s();', lcfirst($relation['refTable']->getPluralModelName()), $this->getCollectionClass(false));
         }
     }
@@ -749,97 +755,17 @@ class Table extends BaseTable
 
     protected function writeRelationsGetterAndSetter(WriterInterface $writer)
     {
-        // one to many references
-        foreach ($this->getAllForeignKeys() as $foreign) {
-            if ($this->isForeignKeyIgnored($foreign)) {
-                continue;
-            }
-
-            $this->getDocument()->addLog(sprintf('  Writing setter/getter for 1 <=> ? "%s".', $foreign->getParameters()->get('name')));
-
-            if ($foreign->isManyToOne()) { // is ManyToOne
-                $this->getDocument()->addLog(sprintf('  Applying setter/getter for "%s".', '1 <=> N'));
-
-                $related = $foreign->getForeignM2MRelatedName();
-                $related_text = $foreign->getForeignM2MRelatedName(false);
-                $writer
-                    // setter
-                    ->write('/**')
-                    ->write(' * Set '.trim($foreign->getReferencedTable()->getModelName().' '.$related_text).' entity (many to one).')
-                    ->write(' *')
-                    ->write(' * @param '.$foreign->getReferencedTable()->getNamespace().' $'.lcfirst($foreign->getReferencedTable()->getModelName()))
-                    ->write(' * @return '.$this->getNamespace())
-                    ->write(' */')
-                    ->write('public function set'.$foreign->getReferencedTable()->getModelName().$related.'('.$foreign->getReferencedTable()->getModelName().' $'.lcfirst($foreign->getReferencedTable()->getModelName()).' = null)')
-                    ->write('{')
-                    ->indent()
-                        ->write('$this->'.lcfirst($foreign->getReferencedTable()->getModelName()).$related.' = $'.lcfirst($foreign->getReferencedTable()->getModelName()).';')
-                        ->write('')
-                        ->write('return $this;')
-                    ->outdent()
-                    ->write('}')
-                    ->write('')
-                    // getter
-                    ->write('/**')
-                    ->write(' * Get '.trim($foreign->getReferencedTable()->getModelName().' '.$related_text).' entity (many to one).')
-                    ->write(' *')
-                    ->write(' * @return '.$foreign->getReferencedTable()->getNamespace())
-                    ->write(' */')
-                    ->write('public function get'.$foreign->getReferencedTable()->getModelName().$related.'()')
-                    ->write('{')
-                    ->indent()
-                        ->write('return $this->'.lcfirst($foreign->getReferencedTable()->getModelName()).$related.';')
-                    ->outdent()
-                    ->write('}')
-                    ->write('')
-                ;
-            } else { // OneToOne
-                $this->getDocument()->addLog(sprintf('  Applying setter/getter for "%s".', '1 <=> 1'));
-
-                $writer
-                    // setter
-                    ->write('/**')
-                    ->write(' * Set '.$foreign->getReferencedTable()->getModelName().' entity (one to one).')
-                    ->write(' *')
-                    ->write(' * @param '.$foreign->getReferencedTable()->getNamespace().' $'.lcfirst($foreign->getReferencedTable()->getModelName()))
-                    ->write(' * @return '.$this->getNamespace())
-                    ->write(' */')
-                    ->write('public function set'.$foreign->getReferencedTable()->getModelName().'('.$foreign->getReferencedTable()->getModelName().' $'.lcfirst($foreign->getReferencedTable()->getModelName()).')')
-                    ->write('{')
-                    ->indent()
-                        ->write('$this->'.lcfirst($foreign->getReferencedTable()->getModelName()).' = $'.lcfirst($foreign->getReferencedTable()->getModelName()).';')
-                        ->write('')
-                        ->write('return $this;')
-                    ->outdent()
-                    ->write('}')
-                    ->write('')
-                    // getter
-                    ->write('/**')
-                    ->write(' * Get '.$foreign->getReferencedTable()->getModelName().' entity (one to one).')
-                    ->write(' *')
-                    ->write(' * @return '.$foreign->getReferencedTable()->getNamespace())
-                    ->write(' */')
-                    ->write('public function get'.$foreign->getReferencedTable()->getModelName().'()')
-                    ->write('{')
-                    ->indent()
-                        ->write('return $this->'.lcfirst($foreign->getReferencedTable()->getModelName()).';')
-                    ->outdent()
-                    ->write('}')
-                    ->write('')
-                ;
-            }
-        }
-        // many to one references
+        // N <=> 1 references
         foreach ($this->getAllLocalForeignKeys() as $local) {
             if ($this->isLocalForeignKeyIgnored($local)) {
                 continue;
             }
 
-            $this->getDocument()->addLog(sprintf('  Writing setter/getter for N <=> ? "%s".', $local->getParameters()->get('name')));
+            $this->getDocument()->addLog(sprintf('  Writing setter/getter for N <=> ? "%s"', $local->getParameters()->get('name')));
 
             $unidirectional = $local->parseComment('unidirectional') === 'true';
-            if ($local->isManyToOne()) { // is ManyToOne
-                $this->getDocument()->addLog(sprintf('  Applying setter/getter for "%s".', 'N <=> 1'));
+            if ($local->isManyToOne()) {
+                $this->getDocument()->addLog(sprintf('  Applying setter/getter for "%s"', 'N <=> 1'));
 
                 $related = $local->getForeignM2MRelatedName();
                 $related_text = $local->getForeignM2MRelatedName(false);
@@ -874,8 +800,8 @@ class Table extends BaseTable
                     ->write('}')
                     ->write('')
                 ;
-            } else { // OneToOne
-                $this->getDocument()->addLog(sprintf('  Applying setter/getter for "%s".', '1 <=> 1'));
+            } else {
+                $this->getDocument()->addLog(sprintf('  Applying setter/getter for "%s"', '1 <=> 1'));
 
                 $writer
                     // setter
@@ -912,13 +838,94 @@ class Table extends BaseTable
             }
         }
 
+        // 1 <=> N references
+        foreach ($this->getAllForeignKeys() as $foreign) {
+            if ($this->isForeignKeyIgnored($foreign)) {
+                continue;
+            }
+
+            $this->getDocument()->addLog(sprintf('  Writing setter/getter for 1 <=> ? "%s"', $foreign->getParameters()->get('name')));
+
+            if ($foreign->isManyToOne()) {
+                $this->getDocument()->addLog(sprintf('  Applying setter/getter for "%s"', '1 <=> N'));
+
+                $related = $foreign->getForeignM2MRelatedName();
+                $related_text = $foreign->getForeignM2MRelatedName(false);
+                $writer
+                    // setter
+                    ->write('/**')
+                    ->write(' * Set '.trim($foreign->getReferencedTable()->getModelName().' '.$related_text).' entity (many to one).')
+                    ->write(' *')
+                    ->write(' * @param '.$foreign->getReferencedTable()->getNamespace().' $'.lcfirst($foreign->getReferencedTable()->getModelName()))
+                    ->write(' * @return '.$this->getNamespace())
+                    ->write(' */')
+                    ->write('public function set'.$foreign->getReferencedTable()->getModelName().$related.'('.$foreign->getReferencedTable()->getModelName().' $'.lcfirst($foreign->getReferencedTable()->getModelName()).' = null)')
+                    ->write('{')
+                    ->indent()
+                        ->write('$this->'.lcfirst($foreign->getReferencedTable()->getModelName()).$related.' = $'.lcfirst($foreign->getReferencedTable()->getModelName()).';')
+                        ->write('')
+                        ->write('return $this;')
+                    ->outdent()
+                    ->write('}')
+                    ->write('')
+                    // getter
+                    ->write('/**')
+                    ->write(' * Get '.trim($foreign->getReferencedTable()->getModelName().' '.$related_text).' entity (many to one).')
+                    ->write(' *')
+                    ->write(' * @return '.$foreign->getReferencedTable()->getNamespace())
+                    ->write(' */')
+                    ->write('public function get'.$foreign->getReferencedTable()->getModelName().$related.'()')
+                    ->write('{')
+                    ->indent()
+                        ->write('return $this->'.lcfirst($foreign->getReferencedTable()->getModelName()).$related.';')
+                    ->outdent()
+                    ->write('}')
+                    ->write('')
+                ;
+            } else {
+                $this->getDocument()->addLog(sprintf('  Applying setter/getter for "%s"', '1 <=> 1'));
+
+                $writer
+                    // setter
+                    ->write('/**')
+                    ->write(' * Set '.$foreign->getReferencedTable()->getModelName().' entity (one to one).')
+                    ->write(' *')
+                    ->write(' * @param '.$foreign->getReferencedTable()->getNamespace().' $'.lcfirst($foreign->getReferencedTable()->getModelName()))
+                    ->write(' * @return '.$this->getNamespace())
+                    ->write(' */')
+                    ->write('public function set'.$foreign->getReferencedTable()->getModelName().'('.$foreign->getReferencedTable()->getModelName().' $'.lcfirst($foreign->getReferencedTable()->getModelName()).')')
+                    ->write('{')
+                    ->indent()
+                        ->write('$this->'.lcfirst($foreign->getReferencedTable()->getModelName()).' = $'.lcfirst($foreign->getReferencedTable()->getModelName()).';')
+                        ->write('')
+                        ->write('return $this;')
+                    ->outdent()
+                    ->write('}')
+                    ->write('')
+                    // getter
+                    ->write('/**')
+                    ->write(' * Get '.$foreign->getReferencedTable()->getModelName().' entity (one to one).')
+                    ->write(' *')
+                    ->write(' * @return '.$foreign->getReferencedTable()->getNamespace())
+                    ->write(' */')
+                    ->write('public function get'.$foreign->getReferencedTable()->getModelName().'()')
+                    ->write('{')
+                    ->indent()
+                        ->write('return $this->'.lcfirst($foreign->getReferencedTable()->getModelName()).';')
+                    ->outdent()
+                    ->write('}')
+                    ->write('')
+                ;
+            }
+        }
+
         return $this;
     }
 
     protected function writeManyToManyGetterAndSetter(WriterInterface $writer)
     {
         foreach ($this->getTableM2MRelations() as $relation) {
-            $this->getDocument()->addLog(sprintf('  Writing N <=> N relation "%s".', $relation['refTable']->getModelName()));
+            $this->getDocument()->addLog(sprintf('  Writing N <=> N relation "%s"', $relation['refTable']->getModelName()));
 
             $isOwningSide = $this->getFormatter()->isOwningSide($relation, $mappedRelation);
             $writer

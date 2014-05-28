@@ -657,7 +657,16 @@ class Table extends Base
      */
     public function getManyToManyRelatedName($tablename, $column, $code = true)
     {
-        return $this->getColumns()->getManyToManyCount($tablename) > 1 ? $this->formatRelatedName($column, $code) : '';
+        // foreign tables count
+        $count = $this->getColumns()->getManyToManyCount($tablename);
+        // m2m foreign tables count
+        foreach ($this->getTableM2MRelations() as $relation) {
+            if ($relation['refTable']->getRawTableName() === $tablename) {
+                $count++;
+            }
+        }
+
+        return $count > 1 ? $this->formatRelatedName($column, $code) : '';
     }
 
     /**
