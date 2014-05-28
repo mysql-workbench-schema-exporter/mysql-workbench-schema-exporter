@@ -46,10 +46,12 @@ class Columns extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
     public function getManyToManyCount($tablename)
     {
         $count = 0;
+        $fks = array();
         foreach ($this->childs as $column) {
             foreach ($column->getLocalForeignKeys() as $foreign) {
-                if ($foreign->getOwningTable()->getRawTableName() === $tablename) {
+                if ($foreign->getOwningTable()->getRawTableName() === $tablename && !in_array($foreign->getId(), $fks)) {
                     $count++;
+                    $fks[] = $foreign->getId();
                 }
             }
         }
