@@ -272,6 +272,9 @@ class Table extends BaseTable
                 })
                 ->write('namespace %s;', $namespace)
                 ->write('')
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                    $_this->writeExtendedUsedClasses($writer);
+                })
                 ->write('/**')
                 ->write(' * '.$this->getNamespace(null, false))
                 ->write(' *')
