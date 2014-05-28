@@ -171,13 +171,11 @@ class Table extends BaseTable
     public function writeTable(WriterInterface $writer)
     {
         switch (true) {
-            case $this->isManyToMany():
-                return self::WRITE_M2M;
-                break;
-
             case $this->isExternal():
                 return self::WRITE_EXTERNAL;
-                break;
+
+            case $this->getConfig(Formatter::CFG_SKIP_M2M_TABLES) && $this->isManyToMany():
+                return self::WRITE_M2M;
 
             default:
                 $this->writeEntity($writer);
