@@ -770,10 +770,11 @@ class Table extends BaseTable
 
                 $related = $local->getForeignM2MRelatedName();
                 $related_text = $local->getForeignM2MRelatedName(false);
+
                 $writer
                     // setter
                     ->write('/**')
-                    ->write(' * Add '.trim($local->getOwningTable()->getModelName().' '.$related_text). ' entity to collection (one to many).')
+                    ->write(' * Add '.trim($local->getOwningTable()->getModelName().' entity '.$related_text). ' to collection (one to many).')
                     ->write(' *')
                     ->write(' * @param '.$local->getOwningTable()->getNamespace().' $'.lcfirst($local->getOwningTable()->getModelName()))
                     ->write(' * @return '.$this->getNamespace())
@@ -789,7 +790,7 @@ class Table extends BaseTable
                     ->write('')
                     // getter
                     ->write('/**')
-                    ->write(' * Get '.trim($local->getOwningTable()->getModelName().' '.$related_text).' entity collection (one to many).')
+                    ->write(' * Get '.trim($local->getOwningTable()->getModelName().' entity '.$related_text).' collection (one to many).')
                     ->write(' *')
                     ->write(' * @return '.$this->getCollectionInterface())
                     ->write(' */')
@@ -850,12 +851,13 @@ class Table extends BaseTable
             if ($foreign->isManyToOne()) {
                 $this->getDocument()->addLog(sprintf('  Applying setter/getter for "%s"', '1 <=> N'));
 
-                $related = $foreign->getForeignM2MRelatedName();
-                $related_text = $foreign->getForeignM2MRelatedName(false);
+                $related = $this->getRelatedName($foreign);
+                $related_text = $this->getRelatedName($foreign, false);
+
                 $writer
                     // setter
                     ->write('/**')
-                    ->write(' * Set '.trim($foreign->getReferencedTable()->getModelName().' '.$related_text).' entity (many to one).')
+                    ->write(' * Set '.trim($foreign->getReferencedTable()->getModelName().' entity '.$related_text).' (many to one).')
                     ->write(' *')
                     ->write(' * @param '.$foreign->getReferencedTable()->getNamespace().' $'.lcfirst($foreign->getReferencedTable()->getModelName()))
                     ->write(' * @return '.$this->getNamespace())
@@ -871,7 +873,7 @@ class Table extends BaseTable
                     ->write('')
                     // getter
                     ->write('/**')
-                    ->write(' * Get '.trim($foreign->getReferencedTable()->getModelName().' '.$related_text).' entity (many to one).')
+                    ->write(' * Get '.trim($foreign->getReferencedTable()->getModelName().' entity '.$related_text).' (many to one).')
                     ->write(' *')
                     ->write(' * @return '.$foreign->getReferencedTable()->getNamespace())
                     ->write(' */')
