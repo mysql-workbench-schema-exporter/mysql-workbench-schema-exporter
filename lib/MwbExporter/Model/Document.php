@@ -202,7 +202,7 @@ class Document extends Base
 
     protected function readXML($filename)
     {
-        $this->addLog(sprintf('Read document %s.', basename($filename)));
+        $this->addLog(sprintf('Read document "%s"', basename($filename)));
         $this->xml = simplexml_load_file("zip://".str_replace("\\", "/", realpath($filename))."#document.mwb.xml");
         if (false === $this->xml) {
             throw new \RuntimeException(sprintf('Can\'t load "%s", may be it not MySQL Workbench document.', $filename));
@@ -226,9 +226,9 @@ class Document extends Base
         $writer->setDocument($this);
         $writer->begin();
         try {
-            $this->addLog(sprintf('Start writing document %s...', basename($this->filename)));
+            $this->addLog(sprintf('Start writing document "%s"', basename($this->filename)));
             $this->physicalModel->write($writer);
-            $this->addLog('Done writing document...');
+            $this->addLog('Done writing document');
         } catch (\Exception $e) {
             $this->error = $e;
             $this->addLog($e->getMessage(), LoggerInterface::ERROR);

@@ -112,7 +112,7 @@ class Table extends BaseTable
                     $behavior = Yaml::parse($behavior);
                     $data[$key] = $behavior;
                 } catch (\Exception $e) {
-                    $this->getDocument()->addLog(sprintf('  Skip %s: %s.', $key, $e->getMessage()));
+                    $this->getDocument()->addLog(sprintf('  Skip %s: %s', $key, $e->getMessage()));
                 }
             }
         }

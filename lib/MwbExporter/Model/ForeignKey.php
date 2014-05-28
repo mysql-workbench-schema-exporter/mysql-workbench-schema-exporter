@@ -51,7 +51,7 @@ class ForeignKey extends Base
 
     protected function init()
     {
-        $this->getDocument()->addLog(sprintf('Processing foreign key "%s.%s".', $this->getTable()->getRawTableName(), $this->getName()));
+        $this->getDocument()->addLog(sprintf('Processing foreign key "%s.%s"', $this->getTable()->getRawTableName(), $this->getName()));
         // follow references to tables
         foreach ($this->node->link as $key => $node) {
             $attributes         = $node->attributes();
@@ -82,12 +82,12 @@ class ForeignKey extends Base
         // for doctrine2 annotations switch the local and the foreign
         // reference for a proper output
         foreach ($this->locals as $column) {
-            $this->getDocument()->addLog(sprintf('Mark column %s.%s as foreign reference for %s.',
+            $this->getDocument()->addLog(sprintf('Mark column %s.%s as foreign reference for %s',
                 $column->getTable()->getRawTableName(), $column->getColumnName(), $this->getReferencedTable()->getRawTableName()));
             $column->markAsForeignReference($this);
         }
         foreach ($this->foreigns as $column) {
-            $this->getDocument()->addLog(sprintf('Mark column %s.%s as local reference for %s.',
+            $this->getDocument()->addLog(sprintf('Mark column %s.%s as local reference for %s',
                 $column->getTable()->getRawTableName(), $column->getColumnName(), $this->getReferencedTable()->getRawTableName()));
             $column->markAsLocalReference($this);
         }

@@ -74,7 +74,7 @@ class Table extends Base
 
     protected function init()
     {
-        $this->getDocument()->addLog(sprintf('Processing table "%s".', $this->getRawTableName()));
+        $this->getDocument()->addLog(sprintf('Processing table "%s"', $this->getRawTableName()));
         $this->initColumns();
     }
 
@@ -233,37 +233,37 @@ class Table extends Base
                 // user hinted that this is a m2m table or not
                 case in_array($m2m = $this->parseComment('m2m'), array('true', 'false')):
                     $this->isM2M = 'true' === $m2m ? true : false;
-                    $this->getDocument()->addLog(sprintf('  * %s: M2M from comment "%s".', $this->getRawTableName(), var_export($this->isM2M, true)));
+                    $this->getDocument()->addLog(sprintf('  * %s: M2M from comment "%s"', $this->getRawTableName(), var_export($this->isM2M, true)));
                     break;
 
                 // contains 2 foreign keys
                 case (2 !== count($fkeys = $this->getForeignKeys())):
                     $this->isM2M = false;
-                    $this->getDocument()->addLog(sprintf('  * %s: M2M set to false, foreign keys not equal to 2.', $this->getRawTableName()));
+                    $this->getDocument()->addLog(sprintf('  * %s: M2M set to false, foreign keys not equal to 2', $this->getRawTableName()));
                     break;
 
                 // different foreign tables
                 case ($fkeys[0]->getReferencedTable()->getId() === $fkeys[1]->getReferencedTable()->getId()):
                     $this->isM2M = false;
-                    $this->getDocument()->addLog(sprintf('  * %s: M2M set to false, foreign table is same.', $this->getRawTableName()));
+                    $this->getDocument()->addLog(sprintf('  * %s: M2M set to false, foreign table is same', $this->getRawTableName()));
                     break;
 
                 // foreign tables is not many to many
                 case $deep && $fkeys[0]->getReferencedTable()->isManyToMany(false):
                 case $deep && $fkeys[1]->getReferencedTable()->isManyToMany(false):
                     $this->isM2M = false;
-                    $this->getDocument()->addLog(sprintf('  * %s: M2M set to false, foreign table is M2M.', $this->getRawTableName()));
+                    $this->getDocument()->addLog(sprintf('  * %s: M2M set to false, foreign table is M2M', $this->getRawTableName()));
                     break;
 
                 // has more columns than id + 2 x key columnns, is not many to many
                 case (count($this->getColumns()) >= 3):
                     $this->isM2M = false;
-                    $this->getDocument()->addLog(sprintf('  * %s: M2M set to false, columns more than 3.', $this->getRawTableName()));
+                    $this->getDocument()->addLog(sprintf('  * %s: M2M set to false, columns more than 3', $this->getRawTableName()));
                     break;
 
                 default:
                     $this->isM2M = true;
-                    $this->getDocument()->addLog(sprintf('  * %s: is M2M.', $this->getRawTableName()));
+                    $this->getDocument()->addLog(sprintf('  * %s: is M2M', $this->getRawTableName()));
                     break;
             }
         }
@@ -296,7 +296,7 @@ class Table extends Base
     {
         $key = $rel['refTable']->getModelName();
         $this->_m2mRelations[$key] = $rel;
-        $this->getDocument()->addLog(sprintf('Applying N <=> N relation "%s" for "%s <=> %s".', $rel['refTable']->getParameters()->get('name'), $this->getModelName(), $key));
+        $this->getDocument()->addLog(sprintf('Applying N <=> N relation "%s" for "%s <=> %s"', $rel['refTable']->getParameters()->get('name'), $this->getModelName(), $key));
 
         return $this;
     }

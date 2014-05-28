@@ -36,7 +36,7 @@ class Index extends Base
 
     protected function init()
     {
-        $this->getDocument()->addLog(sprintf('Processing index "%s.%s".', $this->getTable()->getRawTableName(), $this->getName()));
+        $this->getDocument()->addLog(sprintf('Processing index "%s.%s"', $this->getTable()->getRawTableName(), $this->getName()));
         // check for primary columns, to notify column
         $nodes = $this->node->xpath("value[@key='columns']/value/link[@key='referencedColumn']");
         foreach ($nodes as $node) {
