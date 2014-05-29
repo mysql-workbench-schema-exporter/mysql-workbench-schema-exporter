@@ -42,7 +42,7 @@ class Table extends BaseTable
             case $this->isExternal(): 
                 return self::WRITE_EXTERNAL;
 
-            case $this->getConfig(Formatter::CFG_SKIP_M2M_TABLES) && $this->isManyToMany():
+            case $this->getConfig()->get(Formatter::CFG_SKIP_M2M_TABLES) && $this->isManyToMany():
                 return self::WRITE_M2M;
 
             default:

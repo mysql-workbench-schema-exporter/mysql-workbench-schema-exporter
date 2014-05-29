@@ -495,7 +495,7 @@ class Table extends Base
     public function isForeignKeyIgnored($foreignKey)
     {
         // do not create entities for many2many tables
-        if ($this->getConfig(FormatterInterface::CFG_SKIP_M2M_TABLES) && $foreignKey->getReferencedTable()->isManyToMany()) {
+        if ($this->getConfig()->get(FormatterInterface::CFG_SKIP_M2M_TABLES) && $foreignKey->getReferencedTable()->isManyToMany()) {
             return true;
         }
         // do not output mapping in foreign table when the unidirectional option is set
@@ -515,7 +515,7 @@ class Table extends Base
     public function isLocalForeignKeyIgnored($foreignKey)
     {
         // do not create entities for many2many tables
-        if ($this->getConfig(FormatterInterface::CFG_SKIP_M2M_TABLES) && $foreignKey->getOwningTable()->isManyToMany()) {
+        if ($this->getConfig()->get(FormatterInterface::CFG_SKIP_M2M_TABLES) && $foreignKey->getOwningTable()->isManyToMany()) {
             return true;
         }
         if ($foreignKey->getOwningTable()->getId() == $this->getId()) {
