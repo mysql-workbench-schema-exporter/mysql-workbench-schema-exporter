@@ -46,6 +46,8 @@ class Table extends BaseTable
                 return self::WRITE_M2M;
 
             default:
+                $this->getDocument()->addLog(sprintf('Writing table "%s"', $this->getModelName()));
+
                 $writer
                     ->open($this->getTableFileName())
                     ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
@@ -59,6 +61,7 @@ class Table extends BaseTable
                     ->write($this->asYAML())
                     ->close()
                 ;
+
                 return self::WRITE_OK;
         }
     }
@@ -89,7 +92,7 @@ class Table extends BaseTable
             $values['lifecycleCallbacks'] = $lifecycleCallbacks;
         }
 
-        return new YAML(array($namespace => $values), array('indent' => $this->getConfig()->get(Formatter::CFG_INDENTATION)));
+        return new YAML(array($namespace => $values), array('indent' => $this->getConfig()->get(Formatter::CFG_INDENTATION), 'skip_null_value' => true));
     }
 
     protected function getIndicesAsYAML(&$values)
@@ -125,73 +128,50 @@ class Table extends BaseTable
 
     protected function getRelationsAsYAML(&$values)
     {
-        // one to many references
-        foreach ($this->getAllForeignKeys() as $foreign) {
-            if ($this->isForeignKeyIgnored($foreign)) {
-                continue;
-            }
-            $targetEntity     = $foreign->getReferencedTable()->getModelName();
-            $targetEntityFQCN = $foreign->getReferencedTable()->getModelNameAsFQCN($foreign->getOwningTable()->getEntityNamespace());
-            $mappedBy         = $foreign->getOwningTable()->getModelName();
-            $relationName     = $foreign->getReferencedTable()->getRawTableName();
-            // check for OneToOne or OneToMany relationship
-            if ($foreign->isManyToOne()) {
-                $related = $this->getRelatedName($foreign);
-                // OneToMany
-                $type = 'oneToMany';
-                if (!isset($values[$type])) {
-                    $values[$type] = array();
-                }
-                $values[$type][Inflector::pluralize($relationName).$related] = array(
-                    'targetEntity'  => $targetEntityFQCN,
-                    'mappedBy'      => lcfirst($mappedBy),
-                    'cascade'       => $this->getFormatter()->getCascadeOption($foreign->parseComment('cascade')),
-                    'fetch'         => $this->getFormatter()->getFetchOption($foreign->parseComment('fetch')),
-                    'orphanRemoval' => $this->getFormatter()->getBooleanOption($foreign->parseComment('orphanRemoval')),
-                    'joinColumn'    => array(
-                        'name'                 => $foreign->getLocal()->getColumnName(),
-                        'referencedColumnName' => $foreign->getForeign()->getColumnName(),
-                        'onDelete'             => $this->getFormatter()->getDeleteRule($foreign->getForeign()->getParameters()->get('deleteRule')),
-                        'nullable'             => !$foreign->getForeign()->isNotNull() ? null : false,
-                    ),
-                );
-            } else {
-                // OneToOne
-                $type = 'oneToOne';
-                if (!isset($values[$type])) {
-                    $values[$type] = array();
-                }
-                $values[$type][$relationName] = array(
-                    'targetEntity'  => $targetEntityFQCN,
-                    'joinColumn'    => array(
-                        'name'                 => $foreign->getLocal()->getColumnName(),
-                        'referencedColumnName' => $foreign->getForeign()->getColumnName(),
-                        'onDelete'             => $this->getFormatter()->getDeleteRule($foreign->getForeign()->getParameters()->get('deleteRule')),
-                        'nullable'             => !$foreign->getForeign()->isNotNull() ? null : false,
-                    ),
-                );
-            }
-        }
-        // many to one references
+        // 1 <=> ? references
         foreach ($this->getAllLocalForeignKeys() as $local) {
             if ($this->isLocalForeignKeyIgnored($local)) {
                 continue;
             }
             $targetEntity     = $local->getOwningTable()->getModelName();
             $targetEntityFQCN = $local->getOwningTable()->getModelNameAsFQCN($local->getReferencedTable()->getEntityNamespace());
-            $inversedBy       = $local->getReferencedTable()->getModelName();
-            $relationName     = $local->getOwningTable()->getRawTableName();
+            $mappedBy         = $local->getReferencedTable()->getModelName();
             $related          = $local->getForeignM2MRelatedName();
-            // check for OneToOne or ManyToOne relationship
+
+            $this->getDocument()->addLog(sprintf('  Writing 1 <=> ? relation "%s"', $targetEntity));
+
             if ($local->isManyToOne()) {
-                // ManyToOne
-                $type = 'manyToOne';
+                $this->getDocument()->addLog('  Relation considered as "1 <=> N"');
+
+                $type = 'oneToMany';
+                $relationName = lcfirst($this->getRelatedVarName($targetEntity, $related, true));
                 if (!isset($values[$type])) {
                     $values[$type] = array();
                 }
-                $values[$type][$relationName.$related] = array(
+                $values[$type][$relationName] = array(
+                    'targetEntity'  => $targetEntity,
+                    'mappedBy'      => lcfirst($this->getRelatedVarName($mappedBy, $related)),
+                    'cascade'       => $this->getFormatter()->getCascadeOption($local->parseComment('cascade')),
+                    'fetch'         => $this->getFormatter()->getFetchOption($local->parseComment('fetch')),
+                    'orphanRemoval' => $this->getFormatter()->getBooleanOption($local->parseComment('orphanRemoval')),
+                    'joinColumn'    => array(
+                        'name'                 => $local->getLocal()->getColumnName(),
+                        'referencedColumnName' => $local->getForeign()->getColumnName(),
+                        'onDelete'             => $this->getFormatter()->getDeleteRule($local->getParameters()->get('deleteRule')),
+                        'nullable'             => !$local->getLocal()->isNotNull() ? null : false,
+                    ),
+                );
+            } else {
+                $this->getDocument()->addLog('  Relation considered as "1 <=> 1"');
+
+                $type = 'oneToOne';
+                $relationName = lcfirst($targetEntity);
+                if (!isset($values[$type])) {
+                    $values[$type] = array();
+                }
+                $values[$type][$relationName] = array(
                     'targetEntity' => $targetEntity,
-                    'inversedBy'   => $local->parseComment('unidirectional') === 'true' ? null : lcfirst(Inflector::pluralize($inversedBy)),
+                    'inversedBy'   => lcfirst($this->getRelatedVarName($mappedBy, $related)),
                     'joinColumn'   => array(
                         'name'                 => $local->getForeign()->getColumnName(),
                         'referencedColumnName' => $local->getLocal()->getColumnName(),
@@ -199,19 +179,55 @@ class Table extends BaseTable
                         'nullable'             => !$local->getForeign()->isNotNull() ? null : false,
                     ),
                 );
-            } else {
-                // OneToOne
-                $type = 'oneToOne';
+            }
+        }
+
+        // N <=> ? references
+        foreach ($this->getAllForeignKeys() as $foreign) {
+            if ($this->isForeignKeyIgnored($foreign)) {
+                continue;
+            }
+            $targetEntity     = $foreign->getReferencedTable()->getModelName();
+            $targetEntityFQCN = $foreign->getReferencedTable()->getModelNameAsFQCN($foreign->getOwningTable()->getEntityNamespace());
+            $inversedBy       = $foreign->getOwningTable()->getModelName();
+            $related          = $this->getRelatedName($foreign);
+
+            $this->getDocument()->addLog(sprintf('  Writing N <=> ? relation "%s"', $targetEntity));
+
+            if ($foreign->isManyToOne()) {
+                $this->getDocument()->addLog('  Relation considered as "N <=> 1"');
+
+                $type = 'manyToOne';
+                $relationName = lcfirst($this->getRelatedVarName($targetEntity, $related));
                 if (!isset($values[$type])) {
                     $values[$type] = array();
                 }
-                $values[$type][$relationName.$related] = array(
-                    'targetEntity' => $targetEntity,
-                    'joinColumn'   => array(
-                        'name'                 => $local->getForeign()->getColumnName(),
-                        'referencedColumnName' => $local->getLocal()->getColumnName(),
-                        'onDelete'             => $this->getFormatter()->getDeleteRule($local->getParameters()->get('deleteRule')),
-                        'nullable'             => !$local->getForeign()->isNotNull() ? null : false,
+                $values[$type][$relationName] = array(
+                    'targetEntity'  => $targetEntityFQCN,
+                    'inversedBy'    => lcfirst($this->getRelatedVarName($inversedBy, $related, true)),
+                    'joinColumn'    => array(
+                        'name'                 => $foreign->getForeign()->getColumnName(),
+                        'referencedColumnName' => $foreign->getLocal()->getColumnName(),
+                        'onDelete'             => $this->getFormatter()->getDeleteRule($foreign->getForeign()->getParameters()->get('deleteRule')),
+                        'nullable'             => !$foreign->getForeign()->isNotNull() ? null : false,
+                    ),
+                );
+            } else {
+                $this->getDocument()->addLog('  Relation considered as "1 <=> 1"');
+
+                $type = 'oneToOne';
+                $relationName = lcfirst($targetEntity);
+                if (!isset($values[$type])) {
+                    $values[$type] = array();
+                }
+                $values[$type][$relationName] = array(
+                    'targetEntity'  => $targetEntityFQCN,
+                    'inversedBy'    => $foreign->parseComment('unidirectional') === 'true' ? null : lcfirst($this->getRelatedVarName($inversedBy, $related)),
+                    'joinColumn'    => array(
+                        'name'                 => $foreign->getForeign()->getColumnName(),
+                        'referencedColumnName' => $foreign->getLocal()->getColumnName(),
+                        'onDelete'             => $this->getFormatter()->getDeleteRule($foreign->getForeign()->getParameters()->get('deleteRule')),
+                        'nullable'             => !$foreign->getForeign()->isNotNull() ? null : false,
                     ),
                 );
             }
