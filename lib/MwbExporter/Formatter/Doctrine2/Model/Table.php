@@ -28,6 +28,7 @@ namespace MwbExporter\Formatter\Doctrine2\Model;
 
 use MwbExporter\Model\Table as BaseTable;
 use MwbExporter\Formatter\Doctrine2\Formatter;
+use Doctrine\Common\Inflector\Inflector;
 
 class Table extends BaseTable
 {
@@ -100,5 +101,20 @@ class Table extends BaseTable
         }
 
         return $result;
+    }
+
+    /**
+     * Get identifier name formatting.
+     *
+     * @param string $name  Identifier name
+     * @param string $related  Related name
+     * @param string $plural  Return plural form
+     * @return string
+     */
+    public function getRelatedVarName($name, $related = null, $plural = false)
+    {
+        $name = $related ? strtr($this->getConfig()->get(Formatter::CFG_RELATED_VAR_NAME_FORMAT), array('%name%' => $name, '%related%' => $related)) : $name;
+
+        return $plural ? Inflector::pluralize($name) : $name;
     }
 }

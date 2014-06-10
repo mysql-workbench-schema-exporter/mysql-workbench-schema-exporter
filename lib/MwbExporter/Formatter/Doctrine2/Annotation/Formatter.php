@@ -38,7 +38,6 @@ class Formatter extends BaseFormatter
     const CFG_GENERATE_ENTITY_SERIALIZATION  = 'generateEntitySerialization';
     const CFG_GENERATE_EXTENDABLE_ENTITY     = 'generateExtendableEntity';
     const CFG_QUOTE_IDENTIFIER               = 'quoteIdentifier';
-    const CFG_RELATED_VAR_NAME_FORMAT        = 'relatedVarNameFormat';
 
     protected function init()
     {
@@ -52,7 +51,6 @@ class Formatter extends BaseFormatter
             static::CFG_GENERATE_ENTITY_SERIALIZATION   => true,
             static::CFG_GENERATE_EXTENDABLE_ENTITY      => false,
             static::CFG_QUOTE_IDENTIFIER                => false,
-            static::CFG_RELATED_VAR_NAME_FORMAT         => '%name%%related%',
         ));
     }
 
