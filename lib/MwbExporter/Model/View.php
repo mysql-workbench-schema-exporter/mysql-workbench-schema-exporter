@@ -27,8 +27,8 @@
 
 namespace MwbExporter\Model;
 
-use Doctrine\Common\Inflector\Inflector;
 use MwbExporter\Writer\WriterInterface;
+use Doctrine\Common\Inflector\Inflector;
 
 class View extends Base
 {
@@ -124,11 +124,11 @@ class View extends Base
      */
     protected function getVars()
     {
-      return array(
-          '%view%'      => $this->getRawViewName(),
-          '%entity%'    => $this->getModelName(),
-          '%category%'  => $this->getCategory(),
-      );
+        return array(
+            '%view%'      => $this->getRawViewName(),
+            '%entity%'    => $this->getModelName(),
+            '%category%'  => $this->getCategory(),
+        );
     }
 
     /**

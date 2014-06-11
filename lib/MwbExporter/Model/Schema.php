@@ -121,6 +121,6 @@ class Schema extends Base
      */
     protected function getVars()
     {
-      return array('%schema%' => $this->getName());
+        return array('%schema%' => $this->getName());
     }
 }

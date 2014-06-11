@@ -28,8 +28,8 @@
 namespace MwbExporter\Model;
 
 use MwbExporter\Formatter\FormatterInterface;
-use Doctrine\Common\Inflector\Inflector;
 use MwbExporter\Writer\WriterInterface;
+use Doctrine\Common\Inflector\Inflector;
 
 class Table extends Base
 {
@@ -258,7 +258,7 @@ class Table extends Base
                 // has more columns than id + 2 x key columnns, is not many to many
                 case (count($this->getColumns()) >= 3):
                     $this->isM2M = false;
-                    $this->getDocument()->addLog(sprintf('  * %s: M2M set to false, columns more than 3', $this->getRawTableName()));
+                    $this->getDocument()->addLog(sprintf('  * %s: M2M set to false, columns are 3 or more', $this->getRawTableName()));
                     break;
 
                 default:
@@ -422,11 +422,11 @@ class Table extends Base
      */
     protected function getVars()
     {
-      return array(
-          '%table%'     => $this->getRawTableName(),
-          '%entity%'    => $this->getModelName(),
-          '%category%'  => $this->getCategory(),
-      );
+        return array(
+            '%table%'     => $this->getRawTableName(),
+            '%entity%'    => $this->getModelName(),
+            '%category%'  => $this->getCategory(),
+        );
     }
 
     /**
