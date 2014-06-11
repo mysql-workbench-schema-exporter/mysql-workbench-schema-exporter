@@ -28,9 +28,10 @@
 namespace MwbExporter\Formatter\Doctrine2\Annotation\Model;
 
 use MwbExporter\Formatter\Doctrine2\Model\Table as BaseTable;
+use MwbExporter\Formatter\Doctrine2\Annotation\Formatter;
+use MwbExporter\Model\ForeignKey;
 use MwbExporter\Object\Annotation;
 use MwbExporter\Writer\WriterInterface;
-use MwbExporter\Formatter\Doctrine2\Annotation\Formatter;
 use MwbExporter\Helper\Comment;
 use Doctrine\Common\Inflector\Inflector;
 
@@ -166,6 +167,32 @@ class Table extends BaseTable
     public function getJoinColumnAnnotation($local, $foreign, $deleteRule = null)
     {
         return $this->getAnnotation('JoinColumn', array('name' => $local, 'referencedColumnName' => $foreign, 'onDelete' => $this->getFormatter()->getDeleteRule($deleteRule)));
+    }
+
+    /**
+     * Get foreign key join annotation. If foreign key is composite
+     * JoinColumns returned, otherwise JoinColumn returned.
+     *
+     * @param \MwbExporter\Model\ForeignKey $fkey  Foreign key
+     * @param boolean $owningSide  Is join for owning side or vice versa
+     * @return \MwbExporter\Object\Annotation
+     */
+    protected function getJoins(ForeignKey $fkey, $owningSide = true)
+    {
+        $joins = array();
+        $lcols = $owningSide ? $fkey->getLocals() : $fkey->getForeigns();
+        $fcols = $owningSide ? $fkey->getForeigns() : $fkey->getLocals();
+        $onDelete = $this->getFormatter()->getDeleteRule($fkey->getParameters()->get('deleteRule'));
+        for ($i = 0; $i < count($lcols); $i++) {
+            $joins[] = $this->getAnnotation('JoinColumn', array(
+                'name'                  => $lcols[$i]->getColumnName(),
+                'referencedColumnName'  => $fcols[$i]->getColumnName(),
+                'nullable'              => $lcols[$i]->isNotNull() ? null : false,
+                'onDelete'              => $onDelete,
+            ));
+        }
+
+        return count($joins) > 1 ? $this->getAnnotation('JoinColumns', array($joins), array('multiline' => true, 'wrapper' => ' * %s')) : $joins[0];
     }
 
     public function writeTable(WriterInterface $writer)
@@ -454,60 +481,24 @@ class Table extends BaseTable
                 'orphanRemoval' => $this->getFormatter()->getBooleanOption($local->parseComment('orphanRemoval')),
             );
 
-            $joinColumnAnnotationOptions = array(
-                'name' => $local->getLocal()->getColumnName(),
-                'referencedColumnName' => $local->getForeign()->getColumnName(),
-                'onDelete' => $this->getFormatter()->getDeleteRule($local->getParameters()->get('deleteRule')),
-                'nullable' => !$local->getLocal()->isNotNull() ? null : false,
-            );
-
             if ($local->isManyToOne()) {
                 $this->getDocument()->addLog('  Relation considered as "1 <=> N"');
 
-                // is composite foreign keys?
-                if (!$local->isComposite()) {
-                    $writer
-                        ->write('/**')
-                        ->write(' * '.$this->getAnnotation('OneToMany', $annotationOptions))
-                        ->write(' * '.$this->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
-                        ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($local) {
-                            if (count($orders = $_this->getFormatter()->getOrderOption($local->parseComment('order')))) {
-                                $writer
-                                    ->write(' * '.$_this->getAnnotation('OrderBy', array($orders)))
-                                ;
-                            }
-                        })
-                        ->write(' */')
-                        ->write('protected $'.lcfirst($this->getRelatedVarName($targetEntity, $related, true)).';')
-                        ->write('')
-                    ;
-                } else {
-                    $joins = array();
-                    $lcols = $local->getLocals();
-                    $fcols = $local->getForeigns();
-                    for ($i = 0; $i < count($lcols); $i++) {
-                        $joins[] = $this->getAnnotation('JoinColumn', array(
-                            'name' => $lcols[$i]->getColumnName(),
-                            'referencedColumnName' => $fcols[$i]->getColumnName(),
-                            'nullable' => $lcols[$i]->isNotNull() ? null : false,
-                        ));
-                    }
-                    $writer
-                        ->write('/**')
-                        ->write(' * '.$this->getAnnotation('OneToMany', $annotationOptions))
-                        ->write(' * '.$this->getAnnotation('JoinColumns', array($joins), array('multiline' => true, 'wrapper' => ' * %s')))
-                        ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($local) {
-                            if (count($orders = $_this->getFormatter()->getOrderOption($local->parseComment('order')))) {
-                                $writer
-                                    ->write(' * '.$_this->getAnnotation('OrderBy', array($orders)))
-                                ;
-                            }
-                        })
-                        ->write(' */')
-                        ->write('protected $'.lcfirst($this->getRelatedVarName($targetEntity, $related, true)).';')
-                        ->write('')
-                    ;
-                }
+                $writer
+                    ->write('/**')
+                    ->write(' * '.$this->getAnnotation('OneToMany', $annotationOptions))
+                    ->write(' * '.$this->getJoins($local))
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($local) {
+                        if (count($orders = $_this->getFormatter()->getOrderOption($local->parseComment('order')))) {
+                            $writer
+                                ->write(' * '.$_this->getAnnotation('OrderBy', array($orders)))
+                            ;
+                        }
+                    })
+                    ->write(' */')
+                    ->write('protected $'.lcfirst($this->getRelatedVarName($targetEntity, $related, true)).';')
+                    ->write('')
+                ;
             } else {
                 $this->getDocument()->addLog('  Relation considered as "1 <=> 1"');
 
@@ -517,7 +508,7 @@ class Table extends BaseTable
                 $writer
                     ->write('/**')
                     ->write(' * '.$this->getAnnotation('OneToOne', $annotationOptions))
-                    ->write(' * '.$this->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
+                    ->write(' * '.$this->getJoins($local))
                     ->write(' */')
                     ->write('protected $'.lcfirst($targetEntity).';')
                     ->write('')
@@ -548,50 +539,14 @@ class Table extends BaseTable
             if ($foreign->isManyToOne()) {
                 $this->getDocument()->addLog('  Relation considered as "N <=> 1"');
 
-                $joinColumnAnnotationOptions = array(
-                    'name' => $foreign->getLocal()->getColumnName(),
-                    'referencedColumnName' => $foreign->getForeign()->getColumnName(),
-                    'onDelete' => $this->getFormatter()->getDeleteRule($foreign->getLocal()->getParameters()->get('deleteRule')),
-                    'nullable' => !$foreign->getLocal()->isNotNull() ? null : false,
-                );
-
-                // is composite foreign keys?
-                if (!$foreign->isComposite()) {
-                    $writer
-                        ->write('/**')
-                        ->write(' * '.$this->getAnnotation('ManyToOne', $annotationOptions))
-                        ->write(' * '.$this->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
-                        ->write(' */')
-                        ->write('protected $'.lcfirst($this->getRelatedVarName($targetEntity, $related)).';')
-                        ->write('')
-                    ;
-                } else {
-                    $joins = array();
-                    $lcols = $foreign->getLocals();
-                    $fcols = $foreign->getForeigns();
-                    for ($i = 0; $i < count($lcols); $i++) {
-                        $joins[] = $this->getAnnotation('JoinColumn', array(
-                            'name' => $lcols[$i]->getColumnName(),
-                            'referencedColumnName' => $fcols[$i]->getColumnName(),
-                            'nullable' => $lcols[$i]->isNotNull() ? null : false,
-                        ));
-                    }
-                    $writer
-                        ->write('/**')
-                        ->write(' * '.$this->getAnnotation('ManyToOne', $annotationOptions))
-                        ->write(' * '.$this->getAnnotation('JoinColumns', array($joins), array('multiline' => true, 'wrapper' => ' * %s')))
-                        ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($foreign) {
-                            if (count($orders = $_this->getFormatter()->getOrderOption($foreign->parseComment('order')))) {
-                                $writer
-                                    ->write(' * '.$_this->getAnnotation('OrderBy', array($orders)))
-                                ;
-                            }
-                        })
-                        ->write(' */')
-                        ->write('protected $'.lcfirst($this->getRelatedVarName($targetEntity, $related)).';')
-                        ->write('')
-                    ;
-                }
+                $writer
+                    ->write('/**')
+                    ->write(' * '.$this->getAnnotation('ManyToOne', $annotationOptions))
+                    ->write(' * '.$this->getJoins($foreign, false))
+                    ->write(' */')
+                    ->write('protected $'.lcfirst($this->getRelatedVarName($targetEntity, $related)).';')
+                    ->write('')
+                ;
             } else {
                 $this->getDocument()->addLog('  Relation considered as "1 <=> 1"');
 
@@ -601,17 +556,11 @@ class Table extends BaseTable
                     $annotationOptions['inversedBy'] = lcfirst($this->getRelatedVarName($inversedBy, $related));
                 }
                 $annotationOptions['cascade'] = $this->getFormatter()->getCascadeOption($foreign->parseComment('cascade'));
-                $joinColumnAnnotationOptions = array(
-                    'name' => $foreign->getForeign()->getColumnName(),
-                    'referencedColumnName' => $foreign->getLocal()->getColumnName(),
-                    'onDelete' => $this->getFormatter()->getDeleteRule($foreign->getForeign()->getParameters()->get('deleteRule')),
-                    'nullable' => !$foreign->getForeign()->isNotNull() ? null : false,
-                );
 
                 $writer
                     ->write('/**')
                     ->write(' * '.$this->getAnnotation('OneToOne', $annotationOptions))
-                    ->write(' * '.$this->getAnnotation('JoinColumn', $joinColumnAnnotationOptions))
+                    ->write(' * '.$this->getJoins($foreign, false))
                     ->write(' */')
                     ->write('protected $'.lcfirst($targetEntity).';')
                     ->write('')

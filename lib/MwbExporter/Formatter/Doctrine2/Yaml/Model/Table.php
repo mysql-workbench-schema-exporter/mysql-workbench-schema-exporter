@@ -29,6 +29,7 @@ namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
 use MwbExporter\Formatter\Doctrine2\Model\Table as BaseTable;
 use MwbExporter\Formatter\Doctrine2\Yaml\Formatter;
+use MwbExporter\Model\ForeignKey;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Object\YAML;
 use MwbExporter\Helper\Comment;
@@ -148,19 +149,13 @@ class Table extends BaseTable
                 if (!isset($values[$type])) {
                     $values[$type] = array();
                 }
-                $values[$type][$relationName] = array(
+                $values[$type][$relationName] = array_merge(array(
                     'targetEntity'  => $targetEntity,
                     'mappedBy'      => lcfirst($this->getRelatedVarName($mappedBy, $related)),
                     'cascade'       => $this->getFormatter()->getCascadeOption($local->parseComment('cascade')),
                     'fetch'         => $this->getFormatter()->getFetchOption($local->parseComment('fetch')),
                     'orphanRemoval' => $this->getFormatter()->getBooleanOption($local->parseComment('orphanRemoval')),
-                    'joinColumn'    => array(
-                        'name'                 => $local->getLocal()->getColumnName(),
-                        'referencedColumnName' => $local->getForeign()->getColumnName(),
-                        'onDelete'             => $this->getFormatter()->getDeleteRule($local->getParameters()->get('deleteRule')),
-                        'nullable'             => !$local->getLocal()->isNotNull() ? null : false,
-                    ),
-                );
+                ), $this->getJoins($local));
             } else {
                 $this->getDocument()->addLog('  Relation considered as "1 <=> 1"');
 
@@ -169,16 +164,10 @@ class Table extends BaseTable
                 if (!isset($values[$type])) {
                     $values[$type] = array();
                 }
-                $values[$type][$relationName] = array(
+                $values[$type][$relationName] = array_merge(array(
                     'targetEntity' => $targetEntity,
                     'inversedBy'   => lcfirst($this->getRelatedVarName($mappedBy, $related)),
-                    'joinColumn'   => array(
-                        'name'                 => $local->getForeign()->getColumnName(),
-                        'referencedColumnName' => $local->getLocal()->getColumnName(),
-                        'onDelete'             => $this->getFormatter()->getDeleteRule($local->getParameters()->get('deleteRule')),
-                        'nullable'             => !$local->getForeign()->isNotNull() ? null : false,
-                    ),
-                );
+                ), $this->getJoins($local));
             }
         }
 
@@ -202,16 +191,10 @@ class Table extends BaseTable
                 if (!isset($values[$type])) {
                     $values[$type] = array();
                 }
-                $values[$type][$relationName] = array(
+                $values[$type][$relationName] = array_merge(array(
                     'targetEntity'  => $targetEntityFQCN,
                     'inversedBy'    => lcfirst($this->getRelatedVarName($inversedBy, $related, true)),
-                    'joinColumn'    => array(
-                        'name'                 => $foreign->getForeign()->getColumnName(),
-                        'referencedColumnName' => $foreign->getLocal()->getColumnName(),
-                        'onDelete'             => $this->getFormatter()->getDeleteRule($foreign->getForeign()->getParameters()->get('deleteRule')),
-                        'nullable'             => !$foreign->getForeign()->isNotNull() ? null : false,
-                    ),
-                );
+                ), $this->getJoins($foreign, false));
             } else {
                 $this->getDocument()->addLog('  Relation considered as "1 <=> 1"');
 
@@ -220,16 +203,10 @@ class Table extends BaseTable
                 if (!isset($values[$type])) {
                     $values[$type] = array();
                 }
-                $values[$type][$relationName] = array(
+                $values[$type][$relationName] = array_merge(array(
                     'targetEntity'  => $targetEntityFQCN,
                     'inversedBy'    => $foreign->parseComment('unidirectional') === 'true' ? null : lcfirst($this->getRelatedVarName($inversedBy, $related)),
-                    'joinColumn'    => array(
-                        'name'                 => $foreign->getForeign()->getColumnName(),
-                        'referencedColumnName' => $foreign->getLocal()->getColumnName(),
-                        'onDelete'             => $this->getFormatter()->getDeleteRule($foreign->getForeign()->getParameters()->get('deleteRule')),
-                        'nullable'             => !$foreign->getForeign()->isNotNull() ? null : false,
-                    ),
-                );
+                ), $this->getJoins($foreign, false));
             }
         }
 
@@ -295,6 +272,46 @@ class Table extends BaseTable
         }
 
         return $this;
+    }
+
+    protected function convertJoinColumns($joins = array())
+    {
+        $result = array();
+        foreach ($joins as $join) {
+            if (!isset($join['name'])) {
+                continue;
+            }
+            $key = $join['name'];
+            unset($join['name']);
+            $result[$key] = $join;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get foreign key join descriptor.
+     *
+     * @param \MwbExporter\Model\ForeignKey $fkey  Foreign key
+     * @param string $owningSide  Is join for owning side or vice versa
+     * @return array
+     */
+    protected function getJoins(ForeignKey $fkey, $owningSide = true)
+    {
+        $joins = array();
+        $lcols = $owningSide ? $fkey->getLocals() : $fkey->getForeigns();
+        $fcols = $owningSide ? $fkey->getForeigns() : $fkey->getLocals();
+        $onDelete = $this->getFormatter()->getDeleteRule($fkey->getParameters()->get('deleteRule'));
+        for ($i = 0; $i < count($lcols); $i++) {
+            $joins[] = array(
+                'name'                  => $lcols[$i]->getColumnName(),
+                'referencedColumnName'  => $fcols[$i]->getColumnName(),
+                'nullable'              => $lcols[$i]->isNotNull() ? null : false,
+                'onDelete'              => $onDelete,
+            );
+        }
+    
+        return count($joins) > 1 ? array('joinColumns' => $this->convertJoinColumns($joins)) : array('joinColumn' => $joins[0]);
     }
 
     /**
