@@ -500,7 +500,12 @@ class Table extends BaseTable
                     ->write('')
                 ;
             } else {
+
                 $this->getDocument()->addLog('  Relation considered as "1 <=> 1"');
+
+                if ($this->isForeignKeyIgnored($local)) {
+                    continue;
+                }
 
                 $annotationOptions['inversedBy'] = $annotationOptions['mappedBy'];
                 $annotationOptions['mappedBy'] = null;
@@ -770,38 +775,40 @@ class Table extends BaseTable
             } else {
                 $this->getDocument()->addLog(sprintf('  Applying setter/getter for "%s"', '1 <=> 1'));
 
-                $writer
-                    // setter
-                    ->write('/**')
-                    ->write(' * Set '.$local->getReferencedTable()->getModelName().' entity (one to one).')
-                    ->write(' *')
-                    ->write(' * @param '.$local->getReferencedTable()->getNamespace().' $'.lcfirst($local->getReferencedTable()->getModelName()))
-                    ->write(' * @return '.$this->getNamespace())
-                    ->write(' */')
-                    ->write('public function set'.$local->getReferencedTable()->getModelName().'('.$local->getReferencedTable()->getModelName().' $'.lcfirst($local->getReferencedTable()->getModelName()).' = null)')
-                    ->write('{')
-                    ->indent()
-                        ->writeIf(!$unidirectional, '$'.lcfirst($local->getReferencedTable()->getModelName()).'->set'.$local->getOwningTable()->getModelName().'($this);')
-                        ->write('$this->'.lcfirst($local->getReferencedTable()->getModelName()).' = $'.lcfirst($local->getReferencedTable()->getModelName()).';')
+                if($this->isForeignKeyIgnored($local) == false) {
+                    $writer
+                        // setter
+                        ->write('/**')
+                        ->write(' * Set '.$local->getReferencedTable()->getModelName().' entity (one to one).')
+                        ->write(' *')
+                        ->write(' * @param '.$local->getReferencedTable()->getNamespace().' $'.lcfirst($local->getReferencedTable()->getModelName()))
+                        ->write(' * @return '.$this->getNamespace())
+                        ->write(' */')
+                        ->write('public function set'.$local->getReferencedTable()->getModelName().'('.$local->getReferencedTable()->getModelName().' $'.lcfirst($local->getReferencedTable()->getModelName()).' = null)')
+                        ->write('{')
+                        ->indent()
+                            ->writeIf(!$unidirectional, '$'.lcfirst($local->getReferencedTable()->getModelName()).'->set'.$local->getOwningTable()->getModelName().'($this);')
+                            ->write('$this->'.lcfirst($local->getReferencedTable()->getModelName()).' = $'.lcfirst($local->getReferencedTable()->getModelName()).';')
+                            ->write('')
+                            ->write('return $this;')
+                        ->outdent()
+                        ->write('}')
                         ->write('')
-                        ->write('return $this;')
-                    ->outdent()
-                    ->write('}')
-                    ->write('')
-                    // getter
-                    ->write('/**')
-                    ->write(' * Get '.$local->getReferencedTable()->getModelName().' entity (one to one).')
-                    ->write(' *')
-                    ->write(' * @return '.$local->getReferencedTable()->getNamespace())
-                    ->write(' */')
-                    ->write('public function get'.$local->getReferencedTable()->getModelName().'()')
-                    ->write('{')
-                    ->indent()
-                        ->write('return $this->'.lcfirst($local->getReferencedTable()->getModelName()).';')
-                    ->outdent()
-                    ->write('}')
-                    ->write('')
-                ;
+                        // getter
+                        ->write('/**')
+                        ->write(' * Get '.$local->getReferencedTable()->getModelName().' entity (one to one).')
+                        ->write(' *')
+                        ->write(' * @return '.$local->getReferencedTable()->getNamespace())
+                        ->write(' */')
+                        ->write('public function get'.$local->getReferencedTable()->getModelName().'()')
+                        ->write('{')
+                        ->indent()
+                            ->write('return $this->'.lcfirst($local->getReferencedTable()->getModelName()).';')
+                        ->outdent()
+                        ->write('}')
+                        ->write('')
+                    ;
+                }
             }
         }
 
