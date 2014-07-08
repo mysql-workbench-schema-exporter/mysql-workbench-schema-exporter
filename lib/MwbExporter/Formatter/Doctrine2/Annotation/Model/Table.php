@@ -500,7 +500,12 @@ class Table extends BaseTable
                     ->write('')
                 ;
             } else {
+
                 $this->getDocument()->addLog('  Relation considered as "1 <=> 1"');
+
+                if ($this->isForeignKeyIgnored($local)) {
+                    continue;
+                }
 
                 $annotationOptions['inversedBy'] = $annotationOptions['mappedBy'];
                 $annotationOptions['mappedBy'] = null;
