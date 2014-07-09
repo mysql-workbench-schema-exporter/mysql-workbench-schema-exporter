@@ -498,8 +498,7 @@ class Table extends Base
         if ($this->getConfig()->get(FormatterInterface::CFG_SKIP_M2M_TABLES) && $foreignKey->getReferencedTable()->isManyToMany()) {
             return true;
         }
-        // do not output mapping in foreign table when the unidirectional option is set
-        if ($foreignKey->parseComment('unidirectional') === 'true') {
+        if ($foreignKey->getReferencedTable()->getId() == $this->getId()) {
             return true;
         }
 
@@ -518,7 +517,8 @@ class Table extends Base
         if ($this->getConfig()->get(FormatterInterface::CFG_SKIP_M2M_TABLES) && $foreignKey->getOwningTable()->isManyToMany()) {
             return true;
         }
-        if ($foreignKey->getOwningTable()->getId() == $this->getId()) {
+        // do not output mapping in foreign table when the unidirectional option is set
+        if ($foreignKey->parseComment('unidirectional') === 'true') {
             return true;
         }
 

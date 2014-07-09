@@ -62,7 +62,7 @@ abstract class Formatter extends BaseFormatter
      * Get owning side of relation.
      *
      * @param array $relation
-     * @param array $mappedRelation
+     * @param \MwbExporter\Model\ForeignKey $mappedRelation
      * @return boolean
      */
     public function isOwningSide($relation, &$mappedRelation)

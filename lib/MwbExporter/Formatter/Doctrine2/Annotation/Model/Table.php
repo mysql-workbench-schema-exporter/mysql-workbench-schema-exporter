@@ -157,19 +157,6 @@ class Table extends BaseTable
     }
 
     /**
-     * Get column join annotation.
-     *
-     * @param string $local       Local column name
-     * @param string $foreign     Reference column name
-     * @param string $deleteRule  On delete rule
-     * @return \MwbExporter\Object\Annotation
-     */
-    public function getJoinColumnAnnotation($local, $foreign, $deleteRule = null)
-    {
-        return $this->getAnnotation('JoinColumn', array('name' => $local, 'referencedColumnName' => $foreign, 'onDelete' => $this->getFormatter()->getDeleteRule($deleteRule)));
-    }
-
-    /**
      * Get foreign key join annotation. If foreign key is composite
      * JoinColumns returned, otherwise JoinColumn returned.
      *
@@ -531,7 +518,7 @@ class Table extends BaseTable
 
             $annotationOptions = array(
                 'targetEntity' => $targetEntityFQCN,
-                'inversedBy' => lcfirst($this->getRelatedVarName($inversedBy, $related, true)),
+                'inversedBy' => $foreign->isUnidirectional() ? null : lcfirst($this->getRelatedVarName($inversedBy, $related, true)),
                 'cascade' => $this->getFormatter()->getCascadeOption($foreign->parseComment('cascade')),
                 'fetch' => $this->getFormatter()->getFetchOption($foreign->parseComment('fetch')),
             );
@@ -550,9 +537,7 @@ class Table extends BaseTable
             } else {
                 $this->getDocument()->addLog('  Relation considered as "1 <=> 1"');
 
-                if ($foreign->parseComment('unidirectional') === 'true') {
-                    $annotationOptions['inversedBy'] = null;
-                } else {
+                if (null !== $annotationOptions['inversedBy']) {
                     $annotationOptions['inversedBy'] = lcfirst($this->getRelatedVarName($inversedBy, $related));
                 }
                 $annotationOptions['cascade'] = $this->getFormatter()->getCascadeOption($foreign->parseComment('cascade'));
@@ -576,13 +561,14 @@ class Table extends BaseTable
         foreach ($this->getTableM2MRelations() as $relation) {
             $this->getDocument()->addLog(sprintf('  Writing setter/getter for N <=> N "%s"', $relation['refTable']->getModelName()));
 
-            $isOwningSide = $this->getFormatter()->isOwningSide($relation, $mappedRelation);
+            $fk1 = $relation['reference'];
+            $isOwningSide = $this->getFormatter()->isOwningSide($relation, $fk2);
             $annotationOptions = array(
                 'targetEntity' => $relation['refTable']->getModelNameAsFQCN($this->getEntityNamespace()),
                 'mappedBy' => null,
                 'inversedBy' => lcfirst($this->getPluralModelName()),
-                'cascade' => $this->getFormatter()->getCascadeOption($relation['reference']->parseComment('cascade')),
-                'fetch' => $this->getFormatter()->getFetchOption($relation['reference']->parseComment('fetch')),
+                'cascade' => $this->getFormatter()->getCascadeOption($fk1->parseComment('cascade')),
+                'fetch' => $this->getFormatter()->getFetchOption($fk1->parseComment('fetch')),
             );
 
             // if this is the owning side, also output the JoinTable Annotation
@@ -590,7 +576,7 @@ class Table extends BaseTable
             if ($isOwningSide) {
                 $this->getDocument()->addLog(sprintf('  Applying setter/getter for N <=> N "%s"', "owner"));
 
-                if ($mappedRelation->parseComment('unidirectional') === 'true') {
+                if ($fk1->isUnidirectional()) {
                     unset($annotationOptions['inversedBy']);
                 }
 
@@ -600,23 +586,11 @@ class Table extends BaseTable
                     ->write(' * '.$this->getAnnotation('JoinTable',
                         array(
                             'name'               => $relation['reference']->getOwningTable()->getRawTableName(),
-                            'joinColumns'        => array(
-                                $this->getJoinColumnAnnotation(
-                                    $relation['reference']->getLocal()->getColumnName(),
-                                    $relation['reference']->getForeign()->getColumnName(),
-                                    $relation['reference']->getParameters()->get('deleteRule')
-                                )
-                            ),
-                            'inverseJoinColumns' => array(
-                                $this->getJoinColumnAnnotation(
-                                    $mappedRelation->getLocal()->getColumnName(),
-                                    $mappedRelation->getForeign()->getColumnName(),
-                                    $mappedRelation->getParameters()->get('deleteRule')
-                                )
-                            )
+                            'joinColumns'        => array($this->getJoins($fk1)),
+                            'inverseJoinColumns' => array($this->getJoins($fk2)),
                         ), array('multiline' => true, 'wrapper' => ' * %s')))
-                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($mappedRelation) {
-                        if (count($orders = $_this->getFormatter()->getOrderOption($mappedRelation->parseComment('order')))) {
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($fk2) {
+                        if (count($orders = $_this->getFormatter()->getOrderOption($fk2->parseComment('order')))) {
                             $writer
                                 ->write(' * '.$_this->getAnnotation('OrderBy', array($orders)))
                             ;
@@ -627,7 +601,7 @@ class Table extends BaseTable
             } else {
                 $this->getDocument()->addLog(sprintf('  Applying setter/getter for N <=> N "%s"', "inverse"));
 
-                if ($relation['reference']->parseComment('unidirectional') === 'true') {
+                if ($fk2->isUnidirectional()) {
                     continue;
                 }
 
@@ -713,7 +687,6 @@ class Table extends BaseTable
 
             $this->getDocument()->addLog(sprintf('  Writing setter/getter for N <=> ? "%s"', $local->getParameters()->get('name')));
 
-            $unidirectional = $local->parseComment('unidirectional') === 'true';
             if ($local->isManyToOne()) {
                 $this->getDocument()->addLog(sprintf('  Applying setter/getter for "%s"', 'N <=> 1'));
 
@@ -781,7 +754,7 @@ class Table extends BaseTable
                     ->write('public function set'.$local->getReferencedTable()->getModelName().'('.$local->getReferencedTable()->getModelName().' $'.lcfirst($local->getReferencedTable()->getModelName()).' = null)')
                     ->write('{')
                     ->indent()
-                        ->writeIf(!$unidirectional, '$'.lcfirst($local->getReferencedTable()->getModelName()).'->set'.$local->getOwningTable()->getModelName().'($this);')
+                        ->writeIf(!$local->isUnidirectional(), '$'.lcfirst($local->getReferencedTable()->getModelName()).'->set'.$local->getOwningTable()->getModelName().'($this);')
                         ->write('$this->'.lcfirst($local->getReferencedTable()->getModelName()).' = $'.lcfirst($local->getReferencedTable()->getModelName()).';')
                         ->write('')
                         ->write('return $this;')
@@ -895,7 +868,7 @@ class Table extends BaseTable
         foreach ($this->getTableM2MRelations() as $relation) {
             $this->getDocument()->addLog(sprintf('  Writing N <=> N relation "%s"', $relation['refTable']->getModelName()));
 
-            $isOwningSide = $this->getFormatter()->isOwningSide($relation, $mappedRelation);
+            $isOwningSide = $this->getFormatter()->isOwningSide($relation, $fk2);
             $writer
                 ->write('/**')
                 ->write(' * Add '.$relation['refTable']->getModelName().' entity to collection.')
@@ -906,7 +879,7 @@ class Table extends BaseTable
                 ->write('public function add'.$relation['refTable']->getModelName().'('.$relation['refTable']->getModelName().' $'.lcfirst($relation['refTable']->getModelName()).')')
                 ->write('{')
                 ->indent()
-                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($isOwningSide, $relation, $mappedRelation) {
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($isOwningSide, $relation) {
                         if ($isOwningSide) {
                             $writer->write('$%s->add%s($this);', lcfirst($relation['refTable']->getModelName()), $_this->getModelName());
                         }
@@ -926,7 +899,7 @@ class Table extends BaseTable
                 ->write('public function remove'.$relation['refTable']->getModelName().'('.$relation['refTable']->getModelName().' $'.lcfirst($relation['refTable']->getModelName()).')')
                 ->write('{')
                 ->indent()
-                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($isOwningSide, $relation, $mappedRelation) {
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($isOwningSide, $relation) {
                         if ($isOwningSide) {
                             $writer->write('$%s->remove%s($this);', lcfirst($relation['refTable']->getModelName()), $_this->getModelName());
                         }

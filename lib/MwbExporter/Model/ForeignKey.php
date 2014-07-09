@@ -239,4 +239,14 @@ class ForeignKey extends Base
     {
         return count($this->locals) > 1 ? true : false;
     }
+
+    /**
+     * Check if foreign key is uni directional.
+     *
+     * @return boolean
+     */
+    public function isUnidirectional()
+    {
+        return $this->parseComment('unidirectional') === 'true' ? true : false;
+    }
 }
