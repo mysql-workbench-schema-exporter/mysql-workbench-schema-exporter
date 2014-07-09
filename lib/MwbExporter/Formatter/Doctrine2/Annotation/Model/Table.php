@@ -167,8 +167,8 @@ class Table extends BaseTable
     protected function getJoins(ForeignKey $fkey, $owningSide = true)
     {
         $joins = array();
-        $lcols = $owningSide ? $fkey->getLocals() : $fkey->getForeigns();
-        $fcols = $owningSide ? $fkey->getForeigns() : $fkey->getLocals();
+        $lcols = $owningSide ? $fkey->getForeigns() : $fkey->getLocals();
+        $fcols = $owningSide ? $fkey->getLocals() : $fkey->getForeigns();
         $onDelete = $this->getFormatter()->getDeleteRule($fkey->getParameters()->get('deleteRule'));
         for ($i = 0; $i < count($lcols); $i++) {
             $joins[] = $this->getAnnotation('JoinColumn', array(
@@ -586,8 +586,8 @@ class Table extends BaseTable
                     ->write(' * '.$this->getAnnotation('JoinTable',
                         array(
                             'name'               => $relation['reference']->getOwningTable()->getRawTableName(),
-                            'joinColumns'        => array($this->getJoins($fk1)),
-                            'inverseJoinColumns' => array($this->getJoins($fk2)),
+                            'joinColumns'        => array($this->getJoins($fk1, false)),
+                            'inverseJoinColumns' => array($this->getJoins($fk2, false)),
                         ), array('multiline' => true, 'wrapper' => ' * %s')))
                     ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($fk2) {
                         if (count($orders = $_this->getFormatter()->getOrderOption($fk2->parseComment('order')))) {
