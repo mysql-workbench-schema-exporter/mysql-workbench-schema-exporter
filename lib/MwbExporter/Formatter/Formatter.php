@@ -71,19 +71,19 @@ abstract class Formatter implements FormatterInterface
         $this->name = $name;
         $this->registry = new Registry();
         $this->addConfigurations(array(
+            static::CFG_LOG_TO_CONSOLE         => false,
+            static::CFG_LOG_FILE               => '',
             static::CFG_FILENAME               => '%entity%.%extension%',
             static::CFG_INDENTATION            => 2,
             static::CFG_USE_TABS               => false,
             static::CFG_EOL                    => '',
+            static::CFG_BACKUP_FILE            => true,
             static::CFG_ADD_COMMENT            => true,
             static::CFG_SKIP_PLURAL            => false,
-            static::CFG_BACKUP_FILE            => true,
             static::CFG_USE_LOGGED_STORAGE     => false,
+            static::CFG_SORT_TABLES_AND_VIEWS  => true,
             static::CFG_ENHANCE_M2M_DETECTION  => true,
             static::CFG_SKIP_M2M_TABLES        => true,
-            static::CFG_SORT_TABLES_AND_VIEWS  => true,
-            static::CFG_LOG_TO_CONSOLE         => false,
-            static::CFG_LOG_FILE               => '',
         ));
         $this->setDatatypeConverter($this->createDatatypeConverter());
         $this->init();
