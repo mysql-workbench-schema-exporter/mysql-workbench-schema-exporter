@@ -27,8 +27,8 @@
 	],
 	"require" : {
 		"php" : ">=5.3.0",
-		"doctrine/inflector" : "dev-master",
-		"symfony/yaml" : "dev-master"
+		"doctrine/inflector" : "1.0.*@dev",
+		"symfony/yaml" : "2.6.*@dev"
 	},
 	"bin" : [
 		"cli/export.php"
