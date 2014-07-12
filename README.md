@@ -482,7 +482,7 @@ disable this behaviour, see the option below.
 
 The syntax of CLI:
 
-    php cli/export.php [options] FILE [DEST]
+    php bin/mysql-workbench-schema-export [options] FILE [DEST]
 
 Where:
 
@@ -529,8 +529,8 @@ Options:
 
 Sample usage:
 
-    php cli/export.php --export=doctrine1-yaml example/data/test.mwb ./generated
-    php cli/export.php --zip example/data/test.mwb
+    php bin/mysql-workbench-schema-export --export=doctrine1-yaml example/data/test.mwb ./generated
+    php bin/mysql-workbench-schema-export --zip example/data/test.mwb
 
 Sample export paramaters (JSON) for doctrine2-annotation:
 

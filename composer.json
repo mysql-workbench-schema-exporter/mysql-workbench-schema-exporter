@@ -31,7 +31,7 @@
 		"symfony/yaml" : "2.6.*@dev"
 	},
 	"bin" : [
-		"cli/export.php"
+		"bin/mysql-workbench-schema-export"
 	],
 	"autoload" : {
 		"psr-0" : {
