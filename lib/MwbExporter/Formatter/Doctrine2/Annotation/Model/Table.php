@@ -111,35 +111,29 @@ class Table extends BaseTable
     /**
      * Get indexes annotation.
      *
+     * @param string $type Index annotation type, Index or UniqueConstraint
      * @return array|null
      */
-    protected function getIndexesAnnotation()
+    protected function getIndexesAnnotation($type = 'Index')
     {
         $indices = array();
         foreach ($this->getTableIndices() as $index) {
-            if($index->isIndex()){
-                $indices[] = $this->getAnnotation('Index', $index->asAnnotation());
+            switch ($type) {
+                case $type === 'Index' && $index->isIndex():
+                case $type === 'UniqueConstraint' && $index->isUnique():
+                    $columns = array();
+                    foreach ($index->getColumns() as $column) {
+                        $columns[] = $this->quoteIdentifier($column->getColumnName());
+                    }
+                    $indices[] = $this->getAnnotation($type, array('name' => $index->getName(), 'columns' => $columns));
+                    break;
+
+                default:
+                    break;
             }
         }
 
         return count($indices) ? $indices : null;
-    }
-
-    /**
-     * Get unique constraints annotation.
-     *
-     * @return array|null
-     */
-    protected function getUniqueConstraintsAnnotation()
-    {
-        $uniques = array();
-        foreach ($this->getTableIndices() as $index) {
-            if($index->isUnique()){
-                $uniques[] = $this->getAnnotation('UniqueConstraint', $index->asAnnotation());
-            }
-        }
-
-        return count($uniques) ? $uniques : null;
     }
 
     /**
@@ -172,8 +166,8 @@ class Table extends BaseTable
         $onDelete = $this->getFormatter()->getDeleteRule($fkey->getParameters()->get('deleteRule'));
         for ($i = 0; $i < count($lcols); $i++) {
             $joins[] = $this->getAnnotation('JoinColumn', array(
-                'name'                  => $lcols[$i]->getColumnName(),
-                'referencedColumnName'  => $fcols[$i]->getColumnName(),
+                'name'                  => $this->quoteIdentifier($lcols[$i]->getColumnName()),
+                'referencedColumnName'  => $this->quoteIdentifier($fcols[$i]->getColumnName()),
                 'nullable'              => $lcols[$i]->isNotNull() ? null : false,
                 'onDelete'              => $onDelete,
             ));
@@ -233,7 +227,7 @@ class Table extends BaseTable
             ->write(' *')
             ->writeIf($comment, $comment)
             ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
-            ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation(), 'uniqueConstraints' => $this->getUniqueConstraintsAnnotation())))
+            ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation('Index'), 'uniqueConstraints' => $this->getIndexesAnnotation('UniqueConstraint'))))
             ->writeIf($extendableEntity, ' * '.$this->getAnnotation('InheritanceType', array('SINGLE_TABLE')))
             ->writeIf($extendableEntity, ' * '.$this->getAnnotation('DiscriminatorColumn', $this->getInheritanceDiscriminatorColumn()))
             ->writeIf($extendableEntity, ' * '.$this->getAnnotation('DiscriminatorMap', array($this->getInheritanceDiscriminatorMap())))
@@ -585,7 +579,7 @@ class Table extends BaseTable
                     ->write(' * '.$this->getAnnotation('ManyToMany', $annotationOptions))
                     ->write(' * '.$this->getAnnotation('JoinTable',
                         array(
-                            'name'               => $relation['reference']->getOwningTable()->getRawTableName(),
+                            'name'               => $this->quoteIdentifier($relation['reference']->getOwningTable()->getRawTableName()),
                             'joinColumns'        => array($this->getJoins($fk1, false)),
                             'inverseJoinColumns' => array($this->getJoins($fk2, false)),
                         ), array('multiline' => true, 'wrapper' => ' * %s')))
