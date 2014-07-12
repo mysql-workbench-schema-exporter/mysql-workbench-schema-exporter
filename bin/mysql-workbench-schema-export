@@ -171,13 +171,28 @@ function mergeFormatter(&$setup, $configs)
     }
 }
 
-function setupFormatter(&$setup)
+function setupFormatter(&$setup, $validators)
 {
     $keys = array_keys($setup);
     for ($i = 0; $i < count($keys); $i++) {
         $label = getConfigName($keys[$i]);
         $value = $setup[$keys[$i]];
-        askValue($label, $value);
+        // is configuration validator exist
+        $validator = isset($validators[$keys[$i]]) ? $validators[$keys[$i]] : null;
+        if ($validator && count($choices = $validator->getChoices())) {
+            $label = sprintf('%s (%s)', $label, implode(', ', $choices));
+        }
+        while (true) {
+            askValue($label, $value);
+            // apply value validation if available
+            if ($validator) {
+                if ($validator->isValid($value)) {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
         $setup[$keys[$i]] = $value;
     }
 }
@@ -291,7 +306,7 @@ function main($filename, $dir, $params, $options)
             $ask = false;
             askValue('Would you like to change the setup configuration before exporting', $ask);
             if ($ask) {
-                setupFormatter($setup);
+                setupFormatter($setup, $formatter->getValidators());
             }
             echo "\n";
         }

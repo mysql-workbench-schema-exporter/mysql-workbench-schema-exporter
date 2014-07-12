@@ -47,6 +47,9 @@ interface FormatterInterface {
     const CFG_LOG_TO_CONSOLE         = 'logToConsole';
     const CFG_LOG_FILE               = 'logFile';
 
+    const EOL_WIN                    = 'win';
+    const EOL_UNIX                   = 'unix';
+
     /**
      * Get formatter name.
      *
@@ -74,6 +77,13 @@ interface FormatterInterface {
      * @return array
      */
     public function getConfigurations();
+
+    /**
+     * Get configuration validators.
+     *
+     * @return array
+     */
+    public function getValidators();
 
     /**
      * Setup formatter.

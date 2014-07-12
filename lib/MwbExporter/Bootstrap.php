@@ -142,11 +142,11 @@ class Bootstrap
             $writer->setStorage($storage);
             if ($eol = strtolower(trim($formatter->getRegistry()->config->get(FormatterInterface::CFG_EOL)))) {
                 switch ($eol) {
-                    case 'win':
+                    case FormatterInterface::EOL_WIN:
                         $writer->getBuffer()->setEol("\r\n");
                         break;
 
-                    case 'unix':
+                    case FormatterInterface::EOL_UNIX:
                         $writer->getBuffer()->setEol("\n");
                         break;
                 }

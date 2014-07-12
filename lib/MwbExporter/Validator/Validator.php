@@ -3,8 +3,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2014 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,38 +24,25 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Registry;
+namespace MwbExporter\Validator;
 
-class Registry
+abstract class Validator
 {
     /**
-     * @var \MwbExporter\Registry\RegistryHolder
+     * Check if value is valid.
+     *
+     * @param mixed $value
+     * @return bool
      */
-    public $config;
+    abstract public function isValid(&$value);
 
     /**
-     * @var \MwbExporter\Registry\RegistryHolder
+     * Get value choices.
+     *
+     * @return array
      */
-    public $reference;
-
-    /**
-     * @var \MwbExporter\Registry\RegistryHolder
-     */
-    public $factory;
-
-    /**
-     * @var \MwbExporter\Registry\RegistryHolder
-     */
-    public $validator;
-
-    /**
-     * Constructor.
-     */
-    public function __construct()
+    public function getChoices()
     {
-        $this->config = new RegistryHolder();
-        $this->reference = new RegistryHolder();
-        $this->factory = new RegistryHolder();
-        $this->validator = new RegistryHolder();
+        return array();
     }
 }

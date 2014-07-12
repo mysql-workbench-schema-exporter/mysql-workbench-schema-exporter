@@ -43,6 +43,7 @@ use MwbExporter\Model\Column;
 use MwbExporter\Model\Views;
 use MwbExporter\Model\View;
 use MwbExporter\Helper\Comment;
+use MwbExporter\Validator\ChoiceValidator;
 
 abstract class Formatter implements FormatterInterface
 {
@@ -76,7 +77,7 @@ abstract class Formatter implements FormatterInterface
             static::CFG_FILENAME               => '%entity%.%extension%',
             static::CFG_INDENTATION            => 2,
             static::CFG_USE_TABS               => false,
-            static::CFG_EOL                    => '',
+            static::CFG_EOL                    => FormatterInterface::EOL_WIN,
             static::CFG_BACKUP_FILE            => true,
             static::CFG_ADD_COMMENT            => true,
             static::CFG_SKIP_PLURAL            => false,
@@ -84,6 +85,9 @@ abstract class Formatter implements FormatterInterface
             static::CFG_SORT_TABLES_AND_VIEWS  => true,
             static::CFG_ENHANCE_M2M_DETECTION  => true,
             static::CFG_SKIP_M2M_TABLES        => true,
+        ));
+        $this->addValidators(array(
+            static::CFG_EOL                    => new ChoiceValidator(array(FormatterInterface::EOL_WIN, FormatterInterface::EOL_UNIX)),
         ));
         $this->setDatatypeConverter($this->createDatatypeConverter());
         $this->init();
@@ -99,13 +103,12 @@ abstract class Formatter implements FormatterInterface
     /**
      * Add configurations data.
      *
-     * @param string $configurations Configurations data
+     * @param array $configurations Configurations data
      * @return \MwbExporter\Formatter\Formatter
      */
     protected function addConfigurations($configurations = array())
     {
-        foreach ($configurations as $key => $value)
-        {
+        foreach ($configurations as $key => $value) {
             $this->registry->config->set($key, $value);
         }
 
@@ -123,6 +126,31 @@ abstract class Formatter implements FormatterInterface
     }
 
     /**
+     * Add configuration validators.
+     *
+     * @param array $validators Configuration validators
+     * @return \MwbExporter\Formatter\Formatter
+     */
+    protected function addValidators($validators = array())
+    {
+        foreach ($validators as $key => $validator) {
+            $this->registry->validator->set($key, $validator);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get configuration validators.
+     *
+     * @return array
+     */
+    public function getValidators()
+    {
+        return $this->registry->validator->getAll();
+    }
+
+    /**
      * Setup formatter.
      *
      * @param array $configurations
@@ -131,11 +159,19 @@ abstract class Formatter implements FormatterInterface
      */
     public function setup($configurations = array())
     {
-        foreach ($configurations as $key => $value)
-        {
-            if (!$this->registry->config->has($key))
-            {
-                throw new \RuntimeException(sprintf('Unknown setup key "%s".', $key));
+        foreach ($configurations as $key => $value) {
+            if (!$this->registry->config->has($key)) {
+                throw new \RuntimeException(sprintf('Unknown setup key %s.', $key));
+            }
+            if ($this->registry->validator->has($key)) {
+                $validator = $this->registry->validator->get($key);
+                if (!$validator->isValid($value)) {
+                    if (count($choices = $validator->getChoices())) {
+                        throw new \RuntimeException(sprintf('Invalid value %s for %s, values are %s.', var_export($value, true), $key, implode(', ', $choices)));
+                    } else {
+                        throw new \RuntimeException(sprintf('Invalid value %s for %s.', var_export($value, true), $key));
+                    }
+                }
             }
             $this->registry->config->set($key, $value);
         }
