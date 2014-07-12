@@ -14,7 +14,10 @@ Currently, MySQL Workbench Schema Exporter can export the model to the
 following schemas:
 
   * Doctrine 1.0 [YAML Schema](http://docs.doctrine-project.org/projects/doctrine1/en/latest/en/manual/yaml-schema-files.html).
-  * Doctrine 2.0 [YAML Schema](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/yaml-mapping.html), [Annotation Classes](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/annotations-reference.html) or Annotation Classes with [Zend Framework 2](http://framework.zend.com/) [Input Filter support](http://framework.zend.com/manual/2.1/en/modules/zend.input-filter.intro.html).
+  * Doctrine 2.0 [YAML Schema](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/yaml-mapping.html),
+    [Annotation Classes](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/annotations-reference.html)
+    or Annotation Classes with [Zend Framework 2](http://framework.zend.com/)
+    [Input Filter support](http://framework.zend.com/manual/2.1/en/modules/zend.input-filter.intro.html).
   * [Zend DbTable](http://framework.zend.com/manual/en/zend.db.table.html).
   * Zend Rest Controller.
   * Sencha ExtJS3 Model.
@@ -278,7 +281,8 @@ Formatter Setup Options
   * `{d:cascade}persist, merge, remove, detach, all{/d:cascade}` (applied to ForeignKey)
 
     You can specify Doctrine cascade options as a comment on a foreign key.
-    They will be generated into the Annotation. ([Reference](http://doctrine-orm.readthedocs.org/en/latest/reference/working-with-associations.html#transitive-persistence-cascade-operations))
+    They will be generated into the Annotation.
+    ([Reference](http://doctrine-orm.readthedocs.org/en/latest/reference/working-with-associations.html#transitive-persistence-cascade-operations))
 
   * `{d:fetch}EAGER{/d:fetch}` (applied to ForeignKey)
 
@@ -287,7 +291,8 @@ Formatter Setup Options
 
   * `{d:orphanRemoval}true{/d:orphanRemoval}` (applied to ForeignKey)
 
-    Another option you can set in the comments of foreign key. ([Reference](http://doctrine-orm.readthedocs.org/en/latest/reference/working-with-associations.html#orphan-removal))
+    Another option you can set in the comments of foreign key.
+    ([Reference](http://doctrine-orm.readthedocs.org/en/latest/reference/working-with-associations.html#orphan-removal))
 
   * `{d:order}column{/d:order}` (applied to ForeignKey)
 
@@ -475,12 +480,12 @@ Currently, none of specific option can be configured for Sequelize Model.
 Command Line Interface (CLI)
 ----------------------------
 
-There is a new CLI to simplify the export process named `export.php`, you can look under the `cli` folder.
-The CLI has feature to customize export configuration before exporting. By default, CLI application will
-use config file `export.json` located in the current directory to supply the parameter if it find it. To
-disable this behaviour, see the option below.
+The `mysql-workbench-schema-export` command helps export a workbench schema model directly
+from command line. It has feature to customize export configuration before exporting.
+By default, it will use config file `export.json` located in the current directory to supply
+the parameter if it find it. To disable this behaviour, see the option below.
 
-The syntax of CLI:
+Command usage:
 
     php bin/mysql-workbench-schema-export [options] FILE [DEST]
 
