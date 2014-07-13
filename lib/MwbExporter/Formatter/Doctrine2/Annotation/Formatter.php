@@ -29,6 +29,7 @@ namespace MwbExporter\Formatter\Doctrine2\Annotation;
 
 use MwbExporter\Formatter\Doctrine2\Formatter as BaseFormatter;
 use MwbExporter\Model\Base;
+use MwbExporter\Validator\ChoiceValidator;
 
 class Formatter extends BaseFormatter
 {
@@ -37,7 +38,11 @@ class Formatter extends BaseFormatter
     const CFG_SKIP_COLUMN_WITH_MANY_RELATION = 'skipColumnWithManyRelation';
     const CFG_GENERATE_ENTITY_SERIALIZATION  = 'generateEntitySerialization';
     const CFG_GENERATE_EXTENDABLE_ENTITY     = 'generateExtendableEntity';
-    const CFG_QUOTE_IDENTIFIER               = 'quoteIdentifier';
+    const CFG_QUOTE_IDENTIFIER_STRATEGY      = 'quoteIdentifierStrategy';
+
+    const QUOTE_IDENTIFIER_AUTO              = 'auto';
+    const QUOTE_IDENTIFIER_ALWAYS            = 'always';
+    const QUOTE_IDENTIFIER_NONE              = 'none';
 
     protected function init()
     {
@@ -50,7 +55,14 @@ class Formatter extends BaseFormatter
             static::CFG_SKIP_COLUMN_WITH_MANY_RELATION  => false,
             static::CFG_GENERATE_ENTITY_SERIALIZATION   => true,
             static::CFG_GENERATE_EXTENDABLE_ENTITY      => false,
-            static::CFG_QUOTE_IDENTIFIER                => false,
+            static::CFG_QUOTE_IDENTIFIER_STRATEGY       => static::QUOTE_IDENTIFIER_AUTO,
+        ));
+        $this->addValidators(array(
+            static::CFG_QUOTE_IDENTIFIER_STRATEGY       => new ChoiceValidator(array(
+                static::QUOTE_IDENTIFIER_AUTO,
+                static::QUOTE_IDENTIFIER_ALWAYS,
+                static::QUOTE_IDENTIFIER_NONE,
+            )),
         ));
     }
 

@@ -239,13 +239,16 @@ Formatter Setup Options
 
     Default is `false`.
 
-  * `quoteIdentifier`
+  * `quoteIdentifierStrategy`
 
-    If this option is enabled, all table names and column names will be quoted
-    using backtick (`` ` ``). Usefull when the table name or column name
-    contains reserved word.
+    This option determine wheter identifier quoting is applied or not, depend on the
+    strategy value.
 
-    Default is `false`.
+    * `auto`, indentifier quoting enabled if identifier is a reserved word.
+    * `always`, always quote identifier.
+    * `none`, never quote identifier.
+
+    Default is `auto`.
 
 ##### Model Comment Behavior
 

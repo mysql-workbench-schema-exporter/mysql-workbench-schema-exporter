@@ -33,6 +33,7 @@ use MwbExporter\Model\ForeignKey;
 use MwbExporter\Object\Annotation;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Helper\Comment;
+use MwbExporter\Helper\ReservedWords;
 use Doctrine\Common\Inflector\Inflector;
 
 class Table extends BaseTable
@@ -84,15 +85,25 @@ class Table extends BaseTable
     }
 
     /**
-     * Quote identifier if necessary. Quoting is enabled if configuration `CFG_QUOTE_IDENTIFIER` is set
-     * to true.
+     * Quote identifier if necessary.
      *
      * @param string $value  The identifier to quote
      * @return string
      */
     public function quoteIdentifier($value)
     {
-        return $this->getConfig()->get(Formatter::CFG_QUOTE_IDENTIFIER) ? '`'.$value.'`' : $value;
+        $quote = false;
+        switch ($this->getConfig()->get(Formatter::CFG_QUOTE_IDENTIFIER_STRATEGY)) {
+            case Formatter::QUOTE_IDENTIFIER_AUTO:
+                $quote = ReservedWords::isReserved($value);
+                break;
+
+            case Formatter::QUOTE_IDENTIFIER_ALWAYS:
+                $quote = true;
+                break;
+        }
+
+        return $quote ? '`'.$value.'`' : $value;
     }
 
     /**
