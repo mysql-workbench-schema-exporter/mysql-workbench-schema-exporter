@@ -76,7 +76,7 @@ abstract class Storage implements StorageInterface
     }
 
     /**
-     * Enable/disbale backup.
+     * Enable/disable backup.
      *
      * @return \MwbExporter\Storage\StorageInterface
      */
