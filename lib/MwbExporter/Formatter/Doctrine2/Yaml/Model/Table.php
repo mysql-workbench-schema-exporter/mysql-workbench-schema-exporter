@@ -81,9 +81,11 @@ class Table extends BaseTable
             $values['repositoryClass'] = $repositoryNamespace.$this->getModelName().'Repository';
         }
         // indices
-        $this->getIndicesAsYAML($values);
+        $this->getIndicesAsYAML($values, 'indexes');
         // columns => ids & fields
         $this->getColumnsAsYAML($values);
+        // uniques
+        $this->getIndicesAsYAML($values, 'uniqueConstraints');
         // table relations
         $this->getRelationsAsYAML($values);
         // table m2m relations
@@ -96,13 +98,18 @@ class Table extends BaseTable
         return new YAML(array($namespace => $values), array('indent' => $this->getConfig()->get(Formatter::CFG_INDENTATION), 'skip_null_value' => true));
     }
 
-    protected function getIndicesAsYAML(&$values)
+    protected function getIndicesAsYAML(&$values, $type = 'indexes')
     {
         foreach ($this->getTableIndices() as $index) {
-            if (!isset($values['indexes'])) {
-                $values['indexes'] = array();
+            switch (true) {
+                case $type === 'indexes' && $index->isIndex():
+                case $type === 'uniqueConstraints' && $index->isUnique():
+                    if (!isset($values[$type])) {
+                        $values[$type] = array();
+                    }
+                    $values[$type][$index->getName()] = array('columns' => $index->getColumnNames());
+                    break;
             }
-            $values['indexes'][$index->getName()] = $index->asYAML();
         }
 
         return $this;
@@ -205,7 +212,7 @@ class Table extends BaseTable
                 }
                 $values[$type][$relationName] = array_merge(array(
                     'targetEntity'  => $targetEntityFQCN,
-                    'inversedBy'    => $foreign->parseComment('unidirectional') === 'true' ? null : lcfirst($this->getRelatedVarName($inversedBy, $related)),
+                    'inversedBy'    => $foreign->isUnidirectional() ? null : lcfirst($this->getRelatedVarName($inversedBy, $related)),
                 ), $this->getJoins($foreign, false));
             }
         }
@@ -217,19 +224,20 @@ class Table extends BaseTable
     {
         // many to many relations
         foreach ($this->getTableM2MRelations() as $relation) {
-            $isOwningSide = $this->getFormatter()->isOwningSide($relation, $mappedRelation);
+            $fk1 = $relation['reference'];
+            $isOwningSide = $this->getFormatter()->isOwningSide($relation, $fk2);
             $mappings = array(
                 'targetEntity' => $relation['refTable']->getModelNameAsFQCN($this->getEntityNamespace()),
                 'mappedBy'     => null,
-                'inversedBy'   => lcfirst(Inflector::pluralize($this->getModelName())),
-                'cascade'      => $this->getFormatter()->getCascadeOption($relation['reference']->parseComment('cascade')),
-                'fetch'        => $this->getFormatter()->getFetchOption($relation['reference']->parseComment('fetch')),
+                'inversedBy'   => lcfirst($this->getPluralModelName()),
+                'cascade'      => $this->getFormatter()->getCascadeOption($fk1->parseComment('cascade')),
+                'fetch'        => $this->getFormatter()->getFetchOption($fk1->parseComment('fetch')),
             );
             $relationName = Inflector::pluralize($relation['refTable']->getRawTableName());
             // if this is the owning side, also output the JoinTable Annotation
             // otherwise use "mappedBy" feature
             if ($isOwningSide) {
-                if ($mappedRelation->parseComment('unidirectional') === 'true') {
+                if ($fk1->isUnidirectional()) {
                     unset($mappings['inversedBy']);
                 }
 
@@ -239,25 +247,13 @@ class Table extends BaseTable
                 }
                 $values[$type][$relationName] = array_merge($mappings, array(
                     'joinTable' => array(
-                        'name'               => $relation['reference']->getOwningTable()->getRawTableName(),
-                        'joinColumns'        => array(
-                            'joinColumn'     => array(
-                                'name'                 => $relation['reference']->getForeign()->getColumnName(),
-                                'referencedColumnName' => $relation['reference']->getLocal()->getColumnName(),
-                                'onDelete'             => $this->getFormatter()->getDeleteRule($relation['reference']->getParameters()->get('deleteRule')),
-                            ),
-                        ),
-                        'inverseJoinColumns' => array(
-                            'joinColumn'     => array(
-                                'name'                 => $mappedRelation->getForeign()->getColumnName(),
-                                'referencedColumnName' => $mappedRelation->getLocal()->getColumnName(),
-                                'onDelete'             => $this->getFormatter()->getDeleteRule($mappedRelation->getParameters()->get('deleteRule')),
-                            ),
-                        )
+                        'name'               => $fk1->getOwningTable()->getRawTableName(),
+                        'joinColumns'        => $this->convertJoinColumns($this->getJoins($fk1, false)),
+                        'inverseJoinColumns' => $this->convertJoinColumns($this->getJoins($fk2, false)),
                     ),
                 ));
             } else {
-                if ($relation['reference']->parseComment('unidirectional') === 'true') {
+                if ($fk2->isUnidirectional()) {
                     continue;
                 }
                 $mappings['mappedBy'] = $mappings['inversedBy'];
@@ -299,8 +295,8 @@ class Table extends BaseTable
     protected function getJoins(ForeignKey $fkey, $owningSide = true)
     {
         $joins = array();
-        $lcols = $owningSide ? $fkey->getLocals() : $fkey->getForeigns();
-        $fcols = $owningSide ? $fkey->getForeigns() : $fkey->getLocals();
+        $lcols = $owningSide ? $fkey->getForeigns() : $fkey->getLocals();
+        $fcols = $owningSide ? $fkey->getLocals() : $fkey->getForeigns();
         $onDelete = $this->getFormatter()->getDeleteRule($fkey->getParameters()->get('deleteRule'));
         for ($i = 0; $i < count($lcols); $i++) {
             $joins[] = array(

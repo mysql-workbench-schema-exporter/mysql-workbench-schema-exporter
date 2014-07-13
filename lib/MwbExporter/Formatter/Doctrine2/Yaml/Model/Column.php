@@ -43,11 +43,8 @@ class Column extends BaseColumn
             $values['precision'] = (int) $precision;
             $values['scale'] = (int) $scale;
         }
-        if ($this->isUnique) {
-            $values['unique'] = true;
-        }
-        if (!$this->isNotNull()) {
-            $values['nullable'] = true;
+        if ($this->isNotNull()) {
+            $values['nullable'] = false;
         }
         if($this->isUnsigned()) {
             $values['unsigned'] = true;

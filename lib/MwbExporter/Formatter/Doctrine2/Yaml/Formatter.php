@@ -71,15 +71,6 @@ class Formatter extends BaseFormatter
         return new Model\Column($parent, $node);
     }
 
-    /**
-     * (non-PHPdoc)
-     * @see \MwbExporter\Formatter\FormatterInterface::createIndex()
-     */
-    public function createIndex(Base $parent, $node)
-    {
-        return new Model\Index($parent, $node);
-    }
-
     public function getTitle()
     {
         return 'Doctrine 2.0 YAML';
