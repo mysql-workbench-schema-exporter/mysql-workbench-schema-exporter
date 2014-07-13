@@ -31,7 +31,8 @@
 		"symfony/yaml" : "2.6.*@dev"
 	},
 	"bin" : [
-		"bin/mysql-workbench-schema-export"
+		"bin/mysql-workbench-schema-export",
+		"bin/update-sql-reserved-words"
 	],
 	"autoload" : {
 		"psr-0" : {
