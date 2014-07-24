@@ -498,9 +498,6 @@ class Table extends Base
         if ($this->getConfig()->get(FormatterInterface::CFG_SKIP_M2M_TABLES) && $foreignKey->getReferencedTable()->isManyToMany()) {
             return true;
         }
-        if ($foreignKey->getReferencedTable()->getId() == $this->getId()) {
-            return true;
-        }
 
         return false;
     }
