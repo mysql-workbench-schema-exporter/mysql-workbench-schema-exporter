@@ -111,8 +111,8 @@ class Column extends BaseColumn
             $attributes['precision'] = (int) $precision;
             $attributes['scale'] = (int) $scale;
         }
-        if (!$this->isNotNull()) {
-            $attributes['nullable'] = true;
+        if ($this->isNotNull()) {
+            $attributes['nullable'] = false;
         }
         if($this->isUnsigned()) {
             $attributes['options'] = array('unsigned' => true);

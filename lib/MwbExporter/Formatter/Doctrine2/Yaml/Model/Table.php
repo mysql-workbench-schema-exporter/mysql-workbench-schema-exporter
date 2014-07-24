@@ -302,7 +302,7 @@ class Table extends BaseTable
             $joins[] = array(
                 'name'                  => $lcols[$i]->getColumnName(),
                 'referencedColumnName'  => $fcols[$i]->getColumnName(),
-                'nullable'              => $lcols[$i]->isNotNull() ? null : false,
+                'nullable'              => $lcols[$i]->isNotNull() ? false : null,
                 'onDelete'              => $onDelete,
             );
         }

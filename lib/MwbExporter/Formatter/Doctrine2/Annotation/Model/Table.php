@@ -179,7 +179,7 @@ class Table extends BaseTable
             $joins[] = $this->getAnnotation('JoinColumn', array(
                 'name'                  => $this->quoteIdentifier($lcols[$i]->getColumnName()),
                 'referencedColumnName'  => $this->quoteIdentifier($fcols[$i]->getColumnName()),
-                'nullable'              => $lcols[$i]->isNotNull() ? null : false,
+                'nullable'              => $lcols[$i]->isNotNull() ? false : null,
                 'onDelete'              => $onDelete,
             ));
         }
