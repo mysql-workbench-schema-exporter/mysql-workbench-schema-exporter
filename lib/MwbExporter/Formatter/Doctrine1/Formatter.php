@@ -42,10 +42,11 @@ abstract class Formatter extends BaseFormatter
 
     /**
      * (non-PHPdoc)
-     * @see \MwbExporter\Formatter\Formatter::getCommentParserIdentifierPrefix()
+     * @see \MwbExporter\Formatter\Formatter::getCommentTagPrefixes()
      */
-    public function getCommentParserIdentifierPrefix()
+    public function getCommentTagPrefixes()
     {
-        return 'd|doctrine';
+        $prefixes = parent::getCommentTagPrefixes();
+        return array_merge($prefixes, array('d|doctrine'));
     }
 }
