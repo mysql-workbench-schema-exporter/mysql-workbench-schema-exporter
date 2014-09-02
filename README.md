@@ -142,15 +142,15 @@ Formatter Setup Options
 
   * `{d:externalRelations}relation{/d:externalRelations}`
 
-  * `{d:actAs}behavior{/d:actAs}`
+  * `{MwbExporter:actAs}actAs: [Timestampable]{/MwbExporter:actAs}`
 
     The following example export Doctrine behavior by using Table comment:
 
-        {d:actAs}
+        {MwbExporter:actAs}
           actAs:
             timestampable:
               [..]
-        {/d:actAs}
+        {/MwbExporter:actAs}
 
   * Foreign key name
 
