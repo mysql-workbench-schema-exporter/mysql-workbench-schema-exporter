@@ -1,9 +1,9 @@
 {
-    "name": "mysql-workbench-schema-exporter/mysql-workbench-schema-exporter",
+    "name": "defyasdf/mysql-workbench-schema-exporter",
     "type": "cli",
     "description": "MySQL Workbench Schema Exporter",
     "keywords": ["mysql","workbench","database","doctrine","cli"],
-    "homepage": "https://github.com/johmue/mysql-workbench-schema-exporter",
+    "homepage": "https://github.com/defyasdf/mysql-workbench-schema-exporter",
     "license": "MIT",
     "authors": [
         {
