@@ -305,6 +305,21 @@ class Table extends BaseTable
                 ->close()
             ;
         }
+        if ($this->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) &&
+                !$writer->getStorage()->hasFile("Repository/" . $this->getModelName() . "Repository.php")) 
+        {
+            $writer->open("Repository/" . $this->getModelName() . "Repository.php")
+                    ->write('<?php')
+                    ->write('')
+                    ->write('namespace %s;', substr($repositoryNamespace, 0, -1))
+                    ->write('')
+                    ->write('use Doctrine\ORM\EntityRepository;')
+                    ->write('')
+                    ->write('class %s extends EntityRepository', $this->getClassName() . "Repository")
+                    ->write('{')
+                    ->write('}')
+                    ->close();
+        }        
     }
 
     /**
