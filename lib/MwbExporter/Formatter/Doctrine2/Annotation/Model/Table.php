@@ -482,7 +482,8 @@ class Table extends BaseTable
 
             $annotationOptions = array(
                 'targetEntity' => $targetEntityFQCN,
-                'mappedBy' => lcfirst($this->getRelatedVarName($mappedBy, $related)),
+                //'mappedBy' => lcfirst($this->getRelatedVarName($mappedBy, $related)),
+                'mappedBy' =>  $related==""? lcfirst($mappedBy) :$related,
                 'cascade' => $this->getFormatter()->getCascadeOption($local->parseComment('cascade')),
                 'fetch' => $this->getFormatter()->getFetchOption($local->parseComment('fetch')),
                 'orphanRemoval' => $this->getFormatter()->getBooleanOption($local->parseComment('orphanRemoval')),
