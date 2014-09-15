@@ -113,6 +113,8 @@ class Column extends BaseColumn
         }
         if ($this->isNotNull()) {
             $attributes['nullable'] = false;
+        }else{
+            $attributes['nullable'] = true;
         }
         if($this->isUnsigned()) {
             $attributes['options'] = array('unsigned' => true);

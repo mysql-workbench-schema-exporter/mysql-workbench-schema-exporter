@@ -539,7 +539,8 @@ class Table extends BaseTable
 
             $annotationOptions = array(
                 'targetEntity' => $targetEntityFQCN,
-                'inversedBy' => $foreign->isUnidirectional() ? null : lcfirst($this->getRelatedVarName($inversedBy, $related, true)),
+//                'inversedBy' => $foreign->isUnidirectional() ? null : lcfirst($this->getRelatedVarName($inversedBy, $related, true)),
+                'inversedBy' => $foreign->isUnidirectional() ? null : $related==""? lcfirst($inversedBy):$related,
                 'cascade' => $this->getFormatter()->getCascadeOption($foreign->parseComment('cascade')),
                 'fetch' => $this->getFormatter()->getFetchOption($foreign->parseComment('fetch')),
             );
