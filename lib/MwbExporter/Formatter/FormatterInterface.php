@@ -46,6 +46,7 @@ interface FormatterInterface {
     const CFG_SORT_TABLES_AND_VIEWS  = 'sortTablesAndViews';
     const CFG_LOG_TO_CONSOLE         = 'logToConsole';
     const CFG_LOG_FILE               = 'logFile';
+    const CFG_RELATED_PREFIX         = 'relatedPrefix';
 
     const EOL_WIN                    = 'win';
     const EOL_UNIX                   = 'unix';
