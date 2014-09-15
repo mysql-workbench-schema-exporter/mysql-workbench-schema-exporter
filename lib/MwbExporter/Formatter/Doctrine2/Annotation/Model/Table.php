@@ -482,8 +482,8 @@ class Table extends BaseTable
 
             $annotationOptions = array(
                 'targetEntity' => $targetEntityFQCN,
-                //'mappedBy' => lcfirst($this->getRelatedVarName($mappedBy, $related)),
-                'mappedBy' =>  $related==""? lcfirst($mappedBy) :$related,
+                'mappedBy' => lcfirst($this->getRelatedVarName($mappedBy, $related)),
+                //'mappedBy' =>  $related==""? lcfirst($mappedBy) :$related,
                 'cascade' => $this->getFormatter()->getCascadeOption($local->parseComment('cascade')),
                 'fetch' => $this->getFormatter()->getFetchOption($local->parseComment('fetch')),
                 'orphanRemoval' => $this->getFormatter()->getBooleanOption($local->parseComment('orphanRemoval')),
@@ -539,8 +539,8 @@ class Table extends BaseTable
 
             $annotationOptions = array(
                 'targetEntity' => $targetEntityFQCN,
-//                'inversedBy' => $foreign->isUnidirectional() ? null : lcfirst($this->getRelatedVarName($inversedBy, $related, true)),
-                'inversedBy' => $foreign->isUnidirectional() ? null : $related==""? lcfirst($inversedBy):$related,
+                'inversedBy' => $foreign->isUnidirectional() ? null : lcfirst($this->getRelatedVarName($inversedBy, $related, true)),
+                //'inversedBy' => $foreign->isUnidirectional() ? null : $related==""? lcfirst($inversedBy):$related,
                 'cascade' => $this->getFormatter()->getCascadeOption($foreign->parseComment('cascade')),
                 'fetch' => $this->getFormatter()->getFetchOption($foreign->parseComment('fetch')),
             );
