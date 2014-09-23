@@ -45,6 +45,8 @@ class Column extends BaseColumn
         }
         if ($this->isNotNull()) {
             $values['nullable'] = false;
+        }else{
+            $values['nullable'] = true;
         }
         if($this->isUnsigned()) {
             $values['unsigned'] = true;
