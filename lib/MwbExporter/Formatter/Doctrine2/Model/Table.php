@@ -113,7 +113,7 @@ class Table extends BaseTable
      */
     public function getRelatedVarName($name, $related = null, $plural = false)
     {
-        $name = $related ? strtr($this->getConfig()->get(Formatter::CFG_RELATED_VAR_NAME_FORMAT), array('%name%' => $name, '%related%' => $related)) : $name;
+        $name = $related ? strtr($this->getConfig()->get(Formatter::CFG_RELATED_VAR_NAME_FORMAT), array('%name%' => "", '%related%' => $related)) : $name;
 
         return $plural ? Inflector::pluralize($name) : $name;
     }

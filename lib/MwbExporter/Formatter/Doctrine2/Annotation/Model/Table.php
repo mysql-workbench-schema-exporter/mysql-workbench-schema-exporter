@@ -305,6 +305,21 @@ class Table extends BaseTable
                 ->close()
             ;
         }
+        if ($this->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) &&
+                !$writer->getStorage()->hasFile("Repository/" . $this->getModelName() . "Repository.php")) 
+        {
+            $writer->open("Repository/" . $this->getModelName() . "Repository.php")
+                    ->write('<?php')
+                    ->write('')
+                    ->write('namespace %s;', substr($repositoryNamespace, 0, -1))
+                    ->write('')
+                    ->write('use Doctrine\ORM\EntityRepository;')
+                    ->write('')
+                    ->write('class %s extends EntityRepository', $this->getClassName() . "Repository")
+                    ->write('{')
+                    ->write('}')
+                    ->close();
+        }        
     }
 
     /**
@@ -468,6 +483,7 @@ class Table extends BaseTable
             $annotationOptions = array(
                 'targetEntity' => $targetEntityFQCN,
                 'mappedBy' => lcfirst($this->getRelatedVarName($mappedBy, $related)),
+                //'mappedBy' =>  $related==""? lcfirst($mappedBy) :$related,
                 'cascade' => $this->getFormatter()->getCascadeOption($local->parseComment('cascade')),
                 'fetch' => $this->getFormatter()->getFetchOption($local->parseComment('fetch')),
                 'orphanRemoval' => $this->getFormatter()->getBooleanOption($local->parseComment('orphanRemoval')),
@@ -524,6 +540,7 @@ class Table extends BaseTable
             $annotationOptions = array(
                 'targetEntity' => $targetEntityFQCN,
                 'inversedBy' => $foreign->isUnidirectional() ? null : lcfirst($this->getRelatedVarName($inversedBy, $related, true)),
+                //'inversedBy' => $foreign->isUnidirectional() ? null : $related==""? lcfirst($inversedBy):$related,
                 'cascade' => $this->getFormatter()->getCascadeOption($foreign->parseComment('cascade')),
                 'fetch' => $this->getFormatter()->getFetchOption($foreign->parseComment('fetch')),
             );

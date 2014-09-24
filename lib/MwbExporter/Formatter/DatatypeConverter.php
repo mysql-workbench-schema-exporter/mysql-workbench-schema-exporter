@@ -50,6 +50,11 @@ abstract class DatatypeConverter implements DatatypeConverterInterface
      */
     public function getDataType($key)
     {
+        if (! isset($this->dataTypes[$key]) ) {
+            if (! strpos ( $key,"_") === false ) {
+                $key = substr($key, 0, strpos ( $key,"_") );
+            }
+        }
         return isset($this->dataTypes[$key]) ? $this->dataTypes[$key] : null;
     }
 

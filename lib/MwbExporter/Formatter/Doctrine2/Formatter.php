@@ -36,6 +36,7 @@ abstract class Formatter extends BaseFormatter
     const CFG_REPOSITORY_NAMESPACE           = 'repositoryNamespace';
     const CFG_AUTOMATIC_REPOSITORY           = 'useAutomaticRepository';
     const CFG_RELATED_VAR_NAME_FORMAT        = 'relatedVarNameFormat';
+    const CFG_RELATED_PREFIX                 = 'relatedPrefix';
 
     protected function init()
     {
@@ -46,6 +47,7 @@ abstract class Formatter extends BaseFormatter
             static::CFG_REPOSITORY_NAMESPACE          => '',
             static::CFG_AUTOMATIC_REPOSITORY          => true,
             static::CFG_RELATED_VAR_NAME_FORMAT       => '%name%%related%',
+            static::CFG_RELATED_PREFIX                => 'relateByaa',
         ));
     }
 
