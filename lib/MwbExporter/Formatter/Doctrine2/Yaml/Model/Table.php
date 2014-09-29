@@ -124,6 +124,9 @@ class Table extends BaseTable
                 }
                 $values['id'][$column->getColumnName()] = $column->asYAML();
             } else {
+                if ($column->isIgnored()) {
+                    continue;
+                }
                 if (!isset($values['fields'])) {
                     $values['fields'] = array();
                 }

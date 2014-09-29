@@ -74,4 +74,27 @@ class Column extends BaseColumn
 
         return $isNullable === static::NULLABLE_DEFAULT ? ($this->isAlwaysNullable() ? $isNullable : null) : $isNullable;
     }
+
+    /**
+     * Check if column is ignored.
+     *
+     * @return boolean
+     */
+    public function isIgnored()
+    {
+        // don't ignore primary key
+        if ($this->isPrimary) {
+            return false;
+        }
+        // don't ignore when configuration is not set
+        if (!$this->getConfig()->get(Formatter::CFG_SKIP_COLUMN_WITH_RELATION)) {
+            return false;
+        }
+        // don't ignore when column has no relation
+        if (0 === (count($this->getLocalForeignKeys()) + count($this->getForeignKeys()))) {
+            return false;
+        }
+
+        return true;
+    }
 }

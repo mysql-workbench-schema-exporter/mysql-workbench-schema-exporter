@@ -120,18 +120,4 @@ class Column extends BaseColumn
 
         return $attributes;
     }
-
-    /**
-     * Check if column is ignored.
-     *
-     * @return boolean
-     */
-    protected function isIgnored()
-    {
-        if ($this->getConfig()->get(Formatter::CFG_SKIP_COLUMN_WITH_MANY_RELATION) && !$this->isPrimary() && (count($this->getLocalForeignKeys()) || $this->hasOneToManyRelation())) {
-            return true;
-        }
-
-        return false;
-    }
 }

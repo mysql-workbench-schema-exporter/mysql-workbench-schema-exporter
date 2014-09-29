@@ -35,7 +35,6 @@ class Formatter extends BaseFormatter
 {
     const CFG_ANNOTATION_PREFIX              = 'useAnnotationPrefix';
     const CFG_SKIP_GETTER_SETTER             = 'skipGetterAndSetter';
-    const CFG_SKIP_COLUMN_WITH_MANY_RELATION = 'skipColumnWithManyRelation';
     const CFG_GENERATE_ENTITY_SERIALIZATION  = 'generateEntitySerialization';
     const CFG_GENERATE_EXTENDABLE_ENTITY     = 'generateExtendableEntity';
     const CFG_QUOTE_IDENTIFIER_STRATEGY      = 'quoteIdentifierStrategy';
@@ -52,7 +51,6 @@ class Formatter extends BaseFormatter
             static::CFG_FILENAME                        => '%entity%.%extension%',
             static::CFG_ANNOTATION_PREFIX               => 'ORM\\',
             static::CFG_SKIP_GETTER_SETTER              => false,
-            static::CFG_SKIP_COLUMN_WITH_MANY_RELATION  => false,
             static::CFG_GENERATE_ENTITY_SERIALIZATION   => true,
             static::CFG_GENERATE_EXTENDABLE_ENTITY      => false,
             static::CFG_QUOTE_IDENTIFIER_STRATEGY       => static::QUOTE_IDENTIFIER_AUTO,
