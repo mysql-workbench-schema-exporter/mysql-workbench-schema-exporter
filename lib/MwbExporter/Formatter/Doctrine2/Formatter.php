@@ -177,6 +177,10 @@ abstract class Formatter extends BaseFormatter
         return $deleteRule;
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Formatter\Formatter::getCommentTagPrefixes()
+     */
     protected function getCommentTagPrefixes()
     {
         return array_merge(parent::getCommentTagPrefixes(), array('d', 'doctrine'));
