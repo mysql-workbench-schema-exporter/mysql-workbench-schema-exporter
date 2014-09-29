@@ -59,6 +59,7 @@ class DatatypeConverter extends BaseDatatypeConverter
             static::DATATYPE_MEDIUMBLOB         => 'string',
             static::DATATYPE_LONGBLOB           => 'string',
             static::DATATYPE_DATETIME           => 'date',
+            static::DATATYPE_DATETIME_F         => 'date',
             static::DATATYPE_DATE               => 'date',
             static::DATATYPE_TIME               => 'date',
             static::DATATYPE_YEAR               => 'int',

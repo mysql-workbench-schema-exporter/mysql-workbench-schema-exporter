@@ -59,6 +59,7 @@ class Column extends BaseColumn
                 break;
 
             case $this->getColumnType() === DatatypeConverter::DATATYPE_DATETIME:
+            case $this->getColumnType() === DatatypeConverter::DATATYPE_DATETIME_F:
             case $this->getColumnType() === DatatypeConverter::DATATYPE_TIMESTAMP:
                 $type = 'xdatetime';
                 break;

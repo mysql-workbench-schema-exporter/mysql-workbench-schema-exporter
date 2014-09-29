@@ -52,6 +52,7 @@ interface DatatypeConverterInterface
     const DATATYPE_MEDIUMBLOB          = 'com.mysql.rdbms.mysql.datatype.mediumblob';
     const DATATYPE_LONGBLOB            = 'com.mysql.rdbms.mysql.datatype.longblob';
     const DATATYPE_DATETIME            = 'com.mysql.rdbms.mysql.datatype.datetime';
+    const DATATYPE_DATETIME_F          = 'com.mysql.rdbms.mysql.datatype.datetime_f';
     const DATATYPE_DATE                = 'com.mysql.rdbms.mysql.datatype.date';
     const DATATYPE_TIME                = 'com.mysql.rdbms.mysql.datatype.time';
     const DATATYPE_YEAR                = 'com.mysql.rdbms.mysql.datatype.year';
