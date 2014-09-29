@@ -28,6 +28,7 @@
 namespace MwbExporter\Formatter\Doctrine2;
 
 use MwbExporter\Formatter\Formatter as BaseFormatter;
+use MwbExporter\Validator\ChoiceValidator;
 
 abstract class Formatter extends BaseFormatter
 {
@@ -36,6 +37,10 @@ abstract class Formatter extends BaseFormatter
     const CFG_REPOSITORY_NAMESPACE           = 'repositoryNamespace';
     const CFG_AUTOMATIC_REPOSITORY           = 'useAutomaticRepository';
     const CFG_RELATED_VAR_NAME_FORMAT        = 'relatedVarNameFormat';
+    const CFG_NULLABLE_ATTRIBUTE             = 'nullableAttribute';
+
+    const NULLABLE_AUTO                      = 'auto';
+    const NULLABLE_ALWAYS                    = 'always';
 
     protected function init()
     {
@@ -46,6 +51,10 @@ abstract class Formatter extends BaseFormatter
             static::CFG_REPOSITORY_NAMESPACE          => '',
             static::CFG_AUTOMATIC_REPOSITORY          => true,
             static::CFG_RELATED_VAR_NAME_FORMAT       => '%name%%related%',
+            static::CFG_NULLABLE_ATTRIBUTE            => static::NULLABLE_AUTO,
+        ));
+        $this->addValidators(array(
+            static::CFG_NULLABLE_ATTRIBUTE            => new ChoiceValidator(array(static::NULLABLE_AUTO, static::NULLABLE_ALWAYS)),
         ));
     }
 

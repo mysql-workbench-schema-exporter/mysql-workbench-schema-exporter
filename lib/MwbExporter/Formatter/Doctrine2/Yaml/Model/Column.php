@@ -43,8 +43,8 @@ class Column extends BaseColumn
             $values['precision'] = (int) $precision;
             $values['scale'] = (int) $scale;
         }
-        if ($this->isNotNull()) {
-            $values['nullable'] = false;
+        if ($this->isNullableRequired()) {
+            $values['nullable'] = $this->getNullableValue();
         }
         if($this->isUnsigned()) {
             $values['unsigned'] = true;

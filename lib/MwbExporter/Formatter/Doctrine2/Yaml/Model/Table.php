@@ -302,11 +302,11 @@ class Table extends BaseTable
             $joins[] = array(
                 'name'                  => $lcols[$i]->getColumnName(),
                 'referencedColumnName'  => $fcols[$i]->getColumnName(),
-                'nullable'              => $lcols[$i]->isNotNull() ? false : null,
+                'nullable'              => $lcols[$i]->getNullableValue(),
                 'onDelete'              => $onDelete,
             );
         }
-    
+
         return count($joins) > 1 ? array('joinColumns' => $this->convertJoinColumns($joins)) : array('joinColumn' => $joins[0]);
     }
 

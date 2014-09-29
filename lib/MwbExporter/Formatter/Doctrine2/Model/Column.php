@@ -27,6 +27,7 @@
 namespace MwbExporter\Formatter\Doctrine2\Model;
 
 use MwbExporter\Model\Column as BaseColumn;
+use MwbExporter\Formatter\Doctrine2\Formatter;
 
 class Column extends BaseColumn
 {
@@ -34,4 +35,43 @@ class Column extends BaseColumn
     const RELATION_ONE_TO_MANY = '1:M';
     const RELATION_MANY_TO_ONE = 'M:1';
     const RELATION_MANY_TO_MANY = 'M:M';
+
+    /**
+     * Current Doctrine default value for nullable column attribute.
+     */
+    const NULLABLE_DEFAULT = false;
+
+    /**
+     * Is nullable attribute always required.
+     *
+     * @return boolean
+     */
+    protected function isAlwaysNullable()
+    {
+        return $this->getConfig()->get(Formatter::CFG_NULLABLE_ATTRIBUTE) === Formatter::NULLABLE_ALWAYS;
+    }
+
+    /**
+     * Is nullable attribute required.
+     *
+     * @return boolean
+     */
+    public function isNullableRequired()
+    {
+        $isNullable = !$this->isNotNull();
+
+        return $isNullable === static::NULLABLE_DEFAULT ? ($this->isAlwaysNullable() ? true : false) : true;
+    }
+
+    /**
+     * Get nullable attribute value.
+     *
+     * @return boolean
+     */
+    public function getNullableValue()
+    {
+        $isNullable = !$this->isNotNull();
+
+        return $isNullable === static::NULLABLE_DEFAULT ? ($this->isAlwaysNullable() ? $isNullable : null) : $isNullable;
+    }
 }
