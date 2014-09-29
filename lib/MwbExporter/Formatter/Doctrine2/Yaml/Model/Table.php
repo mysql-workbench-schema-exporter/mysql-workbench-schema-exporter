@@ -316,6 +316,6 @@ class Table extends BaseTable
      */
     protected function getVars()
     {
-        return array_merge(parent::getVars(), array('%entity%' => str_replace('\\', '.', $this->getModelNameAsFQCN())));
+        return array_merge(parent::getVars(), array('%entity-fqcn%' => str_replace('\\', '.', $this->getModelNameAsFQCN())));
     }
 }
