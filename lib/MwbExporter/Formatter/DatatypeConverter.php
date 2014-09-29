@@ -50,7 +50,14 @@ abstract class DatatypeConverter implements DatatypeConverterInterface
      */
     public function getDataType($key)
     {
-        return isset($this->dataTypes[$key]) ? $this->dataTypes[$key] : null;
+        // check for existing datatype, and raise an exception
+        // if it doesn't exist. Usefull when new data type defined
+        // in the new version of MySQL Workbench
+        if (!isset($this->dataTypes[$key])) {
+            throw new \RuntimeException(sprintf('Unknown data type "%s".', $key));
+        }
+
+        return $this->dataTypes[$key];
     }
 
     /**
