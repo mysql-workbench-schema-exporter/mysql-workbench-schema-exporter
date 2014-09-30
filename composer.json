@@ -28,7 +28,7 @@
 	"require" : {
 		"php" : ">=5.3.0",
 		"doctrine/inflector" : "1.0.*@dev",
-		"symfony/yaml" : "2.6.*@dev"
+		"symfony/yaml" : "2.5.*@dev"
 	},
 	"bin" : [
 		"bin/mysql-workbench-schema-export",
