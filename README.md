@@ -4,17 +4,18 @@ README
 What is MySQL Workbench Schema Exporter?
 ----------------------------------------
 
-[MySQL Workbench](http://www.mysql.com/products/workbench/) Schema Exporter is
-a library to transform the MySQL Workbench model (`*.mwb`) to useful another
-schemas.
+[MySQL Workbench](http://www.mysql.com/products/workbench/) Schema Exporter is a library to
+transform the MySQL Workbench model (`*.mwb`) to useful another schemas.
 
-It is inspired by [mysql-workbench-doctrine-plugin](http://code.google.com/p/mysql-workbench-doctrine-plugin/).
+It is inspired by
+[mysql-workbench-doctrine-plugin](http://code.google.com/p/mysql-workbench-doctrine-plugin/).
 
-Currently, MySQL Workbench Schema Exporter can export the model to the
-following schemas:
+Currently, MySQL Workbench Schema Exporter can export the model to the following schemas:
 
-  * Doctrine 1.0 [YAML Schema](http://docs.doctrine-project.org/projects/doctrine1/en/latest/en/manual/yaml-schema-files.html).
-  * Doctrine 2.0 [YAML Schema](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/yaml-mapping.html),
+  * Doctrine 1.0
+    [YAML Schema](http://docs.doctrine-project.org/projects/doctrine1/en/latest/en/manual/yaml-schema-files.html).
+  * Doctrine 2.0
+    [YAML Schema](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/yaml-mapping.html),
     [Annotation Classes](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/annotations-reference.html)
     or Annotation Classes with [Zend Framework 2](http://framework.zend.com/)
     [Input Filter support](http://framework.zend.com/manual/2.1/en/modules/zend.input-filter.intro.html).
@@ -32,13 +33,27 @@ Prerequisites
   * PHP 5.3+
   * Composer to install the dependencies
 
-Installing Dependencies
------------------------
+Installation
+------------
 
-To fetch the defined dependencies into your local project, just run the
-`install` command of `composer.phar`.
+### Stand alone
 
-    $ php composer.phar install
+  1. Get the source code using Git or
+    [download](https://github.com/johmue/mysql-workbench-schema-exporter/releases) from Github.
+  2. Get [composer](http://getcomposer.org/).
+  3. Install dependencies:
+
+        php composer.phar install
+
+  4. You then can invoke the CLI script using `bin/mysql-workbench-schema-export`.
+
+### Using Composer
+
+  1. In your project directory issue:
+
+        php composer.phar require --dev mysql-workbench-schema-exporter/mysql-workbench-schema-exporter=dev-master
+
+  2. You then can invoke the CLI script using `vendor/bin/mysql-workbench-schema-export`.
 
 Configuring MySQL Workbench Schema Exporter
 -------------------------------------------
@@ -48,8 +63,8 @@ MySQL Workbench Schema Exporter can be configured at runtime using methods:
   * Setup options.
   * Model comment, either applied to table, column, or foreign key object.
 
-Both methods accept different options, and generally divided as common options
-and exporter (formatter) specific options.
+Both methods accept different options, and generally divided as common options and exporter
+(formatter) specific options.
 
 ### Common Setup Options
 
@@ -57,8 +72,8 @@ General options applied to all formatter.
 
   * `filename`
 
-    The output filename format, use the following tag `%schema%`, `%table%`, `%entity%`, and `%extension%` to allow
-    the filename to be replaced with contextual data.
+    The output filename format, use the following tag `%schema%`, `%table%`, `%entity%`, and
+    `%extension%` to allow the filename to be replaced with contextual data.
 
     Default is `%entity%.%extension%`.
 
@@ -68,7 +83,8 @@ General options applied to all formatter.
 
   * `useTabs`
 
-    Use tabs for indentation instead of spaces. Setting this option will ignore the `indentation`-option.
+    Use tabs for indentation instead of spaces. Setting this option will ignore the
+    `indentation`-option.
 
   * `eolDelimeter`
 
@@ -113,7 +129,8 @@ General options applied to all formatter.
 
   * `logFile`
 
-    If specified, output the log to a file. If this option presence, option `logToConsole` will be ignored instead.
+    If specified, output the log to a file. If this option presence, option `logToConsole` will be
+    ignored instead.
 
     Default is `empty`.
 
@@ -121,12 +138,13 @@ General options applied to all formatter.
 
   * `{MwbExporter:external}true{/MwbExporter:external}` (applied to Table, View)
 
-    Mark table/view as external to skip table/view code generation. For Doctrine use `{d:external}true{/d:external}` instead.
+    Mark table/view as external to skip table/view code generation. For Doctrine use
+    `{d:external}true{/d:external}` instead.
 
 Formatter Setup Options
 -----------------------
 
-### Doctrine
+### Doctrine 1.0
 
 #### Doctrine 1.0 YAML Schema
 
@@ -156,9 +174,9 @@ Formatter Setup Options
 
     To replace relations name by the name of the foreign key, start the foreign key name with `d:`.
 
-#### Doctrine 2.0 YAML Schema
+### Doctrine 2.0
 
-##### Setup Options
+Common Setup Options for Doctrine 2.0:
 
   * `useAutomaticRepository`
 
@@ -176,7 +194,33 @@ Formatter Setup Options
 
   * `repositoryNamespace`
 
-    The namespace prefix for entity repository class name. For this configuration to apply, `useAutomaticRepository` must be set to `true`.
+    The namespace prefix for entity repository class name. For this configuration to apply,
+    `useAutomaticRepository` must be set to `true`.
+
+  * `skipColumnWithRelation`
+
+    Don't generate columns definition (for YAML) or columns variable and columns getter and setter
+    (for Annotation) which has relation to other table.
+
+    Default is `false`.
+
+  * `relatedVarNameFormat`
+
+    The format for generated related column name.
+
+    Default is `%name%%related%`.
+
+  * `nullableAttribute`
+
+    How nullable attribute of columns and joins is generated. Set to `auto` if you want to
+    automatically include nullable attribute based on its value. Set to `always` to always
+    include nullable attribute.
+
+    Default is `auto`.
+
+#### Doctrine 2.0 YAML Schema
+
+##### Setup Options
 
   * `extendTableNameWithSchemaName`
 
@@ -194,32 +238,9 @@ Formatter Setup Options
 
     Default is `ORM\`.
 
-  * `useAutomaticRepository`
-
-    See above.
-
-  * `bundleNamespace`
-
-    See above.
-
-  * `entityNamespace`
-
-    See above.
-
-  * `repositoryNamespace`
-
-    See above.
-
   * `skipGetterAndSetter`
 
     Don't generate columns getter and setter.
-
-    Default is `false`.
-
-  * `skipColumnWithManyRelation`
-
-    Don't generate columns variable and columns getter and setter which has
-    many to relation to other table.
 
     Default is `false`.
 
@@ -231,9 +252,9 @@ Formatter Setup Options
 
   * `generateExtendableEntity`
 
-    Generate two class for each tables in schema, one for base and one other
-    for extend class. The extend class would not be generated if it already
-    exist. So it is safe to place custom code inside the extend class.
+    Generate two class for each tables in schema, one for base and one other for extend class.
+    The extend class would not be generated if it already exist. So it is safe to place custom code
+    inside the extend class.
 
     This option will generate entity using Single Table Inheritance.
 
@@ -241,8 +262,8 @@ Formatter Setup Options
 
   * `quoteIdentifierStrategy`
 
-    This option determine wheter identifier quoting is applied or not, depend on the
-    strategy value.
+    This option determine wheter identifier quoting is applied or not, depend on the strategy
+    value.
 
     * `auto`, indentifier quoting enabled if identifier is a reserved word.
     * `always`, always quote identifier.
@@ -258,39 +279,37 @@ Formatter Setup Options
 
   * `{d:m2m}false{/d:m2m}` (applied to Table)
 
-    MySQL Workbench Schema Exporter tries to automatically guess which tables
-    are many-to-many mapping tables and will not generate entity classes for
-    these tables.
+    MySQL Workbench Schema Exporter tries to automatically guess which tables are many-to-many
+    mapping tables and will not generate entity classes for these tables.
 
-    A table is considered a mapping table, if it contains exactly two foreign
-    keys to different tables and those tables are not many-to-many mapping tables.
+    A table is considered a mapping table, if it contains exactly two foreign keys to different
+    tables and those tables are not many-to-many mapping tables.
 
-    Sometimes this guessing is incorrect for you. But you can add a hint in the
-    comment of the table, to show that it is no mapping table. Just use
-    `{d:m2m}false{/d:m2m}` anywhere in the comment of the table.
+    Sometimes this guessing is incorrect for you. But you can add a hint in the comment of the
+    table, to show that it is no mapping table. Just use `{d:m2m}false{/d:m2m}` anywhere in the
+    comment of the table.
 
   * `{d:unidirectional}true{/d:unidirectional}` (applied to ForeignKey)
 
-    All foreign keys will result in a bidirectional relation by default. If you
-    only want a unidirectional relation, add a flag to the comment of the
-    foreign key.
+    All foreign keys will result in a bidirectional relation by default. If you only want a
+    unidirectional relation, add a flag to the comment of the foreign key.
 
   * `{d:owningSide}true{/d:owningSide}` (applied to ForeignKey)
 
-    In a bi-directional many-to-many mapping table the owning side of the
-    relation is randomly selected. If you add this hint to one foreign key of
-    the m2m-table, you can define the owning side for Doctrine.
+    In a bi-directional many-to-many mapping table the owning side of the relation is randomly
+    selected. If you add this hint to one foreign key of the m2m-table, you can define the owning
+    side for Doctrine.
 
   * `{d:cascade}persist, merge, remove, detach, all{/d:cascade}` (applied to ForeignKey)
 
-    You can specify Doctrine cascade options as a comment on a foreign key.
-    They will be generated into the Annotation.
+    You can specify Doctrine cascade options as a comment on a foreign key. They will be generated
+    into the Annotation.
     ([Reference](http://doctrine-orm.readthedocs.org/en/latest/reference/working-with-associations.html#transitive-persistence-cascade-operations))
 
   * `{d:fetch}EAGER{/d:fetch}` (applied to ForeignKey)
 
-    You can specify the fetch type for relations in the comment of a foreign
-    key. (EAGER or LAZY, doctrine default is LAZY)
+    You can specify the fetch type for relations in the comment of a foreign key. (EAGER or LAZY,
+    doctrine default is LAZY)
 
   * `{d:orphanRemoval}true{/d:orphanRemoval}` (applied to ForeignKey)
 
@@ -299,8 +318,8 @@ Formatter Setup Options
 
   * `{d:order}column{/d:order}` (applied to ForeignKey)
 
-    Apply OrderBy annotation to One To Many and Many To Many relation. OrderBy
-    annotation can be written in the following format:
+    Apply OrderBy annotation to One To Many and Many To Many relation. OrderBy annotation can be
+    written in the following format:
 
         column[,(asc|desc)]
 
@@ -313,9 +332,9 @@ Formatter Setup Options
 
 #### Doctrine 2.0 Annotation with ZF2 Input Filter Classes
 
-Doctrine 2.0 Annotation with ZF2 Input Filter Classes formatter directly
-extend Doctrine 2.0 Annotation. The setup options and model comment behavior
-exactly the same as Doctrine 2.0 Annotation with the following addons. 
+Doctrine 2.0 Annotation with ZF2 Input Filter Classes formatter directly extend Doctrine 2.0
+Annotation. The setup options and model comment behavior exactly the same as Doctrine 2.0
+Annotation with the following addons. 
 
 ##### Setup Options
 
@@ -353,8 +372,8 @@ exactly the same as Doctrine 2.0 Annotation with the following addons.
 
   * `generateSimpleColumn`
 
-    If enabled, use simple column definition. Table columns considered as
-    simple column are `created_at` and `updated_at`. 
+    If enabled, use simple column definition. Table columns considered as simple column are
+    `created_at` and `updated_at`. 
 
     Default is `false`.
 
@@ -506,9 +525,9 @@ Options:
 
   * `--export=type`
 
-  Choose the result of the export, supported type can be obtained using
-  `--list-exporter`. If this option is omitted and no config file found,
-  the CLI will prompt to choose which exporter to use.
+  Choose the result of the export, supported type can be obtained using `--list-exporter`.
+  If this option is omitted and no config file found, the CLI will prompt to choose which exporter
+  to use.
 
   * `--config=file`
 
@@ -516,8 +535,7 @@ Options:
 
   * `--saveconfig`
 
-  Save export parameters to file `export.json`, later can be used as value for
-  `--config=file`.
+  Save export parameters to file `export.json`, later can be used as value for `--config=file`.
 
   * `--list-exporter`
 
@@ -564,8 +582,8 @@ Sample export paramaters (JSON) for doctrine2-annotation:
 Using MySQL Workbench Schema Exporter as Library
 ------------------------------------------------
 
-If you want to use MySQL Workbench Schema Exporter as a library for other
-project. See the included usage in the `example` folder.
+If you want to use MySQL Workbench Schema Exporter as a library for other project. See the included
+usage in the `example` folder.
 
 Test Database
 -------------
