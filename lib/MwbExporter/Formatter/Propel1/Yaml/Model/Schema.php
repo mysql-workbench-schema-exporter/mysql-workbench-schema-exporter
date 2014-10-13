@@ -48,7 +48,7 @@ class Schema extends BaseSchema
         $yaml = new YAML($data, array(
             'indent' => $indent,
             'inline' => true,
-            'inline_size' => $this->getInlineSize($data) + (($this->getArrayLevel($data) - 1) * $indent),
+            'inline_size' => $this->getInlineSize($data, 0, $indent),
         ));
         $writer
             ->open($this->getDocument()->translateFilename(null, $this))
@@ -95,17 +95,20 @@ class Schema extends BaseSchema
      * Get the longest length for inline indentation.
      *
      * @param array $data
+     * @param int $level
+     * @param int $indent
      * @return int
      */
-    protected function getInlineSize($data)
+    protected function getInlineSize($data, $level = 0, $indent = 2)
     {
         $size = 0;
+        $isz = $level * $indent;
         if (is_array($data)) {
             foreach ($data as $k => $v) {
                 if (in_array($k, $this->inline_keys) && is_array($v)) {
-                    $size = max(array($size, $this->getMaxKeysLength($v)));
+                    $size = max(array($size, $isz + $indent + $this->getMaxKeysLength($v)));
                 } else {
-                    $size = max(array($size, $this->getInlineSize($v)));
+                    $size = max(array($size, $this->getInlineSize($v, $level + 1, $indent)));
                 }
             }
         }
@@ -129,26 +132,5 @@ class Schema extends BaseSchema
         }
 
         return $len;
-    }
-
-    /**
-     * Get the nesting level of array.
-     *
-     * @param array $array
-     * @return int
-     */
-    protected function getArrayLevel($array)
-    {
-        $level = 0;
-        if (is_array($array)) {
-            $level++;
-            $clevel = 0;
-            foreach ($array as $v) {
-                $clevel = max(array($clevel, $level + $this->getArrayLevel($v)));
-            }
-            $level = max(array($level, $clevel));
-        }
-
-        return $level;
     }
 }
