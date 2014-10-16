@@ -117,4 +117,23 @@ class Table extends BaseTable
 
         return $plural ? Inflector::pluralize($name) : $name;
     }
+
+    /**
+     * Format column name as relation to foreign table.
+     *
+     * @param string $column  The column name
+     * @param bool   $code    If true, use result as PHP code or false, use as comment
+     * @return string
+     */
+    public function formatRelatedName($column, $code = true)
+    {
+        if($code) {
+            $format = $this->getConfig()->get(Formatter::CFG_RELATED_NAME_FORMAT);
+            $column = $this->beautify($column);
+        } else {
+            $format = 'related by `%foreignCol%`';
+        }
+
+        return strtr($format, array('%foreignCol%' => $column));
+    }
 }
