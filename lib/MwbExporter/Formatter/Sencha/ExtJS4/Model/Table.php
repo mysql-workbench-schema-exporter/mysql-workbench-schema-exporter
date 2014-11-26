@@ -78,6 +78,14 @@ class Table extends BaseTable
     public function asModel()
     {
         $result = array('extend' => $this->getParentClass());
+
+        if ($this->getConfig()->get(Formatter::CFG_ADD_IDPROPERTY)) {
+            $primaryKeyColumnName = $this->getPrimaryKey();
+            if ($primaryKeyColumnName) {
+                $result['idProperty'] = $primaryKeyColumnName;
+            }
+        }
+
         if (count($data = $this->getUses())) {
             $result['uses'] = $data;
         }
@@ -233,6 +241,22 @@ class Table extends BaseTable
         }
 
         return $result;
+    }
+
+    /**
+     * Get the column name of the column that is the primary key. Returns null if no primary key is defined.
+     *
+     * @return string|null
+     */
+    protected function getPrimaryKey()
+    {
+        foreach ($this->getColumns() as $column) {
+            if ($column->isPrimary()) {
+                return $column->getColumnName();
+            }
+        }
+
+        return null;
     }
 
     /**
