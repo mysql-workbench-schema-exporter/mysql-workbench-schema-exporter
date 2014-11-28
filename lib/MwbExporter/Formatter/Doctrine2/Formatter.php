@@ -37,6 +37,7 @@ abstract class Formatter extends BaseFormatter
     const CFG_REPOSITORY_NAMESPACE           = 'repositoryNamespace';
     const CFG_AUTOMATIC_REPOSITORY           = 'useAutomaticRepository';
     const CFG_SKIP_COLUMN_WITH_RELATION      = 'skipColumnWithRelation';
+    const CFG_RELATED_NAME_FORMAT            = 'relatedNameFormat';
     const CFG_RELATED_VAR_NAME_FORMAT        = 'relatedVarNameFormat';
     const CFG_NULLABLE_ATTRIBUTE             = 'nullableAttribute';
 
@@ -52,6 +53,7 @@ abstract class Formatter extends BaseFormatter
             static::CFG_REPOSITORY_NAMESPACE          => '',
             static::CFG_AUTOMATIC_REPOSITORY          => true,
             static::CFG_SKIP_COLUMN_WITH_RELATION     => false,
+            static::CFG_RELATED_NAME_FORMAT           => 'RelatedBy%foreignCol%',
             static::CFG_RELATED_VAR_NAME_FORMAT       => '%name%%related%',
             static::CFG_NULLABLE_ATTRIBUTE            => static::NULLABLE_AUTO,
         ));
