@@ -492,6 +492,13 @@ Annotation with the following addons.
     Generate ajax proxy.
 
     Default is `true`.
+    
+  * `addIdProperty`
+    
+    Add the primary key of a table as the model's idProperty.
+    ([Reference](http://docs.sencha.com/extjs/4.2.3/#!/api/Ext.data.Model-cfg-idProperty))
+    
+    Default is `false`.
 
 ### Node
 
@@ -558,7 +565,7 @@ Sample usage:
     php bin/mysql-workbench-schema-export --export=doctrine1-yaml example/data/test.mwb ./generated
     php bin/mysql-workbench-schema-export --zip example/data/test.mwb
 
-Sample export paramaters (JSON) for doctrine2-annotation:
+Sample export parameters (JSON) for doctrine2-annotation:
 
     {
         "export": "doctrine2-annotation",

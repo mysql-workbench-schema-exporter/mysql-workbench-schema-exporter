@@ -35,6 +35,7 @@ class Formatter extends BaseFormatter
 {
     const CFG_GENERATE_VALIDATION    = 'generateValidation';
     const CFG_GENERATE_PROXY         = 'generateProxy';
+    const CFG_ADD_IDPROPERTY         = 'addIdProperty';
 
     /**
      * (non-PHPdoc)
@@ -49,6 +50,7 @@ class Formatter extends BaseFormatter
             static::CFG_PARENT_CLASS         => 'Ext.data.Model',
             static::CFG_GENERATE_VALIDATION  => true,
             static::CFG_GENERATE_PROXY       => true,
+            static::CFG_ADD_IDPROPERTY       => false,
         ));
     }
 
