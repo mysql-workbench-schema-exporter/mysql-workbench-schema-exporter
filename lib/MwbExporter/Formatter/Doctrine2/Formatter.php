@@ -39,9 +39,16 @@ abstract class Formatter extends BaseFormatter
     const CFG_SKIP_COLUMN_WITH_RELATION      = 'skipColumnWithRelation';
     const CFG_RELATED_VAR_NAME_FORMAT        = 'relatedVarNameFormat';
     const CFG_NULLABLE_ATTRIBUTE             = 'nullableAttribute';
+    const CFG_GENERATED_VALUE_STRATEGY       = 'generatedValueStrategy';
 
     const NULLABLE_AUTO                      = 'auto';
     const NULLABLE_ALWAYS                    = 'always';
+
+    const GENERATED_VALUE_AUTO               = 'auto';
+    const GENERATED_VALUE_IDENTITY           = 'identity';
+    const GENERATED_VALUE_SEQUENCE           = 'sequence';
+    const GENERATED_VALUE_TABLE              = 'table';
+    const GENERATED_VALUE_NONE               = 'none';
 
     protected function init()
     {
@@ -54,9 +61,17 @@ abstract class Formatter extends BaseFormatter
             static::CFG_SKIP_COLUMN_WITH_RELATION     => false,
             static::CFG_RELATED_VAR_NAME_FORMAT       => '%name%%related%',
             static::CFG_NULLABLE_ATTRIBUTE            => static::NULLABLE_AUTO,
+            static::CFG_GENERATED_VALUE_STRATEGY      => static::GENERATED_VALUE_AUTO,
         ));
         $this->addValidators(array(
             static::CFG_NULLABLE_ATTRIBUTE            => new ChoiceValidator(array(static::NULLABLE_AUTO, static::NULLABLE_ALWAYS)),
+            static::CFG_GENERATED_VALUE_STRATEGY      => new ChoiceValidator(array(
+                static::GENERATED_VALUE_AUTO,
+                static::GENERATED_VALUE_IDENTITY,
+                static::GENERATED_VALUE_SEQUENCE,
+                static::GENERATED_VALUE_TABLE,
+                static::GENERATED_VALUE_NONE,
+            )),
         ));
     }
 

@@ -218,6 +218,12 @@ Common Setup Options for Doctrine 2.0:
 
     Default is `auto`.
 
+  * `generatedValueStrategy`
+    
+    The stragety for auto-generated values.
+
+    Default is `auto`.
+
 #### Doctrine 2.0 YAML Schema
 
 ##### Setup Options
