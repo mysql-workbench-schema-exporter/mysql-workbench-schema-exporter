@@ -50,7 +50,7 @@ class Column extends BaseColumn
             $values['unsigned'] = true;
         }
         if ($this->isAutoIncrement()) {
-            $values['generator'] = array('strategy' => 'AUTO');
+            $values['generator'] = array('strategy' => strtoupper($this->getConfig()->get(Formatter::CFG_GENERATED_VALUE_STRATEGY)));
         }
 
         return $values;

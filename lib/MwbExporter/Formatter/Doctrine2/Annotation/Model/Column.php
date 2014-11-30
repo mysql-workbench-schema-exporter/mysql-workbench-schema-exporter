@@ -44,7 +44,7 @@ class Column extends BaseColumn
                         ' * '.$this->getTable()->getAnnotation('Id'))
                 ->write(' * '.$this->getTable()->getAnnotation('Column', $this->asAnnotation()))
                 ->writeIf($this->isAutoIncrement(),
-                        ' * '.$this->getTable()->getAnnotation('GeneratedValue', array('strategy' => 'AUTO')))
+                        ' * '.$this->getTable()->getAnnotation('GeneratedValue', array('strategy' => strtoupper($this->getConfig()->get(Formatter::CFG_GENERATED_VALUE_STRATEGY)))))
                 ->write(' */')
                 ->write('protected $'.$this->getColumnName().';')
                 ->write('')
