@@ -28,6 +28,7 @@
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
 use MwbExporter\Formatter\Doctrine2\Model\Column as BaseColumn;
+use MwbExporter\Formatter\Doctrine2\Yaml\Formatter;
 use Doctrine\Common\Inflector\Inflector;
 
 class Column extends BaseColumn
