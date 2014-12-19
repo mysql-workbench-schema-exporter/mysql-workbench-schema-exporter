@@ -455,6 +455,7 @@ class Table extends BaseTable
         // 1 <=> N references
         foreach ($this->getAllLocalForeignKeys() as $local) {
             if ($this->isLocalForeignKeyIgnored($local)) {
+                $this->getDocument()->addLog(sprintf('  Local relation "%s" was ignored', $local->getOwningTable()->getModelName()));
                 continue;
             }
 
@@ -494,9 +495,6 @@ class Table extends BaseTable
             } else {
                 $this->getDocument()->addLog('  Relation considered as "1 <=> 1"');
 
-                $annotationOptions['inversedBy'] = $annotationOptions['mappedBy'];
-                $annotationOptions['mappedBy'] = null;
-
                 $writer
                     ->write('/**')
                     ->write(' * '.$this->getAnnotation('OneToOne', $annotationOptions))
@@ -511,6 +509,7 @@ class Table extends BaseTable
         // N <=> 1 references
         foreach ($this->getAllForeignKeys() as $foreign) {
             if ($this->isForeignKeyIgnored($foreign)) {
+                $this->getDocument()->addLog(sprintf('  Foreign relation "%s" was ignored', $foreign->getOwningTable()->getModelName()));
                 continue;
             }
 
