@@ -498,7 +498,6 @@ class Table extends BaseTable
                 $writer
                     ->write('/**')
                     ->write(' * '.$this->getAnnotation('OneToOne', $annotationOptions))
-                    ->write(' * '.$this->getJoins($local))
                     ->write(' */')
                     ->write('protected $'.lcfirst($targetEntity).';')
                     ->write('')
