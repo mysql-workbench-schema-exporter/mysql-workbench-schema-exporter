@@ -389,4 +389,16 @@ abstract class Base
             return ucfirst($matches[1]);
         }, $underscored_text));
     }
+
+    /**
+     * Get the value for comparing the model for sorting.
+     * Default value taken from the model id.
+     *
+     * @see \MwbExporter\Model\Base::getId()
+     * @return string
+     */
+    public function getSortValue()
+    {
+        return $this->getId();
+    }
 }

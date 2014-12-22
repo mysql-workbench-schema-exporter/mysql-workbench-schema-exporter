@@ -717,4 +717,13 @@ class Table extends Base
 
         return self::WRITE_EXTERNAL;
     }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Model\Base::getSortValue()
+     */
+    public function getSortValue()
+    {
+        return $this->getCategory().$this->getModelName();
+    }
 }
