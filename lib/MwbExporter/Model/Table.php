@@ -673,22 +673,27 @@ class Table extends Base
     public function write(WriterInterface $writer)
     {
         try {
-            switch ($this->writeTable($writer)) {
-                case self::WRITE_OK:
-                    $status = 'OK';
-                    break;
+            if (strlen($category = $this->getConfig()->get(FormatterInterface::CFG_EXPORT_TABLE_CATEGORY)) && 
+                $this->getCategory() != $category) {
+                $status = 'skipped, not in category';
+            } else {
+                switch ($this->writeTable($writer)) {
+                    case self::WRITE_OK:
+                        $status = 'OK';
+                        break;
 
-                case self::WRITE_EXTERNAL:
-                    $status = 'skipped, marked as external';
-                    break;
+                    case self::WRITE_EXTERNAL:
+                        $status = 'skipped, marked as external';
+                        break;
 
-                case self::WRITE_M2M:
-                    $status = 'skipped, M2M table';
-                    break;
+                    case self::WRITE_M2M:
+                        $status = 'skipped, M2M table';
+                        break;
 
-                default:
-                    $status = 'unsupported';
-                    break;
+                    default:
+                        $status = 'unsupported';
+                        break;
+                }
             }
             $this->getDocument()->addLog(sprintf('* %s: %s', $this->getRawTableName(), $status));
         } catch (\Exception $e) {

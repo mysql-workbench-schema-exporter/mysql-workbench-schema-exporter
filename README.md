@@ -121,6 +121,10 @@ General options applied to all formatter.
 
     Default is `true`.
 
+  * `exportOnlyTableCategorized`
+
+    If specified, only export the tables if its category matched.
+
   * `logToConsole`
 
     If enabled, output the log to console.
