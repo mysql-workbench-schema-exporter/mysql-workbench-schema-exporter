@@ -141,6 +141,12 @@ General options applied to all formatter.
     Mark table/view as external to skip table/view code generation. For Doctrine use
     `{d:external}true{/d:external}` instead.
 
+  * `{MwbExporter:category}mycategory{/MwbExporter:category}` (applied to Table)
+
+    Table category used to groups the table for sorting. This way, generated table
+    output can be sorted as you need such as in Propel YAML schema (obviously useful
+    for exporter which results in single file output).
+
 Formatter Setup Options
 -----------------------
 
