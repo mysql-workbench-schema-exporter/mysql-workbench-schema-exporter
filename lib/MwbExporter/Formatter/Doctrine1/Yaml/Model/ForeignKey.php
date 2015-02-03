@@ -30,6 +30,7 @@ namespace MwbExporter\Formatter\Doctrine1\Yaml\Model;
 use MwbExporter\Model\ForeignKey as BaseForeignKey;
 use Doctrine\Common\Inflector\Inflector;
 use MwbExporter\Writer\WriterInterface;
+use MwbExporter\Formatter\FormatterInterface;
 
 class ForeignKey extends BaseForeignKey
 {
@@ -50,9 +51,11 @@ class ForeignKey extends BaseForeignKey
                 ->indent()
                     ->write('class: '.$this->referencedTable->getModelName())
                     ->write('local: '.$this->getLocal()->getColumnName())
-                    ->write('foreign: '.$this->getForeign()->getColumnName())
-                    ->write('foreignAlias: '.(($alias = $this->getForeignAlias()) ? $alias : ($this->isManyToOne() ? Inflector::pluralize($this->referencedTable->getModelName()) : $this->referencedTable->getModelName())))
-                    ->write('onDelete: '.strtolower($this->parameters->get('deleteRule')))
+                    ->write('foreign: '.$this->getForeign()->getColumnName());
+            if ($this->getConfig()->get(FormatterInterface::CFG_SKIP_FOREIGN_ALIAS) != true)
+                $writer->write('foreignAlias: '.(($alias = $this->getForeignAlias()) ? $alias : ($this->isManyToOne() ? Inflector::pluralize($this->referencedTable->getModelName()) : $this->referencedTable->getModelName())));
+            
+                $writer->write('onDelete: '.strtolower($this->parameters->get('deleteRule')))
                     ->write('onUpdate: '.strtolower($this->parameters->get('updateRule')))
                 ->outdent()
             ;

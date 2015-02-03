@@ -39,6 +39,7 @@ interface FormatterInterface {
     const CFG_EOL                    = 'eolDelimeter';
     const CFG_ADD_COMMENT            = 'addGeneratorInfoAsComment';
     const CFG_SKIP_PLURAL            = 'skipPluralNameChecking';
+    const CFG_SKIP_FOREIGN_ALIAS     = 'skipforeignAlias';
     const CFG_BACKUP_FILE            = 'backupExistingFile';
     const CFG_USE_LOGGED_STORAGE     = 'useLoggedStorage';
     const CFG_ENHANCE_M2M_DETECTION  = 'enhanceManyToManyDetection';
