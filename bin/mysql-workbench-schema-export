@@ -250,12 +250,18 @@ function main($filename, $dir, $params, $options)
             die(0);
         }
 
-        // lookup config file export.json
+        // lookup config file export.json in current directory
         if (!$options[CMD_OPT_NO_AUTO_CONFIG] && !$params[CMD_PARAM_CONFIG]) {
             $config = getcwd().DIRECTORY_SEPARATOR.'export.json';
             if (is_readable($config)) {
                 $params[CMD_PARAM_CONFIG] = $config;
-            }
+            }else{
+				// lookup config file export.json in this script directory (global config)
+				$config = dirname(__FILE__).DIRECTORY_SEPARATOR.'export.json';
+				if (is_readable($config)) {
+					$params[CMD_PARAM_CONFIG] = $config;
+				}
+			}
         }
 
         // check config file

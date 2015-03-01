@@ -1,0 +1,18 @@
+ {
+    "export": "doctrine1-yaml",
+    "zip": false,
+    "dir": "application/doctrine/schema",
+    "params": {
+        "backupExistingFile": false,
+        "skipPluralNameChecking": true,
+        "skipForeignAlias": true,
+        "enhanceManyToManyDetection": false,
+        "bundleNamespace": "",
+        "entityNamespace": "",
+        "repositoryNamespace": "",
+        "logToConsole": false,
+        "indentation": 4,
+        "filename": "%entity%.%extension%",
+        "quoteIdentifier": false
+    }
+}

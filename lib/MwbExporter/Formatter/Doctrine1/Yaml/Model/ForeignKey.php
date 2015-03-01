@@ -51,11 +51,11 @@ class ForeignKey extends BaseForeignKey
                 ->indent()
                     ->write('class: '.$this->referencedTable->getModelName())
                     ->write('local: '.$this->getLocal()->getColumnName())
-                    ->write('foreign: '.$this->getForeign()->getColumnName());
-            if ($this->getConfig()->get(FormatterInterface::CFG_SKIP_FOREIGN_ALIAS) != true)
-                $writer->write('foreignAlias: '.(($alias = $this->getForeignAlias()) ? $alias : ($this->isManyToOne() ? Inflector::pluralize($this->referencedTable->getModelName()) : $this->referencedTable->getModelName())));
-            
-                $writer->write('onDelete: '.strtolower($this->parameters->get('deleteRule')))
+                    ->write('foreign: '.$this->getForeign()->getColumnName())            
+                    ->writeIf($this->getConfig()->get(FormatterInterface::CFG_SKIP_FOREIGN_ALIAS) != true,'foreignAlias: '.(($alias = $this->getForeignAlias()) ? $alias : ($this->isManyToOne() ? Inflector::pluralize($this->referencedTable->getModelName()) : $this->referencedTable->getModelName())))
+                    ->write('foreignType: '.(($this->isManyToOne()==false)?'one':'many'))
+                    ->write('owningSide: true')
+                    ->write('onDelete: '.strtolower($this->parameters->get('deleteRule')))
                     ->write('onUpdate: '.strtolower($this->parameters->get('updateRule')))
                 ->outdent()
             ;
