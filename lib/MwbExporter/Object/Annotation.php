@@ -58,7 +58,7 @@ class Annotation extends Base
      * @param bool $topLevel Is this method being called from top level
      * @return string
      */
-    public function asCode($value)
+    public function asCode($value, $level = false, $inlineList = false)
     {
         $topLevel = true;
         if (func_num_args() > 1 && false === func_get_arg(1)) {
@@ -74,15 +74,21 @@ class Annotation extends Base
             $tmp = array();
             $useKey = !$this->isKeysNumeric($value);
             foreach ($value as $k => $v) {
+                $separator = '=';
+                if($inlineList) {
+                    $separator = ':';
+                }
+
                 // skip null value
                 if (null === $v) {
                     continue;
                 }
-                $v = $this->asCode($v, false);
+                $v = $this->asCode($v, false, true);
                 if (false === $topLevel) {
                     $k = sprintf('"%s"', $k);
                 }
-                $tmp[] = $useKey ? sprintf('%s=%s', $k, $v) : $v;
+
+                $tmp[] = $useKey ? sprintf("%s$separator%s", $k, $v) : $v;
             }
             $multiline = $this->getOption('multiline') && count($value) > 1;
             $value = implode($multiline ? ",\n" : ', ', $tmp).($multiline ? "\n" : '');
