@@ -291,7 +291,7 @@ Common Setup Options for Doctrine 2.0:
 
     This option allows you to define a base class from which all generated entities extend.
 
-    Default is `false`.
+    Default is `''`.
 
 ##### Model Comment Behavior
 
