@@ -55,7 +55,7 @@ class Formatter extends BaseFormatter
             static::CFG_GENERATE_ENTITY_SERIALIZATION   => true,
             static::CFG_GENERATE_EXTENDABLE_ENTITY      => false,
             static::CFG_QUOTE_IDENTIFIER_STRATEGY       => static::QUOTE_IDENTIFIER_AUTO,
-            static::CFG_EXTENDS_CLASS                   => false,
+            static::CFG_EXTENDS_CLASS                   => '',
         ));
         $this->addValidators(array(
             static::CFG_QUOTE_IDENTIFIER_STRATEGY       => new ChoiceValidator(array(

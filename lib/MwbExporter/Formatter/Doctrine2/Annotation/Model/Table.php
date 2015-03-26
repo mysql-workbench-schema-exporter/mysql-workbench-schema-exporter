@@ -215,7 +215,8 @@ class Table extends BaseTable
         $extendableEntity    = $this->getConfig()->get(Formatter::CFG_GENERATE_EXTENDABLE_ENTITY);
         $lifecycleCallbacks  = $this->getLifecycleCallbacks();
 
-        $extendsClass = $this->getClassExtends();
+        $extendsClass = $this->getClassToExtend();
+        $implementsInterface = $this->getInterfaceToImplement();
 
         $comment = $this->getComment();
         $writer
@@ -246,7 +247,7 @@ class Table extends BaseTable
             ->writeIf($extendableEntity, ' * '.$this->getAnnotation('DiscriminatorMap', array($this->getInheritanceDiscriminatorMap())))
             ->writeIf($lifecycleCallbacks, ' * @HasLifecycleCallbacks')
             ->write(' */')
-            ->write('class '.$this->getClassName($extendableEntity).$extendsClass)
+            ->write('class '.$this->getClassName($extendableEntity).$extendsClass.$implementsInterface)
             ->write('{')
             ->indent()
                 ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity, $lifecycleCallbacks) {
@@ -345,14 +346,29 @@ class Table extends BaseTable
      *
      * @return string
      */
-    protected function getClassExtends()
+    protected function getClassToExtend()
     {
-        $extends = $this->getConfig()->get(Formatter::CFG_EXTENDS_CLASS);
-        if(empty($extends)) {
-            return "";
+        $class = $this->getConfig()->get(Formatter::CFG_EXTENDS_CLASS);
+        if(empty($class)) {
+            return '';
         }
 
-        return " extends $extends";
+        return " extends $class";
+    }
+
+    /**
+     * Get the class name to implement
+     *
+     * @return string
+     */
+    protected function getInterfaceToImplement()
+    {
+        $interface = $this->getClassImplementations();
+        if(empty($interface)) {
+            return '';
+        }
+
+        return " implements $interface";
     }
 
     /**
