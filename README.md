@@ -287,6 +287,12 @@ Common Setup Options for Doctrine 2.0:
 
     Default is `auto`.
 
+  * `extendsClass`
+
+    This option allows you to define a base class from which all generated entities extend.
+
+    Default is `''`.
+
 ##### Model Comment Behavior
 
   * `{d:bundleNamespace}AcmeBundle{/d:bundleNamespace}` (applied to Table)

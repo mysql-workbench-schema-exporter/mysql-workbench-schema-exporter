@@ -215,6 +215,9 @@ class Table extends BaseTable
         $extendableEntity    = $this->getConfig()->get(Formatter::CFG_GENERATE_EXTENDABLE_ENTITY);
         $lifecycleCallbacks  = $this->getLifecycleCallbacks();
 
+        $extendsClass = $this->getClassToExtend();
+        $implementsInterface = $this->getInterfaceToImplement();
+
         $comment = $this->getComment();
         $writer
             ->open($this->getClassFileName($extendableEntity ? true : false))
@@ -244,7 +247,7 @@ class Table extends BaseTable
             ->writeIf($extendableEntity, ' * '.$this->getAnnotation('DiscriminatorMap', array($this->getInheritanceDiscriminatorMap())))
             ->writeIf($lifecycleCallbacks, ' * @HasLifecycleCallbacks')
             ->write(' */')
-            ->write('class '.$this->getClassName($extendableEntity ? true : false).(($implements = $this->getClassImplementations()) ? ' implements '.$implements : ''))
+            ->write('class '.$this->getClassName($extendableEntity).$extendsClass.$implementsInterface)
             ->write('{')
             ->indent()
                 ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity, $lifecycleCallbacks) {
@@ -330,12 +333,42 @@ class Table extends BaseTable
     }
 
     /**
-     * Get the class name to implements.
+     * Get the class name to implement.
      *
      * @return string
      */
     protected function getClassImplementations()
     {
+    }
+
+    /**
+     * Get the class name to extend
+     *
+     * @return string
+     */
+    protected function getClassToExtend()
+    {
+        $class = $this->getConfig()->get(Formatter::CFG_EXTENDS_CLASS);
+        if(empty($class)) {
+            return '';
+        }
+
+        return " extends $class";
+    }
+
+    /**
+     * Get the class name to implement
+     *
+     * @return string
+     */
+    protected function getInterfaceToImplement()
+    {
+        $interface = $this->getClassImplementations();
+        if(empty($interface)) {
+            return '';
+        }
+
+        return " implements $interface";
     }
 
     /**
