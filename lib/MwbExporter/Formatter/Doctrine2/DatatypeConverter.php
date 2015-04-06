@@ -98,11 +98,14 @@ class DatatypeConverter extends BaseDatatypeConverter
         switch ($type) {
             case 'array':
             case 'boolean':
-            case 'datetime':
             case 'integer':
             case 'string':
             case 'float':
             case 'object':
+                break;
+
+            case 'datetime':
+                return '\\DateTime';
                 break;
 
             case 'smallint':
