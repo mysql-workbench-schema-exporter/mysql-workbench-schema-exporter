@@ -58,12 +58,18 @@ class Annotation extends Base
      * @param bool $topLevel Is this method being called from top level
      * @return string
      */
-    public function asCode($value, $level = false, $inlineList = false)
+    public function asCode($value)
     {
         $topLevel = true;
         if (func_num_args() > 1 && false === func_get_arg(1)) {
             $topLevel = false;
         }
+
+        $inlineList = false;
+        if (func_num_args() > 2) {
+            $inlineList = func_get_arg(2);
+        }
+
         if ($value instanceof Annotation) {
             $value = (string) $value;
         } elseif (is_bool($value)) {
@@ -74,11 +80,6 @@ class Annotation extends Base
             $tmp = array();
             $useKey = !$this->isKeysNumeric($value);
             foreach ($value as $k => $v) {
-                $separator = '=';
-                if($inlineList) {
-                    $separator = ':';
-                }
-
                 // skip null value
                 if (null === $v) {
                     continue;
@@ -88,7 +89,7 @@ class Annotation extends Base
                     $k = sprintf('"%s"', $k);
                 }
 
-                $tmp[] = $useKey ? sprintf("%s$separator%s", $k, $v) : $v;
+                $tmp[] = $useKey ? sprintf("%s%s%s", $k, ($inlineList ? ':' : '='), $v) : $v;
             }
             $multiline = $this->getOption('multiline') && count($value) > 1;
             $value = implode($multiline ? ",\n" : ', ', $tmp).($multiline ? "\n" : '');
