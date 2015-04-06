@@ -293,6 +293,13 @@ Common Setup Options for Doctrine 2.0:
 
     Default is `''`.
 
+  * `propertyTypehint`
+
+    This option allows you to specify whether type-hinting should be enabled for all *non-scalar* properties
+    whose type is a class. E.g. `\DateTime` would be type-hinted but not `object` or `string`.
+
+    Default is `false`.
+
 ##### Model Comment Behavior
 
   * `{d:bundleNamespace}AcmeBundle{/d:bundleNamespace}` (applied to Table)
