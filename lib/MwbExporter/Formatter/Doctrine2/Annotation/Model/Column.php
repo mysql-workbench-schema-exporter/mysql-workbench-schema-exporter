@@ -62,6 +62,9 @@ class Column extends BaseColumn
             $table = $this->getTable();
             $converter = $this->getFormatter()->getDatatypeConverter();
             $nativeType = $converter->getNativeType($converter->getMappedType($this));
+            $shouldTypehintProperties = $this->getConfig()->get(Formatter::CFG_PROPERTY_TYPEHINT);
+            $typehint = $shouldTypehintProperties && class_exists($nativeType) ? "$nativeType " : '';
+
             $writer
                 // setter
                 ->write('/**')
@@ -70,7 +73,7 @@ class Column extends BaseColumn
                 ->write(' * @param '.$nativeType.' $'.$this->getColumnName())
                 ->write(' * @return '.$table->getNamespace())
                 ->write(' */')
-                ->write('public function set'.$this->getBeautifiedColumnName().'($'.$this->getColumnName().')')
+                ->write('public function set'.$this->getBeautifiedColumnName().'('.$typehint.'$'.$this->getColumnName().')')
                 ->write('{')
                 ->indent()
                     ->write('$this->'.$this->getColumnName().' = $'.$this->getColumnName().';')
