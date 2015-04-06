@@ -64,6 +64,12 @@ class Annotation extends Base
         if (func_num_args() > 1 && false === func_get_arg(1)) {
             $topLevel = false;
         }
+
+        $inlineList = false;
+        if (func_num_args() > 2) {
+            $inlineList = func_get_arg(2);
+        }
+
         if ($value instanceof Annotation) {
             $value = (string) $value;
         } elseif (is_bool($value)) {
@@ -78,11 +84,12 @@ class Annotation extends Base
                 if (null === $v) {
                     continue;
                 }
-                $v = $this->asCode($v, false);
+                $v = $this->asCode($v, false, true);
                 if (false === $topLevel) {
                     $k = sprintf('"%s"', $k);
                 }
-                $tmp[] = $useKey ? sprintf('%s=%s', $k, $v) : $v;
+
+                $tmp[] = $useKey ? sprintf("%s%s%s", $k, ($inlineList ? ':' : '='), $v) : $v;
             }
             $multiline = $this->getOption('multiline') && count($value) > 1;
             $value = implode($multiline ? ",\n" : ', ', $tmp).($multiline ? "\n" : '');
