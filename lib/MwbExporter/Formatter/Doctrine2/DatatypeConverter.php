@@ -105,18 +105,15 @@ class DatatypeConverter extends BaseDatatypeConverter
                 break;
 
             case 'datetime':
+            case 'datetimez':
+            case 'date':
+            case 'time':
                 return '\\DateTime';
                 break;
 
             case 'smallint':
             case 'bigint':
                 $type = 'integer';
-                break;
-
-            case 'datetimez':
-            case 'date':
-            case 'time':
-                $type = 'datetime';
                 break;
 
             case 'decimal':
