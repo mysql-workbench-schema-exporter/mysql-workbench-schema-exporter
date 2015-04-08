@@ -54,7 +54,9 @@ interface DatatypeConverterInterface
     const DATATYPE_DATETIME            = 'com.mysql.rdbms.mysql.datatype.datetime';
     const DATATYPE_DATETIME_F          = 'com.mysql.rdbms.mysql.datatype.datetime_f';
     const DATATYPE_DATE                = 'com.mysql.rdbms.mysql.datatype.date';
+    const DATATYPE_DATE_F              = 'com.mysql.rdbms.mysql.datatype.date_f';
     const DATATYPE_TIME                = 'com.mysql.rdbms.mysql.datatype.time';
+    const DATATYPE_TIME_F              = 'com.mysql.rdbms.mysql.datatype.time_f';
     const DATATYPE_YEAR                = 'com.mysql.rdbms.mysql.datatype.year';
     const DATATYPE_TIMESTAMP           = 'com.mysql.rdbms.mysql.datatype.timestamp';
     const DATATYPE_TIMESTAMP_F         = 'com.mysql.rdbms.mysql.datatype.timestamp_f';

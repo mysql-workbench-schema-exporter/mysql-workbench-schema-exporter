@@ -57,10 +57,12 @@ class DatatypeConverter extends BaseDatatypeConverter
             static::DATATYPE_DATETIME           => 'DATE',
             static::DATATYPE_DATETIME_F         => 'DATE',
             static::DATATYPE_DATE               => 'DATE',
+            static::DATATYPE_DATE_F             => 'DATE',
             static::DATATYPE_TIME               => 'DATE',
-            static::DATATYPE_YEAR               => 'INTEGER',
+            static::DATATYPE_TIME_F             => 'DATE',
             static::DATATYPE_TIMESTAMP          => 'DATE',
             static::DATATYPE_TIMESTAMP_F        => 'DATE',
+            static::DATATYPE_YEAR               => 'INTEGER',
             static::DATATYPE_GEOMETRY           => 'STRING', //??
             static::DATATYPE_LINESTRING         => 'STRING',
             static::DATATYPE_POLYGON            => 'STRING', //??
