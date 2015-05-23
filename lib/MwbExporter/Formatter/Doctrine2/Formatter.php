@@ -29,6 +29,7 @@ namespace MwbExporter\Formatter\Doctrine2;
 
 use MwbExporter\Formatter\Formatter as BaseFormatter;
 use MwbExporter\Validator\ChoiceValidator;
+use MwbExporter\Validator\Validator;
 
 abstract class Formatter extends BaseFormatter
 {
@@ -40,6 +41,7 @@ abstract class Formatter extends BaseFormatter
     const CFG_RELATED_VAR_NAME_FORMAT        = 'relatedVarNameFormat';
     const CFG_NULLABLE_ATTRIBUTE             = 'nullableAttribute';
     const CFG_GENERATED_VALUE_STRATEGY       = 'generatedValueStrategy';
+    const CFG_DEFAULT_CASCADE                = 'defaultCascade';
 
     const NULLABLE_AUTO                      = 'auto';
     const NULLABLE_ALWAYS                    = 'always';
@@ -49,6 +51,13 @@ abstract class Formatter extends BaseFormatter
     const GENERATED_VALUE_SEQUENCE           = 'sequence';
     const GENERATED_VALUE_TABLE              = 'table';
     const GENERATED_VALUE_NONE               = 'none';
+
+    const CASCADE_OPTION_PERSIST             = 'persist';
+    const CASCADE_OPTION_REMOVE              = 'remove';
+    const CASCADE_OPTION_MERGE               = 'merge';
+    const CASCADE_OPTION_DETACH              = 'detach';
+    const CASCADE_OPTION_ALL                 = 'all';
+    const CASCADE_OPTION_REFRESH             = 'refresh';
 
     protected function init()
     {
@@ -62,6 +71,7 @@ abstract class Formatter extends BaseFormatter
             static::CFG_RELATED_VAR_NAME_FORMAT       => '%name%%related%',
             static::CFG_NULLABLE_ATTRIBUTE            => static::NULLABLE_AUTO,
             static::CFG_GENERATED_VALUE_STRATEGY      => static::GENERATED_VALUE_AUTO,
+            static::CFG_DEFAULT_CASCADE               => false,
         ));
         $this->addValidators(array(
             static::CFG_NULLABLE_ATTRIBUTE            => new ChoiceValidator(array(static::NULLABLE_AUTO, static::NULLABLE_ALWAYS)),
@@ -71,6 +81,15 @@ abstract class Formatter extends BaseFormatter
                 static::GENERATED_VALUE_SEQUENCE,
                 static::GENERATED_VALUE_TABLE,
                 static::GENERATED_VALUE_NONE,
+            )),
+            static::CFG_DEFAULT_CASCADE               => new ChoiceValidator(array(
+                static::CASCADE_OPTION_PERSIST,
+                static::CASCADE_OPTION_REMOVE,
+                static::CASCADE_OPTION_DETACH,
+                static::CASCADE_OPTION_MERGE,
+                static::CASCADE_OPTION_ALL,
+                static::CASCADE_OPTION_REFRESH,
+                false
             )),
         ));
     }
@@ -115,15 +134,22 @@ abstract class Formatter extends BaseFormatter
      */
     public function getCascadeOption($cascadeValue)
     {
-        if ($cascadeValue) {
-            $cascadeValue = array_map('strtolower', array_map('trim', explode(',', $cascadeValue)));
-            // only allow certain values
-            $allowed = array('persist', 'remove', 'merge', 'detach', 'all');
-            $cascadeValue = array_intersect($cascadeValue, $allowed);
-            if ($cascadeValue) {
-                return $cascadeValue;
-            }
+        $defaultCascade = $this->getRegistry()->config->get(static::CFG_DEFAULT_CASCADE);
+        if (empty($cascadeValue) && !empty($defaultCascade)) {
+            return $defaultCascade;
         }
+
+        /** @var Validator $validator */
+        $validator = $this->getRegistry()->validator->get(static::CFG_DEFAULT_CASCADE);
+
+        $cascadeValue = array_map('strtolower', array_map('trim', explode(',', $cascadeValue)));
+        $cascadeValue = array_intersect($cascadeValue, $validator->getChoices());
+        $cascadeValue = array_filter($cascadeValue);
+        if(empty($cascadeValue)) {
+            return null;
+        }
+
+        return $cascadeValue;
     }
 
     /**

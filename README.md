@@ -234,6 +234,12 @@ Common Setup Options for Doctrine 2.0:
 
     Default is `auto`.
 
+  * `defaultCascade`
+
+    The default cascade option to define.
+
+    Default is `false`.
+
 #### Doctrine 2.0 YAML Schema
 
 ##### Setup Options
