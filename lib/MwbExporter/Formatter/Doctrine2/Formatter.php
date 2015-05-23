@@ -136,7 +136,7 @@ abstract class Formatter extends BaseFormatter
     {
         $defaultCascade = $this->getRegistry()->config->get(static::CFG_DEFAULT_CASCADE);
         if (empty($cascadeValue) && !empty($defaultCascade)) {
-            return $defaultCascade;
+            return [$defaultCascade];
         }
 
         /** @var Validator $validator */
