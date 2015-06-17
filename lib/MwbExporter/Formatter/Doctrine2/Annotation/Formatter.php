@@ -33,39 +33,45 @@ use MwbExporter\Validator\ChoiceValidator;
 
 class Formatter extends BaseFormatter
 {
-    const CFG_ANNOTATION_PREFIX              = 'useAnnotationPrefix';
-    const CFG_EXTENDS_CLASS                  = 'extendsClass';
-    const CFG_PROPERTY_TYPEHINT              = 'propertyTypehint';
-    const CFG_SKIP_GETTER_SETTER             = 'skipGetterAndSetter';
-    const CFG_GENERATE_ENTITY_SERIALIZATION  = 'generateEntitySerialization';
-    const CFG_GENERATE_EXTENDABLE_ENTITY     = 'generateExtendableEntity';
-    const CFG_QUOTE_IDENTIFIER_STRATEGY      = 'quoteIdentifierStrategy';
+    const CFG_ANNOTATION_PREFIX                     = 'useAnnotationPrefix';
+    const CFG_EXTENDS_CLASS                         = 'extendsClass';
+    const CFG_PROPERTY_TYPEHINT                     = 'propertyTypehint';
+    const CFG_SKIP_GETTER_SETTER                    = 'skipGetterAndSetter';
+    const CFG_GENERATE_ENTITY_SERIALIZATION         = 'generateEntitySerialization';
+    const CFG_GENERATE_EXTENDABLE_ENTITY            = 'generateExtendableEntity';
+    const CFG_EXTENDABLE_ENTITY_DEFAULT_DISCR_TYPE  = 'extendableEntityDefaultDiscriminatorType';
+    const CFG_QUOTE_IDENTIFIER_STRATEGY             = 'quoteIdentifierStrategy';
 
-    const QUOTE_IDENTIFIER_AUTO              = 'auto';
-    const QUOTE_IDENTIFIER_ALWAYS            = 'always';
-    const QUOTE_IDENTIFIER_NONE              = 'none';
+    const QUOTE_IDENTIFIER_AUTO                     = 'auto';
+    const QUOTE_IDENTIFIER_ALWAYS                   = 'always';
+    const QUOTE_IDENTIFIER_NONE                     = 'none';
 
     protected function init()
     {
         parent::init();
         $this->addConfigurations(array(
-            static::CFG_INDENTATION                     => 4,
-            static::CFG_FILENAME                        => '%entity%.%extension%',
-            static::CFG_ANNOTATION_PREFIX               => 'ORM\\',
-            static::CFG_SKIP_GETTER_SETTER              => false,
-            static::CFG_GENERATE_ENTITY_SERIALIZATION   => true,
-            static::CFG_GENERATE_EXTENDABLE_ENTITY      => false,
-            static::CFG_QUOTE_IDENTIFIER_STRATEGY       => static::QUOTE_IDENTIFIER_AUTO,
-            static::CFG_EXTENDS_CLASS                   => '',
-            static::CFG_PROPERTY_TYPEHINT               => false,
+            static::CFG_INDENTATION                           => 4,
+            static::CFG_FILENAME                              => '%entity%.%extension%',
+            static::CFG_ANNOTATION_PREFIX                     => 'ORM\\',
+            static::CFG_SKIP_GETTER_SETTER                    => false,
+            static::CFG_GENERATE_ENTITY_SERIALIZATION         => true,
+            static::CFG_GENERATE_EXTENDABLE_ENTITY            => false,
+            static::CFG_QUOTE_IDENTIFIER_STRATEGY             => static::QUOTE_IDENTIFIER_AUTO,
+            static::CFG_EXTENDS_CLASS                         => '',
+            static::CFG_PROPERTY_TYPEHINT                     => false,
+            static::CFG_EXTENDABLE_ENTITY_DEFAULT_DISCR_TYPE  => $this->getDataTypeConverter()->getDataType(DataTypeConverter::DATATYPE_VARCHAR),
         ));
         $this->addValidators(array(
-            static::CFG_QUOTE_IDENTIFIER_STRATEGY       => new ChoiceValidator(array(
+            static::CFG_QUOTE_IDENTIFIER_STRATEGY            => new ChoiceValidator(array(
                 static::QUOTE_IDENTIFIER_AUTO,
                 static::QUOTE_IDENTIFIER_ALWAYS,
                 static::QUOTE_IDENTIFIER_NONE,
             )),
+            static::CFG_EXTENDABLE_ENTITY_DEFAULT_DISCR_TYPE => new ChoiceValidator(
+                $this->getInheritanceDiscriminatorMeaningTypes()
+            ),
         ));
+
     }
 
     /**
@@ -103,5 +109,12 @@ class Formatter extends BaseFormatter
     public function getFileExtension()
     {
         return 'php';
+    }
+    
+    public function getInheritanceDiscriminatorMeaningTypes() {
+        return array_diff(
+            $this->getDataTypeConverter()->getNativeTypes(),
+            array('blob', 'datetime', 'date', 'time', 'object')
+        );
     }
 }

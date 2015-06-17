@@ -237,14 +237,14 @@ class Table extends BaseTable
                 $_this->writeUsedClasses($writer);
             })
             ->write('/**')
-            ->write(' * '.$this->getNamespace(null, false))
+            ->write(' * '.$this->getNamespace($this->getClassName(true), false))
             ->write(' *')
             ->writeIf($comment, $comment)
             ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
             ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation('Index'), 'uniqueConstraints' => $this->getIndexesAnnotation('UniqueConstraint'))))
             ->writeIf($extendableEntity, ' * '.$this->getAnnotation('InheritanceType', array('SINGLE_TABLE')))
             ->writeIf($extendableEntity, ' * '.$this->getAnnotation('DiscriminatorColumn', $this->getInheritanceDiscriminatorColumn()))
-            ->writeIf($extendableEntity, ' * '.$this->getAnnotation('DiscriminatorMap', array($this->getInheritanceDiscriminatorMap())))
+            ->writeIf($extendableEntity, ' * '.$this->getAnnotation('DiscriminatorMap', array($this->getInheritanceDiscriminatorMap()), array('useKeys' => true)))
             ->writeIf($lifecycleCallbacks, ' * @HasLifecycleCallbacks')
             ->write(' */')
             ->write('class '.$this->getClassName($extendableEntity).$extendsClass.$implementsInterface)
@@ -279,34 +279,43 @@ class Table extends BaseTable
             ->write('}')
             ->close()
         ;
-        if ($extendableEntity && !$writer->getStorage()->hasFile($this->getClassFileName())) {
-            $writer
-                ->open($this->getClassFileName())
-                ->write('<?php')
-                ->write('')
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    if ($_this->getConfig()->get(Formatter::CFG_ADD_COMMENT)) {
-                        $writer
-                            ->write($_this->getFormatter()->getComment(Comment::FORMAT_PHP))
-                            ->write('')
-                        ;
-                    }
-                })
-                ->write('namespace %s;', $namespace)
-                ->write('')
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    $_this->writeExtendedUsedClasses($writer);
-                })
-                ->write('/**')
-                ->write(' * '.$this->getNamespace(null, false))
-                ->write(' *')
-                ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
-                ->write(' */')
-                ->write('class %s extends %s', $this->getClassName(), $this->getClassName(true))
-                ->write('{')
-                ->write('}')
-                ->close()
-            ;
+        if($extendableEntity) {
+            foreach($this->getInheritanceDiscriminatorMap() as $className) {
+                
+                if($className == $this->getClassName(true))
+                  continue;
+                $classFileName = $this->getTableFileName(null, array('%entity%' => $className));
+                
+                if (!$writer->getStorage()->hasFile($classFileName)) {
+                    $writer
+                        ->open($classFileName)
+                        ->write('<?php')
+                        ->write('')
+                        ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                            if ($_this->getConfig()->get(Formatter::CFG_ADD_COMMENT)) {
+                                $writer
+                                    ->write($_this->getFormatter()->getComment(Comment::FORMAT_PHP))
+                                    ->write('')
+                                ;
+                            }
+                        })
+                        ->write('namespace %s;', $namespace)
+                        ->write('')
+                        ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
+                            $_this->writeExtendedUsedClasses($writer);
+                        })
+                        ->write('/**')
+                        ->write(' * '.$this->getNamespace($className, false))
+                        ->write(' *')
+                        ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$className.'Repository' : null)))
+                        ->write(' */')
+                        ->write('class %s extends %s', $className, $this->getClassName(true))
+                        ->write('{')
+                        ->write('}')
+                        ->close()
+                    ;
+                }
+            }
         }
     }
 
@@ -400,29 +409,63 @@ class Table extends BaseTable
 
         return $uses;
     }
-
+    
+    protected function getInheritanceDiscriminatorType() 
+    {
+      $type = null;
+      if ($column = trim($this->parseComment('discriminator'))) {
+          foreach ($this->getColumns() as $col) {
+              if ($column == $col->getColumnName()) {
+                  return $this->getFormatter()->getDatatypeConverter()->getDataType($col->getColumnType());
+              }
+          }
+          throw new \Exception('Discriminator column '.$column.' was not found in '.$this->getModelName());
+        }
+      elseif($type = strtolower(trim($this->parseComment('discriminatorType')))) {
+          if(!in_array($type, $this->getFormatter()->getInheritanceDiscriminatorMeaningTypes()))
+              throw new \Exception('Type '.$type.' is not available');
+      } else
+          $type = $this->getConfig()->get(Formatter::CFG_EXTENDABLE_ENTITY_DEFAULT_DISCR_TYPE);
+        
+      return $type;
+    }
+    
     protected function getInheritanceDiscriminatorColumn()
     {
         $result = array();
         if ($column = trim($this->parseComment('discriminator'))) {
             $result['name'] = $column;
-            foreach ($this->getColumns() as $col) {
-                if ($column == $col->getColumnName()) {
-                    $result['type'] = $this->getFormatter()->getDatatypeConverter()->getDataType($col->getColumnType());
-                    break;
-                }
-            }
         } else {
             $result['name'] = 'discr';
-            $result['type'] = 'string';
         }
+        
+        $result['type'] = $this->getInheritanceDiscriminatorType();
 
         return $result;
     }
 
     protected function getInheritanceDiscriminatorMap()
     {
-        return array('base' => $this->getClassName(true), 'extended' => $this->getClassName());
+        $discriminatorClasses = array($this->getClassName(true), $this->getClassName());
+        $discriminatorKeys = array("0", "1");
+        if(in_array($this->getInheritanceDiscriminatorType(), array('text', 'string')))
+            $discriminatorKeys = array('base', 'extended');
+        $discriminatorMap = array_combine($discriminatorKeys, $discriminatorClasses);
+            
+        
+        if($this->parseComment('discriminatorMap')) {
+            $mappings = array_map(function($mapping) {
+                return array_map('trim', explode('=', $mapping));
+            }, explode(',', $this->parseComment('discriminatorMap')));
+            
+            $discriminatorMap = array_combine(
+                array_map(function($mapping) { return (string)$mapping[0]; }, $mappings),
+                array_map(function($mapping) { return $mapping[1]; }, $mappings)
+            );
+            var_dump($discriminatorMap);
+        }
+        
+        return $discriminatorMap;
     }
 
     public function writeUsedClasses(WriterInterface $writer)
