@@ -75,7 +75,7 @@ abstract class DatatypeConverter implements DatatypeConverterInterface
             return $this->dataTypes[$key];
         } elseif (isset($this->userDatatypes[$key])) {
             return $this->userDatatypes[$key];
-        }else{
+        } else {
             throw new \RuntimeException(sprintf('Unknown data type "%s".', $key));
         }
     }

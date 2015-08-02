@@ -214,7 +214,7 @@ class Document extends Base
     {
         $dataTypes = array();
         $userTypes = $this->node->xpath("//value[@key='userDatatypes']")[0];
-        foreach ($userTypes as $userType){
+        foreach ($userTypes as $userType) {
             $dataTypes[(string) $userType['id']] = (string) $userType->xpath("link[@key='actualType']")[0];
         }
         $this->formatter->getDatatypeConverter()->registerUserDatatypes($dataTypes);

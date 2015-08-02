@@ -335,7 +335,6 @@ function main($filename, $dir, $params, $options)
     } else {
         throw new Exception("Export failed, may be there is no storage available.");
     }
-
 }
 
 // ----------------------------------------- MAIN ---------------------------------------------------- //
@@ -368,4 +367,5 @@ try {
     echo $e->getMessage();
     die(1);
 }
+
 // ----------------------------------------- EOF ----------------------------------------------------- //
