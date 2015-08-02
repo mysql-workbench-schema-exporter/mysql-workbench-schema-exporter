@@ -197,6 +197,7 @@ class Document extends Base
         $this->filename = $filename;
         $this->readXML($this->filename);
         $this->configure($this->xml->value);
+        $this->loadUserDatatypes();
         $this->parse();
     }
 
@@ -207,6 +208,16 @@ class Document extends Base
         if (false === $this->xml) {
             throw new \RuntimeException(sprintf('Can\'t load "%s", may be it not MySQL Workbench document.', $filename));
         } 
+    }
+
+    protected function loadUserDatatypes()
+    {
+        $dataTypes = array();
+        $userTypes = $this->node->xpath("//value[@key='userDatatypes']")[0];
+        foreach ($userTypes as $userType){
+            $dataTypes[(string) $userType['id']] = (string) $userType->xpath("link[@key='actualType']")[0];
+        }
+        $this->formatter->getDatatypeConverter()->registerUserDatatypes($dataTypes);
     }
 
     protected function parse()
