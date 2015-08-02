@@ -31,7 +31,15 @@ use MwbExporter\Model\Column;
 
 abstract class DatatypeConverter implements DatatypeConverterInterface
 {
+    /**
+     * @var array
+     */
     protected $dataTypes = array();
+
+    /**
+     * @var array
+     */
+    protected $userDatatypes = array();
 
     /**
      * Register data types mapping.
@@ -40,6 +48,16 @@ abstract class DatatypeConverter implements DatatypeConverterInterface
     {
         if (!count($this->dataTypes)) {
             $this->dataTypes = $dataTypes;
+        }
+    }
+
+    /**
+     * @param array $dataTypes
+     */
+    public function registerUserDatatypes($dataTypes = array())
+    {
+        if (!count($this->userDatatypes)) {
+            $this->userDatatypes = $dataTypes;
         }
     }
 
@@ -53,11 +71,13 @@ abstract class DatatypeConverter implements DatatypeConverterInterface
         // check for existing datatype, and raise an exception
         // if it doesn't exist. Usefull when new data type defined
         // in the new version of MySQL Workbench
-        if (!isset($this->dataTypes[$key])) {
+        if (isset($this->dataTypes[$key])) {
+            return $this->dataTypes[$key];
+        } elseif (isset($this->userDatatypes[$key])) {
+            return $this->userDatatypes[$key];
+        } else {
             throw new \RuntimeException(sprintf('Unknown data type "%s".', $key));
         }
-
-        return $this->dataTypes[$key];
     }
 
     /**
