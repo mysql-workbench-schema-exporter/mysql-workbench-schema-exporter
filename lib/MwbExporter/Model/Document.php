@@ -212,12 +212,13 @@ class Document extends Base
 
     protected function loadUserDatatypes()
     {
+        $dataTypeConverter = $this->formatter->getDataTypeConverter();
         $dataTypes = array();
         $userTypes = $this->node->xpath("//value[@key='userDatatypes']")[0];
         foreach ($userTypes as $userType) {
-            $dataTypes[(string) $userType['id']] = (string) $userType->xpath("link[@key='actualType']")[0];
+            $dataTypes[(string) $userType['id']] = $dataTypeConverter->getDataType((string) $userType->xpath("link[@key='actualType']")[0]);
         }
-        $this->formatter->getDatatypeConverter()->registerUserDatatypes($dataTypes);
+        $dataTypeConverter->registerUserDatatypes($dataTypes);
     }
 
     protected function parse()
