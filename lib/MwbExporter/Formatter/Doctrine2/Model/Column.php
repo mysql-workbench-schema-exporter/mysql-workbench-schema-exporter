@@ -56,11 +56,11 @@ class Column extends BaseColumn
      *
      * @return boolean
      */
-    public function isNullableRequired()
+    public function isNullableRequired($defaultValue = self::NULLABLE_DEFAULT)
     {
         $isNullable = !$this->isNotNull();
 
-        return $isNullable === static::NULLABLE_DEFAULT ? ($this->isAlwaysNullable() ? true : false) : true;
+        return $isNullable === $defaultValue ? ($this->isAlwaysNullable() ? true : false) : true;
     }
 
     /**
@@ -68,11 +68,11 @@ class Column extends BaseColumn
      *
      * @return boolean
      */
-    public function getNullableValue()
+    public function getNullableValue($defaultValue = self::NULLABLE_DEFAULT)
     {
         $isNullable = !$this->isNotNull();
 
-        return $isNullable === static::NULLABLE_DEFAULT ? ($this->isAlwaysNullable() ? $isNullable : null) : $isNullable;
+        return $isNullable === $defaultValue ? ($this->isAlwaysNullable() ? $isNullable : null) : $isNullable;
     }
 
     /**
