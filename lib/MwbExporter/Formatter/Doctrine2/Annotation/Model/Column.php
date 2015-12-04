@@ -54,7 +54,7 @@ class Column extends BaseColumn
         return $this;
     }
 
-    public function writeGetterAndSetter(WriterInterface $writer)
+    public function writeGetterAndSetter(WriterInterface $writer, $base = false, $entityName = "")
     {
         if (!$this->isIgnored()) {
             $this->getDocument()->addLog(sprintf('  Writing setter/getter for column "%s"', $this->getColumnName()));
@@ -71,7 +71,7 @@ class Column extends BaseColumn
                 ->write(' * Set the value of '.$this->getColumnName().'.')
                 ->write(' *')
                 ->write(' * @param '.$nativeType.' $'.$this->getColumnName())
-                ->write(' * @return '.$table->getNamespace())
+                ->write(' * @return '.$table->getNamespace(null, true, $base))
                 ->write(' */')
                 ->write('public function set'.$this->getBeautifiedColumnName().'('.$typehint.'$'.$this->getColumnName().')')
                 ->write('{')
