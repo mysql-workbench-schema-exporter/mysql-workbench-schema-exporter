@@ -69,7 +69,7 @@ Usage:
 $self [options] FILENAME [DEST]
 
 Options:
---export=type       Select the exporter, for a list of available exportor
+--export=type       Select the exporter, for a list of available exporter
                     use --list-exporter option.
 --config=file       Read file for export parameters, in JSON format.
 --saveconfig        Save export parameters to file.
