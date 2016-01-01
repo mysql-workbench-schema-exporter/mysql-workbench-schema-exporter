@@ -197,28 +197,30 @@ class Table extends BaseTable
                 return self::WRITE_M2M;
 
             default:
-                $this->writeEntity($writer);
+                $this->writeEntities($writer);
                 return self::WRITE_OK;
         }
     }
 
-    protected function writeEntity(WriterInterface $writer)
+    protected function writeEntities(WriterInterface $writer)
     {
         $this->getDocument()->addLog(sprintf('Writing table "%s"', $this->getModelName()));
+        
+        $repositoryNamespace    = $this->getRepositoryNamespace();
+        $skipGetterAndSetter    = $this->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
+        $serializableEntity     = $this->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
+        $extendableEntity       = $this->getConfig()->get(Formatter::CFG_GENERATE_EXTENDABLE_ENTITY);
+        $discriminatorMap       = $this->getInheritanceDiscriminatorMap();
+        $singleInheritance      = count($discriminatorMap) > 0;
+        $lifecycleCallbacks     = $this->getLifecycleCallbacks();
+        $namespace              = $this->getEntityNamespace($extendableEntity ? true : false);
 
-        $namespace = $this->getEntityNamespace();
-        if ($repositoryNamespace = $this->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) {
-            $repositoryNamespace .= '\\';
-        }
-        $skipGetterAndSetter = $this->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
-        $serializableEntity  = $this->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
-        $extendableEntity    = $this->getConfig()->get(Formatter::CFG_GENERATE_EXTENDABLE_ENTITY);
-        $lifecycleCallbacks  = $this->getLifecycleCallbacks();
+        $extendsClass           = $this->getClassToExtend();
+        $implementsInterface    = $this->getInterfaceToImplement();
 
-        $extendsClass = $this->getClassToExtend();
-        $implementsInterface = $this->getInterfaceToImplement();
-
-        $comment = $this->getComment();
+        $comment                = $this->getComment();
+        
+        $this->getDocument()->addLog(sprintf('  Overwriting "%s"', $this->getClassName($extendableEntity)));
         $writer
             ->open($this->getClassFileName($extendableEntity ? true : false))
             ->write('<?php')
@@ -235,27 +237,36 @@ class Table extends BaseTable
             ->write('')
             ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
                 $_this->writeUsedClasses($writer);
+                $writer->write('');
             })
             ->write('/**')
-            ->write(' * '.$this->getNamespace(null, false))
+            ->write(' * '.$this->getNamespace($this->getClassName(true), false))
             ->write(' *')
             ->writeIf($comment, $comment)
-            ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
+            ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? sprintf('%s\%sRepository', $repositoryNamespace, $this->getModelName()) : null)))
             ->write(' * '.$this->getAnnotation('Table', array('name' => $this->quoteIdentifier($this->getRawTableName()), 'indexes' => $this->getIndexesAnnotation('Index'), 'uniqueConstraints' => $this->getIndexesAnnotation('UniqueConstraint'))))
-            ->writeIf($extendableEntity, ' * '.$this->getAnnotation('InheritanceType', array('SINGLE_TABLE')))
-            ->writeIf($extendableEntity, ' * '.$this->getAnnotation('DiscriminatorColumn', $this->getInheritanceDiscriminatorColumn()))
-            ->writeIf($extendableEntity, ' * '.$this->getAnnotation('DiscriminatorMap', array($this->getInheritanceDiscriminatorMap())))
+            ->writeIf($singleInheritance, ' * '.$this->getAnnotation('InheritanceType', array('SINGLE_TABLE')))
+            ->writeIf($singleInheritance, ' * '.$this->getAnnotation('DiscriminatorColumn', $this->getInheritanceDiscriminatorColumn()))
+            ->writeIf($singleInheritance, ' * '.$this->getAnnotation('DiscriminatorMap', 
+                array(
+                    array_map(function($entityName) use ($extendableEntity) {
+                            return $this->getModelNameAsFQCN($this->getEntityNamespace($extendableEntity), false, $entityName);
+                        },
+                        $this->getInheritanceDiscriminatorMap()
+                    )
+                ), 
+                array('useKeys' => true)))
             ->writeIf($lifecycleCallbacks, ' * @HasLifecycleCallbacks')
             ->write(' */')
-            ->write('class '.$this->getClassName($extendableEntity).$extendsClass.$implementsInterface)
+            ->write(($extendableEntity? 'abstract ' : '').'class '.$this->getClassName($extendableEntity).$extendsClass.$implementsInterface)
             ->write('{')
             ->indent()
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity, $lifecycleCallbacks) {
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity, $lifecycleCallbacks, $extendableEntity) {
                     $_this->writePreClassHandler($writer);
-                    $_this->writeVars($writer);
+                    $_this->writeVars($writer, $extendableEntity);
                     $_this->writeConstructor($writer);
                     if (!$skipGetterAndSetter) {
-                        $_this->writeGetterAndSetter($writer);
+                        $_this->writeGetterAndSetter($writer, $extendableEntity);
                     }
                     $_this->writePostClassHandler($writer);
                     foreach ($lifecycleCallbacks as $callback => $handlers) {
@@ -279,9 +290,68 @@ class Table extends BaseTable
             ->write('}')
             ->close()
         ;
-        if ($extendableEntity && !$writer->getStorage()->hasFile($this->getClassFileName())) {
+        
+        foreach ($this->getInheritanceDiscriminatorMap() as $entityClassName) {
+        
+            $extendedClassName  = $this->getClassName();
+            $repoName           = $entityClassName;
+            
+            if (!$extendableEntity && $entityClassName === $this->getClassName()) {
+                continue;
+            } else {
+                if ($extendableEntity) {
+                    if ($entityClassName !== $this->getClassName()) {
+                        $this->getDocument()->addLog(sprintf('  Overwriting base "%s"', $entityClassName));
+                        $this->writeEntity(
+                            $writer, 
+                            $entityClassName, 
+                            $extendedClassName, 
+                            $repoName, 
+                            true, 
+                            true
+                        );
+                    }
+                    $this->getDocument()->addLog(sprintf('  %s "%s"', $this->getConfig()->get(Formatter::CFG_OVERWRITE_EXTENDED_ENTITIES) ? 'Overwriting' : 'Writing', $entityClassName));
+                    $this->writeEntity(
+                        $writer, 
+                        $entityClassName, 
+                        $entityClassName, 
+                        $repoName, 
+                        false, 
+                        $this->getConfig()->get(Formatter::CFG_OVERWRITE_EXTENDED_ENTITIES)
+                    );
+                } else {
+                    if ($entityClassName !== $this->getClassName()) {
+                        $this->getDocument()->addLog(sprintf('  Overwriting "%s"', $entityClassName));
+                        $this->writeEntity(
+                            $writer, 
+                            $entityClassName, 
+                            $extendedClassName, 
+                            $repoName, 
+                            false, 
+                            true
+                        );
+                    }
+                }
+            }
+        }
+    }
+    
+    protected function writeEntity(WriterInterface $writer, $className, $extendedClassName, $repoName, $isBase, $overwrite = false) {
+                
+        $repositoryNamespace    = $this->getRepositoryNamespace();
+        $skipGetterAndSetter    = $this->getConfig()->get(Formatter::CFG_SKIP_GETTER_SETTER);
+        $serializableEntity     = $this->getConfig()->get(Formatter::CFG_GENERATE_ENTITY_SERIALIZATION);
+        $classFileName          = $this->getClassFileName($isBase, $className);
+        $namespace              = $this->getEntityNamespace($isBase);
+        $extendedClassNameAlias = $extendedClassName;
+        if ($this->getEntityNamespace(true) !== $this->getEntityNamespace(false)) {
+            $extendedClassNameAlias = "Base".$extendedClassName;
+        }
+        
+        if ($overwrite || !$writer->getStorage()->hasFile($classFileName)) {
             $writer
-                ->open($this->getClassFileName())
+                ->open($classFileName)
                 ->write('<?php')
                 ->write('')
                 ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
@@ -294,16 +364,37 @@ class Table extends BaseTable
                 })
                 ->write('namespace %s;', $namespace)
                 ->write('')
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    $_this->writeExtendedUsedClasses($writer);
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($isBase, $extendedClassName, $repoName) {
+                    $_this->writeExtendedUsedClasses($writer, !$isBase, $extendedClassName, $this->getEntityNamespace(true) !== $this->getEntityNamespace(false));
+                    $writer->write('');
                 })
                 ->write('/**')
-                ->write(' * '.$this->getNamespace(null, false))
+                ->write(' * '.$this->getNamespace($className, false, $isBase))
                 ->write(' *')
-                ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? $repositoryNamespace.$this->getModelName().'Repository' : null)))
+                ->write(' * '.$this->getAnnotation('Entity', array('repositoryClass' => $this->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY) ? sprintf('%s\%sRepository', $repositoryNamespace, $repoName) : null)))
                 ->write(' */')
-                ->write('class %s extends %s', $this->getClassName(), $this->getClassName(true))
-                ->write('{')
+                ->write(($isBase ? 'abstract ': '' ) . 'class %s extends %s', $this->getClassName($isBase, $className), $extendedClassNameAlias)
+                ->write('{');
+            
+            if ($isBase) {
+                $writer
+                    ->indent()
+                    ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($skipGetterAndSetter, $serializableEntity, $className) {
+                    
+//                         $_this->writePreClassHandler($writer);
+//                         $_this->writeVars($writer, $className);
+//                         $_this->writeConstructor($writer, $className);
+//                         
+//                         if (!$skipGetterAndSetter) {
+//                             $_this->writeGetterAndSetter($writer, $className);
+//                         }
+//                         $_this->writePostClassHandler($writer);
+                        
+                    })
+                    ->outdent()
+                ;
+            }
+            $writer
                 ->write('}')
                 ->close()
             ;
@@ -314,24 +405,24 @@ class Table extends BaseTable
      * Get the generated class name.
      *
      * @param bool $base
+     * @param string $entityName The target entity name
      * @return string
      */
-    protected function getClassFileName($base = false)
+    protected function getClassFileName($base = false, $entityName = null)
     {
-        return ($base ? $this->getTableFileName(null, array('%entity%' => 'Base'.$this->getModelName())) : $this->getTableFileName());
+        $entityRelativePath = str_replace("\\", DIRECTORY_SEPARATOR, $this->getConfig()->get(Formatter::CFG_ENTITY_NAMESPACE));
+        $baseEntityRelativePath = str_replace("\\", DIRECTORY_SEPARATOR, $this->getConfig()->get(Formatter::CFG_BASE_ENTITY_NAMESPACE));
+        $entityName = $entityName ? $entityName : $this->getModelName();
+        
+        if ($base && $entityRelativePath === $baseEntityRelativePath) {
+            $entityName = 'Base'.$entityName;
+        }
+        
+        $entityName = ($base ? $baseEntityRelativePath : $entityRelativePath ).DIRECTORY_SEPARATOR.$entityName;
+        
+        return $this->getTableFileName(null, array('%entity%' => $entityName));
     }
-
-    /**
-     * Get the generated class name.
-     *
-     * @param bool $base
-     * @return string
-     */
-    protected function getClassName($base = false)
-    {
-        return ($base ? 'Base' : '').$this->getModelName();
-    }
-
+    
     /**
      * Get the class name to implement.
      *
@@ -340,6 +431,7 @@ class Table extends BaseTable
     protected function getClassImplementations()
     {
     }
+    
 
     /**
      * Get the class name to extend
@@ -400,29 +492,75 @@ class Table extends BaseTable
 
         return $uses;
     }
-
+    
+    protected function getInheritanceDiscriminatorType() 
+    {
+        $type = null;
+        if ($column = trim($this->parseComment('discriminator'))) {
+            foreach ($this->getColumns() as $col) {
+                if ($column == $col->getColumnName()) {
+                    return $this->getFormatter()->getDatatypeConverter()->getDataType($col->getColumnType());
+                }
+            }
+            throw new \Exception('Discriminator column '.$column.' was not found in '.$this->getModelName());
+            }
+        elseif ($type = strtolower(trim($this->parseComment('discriminatorType')))) {
+            if (!in_array($type, $this->getFormatter()->getInheritanceDiscriminatorMeaningTypes())) {
+                throw new \Exception('Type '.$type.' is not available');
+            }
+        } else
+            $type = $this->getConfig()->get(Formatter::CFG_EXTENDABLE_ENTITY_DEFAULT_DISCR_TYPE);
+            
+        return $type;
+    }
+    
     protected function getInheritanceDiscriminatorColumn()
     {
         $result = array();
         if ($column = trim($this->parseComment('discriminator'))) {
             $result['name'] = $column;
-            foreach ($this->getColumns() as $col) {
-                if ($column == $col->getColumnName()) {
-                    $result['type'] = $this->getFormatter()->getDatatypeConverter()->getDataType($col->getColumnType());
-                    break;
-                }
-            }
         } else {
             $result['name'] = 'discr';
-            $result['type'] = 'string';
         }
+        
+        $result['type'] = $this->getInheritanceDiscriminatorType();
 
         return $result;
     }
 
     protected function getInheritanceDiscriminatorMap()
     {
-        return array('base' => $this->getClassName(true), 'extended' => $this->getClassName());
+        $extendableEntity       = $this->getConfig()->get(Formatter::CFG_GENERATE_EXTENDABLE_ENTITY);
+        $singleInheritance      = $this->getConfig()->get(Formatter::CFG_GENERATE_SINGLE_INHERITANCE);
+        $discriminatorClasses   = array();
+        $discriminatorKeys      = array();
+        $discriminatorMap       = array_combine($discriminatorKeys, $discriminatorClasses);
+        
+        if ($this->parseComment('discriminatorMap')) {
+        
+            $mappings = array_map(function($mapping) {
+                return array_map('trim', explode('=', $mapping));
+            }, explode(',', $this->parseComment('discriminatorMap')));
+            
+            $discriminatorMap = array_combine(
+                array_map(function($mapping) { return (string) $mapping[0]; }, $mappings),
+                array_map(function($mapping) { return $mapping[1]; }, $mappings)
+            );
+            
+        }
+        
+        if (($extendableEntity || $singleInheritance || count($discriminatorMap)) 
+            && !in_array($this->getClassName(), $discriminatorMap)) {
+            
+            $key    = "1";
+            if (in_array($this->getInheritanceDiscriminatorType(), array('text', 'string'))) {
+                $key = $extendableEntity ? 'extended' : strtolower($this->getClassName());
+            }
+            $discriminatorMap[$key] = $this->getClassName();
+            
+        }
+        
+        return $discriminatorMap;
     }
 
     public function writeUsedClasses(WriterInterface $writer)
@@ -431,14 +569,35 @@ class Table extends BaseTable
 
         return $this;
     }
+    
+    public function writeRepositoryUsedClass(WriterInterface $writer, $name) 
+    {
+        $uses = array();
 
-    public function writeExtendedUsedClasses(WriterInterface $writer)
+        $uses[] = sprintf('%s\%sRepository', 
+            $this->getRepositoryNamespace(), 
+            $name
+        );
+        
+        $this->writeUses($writer, $uses);
+
+        return $this;
+    }
+
+    public function writeExtendedUsedClasses(WriterInterface $writer, $base = false, $className = '', $alias = false)
     {
         $uses = array();
         if ($orm = $this->getOrmUse()) {
             $uses[] = $orm;
         }
-        $uses[] = sprintf('%s\%s', $this->getEntityNamespace(), $this->getClassName(true));
+        
+        $uses[] = sprintf('%s\%s%s', 
+            $this->getEntityNamespace($base), 
+            $this->getClassName($base, $className), 
+            $alias ? ' as Base'.$this->getClassName($base, $className) : '',
+            $this->getClassName($base, $className)
+        );
+            
         $this->writeUses($writer, $uses);
 
         return $this;
@@ -450,7 +609,6 @@ class Table extends BaseTable
             foreach ($uses as $use) {
                 $writer->write('use %s;', $use);
             }
-            $writer->write('');
         }
 
         return $this;
@@ -467,24 +625,27 @@ class Table extends BaseTable
         return $this;
     }
 
-    public function writeVars(WriterInterface $writer)
+    public function writeVars(WriterInterface $writer, $base = false, $entityName = "")
     {
-        $this->writeColumnsVar($writer);
-        $this->writeRelationsVar($writer);
-        $this->writeManyToManyVar($writer);
-
+        if ($entityName === "") {
+            $this->writeColumnsVar($writer);
+        }
+        $this->writeRelationsVar($writer, $base, $entityName);
+        $this->writeManyToManyVar($writer, $base, $entityName);
         return $this;
     }
 
-    protected function writeColumnsVar(WriterInterface $writer)
+    protected function writeColumnsVar(WriterInterface $writer, $base = false, $entityName = "")
     {
         foreach ($this->getColumns() as $column) {
             $column->writeVar($writer);
         }
     }
 
-    protected function writeRelationsVar(WriterInterface $writer)
+    protected function writeRelationsVar(WriterInterface $writer, $base = false, $entityName = "")
     {
+        $inheritedEntity = $entityName !== "";
+        
         // 1 <=> N references
         foreach ($this->getAllLocalForeignKeys() as $local) {
             if ($this->isLocalForeignKeyIgnored($local)) {
@@ -493,17 +654,17 @@ class Table extends BaseTable
             }
 
             $targetEntity = $local->getOwningTable()->getModelName();
-            $targetEntityFQCN = $local->getOwningTable()->getModelNameAsFQCN($local->getReferencedTable()->getEntityNamespace());
+            $targetEntityFQCN = $local->getOwningTable()->getModelNameAsFQCN($local->getReferencedTable()->getEntityNamespace($base), false);
             $mappedBy = $local->getReferencedTable()->getModelName();
             $related = $local->getForeignM2MRelatedName();
 
             $this->getDocument()->addLog(sprintf('  Writing 1 <=> ? relation "%s"', $targetEntity));
 
             $annotationOptions = array(
-                'targetEntity' => $targetEntityFQCN,
-                'mappedBy' => lcfirst($this->getRelatedVarName($mappedBy, $related)),
-                'cascade' => $this->getFormatter()->getCascadeOption($local->parseComment('cascade')),
-                'fetch' => $this->getFormatter()->getFetchOption($local->parseComment('fetch')),
+                'targetEntity'  => $targetEntityFQCN,
+                'mappedBy'      => lcfirst($this->getRelatedVarName($mappedBy, $related)),
+                'cascade'       => $this->getFormatter()->getCascadeOption($local->parseComment('cascade')),
+                'fetch'         => $this->getFormatter()->getFetchOption($local->parseComment('fetch')),
                 'orphanRemoval' => $this->getFormatter()->getBooleanOption($local->parseComment('orphanRemoval')),
             );
 
@@ -546,7 +707,7 @@ class Table extends BaseTable
             }
 
             $targetEntity = $foreign->getReferencedTable()->getModelName();
-            $targetEntityFQCN = $foreign->getReferencedTable()->getModelNameAsFQCN($foreign->getOwningTable()->getEntityNamespace());
+            $targetEntityFQCN = $foreign->getReferencedTable()->getModelNameAsFQCN($foreign->getOwningTable()->getEntityNamespace($base), false);
             $inversedBy = $foreign->getOwningTable()->getModelName();
             $related = $this->getRelatedName($foreign);
 
@@ -592,7 +753,7 @@ class Table extends BaseTable
         return $this;
     }
 
-    protected function writeManyToManyVar(WriterInterface $writer)
+    protected function writeManyToManyVar(WriterInterface $writer, $base = false, $entityName = "")
     {
         foreach ($this->getTableM2MRelations() as $relation) {
             $this->getDocument()->addLog(sprintf('  Writing setter/getter for N <=> N "%s"', $relation['refTable']->getModelName()));
@@ -600,7 +761,7 @@ class Table extends BaseTable
             $fk1 = $relation['reference'];
             $isOwningSide = $this->getFormatter()->isOwningSide($relation, $fk2);
             $annotationOptions = array(
-                'targetEntity' => $relation['refTable']->getModelNameAsFQCN($this->getEntityNamespace()),
+                'targetEntity' => $relation['refTable']->getModelNameAsFQCN($this->getEntityNamespace($base), false),
                 'mappedBy' => null,
                 'inversedBy' => lcfirst($this->getPluralModelName()),
                 'cascade' => $this->getFormatter()->getCascadeOption($fk1->parseComment('cascade')),
@@ -658,15 +819,18 @@ class Table extends BaseTable
         return $this;
     }
 
-    public function writeConstructor(WriterInterface $writer)
+    public function writeConstructor(WriterInterface $writer, $entityName = "")
     {
         $writer
             ->write('public function __construct()')
             ->write('{')
             ->indent()
-                ->writeCallback(function(WriterInterface $writer, Table $_this = null) {
-                    $_this->writeRelationsConstructor($writer);
-                    $_this->writeManyToManyConstructor($writer);
+                ->writeCallback(function(WriterInterface $writer, Table $_this = null) use ($entityName) {
+                    
+                    $_this->writeRelationsConstructor($writer, $entityName);
+                    if ($entityName === '') {
+                        $_this->writeManyToManyConstructor($writer);
+                    }
                 })
             ->outdent()
             ->write('}')
@@ -697,23 +861,27 @@ class Table extends BaseTable
         }
     }
 
-    public function writeGetterAndSetter(WriterInterface $writer)
+    public function writeGetterAndSetter(WriterInterface $writer, $base = false, $entityName = "")
     {
-        $this->writeColumnsGetterAndSetter($writer);
-        $this->writeRelationsGetterAndSetter($writer);
-        $this->writeManyToManyGetterAndSetter($writer);
-
+        if ($entityName === '') {
+            $this->writeColumnsGetterAndSetter($writer, $base, $entityName);
+        }
+        $this->writeRelationsGetterAndSetter($writer, $base, $entityName);
+        if ($entityName === '') {
+            $this->writeManyToManyGetterAndSetter($writer, $base, $entityName);
+        }
+        
         return $this;
     }
 
-    protected function writeColumnsGetterAndSetter(WriterInterface $writer)
+    protected function writeColumnsGetterAndSetter(WriterInterface $writer, $base = false, $entityName = "")
     {
         foreach ($this->getColumns() as $column) {
-            $column->writeGetterAndSetter($writer);
+            $column->writeGetterAndSetter($writer, $base, $entityName);
         }
     }
 
-    protected function writeRelationsGetterAndSetter(WriterInterface $writer)
+    protected function writeRelationsGetterAndSetter(WriterInterface $writer, $base = false, $entityName = "")
     {
         // N <=> 1 references
         foreach ($this->getAllLocalForeignKeys() as $local) {
@@ -732,12 +900,12 @@ class Table extends BaseTable
                 $writer
                     // setter
                     ->write('/**')
-                    ->write(' * Add '.trim($local->getOwningTable()->getModelName().' entity '.$related_text). ' to collection (one to many).')
+                    ->write(' * Add '.trim($local->getOwningTable()->getModelName($base).' entity '.$related_text). ' to collection (one to many).')
                     ->write(' *')
-                    ->write(' * @param '.$local->getOwningTable()->getNamespace().' $'.lcfirst($local->getOwningTable()->getModelName()))
-                    ->write(' * @return '.$this->getNamespace())
+                    ->write(' * @param '.$local->getOwningTable()->getNamespace(null, true, $base).' $'.lcfirst($local->getOwningTable()->getModelName()))
+                    ->write(' * @return '.$this->getNamespace(null, true, $base))
                     ->write(' */')
-                    ->write('public function add'.$this->getRelatedVarName($local->getOwningTable()->getModelName(), $related).'('.$local->getOwningTable()->getModelName().' $'.lcfirst($local->getOwningTable()->getModelName()).')')
+                    ->write('public function add'.$this->getRelatedVarName($local->getOwningTable()->getModelName(), $related).'('.$local->getOwningTable()->getClassName($base).' $'.lcfirst($local->getOwningTable()->getModelName()).')')
                     ->write('{')
                     ->indent()
                         ->write('$this->'.lcfirst($this->getRelatedVarName($local->getOwningTable()->getModelName(), $related, true)).'[] = $'.lcfirst($local->getOwningTable()->getModelName()).';')
@@ -750,10 +918,10 @@ class Table extends BaseTable
                     ->write('/**')
                     ->write(' * Remove '.trim($local->getOwningTable()->getModelName().' entity '.$related_text). ' from collection (one to many).')
                     ->write(' *')
-                    ->write(' * @param '.$local->getOwningTable()->getNamespace().' $'.lcfirst($local->getOwningTable()->getModelName()))
-                    ->write(' * @return '.$this->getNamespace())
+                    ->write(' * @param '.$local->getOwningTable()->getNamespace(null, true, $base).' $'.lcfirst($local->getOwningTable()->getModelName()))
+                    ->write(' * @return '.$this->getNamespace(null, true, $base))
                     ->write(' */')
-                    ->write('public function remove'.$this->getRelatedVarName($local->getOwningTable()->getModelName(), $related).'('.$local->getOwningTable()->getModelName().' $'.lcfirst($local->getOwningTable()->getModelName()).')')
+                    ->write('public function remove'.$this->getRelatedVarName($local->getOwningTable()->getModelName(), $related).'('.$local->getOwningTable()->getClassName($base).' $'.lcfirst($local->getOwningTable()->getModelName()).')')
                     ->write('{')
                     ->indent()
                         ->write('$this->'.lcfirst($this->getRelatedVarName($local->getOwningTable()->getModelName(), $related, true)).'->removeElement($'.lcfirst($local->getOwningTable()->getModelName()).');')
@@ -784,10 +952,10 @@ class Table extends BaseTable
                     ->write('/**')
                     ->write(' * Set '.$local->getOwningTable()->getModelName().' entity (one to one).')
                     ->write(' *')
-                    ->write(' * @param '.$local->getOwningTable()->getNamespace().' $'.lcfirst($local->getOwningTable()->getModelName()))
-                    ->write(' * @return '.$this->getNamespace())
+                    ->write(' * @param '.$local->getOwningTable()->getNamespace(null, true, $base).' $'.lcfirst($local->getOwningTable()->getModelName()))
+                    ->write(' * @return '.$this->getNamespace(null, true, $base))
                     ->write(' */')
-                    ->write('public function set'.$local->getOwningTable()->getModelName().'('.$local->getOwningTable()->getModelName().' $'.lcfirst($local->getOwningTable()->getModelName()).' = null)')
+                    ->write('public function set'.$local->getOwningTable()->getModelName().'('.$local->getOwningTable()->getClassName($base).' $'.lcfirst($local->getOwningTable()->getModelName()).' = null)')
                     ->write('{')
                     ->indent()
                         ->writeIf(!$local->isUnidirectional(), '$'.lcfirst($local->getOwningTable()->getModelName()).'->set'.$local->getReferencedTable()->getModelName().'($this);')
@@ -801,7 +969,7 @@ class Table extends BaseTable
                     ->write('/**')
                     ->write(' * Get '.$local->getOwningTable()->getModelName().' entity (one to one).')
                     ->write(' *')
-                    ->write(' * @return '.$local->getOwningTable()->getNamespace())
+                    ->write(' * @return '.$local->getOwningTable()->getNamespace(null, true, $base))
                     ->write(' */')
                     ->write('public function get'.$local->getOwningTable()->getModelName().'()')
                     ->write('{')
@@ -833,10 +1001,10 @@ class Table extends BaseTable
                     ->write('/**')
                     ->write(' * Set '.trim($foreign->getReferencedTable()->getModelName().' entity '.$related_text).' (many to one).')
                     ->write(' *')
-                    ->write(' * @param '.$foreign->getReferencedTable()->getNamespace().' $'.lcfirst($foreign->getReferencedTable()->getModelName()))
-                    ->write(' * @return '.$this->getNamespace())
+                    ->write(' * @param '.$foreign->getReferencedTable()->getNamespace(null, true, $base).' $'.lcfirst($foreign->getReferencedTable()->getModelName()))
+                    ->write(' * @return '.$this->getNamespace(null, true, $base))
                     ->write(' */')
-                    ->write('public function set'.$this->getRelatedVarName($foreign->getReferencedTable()->getModelName(), $related).'('.$foreign->getReferencedTable()->getModelName().' $'.lcfirst($foreign->getReferencedTable()->getModelName()).' = null)')
+                    ->write('public function set'.$this->getRelatedVarName($foreign->getReferencedTable()->getModelName(), $related).'('.$foreign->getReferencedTable()->getClassName($base).' $'.lcfirst($foreign->getReferencedTable()->getModelName()).' = null)')
                     ->write('{')
                     ->indent()
                         ->write('$this->'.lcfirst($this->getRelatedVarName($foreign->getReferencedTable()->getModelName(), $related)).' = $'.lcfirst($foreign->getReferencedTable()->getModelName()).';')
@@ -849,7 +1017,7 @@ class Table extends BaseTable
                     ->write('/**')
                     ->write(' * Get '.trim($foreign->getReferencedTable()->getModelName().' entity '.$related_text).' (many to one).')
                     ->write(' *')
-                    ->write(' * @return '.$foreign->getReferencedTable()->getNamespace())
+                    ->write(' * @return '.$foreign->getReferencedTable()->getNamespace(null, true, $base))
                     ->write(' */')
                     ->write('public function get'.$this->getRelatedVarName($foreign->getReferencedTable()->getModelName(), $related).'()')
                     ->write('{')
@@ -867,10 +1035,10 @@ class Table extends BaseTable
                     ->write('/**')
                     ->write(' * Set '.$foreign->getReferencedTable()->getModelName().' entity (one to one).')
                     ->write(' *')
-                    ->write(' * @param '.$foreign->getReferencedTable()->getNamespace().' $'.lcfirst($foreign->getReferencedTable()->getModelName()))
-                    ->write(' * @return '.$this->getNamespace())
+                    ->write(' * @param '.$foreign->getReferencedTable()->getNamespace(null, true, $base).' $'.lcfirst($foreign->getReferencedTable()->getModelName()))
+                    ->write(' * @return '.$this->getNamespace(null, true, $base))
                     ->write(' */')
-                    ->write('public function set'.$foreign->getReferencedTable()->getModelName().'('.$foreign->getReferencedTable()->getModelName().' $'.lcfirst($foreign->getReferencedTable()->getModelName()).')')
+                    ->write('public function set'.$foreign->getReferencedTable()->getModelName().'('.$foreign->getReferencedTable()->getModelName().' $'.lcfirst($foreign->getReferencedTable()->getClassName($base)).')')
                     ->write('{')
                     ->indent()
                         ->write('$this->'.lcfirst($foreign->getReferencedTable()->getModelName()).' = $'.lcfirst($foreign->getReferencedTable()->getModelName()).';')
@@ -883,7 +1051,7 @@ class Table extends BaseTable
                     ->write('/**')
                     ->write(' * Get '.$foreign->getReferencedTable()->getModelName().' entity (one to one).')
                     ->write(' *')
-                    ->write(' * @return '.$foreign->getReferencedTable()->getNamespace())
+                    ->write(' * @return '.$foreign->getReferencedTable()->getNamespace(null, true, $base))
                     ->write(' */')
                     ->write('public function get'.$foreign->getReferencedTable()->getModelName().'()')
                     ->write('{')
@@ -899,7 +1067,7 @@ class Table extends BaseTable
         return $this;
     }
 
-    protected function writeManyToManyGetterAndSetter(WriterInterface $writer)
+    protected function writeManyToManyGetterAndSetter(WriterInterface $writer, $base = false, $entityName = "")
     {
         foreach ($this->getTableM2MRelations() as $relation) {
             $this->getDocument()->addLog(sprintf('  Writing N <=> N relation "%s"', $relation['refTable']->getModelName()));
@@ -909,8 +1077,8 @@ class Table extends BaseTable
                 ->write('/**')
                 ->write(' * Add '.$relation['refTable']->getModelName().' entity to collection.')
                 ->write(' *')
-                ->write(' * @param '. $relation['refTable']->getNamespace().' $'.lcfirst($relation['refTable']->getModelName()))
-                ->write(' * @return '.$this->getNamespace($this->getModelName()))
+                ->write(' * @param '. $relation['refTable']->getNamespace(null, true, $base).' $'.lcfirst($relation['refTable']->getModelName()))
+                ->write(' * @return '.$this->getNamespace($this->getClassName($base), true, $base))
                 ->write(' */')
                 ->write('public function add'.$relation['refTable']->getModelName().'('.$relation['refTable']->getModelName().' $'.lcfirst($relation['refTable']->getModelName()).')')
                 ->write('{')
@@ -929,8 +1097,8 @@ class Table extends BaseTable
                 ->write('/**')
                 ->write(' * Remove '.$relation['refTable']->getModelName().' entity from collection.')
                 ->write(' *')
-                ->write(' * @param '. $relation['refTable']->getNamespace().' $'.lcfirst($relation['refTable']->getModelName()))
-                ->write(' * @return '.$this->getNamespace($this->getModelName()))
+                ->write(' * @param '. $relation['refTable']->getNamespace(null, true, $base).' $'.lcfirst($relation['refTable']->getModelName()))
+                ->write(' * @return '.$this->getNamespace($this->getClassName($base), true, $base))
                 ->write(' */')
                 ->write('public function remove'.$relation['refTable']->getModelName().'('.$relation['refTable']->getModelName().' $'.lcfirst($relation['refTable']->getModelName()).')')
                 ->write('{')

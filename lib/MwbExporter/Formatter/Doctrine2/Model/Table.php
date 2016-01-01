@@ -35,19 +35,34 @@ class Table extends BaseTable
     /**
      * Get the entity namespace.
      *
+     * @param boolean $base wether its for base entities or not
      * @return string
      */
-    public function getEntityNamespace()
+    public function getEntityNamespace($base = false)
     {
         $namespace = '';
         if (($bundleNamespace = $this->parseComment('bundleNamespace')) || ($bundleNamespace = $this->getConfig()->get(Formatter::CFG_BUNDLE_NAMESPACE))) {
             $namespace = $bundleNamespace.'\\';
         }
-        if ($entityNamespace = $this->getConfig()->get(Formatter::CFG_ENTITY_NAMESPACE)) {
-            $namespace .= $entityNamespace;
-        } else {
-            $namespace .= 'Entity';
+        
+        $namespace .= $this->getConfig()->get($base ? Formatter::CFG_BASE_ENTITY_NAMESPACE : Formatter::CFG_ENTITY_NAMESPACE);
+
+        return $namespace;
+    }
+
+    /**
+     * Get the repositories namespace.
+     *
+     * @return string
+     */
+    public function getRepositoryNamespace()
+    {
+        $namespace = '';
+        if (($bundleNamespace = $this->parseComment('bundleNamespace')) || ($bundleNamespace = $this->getConfig()->get(Formatter::CFG_BUNDLE_NAMESPACE))) {
+            $namespace = $bundleNamespace.'\\';
         }
+        
+        $namespace .= $this->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE);
 
         return $namespace;
     }
@@ -56,11 +71,13 @@ class Table extends BaseTable
      * Get namespace of a class.
      *
      * @param string $class The class name
+     * @param boolean $absolute wether generate absolute namespace or not
+     * @param boolean $base wether its for base entities or not
      * @return string
      */
-    public function getNamespace($class = null, $absolute = true)
+    public function getNamespace($class = null, $absolute = true, $base = false)
     {
-        return sprintf('%s%s\%s', $absolute ? '\\' : '', $this->getEntityNamespace(), null === $class ? $this->getModelName() : $class);
+        return sprintf('%s%s\%s', $absolute ? '\\' : '', $this->getEntityNamespace($base), null === $class ? $this->getModelName() : $class);
     }
 
     /**
@@ -68,14 +85,28 @@ class Table extends BaseTable
      * is equal then relative model name returned instead.
      *
      * @param string $referenceNamespace The reference namespace
+     * @param boolean $base wether its for base entities or not
      * @return string
      */
-    public function getModelNameAsFQCN($referenceNamespace = null)
+    public function getModelNameAsFQCN($referenceNamespace = null, $base = false, $className = null)
     {
-        $namespace = $this->getEntityNamespace();
+        $namespace = $this->getEntityNamespace($base);
+        
         $fqcn = ($namespace == $referenceNamespace) ? false : true;
 
-        return $fqcn ? $namespace.'\\'.$this->getModelName() : $this->getModelName();
+        return $fqcn ? $namespace.'\\'.$this->getClassName($base, $className) : $this->getClassName($base, $className);
+    }
+
+    /**
+     * Get the generated class name.
+     *
+     * @param bool $base
+     * @param string $className The class name to format
+     * @return string
+     */
+    protected function getClassName($base = false, $className = null)
+    {
+        return ($base && $this->getConfig()->get(Formatter::CFG_ENTITY_NAMESPACE) ==  $this->getConfig()->get(Formatter::CFG_BASE_ENTITY_NAMESPACE) ? 'Base' : '').($className?$className:$this->getModelName());
     }
 
     /**

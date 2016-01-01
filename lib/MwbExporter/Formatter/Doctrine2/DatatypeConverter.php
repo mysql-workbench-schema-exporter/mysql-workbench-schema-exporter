@@ -133,6 +133,11 @@ class DatatypeConverter extends BaseDatatypeConverter
 
         return $type;
     }
+    
+    public function getNativeTypes()
+    {
+        return array_unique(array_values($this->dataTypes));
+    }
 
     public function getMappedType(Column $column)
     {

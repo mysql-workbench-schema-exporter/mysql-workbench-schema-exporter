@@ -78,7 +78,7 @@ class Annotation extends Base
             $value = '"'.$value.'"';
         } elseif (is_array($value)) {
             $tmp = array();
-            $useKey = !$this->isKeysNumeric($value);
+            $useKey = !$this->isKeysNumeric($value) || (false === $topLevel && $this->getOption('useKeys', false));
             foreach ($value as $k => $v) {
                 // skip null value
                 if (null === $v) {

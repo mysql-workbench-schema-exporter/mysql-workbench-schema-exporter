@@ -230,7 +230,7 @@ Common Setup Options for Doctrine 2.0:
 
   * `generatedValueStrategy`
     
-    The stragety for auto-generated values.
+    The strategy for auto-generated values.
 
     Default is `auto`.
 
@@ -275,6 +275,12 @@ Common Setup Options for Doctrine 2.0:
     This option will generate entity using Single Table Inheritance.
 
     Default is `false`.
+
+  * `extendableEntityDefaultDiscriminatorType`
+  
+    This option allows you to specify the default type for discriminator column.
+    
+    Default is 'string'.
 
   * `quoteIdentifierStrategy`
 
@@ -359,6 +365,22 @@ Common Setup Options for Doctrine 2.0:
           column1,desc
         {/d:order}
 
+  * `{d:discriminator}column{/d:discriminator}` (applied to Table)
+  
+    Allows you to specify a column name to be used as discriminator for single table inheritance.
+
+  * `{d:discriminatorType}type{/d:discriminatorType}` (applied to Table)
+  
+    Allows you to specify the type to be used for discriminator column in single table inheritance.
+    This option overrides the `extendableEntityDefaultDiscriminatorType` configuration option and 
+    is overriden by above discriminator column specification, as its type is then automatically deduced.
+
+  * `{d:discriminatorMap}value=class, ...{/d:discriminatorMap}` (applied to Table)
+  
+    In the Single Table Inheritance context, this option overrides the default map (base=Base%Entity%, extended=%Entity%) 
+    with your own discriminator map.
+
+    
 #### Doctrine 2.0 Annotation with ZF2 Input Filter Classes
 
 Doctrine 2.0 Annotation with ZF2 Input Filter Classes formatter directly extend Doctrine 2.0
