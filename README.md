@@ -19,7 +19,7 @@ Currently, MySQL Workbench Schema Exporter can export the model to the following
     [Annotation Classes](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/annotations-reference.html)
     or Annotation Classes with [Zend Framework 2](http://framework.zend.com/)
     [Input Filter support](http://framework.zend.com/manual/2.1/en/modules/zend.input-filter.intro.html).
-  * [Zend DbTable](http://framework.zend.com/manual/en/zend.db.table.html).
+  * [Zend DbTable](http://framework.zend.com/manual/1.12/en/zend.db.table.html).
   * Zend Rest Controller.
   * Sencha ExtJS3 Model.
   * Sencha [ExtJS4 Model](http://www.sencha.com/products/extjs/).
