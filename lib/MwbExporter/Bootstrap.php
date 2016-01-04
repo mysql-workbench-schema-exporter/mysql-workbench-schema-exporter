@@ -74,9 +74,14 @@ class Bootstrap
     {
         $formatters = $this->getFormatters();
         if (!array_key_exists($name, $formatters)) {
-            throw new \InvalidArgumentException(sprintf('Unknown formatter "%s".', $name));
+            list($vendor, $subVendor) = explode('-', $name, 2);
+            $class = 'MwbExporter\\Formatter\\' . ucfirst(strtolower($vendor)) . '\\' . ucfirst(strtolower($subVendor)) . '\\Formatter';
+            if (!class_exists($class)) {
+                throw new \InvalidArgumentException(sprintf('Unknown formatter "%s".', $name));
+            }
+        } else {
+            $class = $formatters[$name];
         }
-        $class = $formatters[$name];
 
         return new $class($name);
     }
