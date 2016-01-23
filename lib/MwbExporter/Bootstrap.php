@@ -46,23 +46,45 @@ class Bootstrap
      *
      * @return array
      */
-    public function getFormatters()
-    {
-        if (null === self::$formatters) {
-            self::$formatters = array();
-            $pattern = implode(DIRECTORY_SEPARATOR, array(__DIR__, 'Formatter', '*', '*', 'Formatter.php'));
-            foreach (glob($pattern) as $filename) {
-                $dirs = explode(DIRECTORY_SEPARATOR, dirname(realpath($filename)));
-                $subVendor = array_pop($dirs);
-                $vendor = array_pop($dirs);
-                $formatter = strtolower(implode('-', array($vendor, $subVendor)));
-                $formatterClass = sprintf('\\MwbExporter\\Formatter\\%s\\%s\\Formatter', $vendor, $subVendor);
-                self::$formatters[$formatter] = $formatterClass;
-            }
-        }
+     public function getFormatters()
+     {
+         if (null === self::$formatters) {
+             self::$formatters = array();
+             $DS = DIRECTORY_SEPARATOR;
+             $pattern = implode($DS, array(__DIR__, 'Formatter', '*', '*', 'Formatter.php'));
 
-        return self::$formatters;
-    }
+             // check if mwbse is installed via composer
+             if (strpos($pattern, 'vendor' . $DS . 'mysql-workbench-schema-exporter' . $DS) !== false) {
+                 $pattern = str_replace('mysql-workbench-schema-exporter' . $DS . 'mysql-workbench-schema-exporter' . $DS, 'mysql-workbench-schema-exporter' . $DS . '*' . $DS, $pattern);
+             }
+             foreach (glob($pattern) as $filename) {
+                 $dirs = explode(DIRECTORY_SEPARATOR, dirname(realpath($filename)));
+                 $subVendor = array_pop($dirs);
+                 $vendor = array_pop($dirs);
+                 $formatter = strtolower(implode('-', array($vendor, $subVendor)));
+                 $formatterClass = sprintf('\\MwbExporter\\Formatter\\%s\\%s\\Formatter', $vendor, $subVendor);
+                 self::$formatters[$formatter] = $formatterClass;
+             }
+
+             if ($position = strpos(__DIR__, 'vendor' . $DS . 'mysql-workbench-schema-exporter' . $DS)) {
+                 // possibly executed via composer. There might be more exporters in the current project
+                 $currentProject = substr(__DIR__, 0, $position);
+
+                 $pattern = implode($DS, array($currentProject, 'lib', 'MwbExporter', 'Formatter', '*', '*', 'Formatter.php'));
+
+                 foreach (glob($pattern) as $filename) {
+                     $dirs = explode(DIRECTORY_SEPARATOR, dirname(realpath($filename)));
+                     $subVendor = array_pop($dirs);
+                     $vendor = array_pop($dirs);
+                     $formatter = strtolower(implode('-', array($vendor, $subVendor)));
+                     $formatterClass = sprintf('\\MwbExporter\\Formatter\\%s\\%s\\Formatter', $vendor, $subVendor);
+                     self::$formatters[$formatter] = $formatterClass;
+                 }
+             }
+         }
+
+         return self::$formatters;
+     }
 
     /**
      * Get formatter.
@@ -88,7 +110,7 @@ class Bootstrap
 
     /**
      * Get writer.
-     * 
+     *
      * @param string $name  The writer name
      * @return \MwbExporter\Writer\WriterInterface
      */
@@ -106,7 +128,7 @@ class Bootstrap
 
     /**
      * Get storage.
-     * 
+     *
      * @param string $name  The storage name
      * @return \MwbExporter\Storage\StorageInterface
      */
@@ -138,7 +160,7 @@ class Bootstrap
         }
         if ($formatter && $storage = $this->getStorage($storage)) {
             if ($formatter->getRegistry()->config->get(FormatterInterface::CFG_USE_LOGGED_STORAGE)) {
-                $storage = new LoggedStorage($storage); 
+                $storage = new LoggedStorage($storage);
             }
             $storage->setName(basename($filename, '.mwb'));
             $storage->setOutdir(realpath($outDir) ? realpath($outDir) : $outDir);
