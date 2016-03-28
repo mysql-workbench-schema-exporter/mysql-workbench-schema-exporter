@@ -49,10 +49,11 @@ const CMD_OPT_HELP           = 'help';
 function showTitle()
 {
     $version = FormatterInterface::VERSION;
+    $year = date('Y');
     echo <<<EOF
 MySQL Workbench Schema Exporter version $version.
-Copyright (c) 2010-2014 Johannes Mueller <circus2@web.de>
-Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+Copyright (c) 2010-{$year} Johannes Mueller <circus2@web.de>
+Copyright (c) 2012-{$year} Toha <tohenk@yahoo.com>
 
 
 EOF;
@@ -69,7 +70,7 @@ Usage:
 $self [options] FILENAME [DEST]
 
 Options:
---export=type       Select the exporter, for a list of available exportor
+--export=type       Select the exporter, for a list of available exporter
                     use --list-exporter option.
 --config=file       Read file for export parameters, in JSON format.
 --saveconfig        Save export parameters to file.
@@ -200,6 +201,13 @@ function listFormatter($bootstrap, $ordered = false)
 {
     $i = 0;
     $formatters = $bootstrap->getFormatters();
+    if (!$formatters) {
+        echo "ERROR: No formatters found. Formatters are separate projects which need to be installed via composer.\n";
+        echo "       You can find all formatters at https://github.com/mysql-workbench-schema-exporter.\n";
+        echo "  Example: \n";
+        echo "  php composer.phar require --dev mysql-workbench-schema-exporter/doctrine2-exporter\n";
+        return [];
+    }
     // find the longest formatter name
     $len = max(array_map('strlen', array_keys($formatters))) + 1;
     $nlen = strlen((string) count($formatters));

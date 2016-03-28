@@ -13,7 +13,7 @@
 		"zend",
 		"sequelizejs"
 	],
-	"homepage" : "https://github.com/johmue/mysql-workbench-schema-exporter",
+	"homepage" : "https://github.com/mysql-workbench-schema-exporter/mysql-workbench-schema-exporter",
 	"license" : "MIT",
 	"authors" : [{
 			"name" : "Johannes Mueller",
@@ -23,12 +23,15 @@
 			"name" : "Toha",
 			"email" : "tohenk@yahoo.com",
 			"role" : "Developer"
+		}, {
+			"name" : "Robert Vock",
+			"email" : "robertvock82@gmail.com",
+			"role" : "Developer"
 		}
 	],
 	"require" : {
-		"php" : ">=5.3.0",
-		"doctrine/inflector" : "1.0.*@dev",
-		"symfony/yaml" : "2.5.*@dev"
+		"php" : ">=5.4.0",
+		"doctrine/inflector" : "^1.0.0"
 	},
 	"bin" : [
 		"bin/mysql-workbench-schema-export",
