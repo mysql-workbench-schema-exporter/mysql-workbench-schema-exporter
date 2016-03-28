@@ -40,14 +40,14 @@ class Base
 
     /**
      * Constructor.
-     * 
+     *
      * @param mixed $content
      * @param array $options
      */
     public function __construct($content = null, $options = array())
     {
         $this->content = $content;
-        $this->setOptions(array_merge(array('raw' => false), (array) $options));
+        $this->setOptions(array_merge(array('raw' => false, 'indentation' => '    '), (array) $options));
         $this->init();
     }
 
@@ -124,17 +124,17 @@ class Base
      */
     protected function decorateCode($code)
     {
-        return $code; 
+        return $code;
     }
 
     /**
      * Wrap text.
      *
      * @param string $lines      The text
-     * @param int    $indent     Indent line
+     * @param int    $indentationLevel
      * @return string
      */
-    protected function wrapLines($lines, $indent = 0)
+    protected function wrapLines($lines, $indentationLevel = 0)
     {
         if ($wrapper = $this->getOption('wrapper')) {
             $lines = explode("\n", $lines);
@@ -144,8 +144,8 @@ class Base
                     continue;
                 }
                 $line = $lines[$i];
-                if ($indent && $i < count($lines) - 1) {
-                    $line = str_repeat(' ', $indent).$line;
+                if ($indentationLevel && $i < count($lines) - 1) {
+                    $line = str_repeat($this->getOption('indentation'), $indentationLevel) . $line;
                 }
                 $lines[$i] = sprintf($wrapper, $line);
             }

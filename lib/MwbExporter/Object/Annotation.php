@@ -99,7 +99,7 @@ class Annotation extends Base
                 $value = sprintf('{%s}', $value);
             }
             if ($multiline) {
-                $value = $this->wrapLines($value, 4);
+                $value = $this->wrapLines($value, 1);
             }
         }
 
