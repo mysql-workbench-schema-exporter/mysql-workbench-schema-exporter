@@ -312,7 +312,8 @@ function main($filename, $dir, $params, $options)
                 CMD_PARAM_EXPORT => $params[CMD_PARAM_EXPORT],
                 CMD_OPT_ZIP => $options[CMD_OPT_ZIP],
                 'dir' => $dir, 'params' => $setup
-            )
+            ),
+            JSON_PRETTY_PRINT
         ));
     }
 
