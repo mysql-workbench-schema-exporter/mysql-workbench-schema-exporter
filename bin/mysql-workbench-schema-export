@@ -197,24 +197,35 @@ function setupFormatter(&$setup, $validators)
     }
 }
 
-function listFormatter($bootstrap, $ordered = false)
+function listFormatter($bootstrap, $ordered = false, $title = null)
 {
-    $i = 0;
-    $formatters = $bootstrap->getFormatters();
-    if (!$formatters) {
-        echo "ERROR: No formatters found. Formatters are separate projects which need to be installed via composer.\n";
-        echo "       You can find all formatters at https://github.com/mysql-workbench-schema-exporter.\n";
-        echo "  Example: \n";
-        echo "  php composer.phar require --dev mysql-workbench-schema-exporter/doctrine2-exporter\n";
-        return [];
-    }
-    // find the longest formatter name
-    $len = max(array_map('strlen', array_keys($formatters))) + 1;
-    $nlen = strlen((string) count($formatters));
-    foreach ($formatters as $name => $class) {
-        $i++;
-        $formatter = $bootstrap->getFormatter($name);
-        echo sprintf("%s %-${len}s %s\n", $ordered ? str_pad((string) $i, $nlen, ' ', STR_PAD_LEFT).'.' : '-', $name, $formatter->getTitle());
+    if (count($formatters = $bootstrap->getFormatters())) {
+        if ($ordered) {
+            ksort($formatters);
+        }
+        // find the longest formatter name
+        $len = max(array_map('strlen', array_keys($formatters))) + 1;
+        $nlen = strlen((string) count($formatters));
+        if ($title) {
+            echo "$title\n";
+        }
+        $i = 0;
+        foreach ($formatters as $name => $class) {
+            $i++;
+            $formatter = $bootstrap->getFormatter($name);
+            echo sprintf("%s %-${len}s %s\n", $ordered ? str_pad((string) $i, $nlen, ' ', STR_PAD_LEFT).'.' : '-', $name, $formatter->getTitle());
+        }
+    } else {
+        echo <<<EOF
+No exporter found.
+
+Exporter are separate projects which need to be installed via composer.
+You can find all exporters at https://github.com/mysql-workbench-schema-exporter.
+
+Example:
+  php composer.phar require --dev mysql-workbench-schema-exporter/doctrine2-exporter
+
+EOF;
     }
 
     return $formatters;
@@ -242,8 +253,7 @@ function main($filename, $dir, $params, $options)
     // bootstrap
     $bootstrap = new Bootstrap();
     if ($options[CMD_OPT_LIST_EXPORTER]) {
-        echo "Supported exporter:\n";
-        listFormatter($bootstrap, true);
+        listFormatter($bootstrap, true, 'Supported exporter:');
         die(0);
     }
 
