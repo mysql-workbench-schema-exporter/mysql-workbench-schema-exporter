@@ -46,45 +46,30 @@ class Bootstrap
      *
      * @return array
      */
-     public function getFormatters()
-     {
-         if (null === self::$formatters) {
-             self::$formatters = array();
-             $DS = DIRECTORY_SEPARATOR;
-             $pattern = implode($DS, array(__DIR__, 'Formatter', '*', '*', 'Formatter.php'));
-
-             // check if mwbse is installed via composer
-             if (strpos($pattern, 'vendor' . $DS . 'mysql-workbench-schema-exporter' . $DS) !== false) {
-                 $pattern = str_replace('mysql-workbench-schema-exporter' . $DS . 'mysql-workbench-schema-exporter' . $DS, 'mysql-workbench-schema-exporter' . $DS . '*' . $DS, $pattern);
-             }
-             foreach (glob($pattern) as $filename) {
-                 $dirs = explode(DIRECTORY_SEPARATOR, dirname(realpath($filename)));
-                 $subVendor = array_pop($dirs);
-                 $vendor = array_pop($dirs);
-                 $formatter = strtolower(implode('-', array($vendor, $subVendor)));
-                 $formatterClass = sprintf('\\MwbExporter\\Formatter\\%s\\%s\\Formatter', $vendor, $subVendor);
-                 self::$formatters[$formatter] = $formatterClass;
-             }
-
-             if ($position = strpos(__DIR__, 'vendor' . $DS . 'mysql-workbench-schema-exporter' . $DS)) {
-                 // possibly executed via composer. There might be more exporters in the current project
-                 $currentProject = substr(__DIR__, 0, $position);
-
-                 $pattern = implode($DS, array($currentProject, 'lib', 'MwbExporter', 'Formatter', '*', '*', 'Formatter.php'));
-
-                 foreach (glob($pattern) as $filename) {
-                     $dirs = explode(DIRECTORY_SEPARATOR, dirname(realpath($filename)));
-                     $subVendor = array_pop($dirs);
-                     $vendor = array_pop($dirs);
-                     $formatter = strtolower(implode('-', array($vendor, $subVendor)));
-                     $formatterClass = sprintf('\\MwbExporter\\Formatter\\%s\\%s\\Formatter', $vendor, $subVendor);
-                     self::$formatters[$formatter] = $formatterClass;
-                 }
-             }
+    public function getFormatters()
+    {
+        if (null === self::$formatters) {
+            self::$formatters = array();
+            $dirs = array();
+            // if we'are using Composer, include these formatters
+            if ($composer = $this->getComposer()) {
+                $vendorDir = realpath(__DIR__.'/../../../..');
+                if (is_readable($installed = $vendorDir.'/composer/installed.json')) {
+                    $packages = json_decode(file_get_contents($installed), true);
+                    foreach ($packages as $package) {
+                        if (isset($package['name']) && is_dir($dir = $vendorDir.DIRECTORY_SEPARATOR.$package['name'])) {
+                            $dirs[] = $dir;
+                        }
+                    }
+                }
+            } else {
+                $dirs[] = realpath(__DIR__.'/../..');
+            }
+            $this->scanFormatters($dirs);
          }
 
-         return self::$formatters;
-     }
+        return self::$formatters;
+    }
 
     /**
      * Get formatter.
@@ -96,8 +81,8 @@ class Bootstrap
     {
         $formatters = $this->getFormatters();
         if (!array_key_exists($name, $formatters)) {
-            list($vendor, $subVendor) = explode('-', $name, 2);
-            $class = 'MwbExporter\\Formatter\\' . ucfirst(strtolower($vendor)) . '\\' . ucfirst(strtolower($subVendor)) . '\\Formatter';
+            list($module, $exporter) = explode('-', $name, 2);
+            $class = sprintf('\\MwbExporter\\Formatter\\%s\\%s\\Formatter', ucfirst(strtolower($module)), ucfirst(strtolower($exporter)));
             if (!class_exists($class)) {
                 throw new \InvalidArgumentException(sprintf('Unknown formatter "%s".', $name));
             }
@@ -194,6 +179,72 @@ class Bootstrap
             }
 
             return $document;
+        }
+    }
+
+    /**
+     * Register schema exporter class.
+     *
+     * @param string $module
+     * @param string $exporter
+     * @param string $class
+     * @return \MwbExporter\Bootstrap
+     */
+    public function registerFormatter($module, $exporter, $class)
+    {
+        $key = strtolower(implode('-', array($module, $exporter)));
+        if (array_key_exists($key, static::$formatters)) {
+            throw new \RuntimeException(sprintf('Formatter %s already registered.', $class));
+        }
+        static::$formatters[$key] = $class;
+
+        return $this;
+    }
+
+    /**
+     * Scan directories for available formatters.
+     *
+     * Try to guess if schema formatter (or exporter) is present in the specified directory
+     * which is named according to convention: MwbExporter\Formatter\*\*\Formatter.php.
+     *
+     * @param array $dirs
+     * @return \MwbExporter\Bootstrap
+     */
+    protected function scanFormatters($dirs)
+    {
+        $dirs = is_array($dirs) ? $dirs : array($dirs);
+        foreach ($dirs as $dir) {
+            if (is_dir($dir)) {
+                $pattern = implode(DIRECTORY_SEPARATOR, array($dir, '*', 'MwbExporter', 'Formatter', '*', '*', 'Formatter.php'));
+                foreach (glob($pattern) as $filename) {
+                    $parts = explode(DIRECTORY_SEPARATOR, dirname(realpath($filename)));
+                    $exporter = array_pop($parts);
+                    $module = array_pop($parts);
+                    $class = sprintf('\\MwbExporter\\Formatter\\%s\\%s\\Formatter', $module, $exporter);
+                    $this->registerFormatter($module, $exporter, $class);
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get Composer autoloader instance.
+     *
+     * @return \Composer\Autoload\ClassLoader
+     */
+    protected function getComposer()
+    {
+        if ($autoloaders = spl_autoload_functions()) {
+            foreach ($autoloaders as $autoload) {
+                if (is_array($autoload)) {
+                    $class = $autoload[0];
+                    if ('Composer\Autoload\ClassLoader' == get_class($class)) {
+                        return $class;
+                    }
+                }
+            }
         }
     }
 }
