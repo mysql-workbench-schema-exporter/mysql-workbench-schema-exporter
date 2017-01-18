@@ -48,8 +48,8 @@ class Bootstrap
      */
     public function getFormatters()
     {
-        if (null === self::$formatters) {
-            self::$formatters = array();
+        if (null === static::$formatters) {
+            static::$formatters = array();
             $dirs = array();
             // if we'are using Composer, include these formatters
             if ($composer = $this->getComposer()) {
@@ -58,6 +58,48 @@ class Bootstrap
                     $packages = json_decode(file_get_contents($installed), true);
                     foreach ($packages as $package) {
                         if (isset($package['name']) && is_dir($dir = $vendorDir.DIRECTORY_SEPARATOR.$package['name'])) {
+                            /**
+                             * Check for extended package extra attribute to customize
+                             * formatter inclusion.
+                             *
+                             * An example to include formatter using class:
+                             * {
+                             *     "extra" : {
+                             *         "mysql-workbench-schema-exporter" : {
+                             *             "formatters" : {
+                             *                 "my-simple" : "\\My\\Simple\\Formatter",
+                             *                 "my-simple2" : "\\My\\Simple2\\Formatter"
+                             *             }
+                             *         }
+                             *     }
+                             * }
+                             *
+                             * An example include formatter using namespace:
+                             * {
+                             *     "extra" : {
+                             *         "mysql-workbench-schema-exporter" : {
+                             *             "namespaces" : {
+                             *                 "lib/My/Exporter" : "\\Acme\\My\\Exporter",
+                             *             }
+                             *         }
+                             *     }
+                             * }
+                             */
+                            if (isset($package['extra']) && isset($package['extra']['mysql-workbench-schema-exporter'])) {
+                                if (is_array($options = $package['extra']['mysql-workbench-schema-exporter'])) {
+                                    if (isset($options['formatters']) && is_array($options['formatters'])) {
+                                        foreach ($options['formatters'] as $name => $class) {
+                                            $this->registerFormatter($name, $class);
+                                        }
+                                    }
+                                    if (isset($options['namespaces']) && is_array($options['namespaces'])) {
+                                        foreach ($options['namespaces'] as $lib => $namespace) {
+                                            $dirs[$dir.DIRECTORY_SEPARATOR.$lib] = $namespace;
+                                        }
+                                    }
+                                    continue;
+                                }
+                            }
                             $dirs[] = $dir;
                         }
                     }
@@ -66,9 +108,9 @@ class Bootstrap
                 $dirs[] = realpath(__DIR__.'/../..');
             }
             $this->scanFormatters($dirs);
-         }
+        }
 
-        return self::$formatters;
+        return static::$formatters;
     }
 
     /**
@@ -185,18 +227,17 @@ class Bootstrap
     /**
      * Register schema exporter class.
      *
-     * @param string $module
-     * @param string $exporter
+     * @param string $name
      * @param string $class
      * @return \MwbExporter\Bootstrap
      */
-    public function registerFormatter($module, $exporter, $class)
+    public function registerFormatter($name, $class)
     {
-        $key = strtolower(implode('-', array($module, $exporter)));
-        if (array_key_exists($key, static::$formatters)) {
+        $name = strtolower(is_array($name) ? implode('-', $name) : $name);
+        if (array_key_exists($name, static::$formatters)) {
             throw new \RuntimeException(sprintf('Formatter %s already registered.', $class));
         }
-        static::$formatters[$key] = $class;
+        static::$formatters[$name] = $class;
 
         return $this;
     }
@@ -213,15 +254,24 @@ class Bootstrap
     protected function scanFormatters($dirs)
     {
         $dirs = is_array($dirs) ? $dirs : array($dirs);
-        foreach ($dirs as $dir) {
+        foreach ($dirs as $key => $dir) {
+            $namespace = null;
+            if (is_string($key)) {
+                $namespace = $dir;
+                $dir = $key;
+            }
             if (is_dir($dir)) {
-                $pattern = implode(DIRECTORY_SEPARATOR, array($dir, '*', 'MwbExporter', 'Formatter', '*', '*', 'Formatter.php'));
+                $parts = array('*', '*', 'Formatter.php');
+                if (null == $namespace) {
+                    $parts = array_merge(array('*', 'MwbExporter', 'Formatter'), $parts);
+                }
+                $pattern = implode(DIRECTORY_SEPARATOR, array_merge(array($dir), $parts));
                 foreach (glob($pattern) as $filename) {
                     $parts = explode(DIRECTORY_SEPARATOR, dirname(realpath($filename)));
                     $exporter = array_pop($parts);
                     $module = array_pop($parts);
-                    $class = sprintf('\\MwbExporter\\Formatter\\%s\\%s\\Formatter', $module, $exporter);
-                    $this->registerFormatter($module, $exporter, $class);
+                    $class = sprintf('%s\\%s\\%s\\Formatter', $namespace ?: '\\MwbExporter\\Formatter', $module, $exporter);
+                    $this->registerFormatter(array($module, $exporter), $class);
                 }
             }
         }
