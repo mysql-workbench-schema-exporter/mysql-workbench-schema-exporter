@@ -40,7 +40,9 @@ interface DatatypeConverterInterface
     const DATATYPE_DOUBLE              = 'com.mysql.rdbms.mysql.datatype.double';
     const DATATYPE_DECIMAL             = 'com.mysql.rdbms.mysql.datatype.decimal';
     const DATATYPE_CHAR                = 'com.mysql.rdbms.mysql.datatype.char';
+    const DATATYPE_NCHAR               = 'com.mysql.rdbms.mysql.datatype.nchar';
     const DATATYPE_VARCHAR             = 'com.mysql.rdbms.mysql.datatype.varchar';
+    const DATATYPE_NVARCHAR            = 'com.mysql.rdbms.mysql.datatype.nvarchar';
     const DATATYPE_BINARY              = 'com.mysql.rdbms.mysql.datatype.binary';
     const DATATYPE_VARBINARY           = 'com.mysql.rdbms.mysql.datatype.varbinary';
     const DATATYPE_TINYTEXT            = 'com.mysql.rdbms.mysql.datatype.tinytext';
