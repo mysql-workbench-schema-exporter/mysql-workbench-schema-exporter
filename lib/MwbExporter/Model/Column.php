@@ -252,8 +252,9 @@ class Column extends Base
     public function getDefaultValue()
     {
         if (1 != $this->parameters->get('defaultValueIsNull')) {
-            if (($defaultValue = trim($this->parameters->get('defaultValue'), '\'"')) && ('NULL' != $defaultValue)) {
-                return $defaultValue;
+            $defaultValue = $this->parameters->get('defaultValue');
+            if (strlen($defaultValue) && 'NULL' != $defaultValue) {
+                return trim($defaultValue, '\'"');
             }
         }
     }
