@@ -387,7 +387,7 @@ abstract class Base
     {
         return ucfirst(preg_replace_callback('@\_(\w)@', function($matches) {
             return ucfirst($matches[1]);
-        }, $underscored_text));
+        }, str_replace('__', '_', $underscored_text)));
     }
 
     /**
