@@ -268,4 +268,40 @@ class Column extends Base
     {
         return $this->parameters->get('length');
     }
+
+    /**
+     * Is it a boolean column?
+     *
+     * @return boolean
+     */
+    public function isBoolean()
+    {
+        if ('tinyint' == substr($this->getColumnType(), -7) &&
+            (1 == $this->getParameters()->get('precision') || preg_match('/^(is|has)_/', $this->getColumnName()))
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get the getter name.
+     *
+     * @return string
+     */
+    public function getColumnGetterName() {
+        $prefix = 'get';
+        $name = $this->getBeautifiedColumnName();
+
+        if ($this->isBoolean()) {
+            $matches = null;
+            if (preg_match('/^(is|has)_(.+)$/', $this->getColumnName(), $matches)) {
+                $prefix = $matches[1];
+                $name = $this->beautify($matches[2]);
+            }
+        }
+
+        return $prefix.$name;
+    }
 }
