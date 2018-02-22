@@ -43,6 +43,7 @@ interface DatatypeConverterInterface
     const DATATYPE_NCHAR               = 'com.mysql.rdbms.mysql.datatype.nchar';
     const DATATYPE_VARCHAR             = 'com.mysql.rdbms.mysql.datatype.varchar';
     const DATATYPE_NVARCHAR            = 'com.mysql.rdbms.mysql.datatype.nvarchar';
+    const DATATYPE_JSON                = 'com.mysql.rdbms.mysql.datatype.json';
     const DATATYPE_BINARY              = 'com.mysql.rdbms.mysql.datatype.binary';
     const DATATYPE_VARBINARY           = 'com.mysql.rdbms.mysql.datatype.varbinary';
     const DATATYPE_TINYTEXT            = 'com.mysql.rdbms.mysql.datatype.tinytext';
