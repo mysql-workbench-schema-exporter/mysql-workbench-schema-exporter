@@ -24,7 +24,7 @@
  */
 
 $sources = array(
-    'mysql.com' => array('url' => 'http://dev.mysql.com/doc/mysqld-version-reference/en/mysqld-version-reference-reservedwords-5-7.html', 'xpath' => '//code[@class="literal"]'),
+    'mysql.com' => array('url' => 'https://dev.mysql.com/doc/mysqld-version-reference/en/mysqld-version-reference-keywords-5-7.html', 'xpath' => '//code[@class="literal"]'),
     'drupal.org' => array('url' => 'https://www.drupal.org/node/141051', 'xpath' => '//ol/li'),
     'db.apache.org' => array('url' => 'https://db.apache.org/derby/docs/10.1/ref/rrefkeywords29722.html', 'xpath' => '//ul[@class="simple"]/li'),
 );
