@@ -31,7 +31,8 @@
 	],
 	"require" : {
 		"php" : ">=5.4.0",
-		"doctrine/inflector" : "^1.0.0"
+		"doctrine/inflector" : "^1.0.0",
+		"mysql-workbench-schema-exporter/doctrine2-exporter": "^3.0"
 	},
 	"bin" : [
 		"bin/mysql-workbench-schema-export",
