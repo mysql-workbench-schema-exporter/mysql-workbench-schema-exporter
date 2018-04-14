@@ -45,6 +45,7 @@ interface FormatterInterface {
     const CFG_SKIP_M2M_TABLES        = 'skipManyToManyTables';
     const CFG_SORT_TABLES_AND_VIEWS  = 'sortTablesAndViews';
     const CFG_EXPORT_TABLE_CATEGORY  = 'exportOnlyTableCategorized';
+    const CFG_TABLE_NAME_PREFIX      = 'tableNamePrefix';
     const CFG_LOG_TO_CONSOLE         = 'logToConsole';
     const CFG_LOG_FILE               = 'logFile';
 
