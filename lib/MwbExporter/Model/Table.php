@@ -289,7 +289,7 @@ class Table extends Base
     /**
      * Add a many to many relation.
      *
-     * @param array $rel  The relation
+     * @param array $rel The relation
      * @return \MwbExporter\Model\Table
      */
     public function setManyToManyRelation($rel)
@@ -308,7 +308,8 @@ class Table extends Base
      */
     public function getRawTableName()
     {
-        return $this->getName();
+        $prefix = $this->getConfig()->get(FormatterInterface::CFG_TABLE_NAME_PREFIX);
+        return $prefix . $this->getName();
     }
 
     /**
@@ -322,8 +323,8 @@ class Table extends Base
 
         // check if table name is plural --> convert to singular
         if (
-            !$this->getConfig()->get(FormatterInterface::CFG_SKIP_PLURAL) &&
-            ($tableName != ($singular = Inflector::singularize($tableName)))
+                !$this->getConfig()->get(FormatterInterface::CFG_SKIP_PLURAL) &&
+                ($tableName != ($singular = Inflector::singularize($tableName)))
         ) {
             $tableName = $singular;
         }
@@ -423,23 +424,22 @@ class Table extends Base
     protected function getVars()
     {
         return array(
-            '%table%'     => $this->getRawTableName(),
-            '%entity%'    => $this->getModelName(),
-            '%category%'  => $this->getCategory(),
+                '%table%' => $this->getRawTableName(),
+                '%entity%' => $this->getModelName(),
+                '%category%' => $this->getCategory(),
         );
     }
 
     /**
      * Get table file name.
      *
-     * @param string $format  The filename format
-     * @param array $vars  The overriden variables
+     * @param string $format The filename format
+     * @param array  $vars   The overriden variables
      * @return string
      */
     public function getTableFileName($format = null, $vars = array())
     {
-        if (0 === strlen($filename = $this->getDocument()->translateFilename($format, $this, $vars)))
-        {
+        if (0 === strlen($filename = $this->getDocument()->translateFilename($format, $this, $vars))) {
             $filename = implode('.', array($this->getSchema()->getName(), $this->getRawTableName(), $this->getFormatter()->getFileExtension()));
         }
 
@@ -525,8 +525,8 @@ class Table extends Base
     /**
      * Get the foreign key reference count.
      *
-     * @param \MwbExporter\Model\ForeignKey $fkey   The foreign key
-     * @param int        $max    The maximum count
+     * @param \MwbExporter\Model\ForeignKey $fkey The foreign key
+     * @param int                           $max  The maximum count
      * @return int
      */
     protected function getForeignKeyReferenceCount($fkey, $max = null)
@@ -556,8 +556,8 @@ class Table extends Base
     /**
      * Get the relation reference count.
      *
-     * @param \MwbExporter\Model\ForeignKey $fkey   The foreign key
-     * @param int        $max    The maximum count
+     * @param \MwbExporter\Model\ForeignKey $fkey The foreign key
+     * @param int                           $max  The maximum count
      * @return int
      */
     protected function getRelationReferenceCount($fkey, $max = null)
@@ -580,7 +580,7 @@ class Table extends Base
     /**
      * Check if foreign table reference is referenced by more than one column.
      *
-     * @param \MwbExporter\Model\ForeignKey $reference   The foreign key to check
+     * @param \MwbExporter\Model\ForeignKey $reference The foreign key to check
      * @return bool
      */
     public function isMultiReferences($reference)
@@ -599,8 +599,8 @@ class Table extends Base
     /**
      * Check if foreign key owner tablename matched.
      *
-     * @param \MwbExporter\Model\ForeignKey $foreign    The foreign key
-     * @param string     $tablename  The table name
+     * @param \MwbExporter\Model\ForeignKey $foreign   The foreign key
+     * @param string                        $tablename The table name
      * @return bool
      */
     protected function checkForeignKeyOwnerTableName($foreign, $tablename)
@@ -611,8 +611,8 @@ class Table extends Base
     /**
      * Check if reference tablename matched.
      *
-     * @param \MwbExporter\Model\Table   $table      The reference table
-     * @param string  $tablename  The table name
+     * @param \MwbExporter\Model\Table $table     The reference table
+     * @param string                   $tablename The table name
      * @return bool
      */
     protected function checkReferenceTableName($table, $tablename)
@@ -623,8 +623,8 @@ class Table extends Base
     /**
      * Format column name as relation to foreign table.
      *
-     * @param string $column  The column name
-     * @param bool   $code    If true, use result as PHP code or false, use as comment
+     * @param string $column The column name
+     * @param bool   $code   If true, use result as PHP code or false, use as comment
      * @return string
      */
     public function formatRelatedName($column, $code = true)
@@ -635,8 +635,8 @@ class Table extends Base
     /**
      * Get the related name for one-to-many relation.
      *
-     * @param \MwbExporter\Model\ForeignKey $reference   The foreign key
-     * @param bool       $code        If true, use result as PHP code or false, use as comment
+     * @param \MwbExporter\Model\ForeignKey $reference The foreign key
+     * @param bool                          $code      If true, use result as PHP code or false, use as comment
      * @return string
      */
     public function getRelatedName($reference, $code = true)
@@ -647,9 +647,9 @@ class Table extends Base
     /**
      * Get the related name for many-to-many relation.
      *
-     * @param string $tablename   The foreign tablename
-     * @param string $column      The foreign column name
-     * @param bool   $code        If true, use result as PHP code or false, use as comment
+     * @param string $tablename The foreign tablename
+     * @param string $column    The foreign column name
+     * @param bool   $code      If true, use result as PHP code or false, use as comment
      * @return string
      */
     public function getManyToManyRelatedName($tablename, $column, $code = true)
@@ -673,8 +673,8 @@ class Table extends Base
     public function write(WriterInterface $writer)
     {
         try {
-            if (strlen($category = $this->getConfig()->get(FormatterInterface::CFG_EXPORT_TABLE_CATEGORY)) && 
-                $this->getCategory() != $category) {
+            if (strlen($category = $this->getConfig()->get(FormatterInterface::CFG_EXPORT_TABLE_CATEGORY)) &&
+                    $this->getCategory() != $category) {
                 $status = 'skipped, not in category';
             } else {
                 switch ($this->writeTable($writer)) {
@@ -729,6 +729,6 @@ class Table extends Base
      */
     public function getSortValue()
     {
-        return $this->getCategory().$this->getModelName();
+        return $this->getCategory() . $this->getModelName();
     }
 }

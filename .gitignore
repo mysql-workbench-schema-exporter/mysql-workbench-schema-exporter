@@ -9,3 +9,4 @@ tests/
 *.7z
 vendor/*
 composer.lock
+/.idea/
