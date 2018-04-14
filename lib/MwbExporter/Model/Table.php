@@ -319,7 +319,7 @@ class Table extends Base
      */
     public function getModelName()
     {
-        $tableName = $this->getRawTableName();
+        $tableName = $this->getName();
 
         // check if table name is plural --> convert to singular
         if (
