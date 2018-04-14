@@ -137,6 +137,12 @@ General options applied to all formatter.
 
     If specified, only export the tables if its category matched.
 
+  * `tableNamePrefix`
+
+    If sepcified, add prefix to all tables' name for physical database
+    
+    Default is `empty`
+
   * `logToConsole`
 
     If enabled, output the log to console.
