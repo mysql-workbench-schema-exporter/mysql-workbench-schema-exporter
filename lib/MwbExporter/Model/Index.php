@@ -27,6 +27,8 @@
 
 namespace MwbExporter\Model;
 
+use MwbExporter\Formatter\FormatterInterface;
+
 class Index extends Base
 {
     /**
@@ -42,7 +44,7 @@ class Index extends Base
         foreach ($nodes as $node) {
             // for primary indexes ignore external index
             // definition and set column to primary instead
-            if (!($column = $this->getReference()->get((string) $node))) {
+            if (!($column = $this->getReference()->get((string)$node))) {
                 continue;
             }
             if ($this->isPrimary()) {
@@ -53,7 +55,7 @@ class Index extends Base
             }
             $this->columns[] = $column;
         }
-        if (!$this->isPrimary() && ($table = $this->getReference()->get((string) $this->node->link))) {
+        if (!$this->isPrimary() && ($table = $this->getReference()->get((string)$this->node->link))) {
             $table->injectIndex($this);
         }
     }
@@ -61,6 +63,12 @@ class Index extends Base
     protected function hasParameters()
     {
         return true;
+    }
+
+    public function getName()
+    {
+        $prefix = $this->getConfig()->get(FormatterInterface::CFG_TABLE_NAME_PREFIX);
+        return $prefix . parent::getName();
     }
 
     /**
