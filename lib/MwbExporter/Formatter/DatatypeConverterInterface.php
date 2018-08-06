@@ -90,6 +90,7 @@ interface DatatypeConverterInterface
     const USERDATATYPE_NUMERIC         = 'com.mysql.rdbms.mysql.userdatatype.numeric';
     const USERDATATYPE_DEC             = 'com.mysql.rdbms.mysql.userdatatype.dec';
     const USERDATATYPE_CHARACTER       = 'com.mysql.rdbms.mysql.userdatatype.character';
+    const USERDATATYPE_JSON            = 'com.mysql.rdbms.mysql.datatype.json';
 
     public function setup();
     public function getDataType($key);
