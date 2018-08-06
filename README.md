@@ -150,6 +150,13 @@ General options applied to all formatter.
 
     Default is `empty`.
 
+  * `stripMultipleUnderscores`
+
+    If enabled, consider multiple underscores as single ones so for example, a table named `user__group` 
+    will still produce a `UserGroup` entity.
+
+    Default is `false`.
+
 ### Common Model Comment Behavior
 
   * `{MwbExporter:external}true{/MwbExporter:external}` (applied to Table, View)

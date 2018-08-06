@@ -27,7 +27,7 @@
 
 namespace MwbExporter\Model;
 
-use MwbExporter\Registry\Registry;
+use MwbExporter\Formatter\FormatterInterface;
 use MwbExporter\Registry\RegistryHolder;
 use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Helper\Comment;
@@ -141,7 +141,7 @@ abstract class Base
 
     /**
      * Return the internal ID of the MySQL Workbench object
-     * 
+     *
      * @return string
      */
     public function getId()
@@ -151,7 +151,7 @@ abstract class Base
 
     /**
      * Returns the attributes of the current MySQL Workbench object
-     * 
+     *
      * @return \SimpleXmlElement
      */
     public function getAttributes()
@@ -161,7 +161,7 @@ abstract class Base
 
     /**
      * Returns current MySQL Workbench object
-     * 
+     *
      * @return \SimpleXmlElement
      */
     public function getNode()
@@ -171,7 +171,7 @@ abstract class Base
 
     /**
      * Returns the parent object
-     * 
+     *
      * @return object
      */
     public function getParent()
@@ -191,7 +191,7 @@ abstract class Base
 
     /**
      * Get parameters holder.
-     * 
+     *
      * @return \MwbExporter\Registry\RegistryHolder
      */
     public function getParameters()
@@ -266,7 +266,7 @@ abstract class Base
 
     /**
      * Filters given comment for embedded code by a given keyword
-     * 
+     *
      * @param string $needle_raw
      * @param string $comment
      * @return string
@@ -305,7 +305,7 @@ abstract class Base
 
     /**
      * Returns XML of the current MySQL Workbench object
-     * 
+     *
      * @return string
      */
     public function debug()
@@ -385,9 +385,13 @@ abstract class Base
      */
     public function beautify($underscored_text)
     {
+        if ($this->getConfig()->get(FormatterInterface::CFG_STRIP_MULTIPLE_UNDERSCORES, false)) {
+            $underscored_text = str_replace('__', '_', $underscored_text);
+        }
+
         return ucfirst(preg_replace_callback('@\_(\w)@', function($matches) {
             return ucfirst($matches[1]);
-        }, str_replace('__', '_', $underscored_text)));
+        }, $underscored_text));
     }
 
     /**
