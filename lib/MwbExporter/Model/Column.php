@@ -232,7 +232,7 @@ class Column extends Base
 
     /**
      * Is the field an unsigned value
-     * 
+     *
      * @return boolean
      */
     public function isUnsigned()
@@ -276,9 +276,9 @@ class Column extends Base
      */
     public function isBoolean()
     {
-        if ('tinyint' == substr($this->getColumnType(), -7) &&
-            (1 == $this->getParameters()->get('precision') || preg_match('/^(is|has)_/', $this->getColumnName()))
-        ) {
+        if ('tinyint' == substr($this->getColumnType(), -7) && 1 == $this->getParameters()->get('precision')) {
+            return true;
+        } elseif ('tinyint' == substr($this->getColumnType(), -7) && preg_match('/^(is|has|can)_/', $this->getColumnName())) {
             return true;
         }
 
@@ -296,7 +296,7 @@ class Column extends Base
 
         if ($this->isBoolean()) {
             $matches = null;
-            if (preg_match('/^(is|has)_(.+)$/', $this->getColumnName(), $matches)) {
+            if (preg_match('/^(is|has|can)_(.+)$/', $this->getColumnName(), $matches)) {
                 $prefix = $matches[1];
                 $name = $this->beautify($matches[2]);
             }
