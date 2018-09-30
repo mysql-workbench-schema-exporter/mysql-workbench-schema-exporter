@@ -1,5 +1,5 @@
 {
-	"name" : "mysql-workbench-schema-exporter/mysql-workbench-schema-exporter",
+	"name" : "ucsite/mysql-workbench-schema-exporter",
 	"type" : "library",
 	"description" : "MySQL Workbench Schema Exporter",
 	"keywords" : [
