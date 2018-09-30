@@ -13,7 +13,7 @@
 		"zend",
 		"sequelizejs"
 	],
-	"homepage" : "https://github.com/mysql-workbench-schema-exporter/mysql-workbench-schema-exporter",
+	"homepage" : "https://github.com/ucsite/mysql-workbench-schema-exporter",
 	"license" : "MIT",
 	"authors" : [{
 			"name" : "Johannes Mueller",
