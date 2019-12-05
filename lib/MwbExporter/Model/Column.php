@@ -254,7 +254,7 @@ class Column extends Base
         if (1 != $this->parameters->get('defaultValueIsNull')) {
             $defaultValue = $this->parameters->get('defaultValue');
             if (strlen($defaultValue) && 'NULL' != $defaultValue) {
-                return trim($defaultValue, '\'"');
+                return trim($defaultValue, '"');
             }
         }
     }
