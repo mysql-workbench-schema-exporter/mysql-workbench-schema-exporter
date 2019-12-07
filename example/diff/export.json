@@ -17,6 +17,7 @@
 		"useAutomaticRepository": false,
 		"skipGetterAndSetter": false,
 		"generateEntitySerialization": true,
-		"quoteIdentifier": false
+		"quoteIdentifier": false,
+		"stripMultipleUnderscores": true
 	}
 }

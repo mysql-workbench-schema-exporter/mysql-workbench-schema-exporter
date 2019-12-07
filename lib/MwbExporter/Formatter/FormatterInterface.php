@@ -31,25 +31,26 @@ use MwbExporter\Model\Base;
 
 interface FormatterInterface {
 
-    const VERSION                    = '3.0.3';
+    const VERSION                           = '3.0.3';
 
-    const CFG_FILENAME               = 'filename';
-    const CFG_INDENTATION            = 'indentation';
-    const CFG_USE_TABS               = 'useTabs';
-    const CFG_EOL                    = 'eolDelimeter';
-    const CFG_ADD_COMMENT            = 'addGeneratorInfoAsComment';
-    const CFG_SKIP_PLURAL            = 'skipPluralNameChecking';
-    const CFG_BACKUP_FILE            = 'backupExistingFile';
-    const CFG_USE_LOGGED_STORAGE     = 'useLoggedStorage';
-    const CFG_ENHANCE_M2M_DETECTION  = 'enhanceManyToManyDetection';
-    const CFG_SKIP_M2M_TABLES        = 'skipManyToManyTables';
-    const CFG_SORT_TABLES_AND_VIEWS  = 'sortTablesAndViews';
-    const CFG_EXPORT_TABLE_CATEGORY  = 'exportOnlyTableCategorized';
-    const CFG_LOG_TO_CONSOLE         = 'logToConsole';
-    const CFG_LOG_FILE               = 'logFile';
+    const CFG_FILENAME                      = 'filename';
+    const CFG_INDENTATION                   = 'indentation';
+    const CFG_USE_TABS                      = 'useTabs';
+    const CFG_EOL                           = 'eolDelimeter';
+    const CFG_ADD_COMMENT                   = 'addGeneratorInfoAsComment';
+    const CFG_SKIP_PLURAL                   = 'skipPluralNameChecking';
+    const CFG_BACKUP_FILE                   = 'backupExistingFile';
+    const CFG_USE_LOGGED_STORAGE            = 'useLoggedStorage';
+    const CFG_ENHANCE_M2M_DETECTION         = 'enhanceManyToManyDetection';
+    const CFG_SKIP_M2M_TABLES               = 'skipManyToManyTables';
+    const CFG_SORT_TABLES_AND_VIEWS         = 'sortTablesAndViews';
+    const CFG_EXPORT_TABLE_CATEGORY         = 'exportOnlyTableCategorized';
+    const CFG_LOG_TO_CONSOLE                = 'logToConsole';
+    const CFG_LOG_FILE                      = 'logFile';
+    const CFG_STRIP_MULTIPLE_UNDERSCORES    = 'stripMultipleUnderscores';
 
-    const EOL_WIN                    = 'win';
-    const EOL_UNIX                   = 'unix';
+    const EOL_WIN                           = 'win';
+    const EOL_UNIX                          = 'unix';
 
     /**
      * Get formatter name.

@@ -81,7 +81,7 @@ class Annotation extends Base
             $useKey = !$this->isKeysNumeric($value);
             foreach ($value as $k => $v) {
                 // skip null value
-                if (null === $v) {
+                if (null === $v && $k !== 'default') {
                     continue;
                 }
                 $v = $this->asCode($v, false, true);
@@ -89,7 +89,7 @@ class Annotation extends Base
                     $k = sprintf('"%s"', $k);
                 }
 
-                $tmp[] = $useKey ? sprintf("%s%s%s", $k, ($inlineList ? ':' : '='), $v) : $v;
+                $tmp[] = $useKey ? sprintf("%s%s%s", $k, ($inlineList ? ': ' : '='), ($v === null ? 'NULL' : $v)) : $v;
             }
             $multiline = $this->getOption('multiline') && count($value) > 1;
             $value = implode($multiline ? ",\n" : ', ', $tmp).($multiline ? "\n" : '');

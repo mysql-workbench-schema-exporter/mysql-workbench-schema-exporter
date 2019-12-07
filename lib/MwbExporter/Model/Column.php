@@ -232,7 +232,7 @@ class Column extends Base
 
     /**
      * Is the field an unsigned value
-     * 
+     *
      * @return boolean
      */
     public function isUnsigned()
@@ -254,7 +254,7 @@ class Column extends Base
         if (1 != $this->parameters->get('defaultValueIsNull')) {
             $defaultValue = $this->parameters->get('defaultValue');
             if (strlen($defaultValue) && 'NULL' != $defaultValue) {
-                return trim($defaultValue, '\'"');
+                return trim($defaultValue, '"');
             }
         }
     }
@@ -267,5 +267,41 @@ class Column extends Base
     public function getLength()
     {
         return $this->parameters->get('length');
+    }
+
+    /**
+     * Is it a boolean column?
+     *
+     * @return boolean
+     */
+    public function isBoolean()
+    {
+        if ('tinyint' == substr($this->getColumnType(), -7) && 1 == $this->getParameters()->get('precision')) {
+            return true;
+        } elseif ('tinyint' == substr($this->getColumnType(), -7) && preg_match('/^(is|has|can)_/', $this->getColumnName())) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get the getter name.
+     *
+     * @return string
+     */
+    public function getColumnGetterName() {
+        $prefix = 'get';
+        $name = $this->getBeautifiedColumnName();
+
+        if ($this->isBoolean()) {
+            $matches = null;
+            if (preg_match('/^(is|has|can)_(.+)$/', $this->getColumnName(), $matches)) {
+                $prefix = $matches[1];
+                $name = $this->beautify($matches[2]);
+            }
+        }
+
+        return $prefix.$name;
     }
 }
