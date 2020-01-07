@@ -109,9 +109,9 @@ class Column extends Base
      *
      * @return string
      */
-    public function getBeautifiedColumnName()
+    public function getBeautifiedColumnName($pascalCase = true)
     {
-        return $this->beautify($this->getColumnName());
+        return $this->beautify($this->getColumnName(), $pascalCase);
     }
 
     /**

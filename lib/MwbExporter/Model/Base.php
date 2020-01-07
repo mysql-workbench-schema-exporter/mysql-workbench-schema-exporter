@@ -383,15 +383,16 @@ abstract class Base
      * @param string $underscored_text
      * @return string
      */
-    public function beautify($underscored_text)
+    public function beautify($underscored_text, $pascalCase = true)
     {
         if ($this->getConfig()->get(FormatterInterface::CFG_STRIP_MULTIPLE_UNDERSCORES, false)) {
             $underscored_text = str_replace('__', '_', $underscored_text);
         }
-
-        return ucfirst(preg_replace_callback('@\_(\w)@', function($matches) {
+        $beautified = preg_replace_callback('@\_(\w)@', function($matches) {
             return ucfirst($matches[1]);
-        }, $underscored_text));
+        }, $underscored_text);
+
+        return $pascalCase ? ucfirst($beautified) : $beautified;
     }
 
     /**
