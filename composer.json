@@ -1,6 +1,7 @@
 {
 	"name" : "ucsite/mysql-workbench-schema-exporter",
 	"type" : "library",
+    "version": "3.1.6",
 	"description" : "MySQL Workbench Schema Exporter",
 	"keywords" : [
 		"mysql",
@@ -35,8 +36,8 @@
 		"mysql-workbench-schema-exporter/doctrine2-exporter": "^3.0"
 	},
 	"bin" : [
-		"bin/mysql-workbench-schema-export",
-		"bin/update-sql-reserved-words"
+		"bin/ucsite-mwb-export",
+		"bin/ucsite-mwb-update-sql-reserved-words"
 	],
 	"autoload" : {
 		"psr-0" : {
