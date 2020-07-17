@@ -31,7 +31,7 @@ use MwbExporter\Model\Base;
 
 interface FormatterInterface {
 
-    const VERSION                           = '3.0.3';
+    const VERSION                           = '3.1.0-dev';
 
     const CFG_FILENAME                      = 'filename';
     const CFG_INDENTATION                   = 'indentation';
