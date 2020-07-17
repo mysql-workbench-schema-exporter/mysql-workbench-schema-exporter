@@ -41,7 +41,13 @@ class YAML extends Base
         } elseif (is_bool($value)) {
             $value = $value ? 'true' : 'false';
         } elseif (is_string($value)) {
-            // nothing
+            // quote string if necessary
+            foreach(array(',', ':') as $special) {
+                if (false != strpos($value, $special)) {
+                    $value = sprintf('\'%s\'', $value);
+                    break;
+                }
+            }
         } elseif (is_array($value)) {
             $tmp = array();
             $spacer = str_repeat(' ', max(array($level * $this->getOption('indent', 1), 0)));
@@ -53,10 +59,11 @@ class YAML extends Base
                     if (null === $v && $this->getOption('skip_null_value', false)) {
                         continue;
                     }
-                    $x = $inline_size > 0 && $level >= 0 ? str_repeat(' ', $inline_size - strlen($k) - strlen($spacer)) : '';
+                    $pad = $inline_size - strlen($k) - strlen($spacer) - 3; // colon and separator
+                    $x = $pad > 0 && $level >= 0 ? str_repeat(' ', $pad) : '';
                     if ($inline && $this->canBeInlined($v)) {
                         $v = explode("\n", $this->asCode($v, -1));
-                        $tmp[] = $spacer.sprintf('%s: %s{ %s }', $k, $x, implode(", ",  $v));
+                        $tmp[] = $spacer.sprintf('%s: %s{ %s }', $k, $x, implode(", ", $v));
                     } else {
                         if ($this->isInline($v)) {
                             if ($this->isArrayValueArray($v)) {
@@ -76,7 +83,7 @@ class YAML extends Base
                 foreach ($value as $k => $v) {
                     if (is_array($v) && !$this->isKeysNumeric($v)) {
                         $v = explode("\n", $this->asCode($v, -1));
-                        $tmp[] = sprintf('{ %s }', implode(", ",  $v));
+                        $tmp[] = sprintf('{ %s }', implode(", ", $v));
                     } else {
                         $tmp[] = $this->asCode($v, $level + 1);
                     }
@@ -136,7 +143,7 @@ class YAML extends Base
         if (!is_array($array)) {
             return false;
         }
-        foreach ($array as $k => $v) {
+        foreach ($array as $v) {
             if (!is_array($v)) {
                 return false;
             }
