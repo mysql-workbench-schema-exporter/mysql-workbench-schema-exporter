@@ -24,7 +24,7 @@
  */
 
 $sources = array(
-    'mysql.com' => array('url' => 'https://dev.mysql.com/doc/mysqld-version-reference/en/mysqld-version-reference-keywords-5-7.html', 'xpath' => '//code[@class="literal"]'),
+    'mysql.com' => array('url' => 'https://dev.mysql.com/doc/refman/8.0/en/keywords.html', 'xpath' => '//code[@class="literal"]'),
     'drupal.org' => array('url' => 'https://www.drupal.org/node/141051', 'xpath' => '//ol/li'),
     'db.apache.org' => array('url' => 'https://db.apache.org/derby/docs/10.1/ref/rrefkeywords29722.html', 'xpath' => '//ul[@class="simple"]/li'),
 );
@@ -134,6 +134,6 @@ $template = strtr($template, array(
     '//%URL%//' => $url,
     '//%WORDS%//' => trim(implode("\n", $lines)),
 ));
-file_put_contents(__DIR__.'/../lib/MwbExporter/Helper/ReservedWords.php', $template);
+file_put_contents(__DIR__.'/../lib/Helper/ReservedWords.php', $template);
 
 echo "All done.\n\n";

@@ -4,7 +4,7 @@
 $autoload = null;
 foreach (array(
     '/../vendor/autoload.php',                      // autoloader for stand alone project
-    '/../../../../vendor/autoload.php',             // autoloader for composer project
+    '/../../autoload.php',             // autoloader for composer project
 ) as $autoloader) {
     $autoloaderPath = dirname(__FILE__).$autoloader;
     if (is_file($autoloaderPath)) {

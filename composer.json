@@ -38,7 +38,7 @@
 		"bin/update-sql-reserved-words"
 	],
 	"autoload" : {
-		"psr-0" : {
+		"psr-4" : {
 			"MwbExporter\\" : "lib/"
 		}
 	}
