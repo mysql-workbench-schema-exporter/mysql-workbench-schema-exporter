@@ -28,7 +28,7 @@
 function autoload()
 {
     try {
-        require_once dirname(__FILE__).'/../lib/autoload.php';
+        require_once dirname(__FILE__).'/../autoload.php';
     } catch (\Exception $e) {
         echo "<h2>Error:</h2>\n";
         echo "<textarea cols=\"100\" rows=\"5\">\n";
