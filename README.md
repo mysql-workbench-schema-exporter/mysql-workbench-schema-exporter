@@ -43,17 +43,13 @@ The actual conversion to another schema is done using an exporter. These plugins
 
   1. In your project directory issue:
 
-    ```
     php composer.phar require --dev mysql-workbench-schema-exporter/mysql-workbench-schema-exporter
-    ```
 
   2. You then can invoke the CLI script using `vendor/bin/mysql-workbench-schema-export`.
 
   3. You can directly require an exporter for your project:
-  ```
-  php composer.phar require --dev mysql-workbench-schema-exporter/doctrine2-exporter
-  ```
 
+    php composer.phar require --dev mysql-workbench-schema-exporter/doctrine2-exporter
 
 ### Stand alone
 
@@ -62,9 +58,7 @@ The actual conversion to another schema is done using an exporter. These plugins
   2. Get [composer](https://getcomposer.org/).
   3. Install dependencies:
 
-    ```
     php composer.phar install
-    ```
 
   4. You then can invoke the CLI script using `bin/mysql-workbench-schema-export`.
 
