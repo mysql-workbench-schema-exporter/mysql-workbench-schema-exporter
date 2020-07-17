@@ -168,6 +168,6 @@ class Base
 
     public function __toString()
     {
-        return $content = $this->getOption('raw') ? $this->content : $this->decorateCode($this->asCode($this->content));
+        return $this->getOption('raw') ? $this->content : $this->decorateCode($this->asCode($this->content));
     }
 }
