@@ -35,7 +35,7 @@ class ForeignKey extends Base
     protected $referencedTable = null;
 
     /**
-     * @var \MwbExporter\Model\Tabel
+     * @var \MwbExporter\Model\Table
      */
     protected $owningTable = null;
 

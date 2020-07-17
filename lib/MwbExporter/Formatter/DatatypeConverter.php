@@ -94,7 +94,7 @@ abstract class DatatypeConverter implements DatatypeConverterInterface
     /**
      * Get column type mapping.
      *
-     * @param MwbExporter\Model\Column $column
+     * @param \MwbExporter\Model\Column $column
      * @return string
      */
     public function getMappedType(Column $column)
@@ -105,7 +105,7 @@ abstract class DatatypeConverter implements DatatypeConverterInterface
     /**
      * Get column type with its attribute.
      *
-     * @param MwbExporter\Model\Column $column
+     * @param \MwbExporter\Model\Column $column
      * @return string
      */
     public function getType(Column $column)
