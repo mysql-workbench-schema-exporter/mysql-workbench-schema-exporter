@@ -52,7 +52,7 @@ class Bootstrap
             static::$formatters = array();
             $dirs = array();
             // if we'are using Composer, include these formatters
-            if ($composer = $this->getComposer()) {
+            if ($this->getComposer()) {
                 $vendorDir = realpath(__DIR__.'/../../..');
                 if (is_readable($installed = $vendorDir.'/composer/installed.json')) {
                     $packages = json_decode(file_get_contents($installed), true);
