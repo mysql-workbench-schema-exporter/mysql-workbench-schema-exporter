@@ -2,7 +2,7 @@
 <?php
 
 /*
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2020 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -126,7 +126,7 @@ function getConfigName($config)
 
 function getConfigValue($value)
 {
-    return is_bool($value) ? ($value ? 'yes' : 'no') : $value;
+    return is_bool($value) ? ($value ? 'yes' : 'no') : (is_array($value) ? implode(',', $value) : $value);
 }
 
 function askValue($prompt, &$value, $show = true)
@@ -154,6 +154,9 @@ function askValue($prompt, &$value, $show = true)
                 $value = (int) $input;
                 break;
             }
+        } elseif (is_array($value)) {
+            $value = explode(',', $input);
+            break;
         } else {
             $value = $input;
             break;
