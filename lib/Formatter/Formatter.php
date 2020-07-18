@@ -218,6 +218,15 @@ abstract class Formatter implements FormatterInterface
     }
 
     /**
+     * Get formatter version.
+     *
+     * @return string
+     */
+    public function getVersion()
+    {
+    }
+
+    /**
      * Get registry object.
      *
      * @return \MwbExporter\Registry\Registry
@@ -414,7 +423,7 @@ EOF;
     {
         return array(
             '%VERSION%' => static::VERSION,
-            '%FORMATTER%' => $this->getName(),
+            '%FORMATTER%' => $this->getName().(($version = $this->getVersion()) ? ' '.$version : ''),
             '%TIME%' => date('Y-m-d H:i:s'),
         );
     }
