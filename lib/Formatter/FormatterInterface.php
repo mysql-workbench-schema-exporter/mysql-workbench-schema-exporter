@@ -60,6 +60,13 @@ interface FormatterInterface {
     public function getName();
 
     /**
+     * Get formatter version.
+     *
+     * @return string
+     */
+    public function getVersion();
+
+    /**
      * Get the registry object.
      *
      * @return \MwbExporter\Registry\Registry
