@@ -2,7 +2,7 @@
 <?php
 
 /*
- * Copyright (c) 2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2014-2020 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -127,7 +127,7 @@ while (true) {
 }
 
 // update template
-$template = file_get_contents(__DIR__.'/ReservedWords.php.template');
+$template = file_get_contents(__DIR__.'/template/ReservedWords.php.template');
 $template = strtr($template, array(
     '//%GENERATED_BY%//' => basename(__FILE__),
     '//%GENERATED_AT%//' => date('Y-m-d H:i:s'),
