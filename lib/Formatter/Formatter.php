@@ -74,12 +74,12 @@ abstract class Formatter implements FormatterInterface
         $this->addConfigurations(array(
             static::CFG_LOG_TO_CONSOLE              => false,
             static::CFG_LOG_FILE                    => '',
-            static::CFG_FILENAME                    => '%entity%.%extension%',
-            static::CFG_INDENTATION                 => 2,
-            static::CFG_USE_TABS                    => false,
-            static::CFG_EOL                         => FormatterInterface::EOL_WIN,
             static::CFG_BACKUP_FILE                 => true,
+            static::CFG_USE_TABS                    => false,
+            static::CFG_INDENTATION                 => 2,
+            static::CFG_EOL                         => FormatterInterface::EOL_WIN,
             static::CFG_ADD_COMMENT                 => true,
+            static::CFG_FILENAME                    => '%entity%.%extension%',
             static::CFG_SKIP_PLURAL                 => false,
             static::CFG_USE_LOGGED_STORAGE          => false,
             static::CFG_SORT_TABLES_AND_VIEWS       => true,
@@ -91,6 +91,8 @@ abstract class Formatter implements FormatterInterface
         $this->addValidators(array(
             static::CFG_EOL                    => new ChoiceValidator(array(FormatterInterface::EOL_WIN, FormatterInterface::EOL_UNIX)),
         ));
+        $this->addDependency(array(static::CFG_LOG_FILE), static::CFG_LOG_TO_CONSOLE, false);
+        $this->addDependency(array(static::CFG_INDENTATION), static::CFG_USE_TABS, false);
         $this->setDatatypeConverter($this->createDatatypeConverter());
         $this->init();
     }
@@ -150,6 +152,33 @@ abstract class Formatter implements FormatterInterface
     public function getValidators()
     {
         return $this->registry->validator->getAll();
+    }
+
+    /**
+     * Add configuration dependency.
+     *
+     * @param array $configs
+     * @param string $ref
+     * @param mixed $value
+     * @return \MwbExporter\Formatter\Formatter
+     */
+    protected function addDependency($configs, $ref, $value)
+    {
+        foreach ($configs as $config) {
+            $this->registry->dependency->set($config, array($ref, $value));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get configuration dependencies.
+     *
+     * @return array
+     */
+    public function getDependencies()
+    {
+        return $this->registry->dependency->getAll();
     }
 
     /**

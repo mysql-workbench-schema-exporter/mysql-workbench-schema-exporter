@@ -95,6 +95,13 @@ interface FormatterInterface {
     public function getValidators();
 
     /**
+     * Get configuration dependencies.
+     *
+     * @return array
+     */
+    public function getDependencies();
+
+    /**
      * Setup formatter.
      *
      * @param array $configurations

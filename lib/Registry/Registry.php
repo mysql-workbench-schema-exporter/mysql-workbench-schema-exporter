@@ -50,6 +50,11 @@ class Registry
     public $validator;
 
     /**
+     * @var \MwbExporter\Registry\RegistryHolder
+     */
+    public $dependency;
+
+    /**
      * Constructor.
      */
     public function __construct()
@@ -58,5 +63,6 @@ class Registry
         $this->reference = new RegistryHolder();
         $this->factory = new RegistryHolder();
         $this->validator = new RegistryHolder();
+        $this->dependency = new RegistryHolder();
     }
 }

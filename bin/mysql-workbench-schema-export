@@ -169,12 +169,12 @@ function mergeFormatter(&$setup, $configs)
     $keys = array_keys($setup);
     for ($i = 0; $i < count($keys); $i++) {
         if (isset($configs[$keys[$i]])) {
-          $setup[$keys[$i]] = $configs[$keys[$i]];
+            $setup[$keys[$i]] = $configs[$keys[$i]];
         }
     }
 }
 
-function setupFormatter(&$setup, $validators)
+function setupFormatter(&$setup, $validators, $dependencies)
 {
     $keys = array_keys($setup);
     for ($i = 0; $i < count($keys); $i++) {
@@ -185,16 +185,25 @@ function setupFormatter(&$setup, $validators)
         if ($validator && count($choices = $validator->getChoices())) {
             $label = sprintf('%s (%s)', $label, implode(', ', $choices));
         }
-        while (true) {
-            askValue($label, $value);
-            // apply value validation if available
-            if ($validator) {
-                if ($validator->isValid($value)) {
+        $ask = true;
+        // is configuration depend on other
+        if (isset($dependencies[$keys[$i]])) {
+            $ask = $setup[$dependencies[$keys[$i]][0]] === $dependencies[$keys[$i]][1];
+        }
+        if ($ask) {
+            while (true) {
+                askValue($label, $value);
+                // apply value validation if available
+                if ($validator) {
+                    if ($validator->isValid($value)) {
+                        break;
+                    }
+                } else {
                     break;
                 }
-            } else {
-                break;
             }
+        } else {
+            echo sprintf("%s [%s] skipped...\n", $label, getConfigValue($value));
         }
         $setup[$keys[$i]] = $value;
     }
@@ -321,7 +330,7 @@ function main($filename, $dir, $params, $options)
         $ask = false;
         askValue('Would you like to change the setup configuration before exporting', $ask);
         if ($ask) {
-            setupFormatter($setup, $formatter->getValidators());
+            setupFormatter($setup, $formatter->getValidators(), $formatter->getDependencies());
         }
         echo "\n";
     }
