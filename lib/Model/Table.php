@@ -647,7 +647,7 @@ class Table extends Base
      */
     public function formatRelatedName($column, $code = true)
     {
-        return $code ? sprintf('RelatedBy%s', $this->beautify($column)) : sprintf('related by `%s`', $column);
+        return $code ? sprintf('related_by_%s', $column) : sprintf('related by `%s`', $column);
     }
 
     /**
