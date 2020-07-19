@@ -312,27 +312,45 @@ class Table extends Base
     }
 
     /**
-     * Get the table model name.
+     * Get singular table name.
+     *
+     * @return string
+     */
+    public function getSingularName()
+    {
+        $name = $this->getRawTableName();
+        // check if table name is plural --> convert to singular
+        if (!$this->getConfig()->get(FormatterInterface::CFG_SKIP_PLURAL) &&
+            ($name != ($singular = Inflector::singularize($name)))
+        ) {
+            $name = $singular;
+        }
+
+        return $name;
+    }
+
+    /**
+     * Get the model name.
      *
      * @return string
      */
     public function getModelName()
     {
-        $tableName = $this->getRawTableName();
-
-        // check if table name is plural --> convert to singular
-        if (
-            !$this->getConfig()->get(FormatterInterface::CFG_SKIP_PLURAL) &&
-            ($tableName != ($singular = Inflector::singularize($tableName)))
-        ) {
-            $tableName = $singular;
-        }
-
-        return $this->beautify($tableName);
+        return $this->beautify($this->getSingularName());
     }
 
     /**
-     * Get the table model name in plural form.
+     * Get the table name in plural form.
+     *
+     * @return string
+     */
+    public function getPluralName()
+    {
+        return Inflector::pluralize($this->getSingularName());
+    }
+
+    /**
+     * Get the model name in plural form.
      *
      * @return string
      */
