@@ -28,7 +28,6 @@
 namespace MwbExporter\Model;
 
 use MwbExporter\Writer\WriterInterface;
-use Doctrine\Common\Inflector\Inflector;
 
 class View extends Base
 {
@@ -88,7 +87,7 @@ class View extends Base
      */
     public function getPluralModelName()
     {
-        return Inflector::pluralize($this->getModelName());
+        return $this->pluralize($this->getModelName());
     }
 
     /**

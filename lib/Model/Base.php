@@ -395,6 +395,26 @@ abstract class Base
     }
 
     /**
+     * @see \Doctrine\Inflector\Inflector::singularize()
+     * @param string $word
+     * @return string
+     */
+    public function singularize($word)
+    {
+        return $this->getFormatter()->getInflector()->pluralize($word);
+    }
+
+    /**
+     * @see \Doctrine\Inflector\Inflector::singularize()
+     * @param string $word
+     * @return string
+     */
+    public function pluralize($word)
+    {
+        return $this->getFormatter()->getInflector()->pluralize($word);
+    }
+
+    /**
      * Get the value for comparing the model for sorting.
      * Default value taken from the model id.
      *

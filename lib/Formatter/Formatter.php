@@ -44,6 +44,8 @@ use MwbExporter\Model\Views;
 use MwbExporter\Model\View;
 use MwbExporter\Helper\Comment;
 use MwbExporter\Validator\ChoiceValidator;
+use Doctrine\Inflector\InflectorFactory;
+use Doctrine\Inflector\Language;
 
 abstract class Formatter implements FormatterInterface
 {
@@ -63,6 +65,11 @@ abstract class Formatter implements FormatterInterface
     private $datatypeConverter = null;
 
     /**
+     * @var \Doctrine\Inflector\Inflector
+     */
+    private $inflector = null;
+
+    /**
      * Constructor.
      *
      * @param string $name  Formatter name
@@ -72,6 +79,7 @@ abstract class Formatter implements FormatterInterface
         $this->name = $name;
         $this->registry = new Registry();
         $this->addConfigurations(array(
+            static::CFG_LANGUAGE                    => Language::ENGLISH,
             static::CFG_LOG_TO_CONSOLE              => false,
             static::CFG_LOG_FILE                    => '',
             static::CFG_BACKUP_FILE                 => true,
@@ -89,7 +97,10 @@ abstract class Formatter implements FormatterInterface
             static::CFG_STRIP_MULTIPLE_UNDERSCORES  => false,
         ));
         $this->addValidators(array(
-            static::CFG_EOL                    => new ChoiceValidator(array(FormatterInterface::EOL_WIN, FormatterInterface::EOL_UNIX)),
+            static::CFG_LANGUAGE                    => new ChoiceValidator(array(
+                Language::ENGLISH, Language::FRENCH, Language::NORWEGIAN_BOKMAL, Language::PORTUGUESE, Language::SPANISH, Language::TURKISH,
+            )),
+            static::CFG_EOL                         => new ChoiceValidator(array(FormatterInterface::EOL_WIN, FormatterInterface::EOL_UNIX)),
         ));
         $this->addDependency(array(static::CFG_LOG_FILE), static::CFG_LOG_TO_CONSOLE, false);
         $this->addDependency(array(static::CFG_INDENTATION), static::CFG_USE_TABS, false);
@@ -403,6 +414,19 @@ abstract class Formatter implements FormatterInterface
     public function getPreferredWriter()
     {
         return 'default';
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see \MwbExporter\Formatter\FormatterInterface::getInflector()
+     */
+    public function getInflector()
+    {
+        if (null === $this->inflector) {
+            $this->inflector = InflectorFactory::createForLanguage($this->registry->config->get(static::CFG_LANGUAGE))->build();
+        }
+
+        return $this->inflector;
     }
 
     /**

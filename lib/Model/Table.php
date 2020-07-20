@@ -29,7 +29,6 @@ namespace MwbExporter\Model;
 
 use MwbExporter\Formatter\FormatterInterface;
 use MwbExporter\Writer\WriterInterface;
-use Doctrine\Common\Inflector\Inflector;
 
 class Table extends Base
 {
@@ -321,7 +320,7 @@ class Table extends Base
         $name = $this->getRawTableName();
         // check if table name is plural --> convert to singular
         if (!$this->getConfig()->get(FormatterInterface::CFG_SKIP_PLURAL) &&
-            ($name != ($singular = Inflector::singularize($name)))
+            ($name != ($singular = $this->singularize($name)))
         ) {
             $name = $singular;
         }
@@ -346,7 +345,7 @@ class Table extends Base
      */
     public function getPluralName()
     {
-        return Inflector::pluralize($this->getSingularName());
+        return $this->pluralize($this->getSingularName());
     }
 
     /**
@@ -356,7 +355,7 @@ class Table extends Base
      */
     public function getPluralModelName()
     {
-        return Inflector::pluralize($this->getModelName());
+        return $this->pluralize($this->getModelName());
     }
 
     /**

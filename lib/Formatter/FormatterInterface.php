@@ -33,6 +33,7 @@ interface FormatterInterface {
 
     const VERSION                           = '3.1.0-dev';
 
+    const CFG_LANGUAGE                      = 'language';
     const CFG_FILENAME                      = 'filename';
     const CFG_INDENTATION                   = 'indentation';
     const CFG_USE_TABS                      = 'useTabs';
@@ -245,6 +246,13 @@ interface FormatterInterface {
      * @return string
      */
     public function getPreferredWriter();
+
+    /**
+     * Get inflector.
+     *
+     * @return \Doctrine\Inflector\Inflector
+     */
+    public function getInflector();
 
     /**
      * Get all prefixes recognized as tag for comment.
