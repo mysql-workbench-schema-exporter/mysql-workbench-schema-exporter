@@ -401,7 +401,7 @@ abstract class Base
      */
     public function singularize($word)
     {
-        return $this->getFormatter()->getInflector()->pluralize($word);
+        return $this->getFormatter()->getInflector()->singularize($word);
     }
 
     /**
