@@ -395,6 +395,30 @@ abstract class Base
     }
 
     /**
+     * Get name using naming strategy.
+     *
+     * @param string $name
+     * @param string $strategy
+     * @return string
+     */
+    public function getNaming($name, $strategy = null)
+    {
+        $strategy = $strategy ?: $this->getConfig()->get(FormatterInterface::CFG_NAMING_STRATEGY);
+        switch ($strategy) {
+            case FormatterInterface::NAMING_AS_IS:
+                break;
+            case FormatterInterface::NAMING_CAMEL_CASE:
+                $name = lcfirst($this->beautify($name));
+                break;
+            case FormatterInterface::NAMING_PASCAL_CASE:
+                $name = $this->beautify($name);
+                break;
+        }
+
+        return $name;
+    }
+
+    /**
      * @see \Doctrine\Inflector\Inflector::singularize()
      * @param string $word
      * @return string

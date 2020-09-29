@@ -34,6 +34,7 @@ interface FormatterInterface {
     const VERSION                           = '3.1.2';
 
     const CFG_LANGUAGE                      = 'language';
+    const CFG_NAMING_STRATEGY               = 'namingStrategy';
     const CFG_FILENAME                      = 'filename';
     const CFG_INDENTATION                   = 'indentation';
     const CFG_USE_TABS                      = 'useTabs';
@@ -49,6 +50,10 @@ interface FormatterInterface {
     const CFG_LOG_TO_CONSOLE                = 'logToConsole';
     const CFG_LOG_FILE                      = 'logFile';
     const CFG_STRIP_MULTIPLE_UNDERSCORES    = 'stripMultipleUnderscores';
+
+    const NAMING_AS_IS                      = 'as-is';
+    const NAMING_CAMEL_CASE                 = 'camel-case';
+    const NAMING_PASCAL_CASE                = 'pascal-case';
 
     const EOL_WIN                           = 'win';
     const EOL_UNIX                          = 'unix';
