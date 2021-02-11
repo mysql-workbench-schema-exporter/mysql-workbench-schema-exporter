@@ -215,8 +215,14 @@ class Document extends Base
         $dataTypeConverter = $this->formatter->getDataTypeConverter();
         $dataTypes = array();
         $userTypes = $this->node->xpath("//value[@key='userDatatypes']")[0];
+
         foreach ($userTypes as $userType) {
-            $dataTypes[(string) $userType['id']] = $dataTypeConverter->getDataType((string) $userType->xpath("link[@key='actualType']")[0]);
+            $userTypeName = $userType->xpath("value")[2];
+            if (((string) $userTypeName)[0] !== '_') {
+                $dataTypes[(string) $userType['id']] = $dataTypeConverter->getDataType((string) $userType->xpath("link[@key='actualType']")[0]);
+            } else {
+                $dataTypes[(string) $userType['id']] = $dataTypeConverter->getDataType((string) substr($userTypeName, 1));
+            }
         }
         $dataTypeConverter->registerUserDatatypes($dataTypes);
     }
