@@ -56,6 +56,10 @@ class Bootstrap
                 $vendorDir = realpath(__DIR__.'/../../..');
                 if (is_readable($installed = $vendorDir.'/composer/installed.json')) {
                     $packages = json_decode(file_get_contents($installed), true);
+
+                    // Composer 2.0 wraps 'packages' into $packages['packages']
+                    $packages = isset($packages['packages']) ? $packages['packages'] : $packages;
+
                     foreach ($packages as $package) {
                         if (isset($package['name']) && is_dir($dir = $vendorDir.DIRECTORY_SEPARATOR.$package['name'])) {
                             /**
