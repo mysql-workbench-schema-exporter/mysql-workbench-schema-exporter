@@ -218,10 +218,10 @@ class Document extends Base
 
         foreach ($userTypes as $userType) {
             $userTypeName = $userType->xpath("value")[2];
-            if (((string) $userTypeName)[0] !== '_') {
+            if (((string) $userTypeName)[0] !== $this->getConfig()->get(FormatterInterface::CFG_AS_IS_USER_DATATYPE_PREFIX)) {
                 $dataTypes[(string) $userType['id']] = $dataTypeConverter->getDataType((string) $userType->xpath("link[@key='actualType']")[0]);
             } else {
-                $dataTypes[(string) $userType['id']] = $dataTypeConverter->getDataType((string) substr($userTypeName, 1));
+                $dataTypes[(string) $userType['id']] = (string) substr($userTypeName, 1);
             }
         }
         $dataTypeConverter->registerUserDatatypes($dataTypes);

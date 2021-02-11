@@ -96,6 +96,7 @@ abstract class Formatter implements FormatterInterface
             static::CFG_ENHANCE_M2M_DETECTION       => true,
             static::CFG_SKIP_M2M_TABLES             => true,
             static::CFG_STRIP_MULTIPLE_UNDERSCORES  => false,
+            static::CFG_AS_IS_USER_DATATYPE_PREFIX  => ''
         ));
         $this->addValidators(array(
             static::CFG_LANGUAGE                    => new ChoiceValidator(array(
