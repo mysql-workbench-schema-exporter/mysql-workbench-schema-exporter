@@ -156,9 +156,9 @@ General options applied to all formatter.
     This option gives the ability to bypass user type convertion and forward user type to models, as is. 
     
     For example, if defined to `_`, and a user type 
-    `_BOOLEAN` is defined in Mysql Workbench (resolving to `TINYINT(1)`, for example, but no matter), then the model field will have `BOOLEAN`. 
+    `_BOOLEAN` is defined in MySQL Workbench (resolving to `TINYINT(1)`, for example, but no matter), then the model field will have `BOOLEAN`. 
     
-    It is usefull for non Mysql types like `BOOLEAN` or `JSONB` that certain ORMs can handle.
+    It is usefull for non MySQL types like `BOOLEAN` or `JSONB` that certain ORMs can handle.
 
     Default is `""` (disabled).
 

@@ -217,12 +217,11 @@ class Document extends Base
         $userTypes = $this->node->xpath("//value[@key='userDatatypes']")[0];
         $AsIsDataTypePrefix = $this->getConfig()->get(FormatterInterface::CFG_AS_IS_USER_DATATYPE_PREFIX);
         foreach ($userTypes as $userType) {
-            $userTypeName = $userType->xpath("value")[2];
-            if (strlen($AsIsDataTypePrefix) && substr((string) $userTypeName, 0, strlen($AsIsDataTypePrefix)) === $AsIsDataTypePrefix) {
-                $dataTypes[(string) $userType['id']] = substr((string) $userTypeName, strlen($AsIsDataTypePrefix));
+            $userTypeName = (string) $userType->xpath("value")[2];
+            if (strlen($AsIsDataTypePrefix) && substr($userTypeName, 0, strlen($AsIsDataTypePrefix)) === $AsIsDataTypePrefix) {
+                $dataTypes[(string) $userType['id']] = substr($userTypeName, strlen($AsIsDataTypePrefix));
             } else {
                 $dataTypes[(string) $userType['id']] = $dataTypeConverter->getDataType((string) $userType->xpath("link[@key='actualType']")[0]);
-
             }
         }
         $dataTypeConverter->registerUserDatatypes($dataTypes);
