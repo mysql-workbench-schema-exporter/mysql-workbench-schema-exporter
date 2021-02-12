@@ -58,6 +58,8 @@ interface FormatterInterface {
     const EOL_WIN                           = 'win';
     const EOL_UNIX                          = 'unix';
 
+    const CFG_AS_IS_USER_DATATYPE_PREFIX    = 'asIsUserDatatypePrefix';
+
     /**
      * Get formatter name.
      *

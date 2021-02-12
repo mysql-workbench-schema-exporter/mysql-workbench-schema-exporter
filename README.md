@@ -23,7 +23,7 @@ Currently, MySQL Workbench Schema Exporter can export the model to various schem
   * Sencha ExtJS3 Model.
   * Sencha [ExtJS4 Model](http://www.sencha.com/products/extjs/).
   * Propel [XML Schema](http://www.propelorm.org/reference/schema) and YAML Schema.
-  * [Node Sequelize](http://sequelizejs.com/).
+  * [Node Sequelize](https://sequelize.org).
 
 The actual conversion to another schema is done using an exporter. These plugins are available in subprojects:
  * [Doctrine1 Exporter](https://github.com/mysql-workbench-schema-exporter/doctrine1-exporter)
@@ -150,6 +150,17 @@ General options applied to all formatter.
     will still produce a `UserGroup` entity.
 
     Default is `false`.
+  
+  * `asIsUserDatatypePrefix`
+
+    This option gives the ability to bypass user type convertion and forward user type to models, as is. 
+    
+    For example, if defined to `_`, and a user type 
+    `_BOOLEAN` is defined in MySQL Workbench (resolving to `TINYINT(1)`, for example, but no matter), then the model field will have `BOOLEAN`. 
+    
+    It is usefull for non MySQL types like `BOOLEAN` or `JSONB` that certain ORMs can handle.
+
+    Default is `""` (disabled).
 
 ### Common Model Comment Behavior
 
