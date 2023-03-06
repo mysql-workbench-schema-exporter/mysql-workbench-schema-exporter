@@ -27,6 +27,8 @@
 
 namespace MwbExporter;
 
+use ReflectionClass;
+
 use MwbExporter\Formatter\FormatterInterface;
 use MwbExporter\Model\Document;
 use MwbExporter\Storage\LoggedStorage;
@@ -52,61 +54,20 @@ class Bootstrap
             static::$formatters = [];
             $dirs = [];
             // if we'are using Composer, include these formatters
-            if ($this->getComposer()) {
-                $vendorDir = realpath(__DIR__.'/../../..');
-                if (is_readable($installed = $vendorDir.'/composer/installed.json')) {
+            if ($composer = $this->getComposer()) {
+                $r = new ReflectionClass($composer);
+                $composerDir = dirname($r->getFileName());
+                if (is_readable($installed = $composerDir.'/installed.json')) {
                     $packages = json_decode(file_get_contents($installed), true);
-                    
                     // Composer 2.0 wraps 'packages' into $packages['packages']
                     $packages = isset($packages['packages']) ? $packages['packages'] : $packages;
-                    
-                    foreach ($packages as $package) {
-                        if (isset($package['name']) && is_dir($dir = $vendorDir.DIRECTORY_SEPARATOR.$package['name'])) {
-                            /**
-                             * Check for extended package extra attribute to customize
-                             * formatter inclusion.
-                             *
-                             * An example to include formatter using class:
-                             * {
-                             *     "extra" : {
-                             *         "mysql-workbench-schema-exporter" : {
-                             *             "formatters" : {
-                             *                 "my-simple" : "\\My\\Simple\\Formatter",
-                             *                 "my-simple2" : "\\My\\Simple2\\Formatter"
-                             *             }
-                             *         }
-                             *     }
-                             * }
-                             *
-                             * An example include formatter using namespace:
-                             * {
-                             *     "extra" : {
-                             *         "mysql-workbench-schema-exporter" : {
-                             *             "namespaces" : {
-                             *                 "lib/My/Exporter" : "\\Acme\\My\\Exporter",
-                             *             }
-                             *         }
-                             *     }
-                             * }
-                             */
-                            if (isset($package['extra']) && isset($package['extra']['mysql-workbench-schema-exporter'])) {
-                                if (is_array($options = $package['extra']['mysql-workbench-schema-exporter'])) {
-                                    if (isset($options['formatters']) && is_array($options['formatters'])) {
-                                        foreach ($options['formatters'] as $name => $class) {
-                                            $this->registerFormatter($name, $class);
-                                        }
-                                    }
-                                    if (isset($options['namespaces']) && is_array($options['namespaces'])) {
-                                        foreach ($options['namespaces'] as $lib => $namespace) {
-                                            $dirs[$dir.DIRECTORY_SEPARATOR.$lib] = $namespace;
-                                        }
-                                    }
-                                    continue;
-                                }
-                            }
-                            $dirs[] = $dir;
-                        }
-                    }
+                    $dirs = array_merge($dirs, $this->registerComposerFormatters(dirname($composerDir), $packages));
+                }
+                // assume root dir has formatter
+                $rootDir = dirname(dirname($composerDir));
+                if (is_readable($installed = $rootDir.'/composer.json')) {
+                    $package = json_decode(file_get_contents($installed), true);
+                    $dirs = array_merge($dirs, $this->registerComposerFormatters($rootDir, [$package]));
                 }
             } else {
                 $dirs[] = realpath(__DIR__.'/../..');
@@ -211,7 +172,7 @@ class Bootstrap
             }
             $document = new Document($formatter);
             if (strlen($logFile = $formatter->getRegistry()->config->get(FormatterInterface::CFG_LOG_FILE))) {
-                $logger = new LoggerFile(array('filename' => $logFile));
+                $logger = new LoggerFile(['filename' => $logFile]);
             } elseif ($formatter->getRegistry()->config->get(FormatterInterface::CFG_LOG_TO_CONSOLE)) {
                 $logger = new LoggerConsole();
             } else {
@@ -247,6 +208,69 @@ class Bootstrap
     }
 
     /**
+     * Check for extended package extra attribute to customize
+     * formatter inclusion.
+     *
+     * An example to include formatter using class:
+     * {
+     *     "extra" : {
+     *         "mysql-workbench-schema-exporter" : {
+     *             "formatters" : {
+     *                 "my-simple" : "\\My\\Simple\\Formatter",
+     *                 "my-simple2" : "\\My\\Simple2\\Formatter"
+     *             }
+     *         }
+     *     }
+     * }
+     *
+     * An example include formatter using namespace:
+     * {
+     *     "extra" : {
+     *         "mysql-workbench-schema-exporter" : {
+     *             "namespaces" : {
+     *                 "lib/My/Exporter" : "\\Acme\\My\\Exporter",
+     *             }
+     *         }
+     *     }
+     * }
+     *
+     * @param string $rootDir
+     * @param array $packages
+     * @return array
+     */
+    protected function registerComposerFormatters($rootDir, $packages)
+    {
+        $dirs = [];
+        foreach ($packages as $package) {
+            $dir = null;
+            if (isset($package['name'])) {
+                if (is_dir($dir = $rootDir.DIRECTORY_SEPARATOR.$package['name'])) {
+                    $dirs[] = $dir;
+                } else {
+                    $dir = $rootDir;
+                }
+            }
+            if (isset($package['extra']) && isset($package['extra']['mysql-workbench-schema-exporter'])) {
+                if (is_array($options = $package['extra']['mysql-workbench-schema-exporter'])) {
+                    if (isset($options['formatters']) && is_array($options['formatters'])) {
+                        foreach ($options['formatters'] as $name => $class) {
+                            $this->registerFormatter($name, $class);
+                        }
+                    }
+                    if (isset($options['namespaces']) && is_array($options['namespaces']) && is_dir($dir)) {
+                        foreach ($options['namespaces'] as $lib => $namespace) {
+                            $dirs[$dir.DIRECTORY_SEPARATOR.$lib] = $namespace;
+                        }
+                    }
+                    continue;
+                }
+            }
+        }
+
+        return $dirs;
+    }
+
+    /**
      * Scan directories for available formatters.
      *
      * Try to guess if schema formatter (or exporter) is present in the specified directory
@@ -257,7 +281,7 @@ class Bootstrap
      */
     protected function scanFormatters($dirs)
     {
-        $dirs = is_array($dirs) ? $dirs : array($dirs);
+        $dirs = is_array($dirs) ? $dirs : [$dirs];
         foreach ($dirs as $key => $dir) {
             $namespace = null;
             if (is_string($key)) {
@@ -265,17 +289,17 @@ class Bootstrap
                 $dir = $key;
             }
             if (is_dir($dir)) {
-                $parts = array('*', '*', 'Formatter.php');
-                if (null == $namespace) {
-                    $parts = array_merge(array('*', 'MwbExporter', 'Formatter'), $parts);
+                $parts = ['*', '*', 'Formatter.php'];
+                if (null === $namespace) {
+                    $parts = array_merge(['*', 'MwbExporter', 'Formatter'], $parts);
                 }
-                $pattern = implode(DIRECTORY_SEPARATOR, array_merge(array($dir), $parts));
+                $pattern = implode(DIRECTORY_SEPARATOR, array_merge([$dir], $parts));
                 foreach (glob($pattern) as $filename) {
                     $parts = explode(DIRECTORY_SEPARATOR, dirname(realpath($filename)));
                     $exporter = array_pop($parts);
                     $module = array_pop($parts);
                     $class = sprintf('%s\\%s\\%s\\Formatter', $namespace ?: '\\MwbExporter\\Formatter', $module, $exporter);
-                    $this->registerFormatter(array($module, $exporter), $class);
+                    $this->registerFormatter([$module, $exporter], $class);
                 }
             }
         }
@@ -294,7 +318,7 @@ class Bootstrap
             foreach ($autoloaders as $autoload) {
                 if (is_array($autoload)) {
                     $class = $autoload[0];
-                    if ('Composer\Autoload\ClassLoader' == get_class($class)) {
+                    if ('Composer\Autoload\ClassLoader' === get_class($class)) {
                         return $class;
                     }
                 }
