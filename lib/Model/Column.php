@@ -49,12 +49,12 @@ class Column extends Base
     /**
      * @var array \MwbExporter\Model\ForeignKey
      */
-    protected $locals = array();
+    protected $locals = [];
 
     /**
      * @var array \MwbExporter\Model\ForeignKey
      */
-    protected $foreigns = array();
+    protected $foreigns = [];
 
     /**
      * Constructor.

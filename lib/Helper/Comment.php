@@ -44,10 +44,10 @@ class Comment
      */
     public static function wrap($comment, $format, $width = 80)
     {
-        $result = array();
+        $result = [];
         $width = $width - self::getWidth($format);
         // collect lines
-        $lines = array();
+        $lines = [];
         foreach (explode("\n", $comment) as $line) {
             foreach (explode("\n", wordwrap($line, $width, "\n")) as $sline) {
                 $lines[] = $sline;
@@ -97,7 +97,7 @@ class Comment
      */
     protected static function getWidth($format)
     {
-        $lines = array();
+        $lines = [];
         self::getLine(2, 3, $format, '-', $lines);
 
         return strlen($lines[0]) - 1;

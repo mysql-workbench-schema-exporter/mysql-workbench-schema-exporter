@@ -28,13 +28,14 @@
 namespace MwbExporter\Model;
 
 use MwbExporter\Writer\WriterInterface;
+use Traversable;
 
 class Schemas extends Base implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     /**
      * @var array
      */
-    protected $childs = array();
+    protected $childs = [];
 
     protected function init()
     {
@@ -43,17 +44,17 @@ class Schemas extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
         }
     }
 
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return array_key_exists($offset, $this->childs);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->childs[$offset];
     }
 
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if (null === $offset) {
             $this->childs[] = $value;
@@ -62,17 +63,17 @@ class Schemas extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
         }
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->childs[$offset]);
     }
 
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         return new \ArrayIterator($this->childs);
     }
 
-    public function count()
+    public function count(): int
     {
         return count($this->childs);
     }

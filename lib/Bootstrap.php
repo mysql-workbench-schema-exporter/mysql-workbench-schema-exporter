@@ -49,8 +49,8 @@ class Bootstrap
     public function getFormatters()
     {
         if (null === static::$formatters) {
-            static::$formatters = array();
-            $dirs = array();
+            static::$formatters = [];
+            $dirs = [];
             // if we'are using Composer, include these formatters
             if ($this->getComposer()) {
                 $vendorDir = realpath(__DIR__.'/../../..');

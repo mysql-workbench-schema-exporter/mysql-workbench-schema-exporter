@@ -114,7 +114,7 @@ interface FormatterInterface {
      *
      * @param array $configurations
      */
-    public function setup($configurations = array());
+    public function setup($configurations = []);
 
     /**
      * Create catalog model.

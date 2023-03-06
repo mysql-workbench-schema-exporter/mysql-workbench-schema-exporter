@@ -48,7 +48,7 @@ class JS extends Base
         } elseif (is_string($value)) {
             $value = '\''.$value.'\'';
         } elseif (is_array($value)) {
-            $tmp = array();
+            $tmp = [];
             $useKey = !$this->isKeysNumeric($value);
             foreach ($value as $k => $v) {
                 // skip null value

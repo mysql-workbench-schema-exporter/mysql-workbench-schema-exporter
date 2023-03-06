@@ -49,11 +49,10 @@ const CMD_OPT_HELP           = 'help';
 function showTitle()
 {
     $version = FormatterInterface::VERSION;
-    $year = date('Y');
     echo <<<EOF
 MySQL Workbench Schema Exporter version $version.
-Copyright (c) 2010-{$year} Johannes Mueller <circus2@web.de>
-Copyright (c) 2012-{$year} Toha <tohenk@yahoo.com>
+Copyright (c) 2010-2023 Johannes Mueller <circus2@web.de>
+Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
 
 
 EOF;
@@ -84,9 +83,9 @@ EOF;
     die(0);
 }
 
-function parseCmdLine($args = array(), &$params = array(), &$options = array(), &$values = array())
+function parseCmdLine($args = [], &$params = [], &$options = [], &$values = [])
 {
-    $values = array();
+    $values = [];
     while (true) {
         if (!count($args)) {
             break;
@@ -274,8 +273,8 @@ function main($filename, $dir, $params, $options)
         throw new \InvalidArgumentException(sprintf("Can't find document %s.\n\n", $filename));
     }
 
-    $setup = array();
-    $configs = array();
+    $setup = [];
+    $configs = [];
 
     // lookup config file export.json
     if (!$options[CMD_OPT_NO_AUTO_CONFIG] && !$params[CMD_PARAM_CONFIG]) {

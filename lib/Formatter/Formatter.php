@@ -128,7 +128,7 @@ abstract class Formatter implements FormatterInterface
      * @param array $configurations Configurations data
      * @return \MwbExporter\Formatter\Formatter
      */
-    protected function addConfigurations($configurations = array())
+    protected function addConfigurations($configurations = [])
     {
         foreach ($configurations as $key => $value) {
             $this->registry->config->set($key, $value);
@@ -153,7 +153,7 @@ abstract class Formatter implements FormatterInterface
      * @param array $validators Configuration validators
      * @return \MwbExporter\Formatter\Formatter
      */
-    protected function addValidators($validators = array())
+    protected function addValidators($validators = [])
     {
         foreach ($validators as $key => $validator) {
             $this->registry->validator->set($key, $validator);
@@ -206,7 +206,7 @@ abstract class Formatter implements FormatterInterface
      * @throws \RuntimeException
      * @return \MwbExporter\Formatter\Formatter
      */
-    public function setup($configurations = array())
+    public function setup($configurations = [])
     {
         foreach ($configurations as $key => $value) {
             if (!$this->registry->config->has($key)) {

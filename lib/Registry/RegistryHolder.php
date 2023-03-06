@@ -27,9 +27,11 @@
 
 namespace MwbExporter\Registry;
 
+use Traversable;
+
 class RegistryHolder implements \ArrayAccess, \IteratorAggregate, \Countable
 {
-    protected $nodes = array();
+    protected $nodes = [];
 
     /**
      * Store value in the registry data.
@@ -85,22 +87,22 @@ class RegistryHolder implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function clear()
     {
-        $this->nodes = array();
+        $this->nodes = [];
 
         return $this;
     }
 
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return array_key_exists($offset, $this->nodes);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->nodes[$offset];
     }
 
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if (null === $offset) {
             $this->nodes[] = $value;
@@ -109,17 +111,17 @@ class RegistryHolder implements \ArrayAccess, \IteratorAggregate, \Countable
         }
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->nodes[$offset]);
     }
 
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         return new \ArrayIterator($this->nodes);
     }
 
-    public function count()
+    public function count(): int
     {
         return count($this->nodes);
     }

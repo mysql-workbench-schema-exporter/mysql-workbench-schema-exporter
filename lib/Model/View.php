@@ -137,7 +137,7 @@ class View extends Base
      * @param array $vars  The overriden variables
      * @return string
      */
-    public function getViewFileName($format = null, $vars = array())
+    public function getViewFileName($format = null, $vars = [])
     {
         if (0 === strlen($filename = $this->getDocument()->translateFilename($format, $this, $vars)))
         {

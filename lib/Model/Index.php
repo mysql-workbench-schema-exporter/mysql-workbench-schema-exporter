@@ -32,7 +32,7 @@ class Index extends Base
     /**
      * @var array
      */
-    protected $columns = array();
+    protected $columns = [];
 
     protected function init()
     {
@@ -120,7 +120,7 @@ class Index extends Base
      */
     public function getColumnNames()
     {
-        $columns = array();
+        $columns = [];
         foreach ($this->columns as $refColumn) {
             $columns[] = $refColumn->getColumnName();
         }
