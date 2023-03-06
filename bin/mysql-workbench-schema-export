@@ -242,19 +242,20 @@ EOF;
     return $formatters;
 }
 
-function chooseFormatter($bootstrap)
+function chooseFormatter($bootstrap, $title)
 {
-    $choice = 1;
-    $formatters = listFormatter($bootstrap, true);
-    while (true) {
-        askValue("Enter choice", $choice);
-        if ($choice > 0 && $choice <= count($formatters)) {
-            break;
+    if (count($formatters = listFormatter($bootstrap, true, $title))) {
+        $choice = 1;
+        while (true) {
+            askValue("Enter choice", $choice);
+            if ($choice > 0 && $choice <= count($formatters)) {
+                break;
+            }
         }
+        $keys = array_keys($formatters);
+    
+        return $keys[$choice - 1];
     }
-    $keys = array_keys($formatters);
-
-    return $keys[$choice - 1];
 }
 
 function main($filename, $dir, $params, $options)
@@ -310,8 +311,10 @@ function main($filename, $dir, $params, $options)
     // choose exporter to use if not specified
     if (null === $params[CMD_PARAM_EXPORT]) {
         // choose exporter to use
-        echo "Choose which exporter to use:\n";
-        $params[CMD_PARAM_EXPORT] = chooseFormatter($bootstrap);
+        if (!$formatter = chooseFormatter($bootstrap, "Choose which exporter to use:")) {
+            die(0);
+        }
+        $params[CMD_PARAM_EXPORT] = $formatter;
         echo "\n";
     }
 
