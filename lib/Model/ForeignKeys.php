@@ -49,7 +49,7 @@ class ForeignKeys extends Base implements \ArrayAccess, \IteratorAggregate, \Cou
         return array_key_exists($offset, $this->childs);
     }
 
-    public function offsetGet($offset): mixed
+    public function offsetGet($offset): ForeignKey
     {
         return $this->childs[$offset];
     }

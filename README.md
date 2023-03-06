@@ -1,5 +1,10 @@
 # README
 
+![Build Status](https://github.com/mysql-workbench-schema-exporter/mysql-workbench-schema-exporter/actions/workflows/continuous-integration.yml/badge.svg)
+[![Latest Stable Version](https://poser.pugx.org/mysql-workbench-schema-exporter/mysql-workbench-schema-exporter/v/stable.svg)](https://packagist.org/packages/mysql-workbench-schema-exporter/mysql-workbench-schema-exporter)
+[![Total Downloads](https://poser.pugx.org/mysql-workbench-schema-exporter/mysql-workbench-schema-exporter/downloads.svg)](https://packagist.org/packages/mysql-workbench-schema-exporter/mysql-workbench-schema-exporter) 
+[![License](https://poser.pugx.org/mysql-workbench-schema-exporter/mysql-workbench-schema-exporter/license.svg)](https://packagist.org/packages/mysql-workbench-schema-exporter/mysql-workbench-schema-exporter)
+
 What is MySQL Workbench Schema Exporter?
 ----------------------------------------
 
@@ -34,7 +39,7 @@ The actual conversion to another schema is done using an exporter. These plugins
 
 ## Prerequisites
 
-  * PHP 5.4+
+  * PHP 7.2+
   * Composer to install the dependencies
 
 ## Installation

@@ -77,7 +77,7 @@ class Tables extends Base implements \ArrayAccess, \IteratorAggregate, \Countabl
         return array_key_exists($offset, $this->childs);
     }
 
-    public function offsetGet($offset): mixed
+    public function offsetGet($offset): Table
     {
         return $this->childs[$offset];
     }

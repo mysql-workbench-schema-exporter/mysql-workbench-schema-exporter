@@ -49,7 +49,7 @@ class Schemas extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
         return array_key_exists($offset, $this->childs);
     }
 
-    public function offsetGet($offset): mixed
+    public function offsetGet($offset): Schema
     {
         return $this->childs[$offset];
     }

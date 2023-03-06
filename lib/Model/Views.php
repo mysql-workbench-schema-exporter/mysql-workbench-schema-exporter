@@ -57,7 +57,7 @@ class Views extends Base implements \ArrayAccess, \IteratorAggregate, \Countable
         return array_key_exists($offset, $this->childs);
     }
 
-    public function offsetGet($offset): mixed
+    public function offsetGet($offset): View
     {
         return $this->childs[$offset];
     }
