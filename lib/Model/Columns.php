@@ -28,13 +28,14 @@
 namespace MwbExporter\Model;
 
 use MwbExporter\Writer\WriterInterface;
+use Traversable;
 
 class Columns extends Base implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     /**
      * @var array
      */
-    protected $childs = array();
+    protected $childs = [];
 
     protected function init()
     {
@@ -46,7 +47,7 @@ class Columns extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
     public function getManyToManyCount($tablename)
     {
         $count = 0;
-        $fks = array();
+        $fks = [];
         foreach ($this->childs as $column) {
             foreach ($column->getLocalForeignKeys() as $foreign) {
                 if ($foreign->getOwningTable()->getRawTableName() === $tablename && !in_array($foreign->getId(), $fks)) {
@@ -82,7 +83,7 @@ class Columns extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
      */
     public function getColumnNames()
     {
-        $columns = array();
+        $columns = [];
         foreach ($this->childs as $column) {
             $columns[] = $column->getColumnName();
         }
@@ -90,17 +91,17 @@ class Columns extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
         return $columns;
     }
 
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return array_key_exists($offset, $this->childs);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset): Column
     {
         return $this->childs[$offset];
     }
 
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if (null === $offset) {
             $this->childs[] = $value;
@@ -109,17 +110,17 @@ class Columns extends Base implements \ArrayAccess, \IteratorAggregate, \Countab
         }
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->childs[$offset]);
     }
 
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         return new \ArrayIterator($this->childs);
     }
 
-    public function count()
+    public function count(): int
     {
         return count($this->childs);
     }

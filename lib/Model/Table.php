@@ -54,17 +54,17 @@ class Table extends Base
     /**
      * @var array
      */
-    protected $_indexes = array();
+    protected $_indexes = [];
 
     /**
      * @var array
      */
-    protected $_relations = array();
+    protected $_relations = [];
 
     /**
      * @var array
      */
-    protected $_m2mRelations = array();
+    protected $_m2mRelations = [];
 
     /**
      * @var bool
@@ -199,7 +199,7 @@ class Table extends Base
      */
     public function getCategory()
     {
-        if ($category = trim($this->parseComment('category'))) {
+        if ($category = trim((string) $this->parseComment('category'))) {
             return $category;
         }
     }
@@ -211,7 +211,7 @@ class Table extends Base
      */
     public function isExternal()
     {
-        $external = trim($this->parseComment('external'));
+        $external = trim((string) $this->parseComment('external'));
         if ($external === 'true') {
             return true;
         }
@@ -453,7 +453,7 @@ class Table extends Base
      * @param array $vars  The overriden variables
      * @return string
      */
-    public function getTableFileName($format = null, $vars = array())
+    public function getTableFileName($format = null, $vars = [])
     {
         if (0 === strlen($filename = $this->getDocument()->translateFilename($format, $this, $vars)))
         {
@@ -470,7 +470,7 @@ class Table extends Base
      */
     public function getAllForeignKeys()
     {
-        $columns = array();
+        $columns = [];
         foreach ($this->getColumns() as $column) {
             foreach ($column->getForeignKeys() as $foreignKey) {
                 if (array_key_exists($foreignKey->getId(), $columns)) {
@@ -490,7 +490,7 @@ class Table extends Base
      */
     public function getAllLocalForeignKeys()
     {
-        $columns = array();
+        $columns = [];
         foreach ($this->getColumns() as $column) {
             foreach ($column->getLocalForeignKeys() as $foreignKey) {
                 if (array_key_exists($foreignKey->getId(), $columns)) {
@@ -550,7 +550,7 @@ class Table extends Base
     {
         $count = 0;
         $tablename = $fkey->getReferencedTable()->getRawTableName();
-        $columns = array();
+        $columns = [];
         foreach ($this->getColumns() as $column) {
             foreach ($column->getForeignKeys() as $foreignKey) {
                 // process only unique foreign key

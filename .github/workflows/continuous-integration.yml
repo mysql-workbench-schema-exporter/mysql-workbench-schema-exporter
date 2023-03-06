@@ -1,0 +1,69 @@
+name: Build
+
+on:
+  push:
+    branches: [ "3.X" ]
+  pull_request:
+    branches: [ "3.X" ]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-version:
+          - "7.2"
+          - "7.3"
+          - "7.4"
+          - "8.0"
+          - "8.1"
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      run: |
+        composer install --prefer-dist --no-progress
+        composer require --dev --no-progress mysql-workbench-schema-exporter/doctrine1-exporter
+        composer require --dev --no-progress mysql-workbench-schema-exporter/doctrine2-exporter
+        composer require --dev --no-progress mysql-workbench-schema-exporter/node-exporter
+        composer require --dev --no-progress mysql-workbench-schema-exporter/propel-exporter
+        composer require --dev --no-progress mysql-workbench-schema-exporter/sencha-exporter
+        composer require --dev --no-progress mysql-workbench-schema-exporter/zend1-exporter
+
+    - name: Build examples
+      run: |
+        php -f example/doctrine1.yaml.php
+        php -f example/doctrine2.annotation.php
+        php -f example/doctrine2.annotation.php
+        php -f example/doctrine2.yaml.php
+        php -f example/doctrine2.zf2inputfilter.php
+        php -f example/propel.xml.php
+        php -f example/propel.yaml.php
+        php -f example/propel_and_doctrine.php
+        php -f example/sencha.extjs3.php
+        php -f example/sencha.extjs4.php
+        php -f example/zend.dbtable.php
+        php -f example/zend.restcontroller.php

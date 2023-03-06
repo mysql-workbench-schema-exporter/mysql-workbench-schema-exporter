@@ -40,7 +40,7 @@ class Annotation extends Base
      * @param mixed  $content     Object content
      * @param array  $options     Object options
      */
-    public function __construct($annotation, $content = null, $options = array())
+    public function __construct($annotation, $content = null, $options = [])
     {
         parent::__construct($content, $options);
         $this->annotation = $annotation;
@@ -77,7 +77,7 @@ class Annotation extends Base
         } elseif (is_string($value)) {
             $value = '"'.$value.'"';
         } elseif (is_array($value)) {
-            $tmp = array();
+            $tmp = [];
             $useKey = !$this->isKeysNumeric($value);
             foreach ($value as $k => $v) {
                 // skip null value

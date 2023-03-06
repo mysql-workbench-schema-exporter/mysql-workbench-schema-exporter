@@ -89,7 +89,7 @@ if (!count($nodes))
     echo "No match found, aborting...\n";
     exit(1);
 }
-$words = array();
+$words = [];
 foreach ($nodes as $node) {
     $w = strtoupper((string) $node->nodeValue);
     if (in_array($w, $words)) {
@@ -106,7 +106,7 @@ if (!count($words)) {
 
 // build reserved words
 echo sprintf("Found %d reserved words.\n", count($words));
-$lines = array();
+$lines = [];
 $line = null;
 $indent = str_repeat(' ', 8);
 $maxline = 80;

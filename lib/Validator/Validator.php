@@ -43,6 +43,6 @@ abstract class Validator
      */
     public function getChoices()
     {
-        return array();
+        return [];
     }
 }

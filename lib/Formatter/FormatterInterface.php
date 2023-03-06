@@ -31,7 +31,7 @@ use MwbExporter\Model\Base;
 
 interface FormatterInterface {
 
-    const VERSION                           = '3.1.4';
+    const VERSION                           = '3.2.0';
 
     const CFG_LANGUAGE                      = 'language';
     const CFG_NAMING_STRATEGY               = 'namingStrategy';
@@ -57,6 +57,8 @@ interface FormatterInterface {
 
     const EOL_WIN                           = 'win';
     const EOL_UNIX                          = 'unix';
+
+    const CFG_AS_IS_USER_DATATYPE_PREFIX    = 'asIsUserDatatypePrefix';
 
     /**
      * Get formatter name.
@@ -112,7 +114,7 @@ interface FormatterInterface {
      *
      * @param array $configurations
      */
-    public function setup($configurations = array());
+    public function setup($configurations = []);
 
     /**
      * Create catalog model.

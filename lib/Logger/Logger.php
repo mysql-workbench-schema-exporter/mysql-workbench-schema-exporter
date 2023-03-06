@@ -42,14 +42,14 @@ class Logger implements LoggerInterface
     /**
      * @var array
      */
-    protected $options = array();
+    protected $options = [];
 
     /**
      * Constructor.
      *
      * @param array $options  Logger options
      */
-    public function __construct($options = array())
+    public function __construct($options = [])
     {
         $this->options = $options;
         if (isset($this->options['format'])) {

@@ -42,12 +42,12 @@ class ForeignKey extends Base
     /**
      * @var array \MwbExporter\Model\Column
      */
-    protected $locals = array();
+    protected $locals = [];
 
     /**
      * @var array \MwbExporter\Model\Column
      */
-    protected $foreigns = array();
+    protected $foreigns = [];
 
     protected function init()
     {
@@ -65,14 +65,14 @@ class ForeignKey extends Base
             }
         }
 
-        $this->locals = array();
+        $this->locals = [];
         foreach ($this->node->xpath("value[@key='columns']") as $column) {
             foreach ($column->children() as $link) {
                 $this->locals[] = $this->getReference()->get((string) $link);
             }
         }
 
-        $this->foreigns = array();
+        $this->foreigns = [];
         foreach ($this->node->xpath("value[@key='referencedColumns']") as $column) {
             foreach ($column->children() as $link) {
                 $this->foreigns[] = $this->getReference()->get((string) $link);

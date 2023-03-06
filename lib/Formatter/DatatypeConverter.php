@@ -34,17 +34,17 @@ abstract class DatatypeConverter implements DatatypeConverterInterface
     /**
      * @var array
      */
-    protected $dataTypes = array();
+    protected $dataTypes = [];
 
     /**
      * @var array
      */
-    protected $userDatatypes = array();
+    protected $userDatatypes = [];
 
     /**
      * Register data types mapping.
      */
-    protected function register($dataTypes = array())
+    protected function register($dataTypes = [])
     {
         if (!count($this->dataTypes)) {
             $this->dataTypes = $dataTypes;
@@ -54,7 +54,7 @@ abstract class DatatypeConverter implements DatatypeConverterInterface
     /**
      * @param array $dataTypes
      */
-    public function registerUserDatatypes($dataTypes = array())
+    public function registerUserDatatypes($dataTypes = [])
     {
         if (!count($this->userDatatypes)) {
             $this->userDatatypes = $dataTypes;

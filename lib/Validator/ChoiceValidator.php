@@ -31,14 +31,14 @@ class ChoiceValidator extends Validator
     /**
      * @var array
      */
-    protected $choices = array();
+    protected $choices = [];
 
     /**
      * Constructor.
      *
      * @param array $choices  Default choices
      */
-    public function __construct($choices = array())
+    public function __construct($choices = [])
     {
         $this->choices = $choices;
     }

@@ -49,7 +49,7 @@ class YAML extends Base
                 }
             }
         } elseif (is_array($value)) {
-            $tmp = array();
+            $tmp = [];
             $spacer = str_repeat(' ', max(array($level * $this->getOption('indent', 1), 0)));
             if (!$this->isKeysNumeric($value)) {
                 $inline = $this->getOption('inline', false);

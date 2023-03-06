@@ -62,7 +62,7 @@ function output($document, $time)
     }
 }
 
-function export($target, $setup = array())
+function export($target, $setup = [])
 {
     try {
         // lets stop the time

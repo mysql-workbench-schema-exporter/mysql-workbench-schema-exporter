@@ -36,7 +36,7 @@ class Base
     /**
      * @var array
      */
-    protected $options = array();
+    protected $options = [];
 
     /**
      * Constructor.
@@ -44,7 +44,7 @@ class Base
      * @param mixed $content
      * @param array $options
      */
-    public function __construct($content = null, $options = array())
+    public function __construct($content = null, $options = [])
     {
         $this->content = $content;
         $this->setOptions(array_merge(array('raw' => false, 'indentation' => '    '), (array) $options));

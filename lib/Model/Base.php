@@ -106,7 +106,7 @@ abstract class Base
                 $attributes = $node->attributes();
                 switch ((string) $attributes['type']) {
                     case 'list':
-                        $value = array();
+                        $value = [];
                         foreach ($node->children() as $c) {
                             $value[] = (string) $c;
                         }
@@ -331,7 +331,7 @@ abstract class Base
      * @param array $vars   The overriden variables
      * @return string
      */
-    public function translateVars($text, $vars = array())
+    public function translateVars($text, $vars = [])
     {
         return strtr($text, array_merge($this->getParentVars(), $this->getVars(), $vars));
     }
@@ -343,7 +343,7 @@ abstract class Base
      */
     protected function getParentVars()
     {
-        $vars = array();
+        $vars = [];
         $p = $this->getParent();
         while ($p) {
             $vars = array_merge($p->getVars(), $vars);
@@ -362,7 +362,7 @@ abstract class Base
      */
     protected function getVars()
     {
-        return array();
+        return [];
     }
 
     /**
