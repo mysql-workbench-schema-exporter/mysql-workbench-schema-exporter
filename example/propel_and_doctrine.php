@@ -42,13 +42,12 @@ use \MwbExporter\Formatter\Doctrine2\Annotation\Formatter as DoctrineFormatter;
  *                                            *
  **********************************************/
 
-$setup = array(
+$setup = [
     PropelFormatter::CFG_USE_LOGGED_STORAGE  => true,
     PropelFormatter::CFG_INDENTATION         => 4,
     PropelFormatter::CFG_ADD_VENDOR          => true,
     PropelFormatter::CFG_NAMESPACE           => 'Acme\Namespace',
-
-);
+];
 
 // lets do it
 export('propel1-xml', $setup);
@@ -59,7 +58,7 @@ export('propel1-xml', $setup);
  *                                                     *
  *******************************************************/
 
-$setup = array(
+$setup = [
     DoctrineFormatter::CFG_USE_LOGGED_STORAGE        => true,
     DoctrineFormatter::CFG_INDENTATION               => 4,
     DoctrineFormatter::CFG_FILENAME                  => '%entity%.%extension%',
@@ -69,7 +68,7 @@ $setup = array(
     DoctrineFormatter::CFG_REPOSITORY_NAMESPACE      => '',
     DoctrineFormatter::CFG_AUTOMATIC_REPOSITORY      => true,
     DoctrineFormatter::CFG_SKIP_GETTER_SETTER        => false,
-);
+];
 
 // lets do it again
 export('doctrine2-annotation', $setup);

@@ -47,7 +47,7 @@ class Base
     public function __construct($content = null, $options = [])
     {
         $this->content = $content;
-        $this->setOptions(array_merge(array('raw' => false, 'indentation' => '    '), (array) $options));
+        $this->setOptions(array_merge(['raw' => false, 'indentation' => '    '], (array) $options));
         $this->init();
     }
 

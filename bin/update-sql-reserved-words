@@ -23,11 +23,11 @@
  * SOFTWARE.
  */
 
-$sources = array(
-    'mysql.com' => array('url' => 'https://dev.mysql.com/doc/refman/8.0/en/keywords.html', 'xpath' => '//code[@class="literal"]'),
-    'drupal.org' => array('url' => 'https://www.drupal.org/node/141051', 'xpath' => '//ol/li'),
-    'db.apache.org' => array('url' => 'https://db.apache.org/derby/docs/10.1/ref/rrefkeywords29722.html', 'xpath' => '//ul[@class="simple"]/li'),
-);
+$sources = [
+    'mysql.com' => ['url' => 'https://dev.mysql.com/doc/refman/8.0/en/keywords.html', 'xpath' => '//code[@class="literal"]'],
+    'drupal.org' => ['url' => 'https://www.drupal.org/node/141051', 'xpath' => '//ol/li'],
+    'db.apache.org' => ['url' => 'https://db.apache.org/derby/docs/10.1/ref/rrefkeywords29722.html', 'xpath' => '//ul[@class="simple"]/li'],
+];
 
 $i = 0;
 echo "Update SQL reserved words from:\n";
@@ -128,12 +128,12 @@ while (true) {
 
 // update template
 $template = file_get_contents(__DIR__.'/template/ReservedWords.php.template');
-$template = strtr($template, array(
+$template = strtr($template, [
     '//%GENERATED_BY%//' => basename(__FILE__),
     '//%GENERATED_AT%//' => date('Y-m-d H:i:s'),
     '//%URL%//' => $url,
     '//%WORDS%//' => trim(implode("\n", $lines)),
-));
+]);
 file_put_contents(__DIR__.'/../lib/Helper/ReservedWords.php', $template);
 
 echo "All done.\n\n";

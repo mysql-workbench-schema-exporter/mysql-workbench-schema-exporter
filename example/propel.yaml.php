@@ -36,10 +36,10 @@ autoload();
 use \MwbExporter\Formatter\Propel1\Yaml\Formatter;
 
 // formatter setup
-$setup = array(
+$setup = [
     Formatter::CFG_USE_LOGGED_STORAGE  => true,
     Formatter::CFG_INDENTATION         => 2,
-);
+];
 
 // lets do it
 export('propel1-yaml', $setup);

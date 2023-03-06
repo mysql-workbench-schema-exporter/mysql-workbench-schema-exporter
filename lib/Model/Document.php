@@ -299,6 +299,6 @@ class Document extends Base
      */
     protected function getVars()
     {
-        return array('%extension%' => $this->getFormatter()->getFileExtension());
+        return ['%extension%' => $this->getFormatter()->getFileExtension()];
     }
 }

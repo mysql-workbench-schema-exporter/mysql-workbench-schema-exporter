@@ -40,7 +40,7 @@ class ReservedWords
     /**
      * @var array
      */
-    protected static $words = array(
+    protected static $words = [
         'A', 'ABORT', 'ABS', 'ABSOLUTE', 'ACCESS', 'ACTION', 'ADA', 'ADD', 'ADMIN',
         'AFTER', 'AGGREGATE', 'ALIAS', 'ALL', 'ALLOCATE', 'ALSO', 'ALTER', 'ALWAYS',
         'ANALYSE', 'ANALYZE', 'AND', 'ANY', 'ARE', 'ARRAY', 'AS', 'ASC', 'ASENSITIVE',
@@ -164,7 +164,7 @@ class ReservedWords
         'WAITFOR', 'WHEN', 'WHENEVER', 'WHERE', 'WHILE', 'WIDTH_BUCKET', 'WINDOW',
         'WITH', 'WITHIN', 'WITHOUT', 'WORK', 'WRITE', 'WRITETEXT', 'X509', 'XOR',
         'YEAR', 'YEAR_MONTH', 'ZEROFILL', 'ZONE',
-    );
+    ];
 
     /**
      * Check if word is reserved.

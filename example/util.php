@@ -73,7 +73,7 @@ function export($target, $setup = [])
 
         $bootstrap = new \MwbExporter\Bootstrap();
         $formatter = $bootstrap->getFormatter($target);
-        $formatter->setup(array_merge(array(\MwbExporter\Formatter\Formatter::CFG_LOG_FILE => $logFile), $setup));
+        $formatter->setup(array_merge([\MwbExporter\Formatter\Formatter::CFG_LOG_FILE => $logFile], $setup));
         $document  = $bootstrap->export($formatter, $filename, $outDir, 'zip');
 
         // show the time needed to parse the mwb file

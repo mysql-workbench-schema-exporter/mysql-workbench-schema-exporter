@@ -123,11 +123,11 @@ class View extends Base
      */
     protected function getVars()
     {
-        return array(
+        return [
             '%view%'      => $this->getRawViewName(),
             '%entity%'    => $this->getModelName(),
             '%category%'  => $this->getCategory(),
-        );
+        ];
     }
 
     /**
@@ -141,7 +141,7 @@ class View extends Base
     {
         if (0 === strlen($filename = $this->getDocument()->translateFilename($format, $this, $vars)))
         {
-            $filename = implode('.', array($this->getSchema()->getName(), $this->getRawViewName(), $this->getFormatter()->getFileExtension()));
+            $filename = implode('.', [$this->getSchema()->getName(), $this->getRawViewName(), $this->getFormatter()->getFileExtension()]);
         }
 
         return $filename;

@@ -36,14 +36,14 @@ autoload();
 use \MwbExporter\Formatter\Doctrine2\ZF2InputFilterAnnotation\Formatter;
 
 // formatter setup
-$setup = array(
+$setup = [
     Formatter::CFG_USE_LOGGED_STORAGE        => true,
     Formatter::CFG_INDENTATION               => 4,
     Formatter::CFG_BUNDLE_NAMESPACE          => 'MyBundle',
     Formatter::CFG_ENTITY_NAMESPACE          => 'Entity',
     Formatter::CFG_AUTOMATIC_REPOSITORY      => true,
     Formatter::CFG_SKIP_GETTER_SETTER        => false,
-);
+];
 
 // lets do it
 export('doctrine2-zf2inputfilterannotation', $setup);
