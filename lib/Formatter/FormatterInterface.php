@@ -31,7 +31,7 @@ use MwbExporter\Model\Base;
 
 interface FormatterInterface {
 
-    const VERSION                           = '3.2.0';
+    const VERSION                           = '3.2.1';
 
     const CFG_LANGUAGE                      = 'language';
     const CFG_NAMING_STRATEGY               = 'namingStrategy';

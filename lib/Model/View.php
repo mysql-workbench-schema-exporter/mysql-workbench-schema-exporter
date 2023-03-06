@@ -97,7 +97,7 @@ class View extends Base
      */
     public function getCategory()
     {
-        if ($category = trim($this->parseComment('category'))) {
+        if ($category = trim((string) $this->parseComment('category'))) {
             return $category;
         }
     }
@@ -109,7 +109,7 @@ class View extends Base
      */
     public function isExternal()
     {
-        $external = trim($this->parseComment('external'));
+        $external = trim((string) $this->parseComment('external'));
         if ($external === 'true') {
             return true;
         }
