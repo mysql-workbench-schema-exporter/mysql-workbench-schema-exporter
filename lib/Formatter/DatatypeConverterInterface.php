@@ -93,6 +93,9 @@ interface DatatypeConverterInterface
     const USERDATATYPE_CHARACTER       = 'com.mysql.rdbms.mysql.userdatatype.character';
 
     public function setup();
+    public function registerUserDatatypes($dataTypes = []);
+    public function getAllDataTypes();
+    public function getRegisteredDataTypes();
     public function getDataType($key);
     public function getNativeType($type);
     public function getMappedType(Column $column);

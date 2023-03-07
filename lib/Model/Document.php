@@ -197,7 +197,8 @@ class Document extends Base
         $this->filename = $filename;
         $this->readXML($this->filename);
         $this->configure($this->xml->value);
-        $this->loadUserDatatypes();
+        $this->loadUserDataTypes();
+        $this->checkDataTypes();
         $this->parse();
     }
 
@@ -210,7 +211,7 @@ class Document extends Base
         } 
     }
 
-    protected function loadUserDatatypes()
+    protected function loadUserDataTypes()
     {
         $dataTypeConverter = $this->formatter->getDataTypeConverter();
         $dataTypes = [];
@@ -225,6 +226,15 @@ class Document extends Base
             }
         }
         $dataTypeConverter->registerUserDatatypes($dataTypes);
+    }
+
+    protected function checkDataTypes()
+    {
+        $dataTypeConverter = $this->formatter->getDataTypeConverter();
+        $registeredDataTypes = array_keys($dataTypeConverter->getRegisteredDataTypes());
+        if (count($dataTypes = array_diff($dataTypeConverter->getAllDataTypes(), $registeredDataTypes))) {
+            $this->addLog(sprintf('The following data types is not handled: %s', implode(', ', $dataTypes)), LoggerInterface::WARNING);
+        }
     }
 
     protected function parse()
@@ -299,6 +309,6 @@ class Document extends Base
      */
     protected function getVars()
     {
-        return array('%extension%' => $this->getFormatter()->getFileExtension());
+        return ['%extension%' => $this->getFormatter()->getFileExtension()];
     }
 }

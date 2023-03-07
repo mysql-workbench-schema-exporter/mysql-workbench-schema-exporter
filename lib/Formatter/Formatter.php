@@ -78,7 +78,7 @@ abstract class Formatter implements FormatterInterface
     {
         $this->name = $name;
         $this->registry = new Registry();
-        $this->addConfigurations(array(
+        $this->addConfigurations([
             static::CFG_LANGUAGE                    => Language::ENGLISH,
             static::CFG_NAMING_STRATEGY             => static::NAMING_AS_IS,
             static::CFG_LOG_TO_CONSOLE              => false,
@@ -97,20 +97,20 @@ abstract class Formatter implements FormatterInterface
             static::CFG_SKIP_M2M_TABLES             => true,
             static::CFG_STRIP_MULTIPLE_UNDERSCORES  => false,
             static::CFG_AS_IS_USER_DATATYPE_PREFIX  => ''
-        ));
-        $this->addValidators(array(
-            static::CFG_LANGUAGE                    => new ChoiceValidator(array(
+        ]);
+        $this->addValidators([
+            static::CFG_LANGUAGE                    => new ChoiceValidator([
                 Language::ENGLISH, Language::FRENCH, Language::NORWEGIAN_BOKMAL, Language::PORTUGUESE, Language::SPANISH, Language::TURKISH,
-            )),
-            static::CFG_NAMING_STRATEGY             => new ChoiceValidator(array(
+            ]),
+            static::CFG_NAMING_STRATEGY             => new ChoiceValidator([
                 static::NAMING_AS_IS, static::NAMING_CAMEL_CASE, static::NAMING_PASCAL_CASE,
-            )),
-            static::CFG_EOL                         => new ChoiceValidator(array(
+            ]),
+            static::CFG_EOL                         => new ChoiceValidator([
                 static::EOL_WIN, static::EOL_UNIX,
-            )),
-        ));
-        $this->addDependency(array(static::CFG_LOG_FILE), static::CFG_LOG_TO_CONSOLE, false);
-        $this->addDependency(array(static::CFG_INDENTATION), static::CFG_USE_TABS, false);
+            ]),
+        ]);
+        $this->addDependency([static::CFG_LOG_FILE], static::CFG_LOG_TO_CONSOLE, false);
+        $this->addDependency([static::CFG_INDENTATION], static::CFG_USE_TABS, false);
         $this->setDatatypeConverter($this->createDatatypeConverter());
         $this->init();
     }
@@ -183,7 +183,7 @@ abstract class Formatter implements FormatterInterface
     protected function addDependency($configs, $ref, $value)
     {
         foreach ($configs as $config) {
-            $this->registry->dependency->set($config, array($ref, $value));
+            $this->registry->dependency->set($config, [$ref, $value]);
         }
 
         return $this;
@@ -443,7 +443,7 @@ abstract class Formatter implements FormatterInterface
      */
     protected function getCommentTagPrefixes()
     {
-        return array('MwbExporter');
+        return ['MwbExporter'];
     }
 
     /**
@@ -481,11 +481,11 @@ EOF;
      */
     public function getCommentVars()
     {
-        return array(
+        return [
             '%VERSION%' => static::VERSION,
             '%FORMATTER%' => $this->getName().(($version = $this->getVersion()) ? ' '.$version : ''),
             '%TIME%' => date('Y-m-d H:i:s'),
-        );
+        ];
     }
 
     /**

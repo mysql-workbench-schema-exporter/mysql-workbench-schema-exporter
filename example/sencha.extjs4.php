@@ -36,9 +36,9 @@ autoload();
 use \MwbExporter\Formatter\Sencha\ExtJS4\Formatter;
 
 // formatter setup
-$setup = array(
+$setup = [
     Formatter::CFG_USE_LOGGED_STORAGE  => true,
-);
+];
 
 // lets do it
 export('sencha-extjs4', $setup);

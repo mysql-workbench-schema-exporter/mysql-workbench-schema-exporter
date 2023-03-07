@@ -36,7 +36,7 @@ autoload();
 use \MwbExporter\Formatter\Doctrine2\Annotation\Formatter;
 
 // formatter setup
-$setup = array(
+$setup = [
     Formatter::CFG_USE_LOGGED_STORAGE        => true,
     Formatter::CFG_INDENTATION               => 4,
     Formatter::CFG_FILENAME                  => '%entity%.%extension%',
@@ -46,7 +46,7 @@ $setup = array(
     Formatter::CFG_REPOSITORY_NAMESPACE      => '',
     Formatter::CFG_AUTOMATIC_REPOSITORY      => true,
     Formatter::CFG_SKIP_GETTER_SETTER        => false,
-);
+];
 
 // lets do it
 export('doctrine2-annotation', $setup);

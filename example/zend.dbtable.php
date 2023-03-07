@@ -36,7 +36,7 @@ autoload();
 use \MwbExporter\Formatter\Zend\DbTable\Formatter;
 
 // formatter setup
-$setup = array(
+$setup = [
     Formatter::CFG_USE_LOGGED_STORAGE      => true,
     Formatter::CFG_INDENTATION             => 4,
     Formatter::CFG_FILENAME                => 'DbTable/%schema%/%entity%.%extension%',
@@ -44,7 +44,7 @@ $setup = array(
     Formatter::CFG_PARENT_TABLE            => 'Zend_Db_Table_Abstract',
     Formatter::CFG_GENERATE_DRI            => false,
     Formatter::CFG_GENERATE_GETTER_SETTER  => false,
-);
+];
 
 // lets do it
 export('zend-dbtable', $setup);

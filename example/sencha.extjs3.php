@@ -36,13 +36,13 @@ autoload();
 use \MwbExporter\Formatter\Sencha\ExtJS3\Formatter;
 
 // formatter setup
-$setup = array(
+$setup = [
     Formatter::CFG_USE_LOGGED_STORAGE  => true,
     Formatter::CFG_INDENTATION         => 4,
     Formatter::CFG_FILENAME            => 'JS/%schema%/%entity%.%extension%',
     Formatter::CFG_CLASS_PREFIX        => 'SysX.App',
     Formatter::CFG_PARENT_CLASS        => 'SysX.Ui.App',
-);
+];
 
 // lets do it
 export('sencha-extjs3', $setup);

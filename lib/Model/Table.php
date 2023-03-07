@@ -147,7 +147,7 @@ class Table extends Base
      */
     protected function injectManyToMany(ForeignKey $fk1, ForeignKey $fk2)
     {
-        $fk1->getReferencedTable()->setManyToManyRelation(array('reference' => $fk1, 'refTable' => $fk2->getReferencedTable()));
+        $fk1->getReferencedTable()->setManyToManyRelation(['reference' => $fk1, 'refTable' => $fk2->getReferencedTable()]);
 
         return $this;
     }
@@ -230,7 +230,7 @@ class Table extends Base
         if (null === $this->isM2M) {
             switch (true) {
                 // user hinted that this is a m2m table or not
-                case in_array($m2m = $this->parseComment('m2m'), array('true', 'false')):
+                case in_array($m2m = $this->parseComment('m2m'), ['true', 'false']):
                     $this->isM2M = 'true' === $m2m ? true : false;
                     $this->getDocument()->addLog(sprintf('  * %s: M2M from comment "%s"', $this->getRawTableName(), var_export($this->isM2M, true)));
                     break;
@@ -439,11 +439,11 @@ class Table extends Base
      */
     protected function getVars()
     {
-        return array(
+        return [
             '%table%'     => $this->getRawTableName(),
             '%entity%'    => $this->getModelName(),
             '%category%'  => $this->getCategory(),
-        );
+        ];
     }
 
     /**
@@ -457,7 +457,7 @@ class Table extends Base
     {
         if (0 === strlen($filename = $this->getDocument()->translateFilename($format, $this, $vars)))
         {
-            $filename = implode('.', array($this->getSchema()->getName(), $this->getRawTableName(), $this->getFormatter()->getFileExtension()));
+            $filename = implode('.', [$this->getSchema()->getName(), $this->getRawTableName(), $this->getFormatter()->getFileExtension()]);
         }
 
         return $filename;

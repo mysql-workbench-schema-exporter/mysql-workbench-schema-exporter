@@ -36,13 +36,13 @@ autoload();
 use \MwbExporter\Formatter\Zend\RestController\Formatter;
 
 // formatter setup
-$setup = array(
+$setup = [
     Formatter::CFG_USE_LOGGED_STORAGE  => true,
     Formatter::CFG_INDENTATION         => 4,
     Formatter::CFG_FILENAME            => '%entity%.%extension%',
     Formatter::CFG_TABLE_PREFIX        => '',
     Formatter::CFG_PARENT_TABLE        => 'Zend_Rest_Controller',
-);
+];
 
 // lets do it
 export('zend-restcontroller', $setup);

@@ -40,9 +40,9 @@ class ReservedWords
     /**
      * @var array
      */
-    protected static $words = array(
+    protected static $words = [
         //%WORDS%//
-    );
+    ];
 
     /**
      * Check if word is reserved.

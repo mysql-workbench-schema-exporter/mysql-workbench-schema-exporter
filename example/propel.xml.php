@@ -36,12 +36,12 @@ autoload();
 use \MwbExporter\Formatter\Propel1\Xml\Formatter;
 
 // formatter setup
-$setup = array(
+$setup = [
     Formatter::CFG_USE_LOGGED_STORAGE  => true,
     Formatter::CFG_INDENTATION         => 4,
     Formatter::CFG_ADD_VENDOR          => false,
     Formatter::CFG_NAMESPACE           => 'Acme\Namespace',
-);
+];
 
 // lets do it
 export('propel1-xml', $setup);

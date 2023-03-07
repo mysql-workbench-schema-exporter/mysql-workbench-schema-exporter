@@ -62,6 +62,87 @@ abstract class DatatypeConverter implements DatatypeConverterInterface
     }
 
     /**
+     * Get all data types.
+     *
+     * @return array
+     */
+    public function getAllDataTypes()
+    {
+        return [
+            DatatypeConverterInterface::DATATYPE_TINYINT,
+            DatatypeConverterInterface::DATATYPE_SMALLINT,
+            DatatypeConverterInterface::DATATYPE_MEDIUMINT,
+            DatatypeConverterInterface::DATATYPE_INT,
+            DatatypeConverterInterface::DATATYPE_BIGINT,
+            DatatypeConverterInterface::DATATYPE_FLOAT,
+            DatatypeConverterInterface::DATATYPE_DOUBLE,
+            DatatypeConverterInterface::DATATYPE_DECIMAL,
+            DatatypeConverterInterface::DATATYPE_CHAR,
+            DatatypeConverterInterface::DATATYPE_NCHAR,
+            DatatypeConverterInterface::DATATYPE_VARCHAR,
+            DatatypeConverterInterface::DATATYPE_NVARCHAR,
+            DatatypeConverterInterface::DATATYPE_JSON,
+            DatatypeConverterInterface::DATATYPE_BINARY,
+            DatatypeConverterInterface::DATATYPE_VARBINARY,
+            DatatypeConverterInterface::DATATYPE_TINYTEXT,
+            DatatypeConverterInterface::DATATYPE_TEXT,
+            DatatypeConverterInterface::DATATYPE_MEDIUMTEXT,
+            DatatypeConverterInterface::DATATYPE_LONGTEXT,
+            DatatypeConverterInterface::DATATYPE_TINYBLOB,
+            DatatypeConverterInterface::DATATYPE_BLOB,
+            DatatypeConverterInterface::DATATYPE_MEDIUMBLOB,
+            DatatypeConverterInterface::DATATYPE_LONGBLOB,
+            DatatypeConverterInterface::DATATYPE_DATETIME,
+            DatatypeConverterInterface::DATATYPE_DATETIME_F,
+            DatatypeConverterInterface::DATATYPE_DATE,
+            DatatypeConverterInterface::DATATYPE_DATE_F,
+            DatatypeConverterInterface::DATATYPE_TIME,
+            DatatypeConverterInterface::DATATYPE_TIME_F,
+            DatatypeConverterInterface::DATATYPE_YEAR,
+            DatatypeConverterInterface::DATATYPE_TIMESTAMP,
+            DatatypeConverterInterface::DATATYPE_TIMESTAMP_F,
+            DatatypeConverterInterface::DATATYPE_GEOMETRY,
+            DatatypeConverterInterface::DATATYPE_LINESTRING,
+            DatatypeConverterInterface::DATATYPE_POLYGON,
+            DatatypeConverterInterface::DATATYPE_MULTIPOINT,
+            DatatypeConverterInterface::DATATYPE_MULTILINESTRING,
+            DatatypeConverterInterface::DATATYPE_MULTIPOLYGON,
+            DatatypeConverterInterface::DATATYPE_GEOMETRYCOLLECTION,
+            DatatypeConverterInterface::DATATYPE_BIT,
+            DatatypeConverterInterface::DATATYPE_ENUM,
+            DatatypeConverterInterface::DATATYPE_SET,
+            DatatypeConverterInterface::USERDATATYPE_BOOLEAN,
+            DatatypeConverterInterface::USERDATATYPE_BOOL,
+            DatatypeConverterInterface::USERDATATYPE_FIXED,
+            DatatypeConverterInterface::USERDATATYPE_FLOAT4,
+            DatatypeConverterInterface::USERDATATYPE_FLOAT8,
+            DatatypeConverterInterface::USERDATATYPE_INT1,
+            DatatypeConverterInterface::USERDATATYPE_INT2,
+            DatatypeConverterInterface::USERDATATYPE_INT3,
+            DatatypeConverterInterface::USERDATATYPE_INT4,
+            DatatypeConverterInterface::USERDATATYPE_INT8,
+            DatatypeConverterInterface::USERDATATYPE_INTEGER,
+            DatatypeConverterInterface::USERDATATYPE_LONGVARBINARY,
+            DatatypeConverterInterface::USERDATATYPE_LONGVARCHAR,
+            DatatypeConverterInterface::USERDATATYPE_LONG,
+            DatatypeConverterInterface::USERDATATYPE_MIDDLEINT,
+            DatatypeConverterInterface::USERDATATYPE_NUMERIC,
+            DatatypeConverterInterface::USERDATATYPE_DEC,
+            DatatypeConverterInterface::USERDATATYPE_CHARACTER,
+        ];
+    }
+
+    /**
+     * Get registered data types.
+     *
+     * @return array
+     */
+    public function getRegisteredDataTypes()
+    {
+        return array_merge($this->dataTypes, $this->userDatatypes);
+    }
+
+    /**
      * Get data type mapping for associated key.
      *
      * @return string|null

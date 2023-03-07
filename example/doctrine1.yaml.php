@@ -36,12 +36,12 @@ autoload();
 use \MwbExporter\Formatter\Doctrine1\Yaml\Formatter;
 
 // formatter setup
-$setup = array(
+$setup = [
     Formatter::CFG_USE_LOGGED_STORAGE            => true,
     Formatter::CFG_INDENTATION                   => 2,
     Formatter::CFG_FILENAME                      => '%entity%.%extension%',
     Formatter::CFG_EXTEND_TABLENAME_WITH_SCHEMA  => false,
-);
+];
 
 // lets do it
 export('doctrine1-yaml', $setup);

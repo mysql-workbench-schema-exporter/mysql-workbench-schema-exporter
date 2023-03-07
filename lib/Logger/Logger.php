@@ -72,7 +72,7 @@ class Logger implements LoggerInterface
 
     public function log($message, $level = LoggerInterface::INFO)
     {
-        $log = strtr($this->format, array('%TIME%' => date('Y-m-d H:i:s'), '%TYPE%' => $level, '%MESSAGE%' => $message));
+        $log = strtr($this->format, ['%TIME%' => date('Y-m-d H:i:s'), '%TYPE%' => $level, '%MESSAGE%' => $message]);
         $this->sendLog($log.$this->eol);
     }
 
