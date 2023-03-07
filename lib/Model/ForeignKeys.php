@@ -40,6 +40,24 @@ class ForeignKeys extends Base implements \ArrayAccess, \IteratorAggregate, \Cou
     protected function init()
     {
         foreach ($this->node->value as $key => $node) {
+            if ($this->getNodeValue($node, 'modelOnly') === '1') {
+                $this->getDocument()->addLog(sprintf('Skipping model only foreign key "%s"', $this->getNodeValue($node, 'name')));
+                // remove index if exist
+                $columns = [];
+                foreach ($node->xpath("value[@key='columns']/link") as $link) {
+                    if ($column = $this->getReference()->get((string) $link)) {
+                        $columns[] = $column->getName();
+                    }
+                }
+                $indices = $this->getParent()->getIndices();
+                for ($i = 0; $i < count($indices); $i++) {
+                    if (empty(array_diff($indices[$i]->getColumnNames(), $columns))) {
+                        $this->getDocument()->addLog(sprintf('Removing index "%s"', $indices[$i]->getName()));
+                        unset($indices[$i]);
+                    }
+                }
+                continue;
+            }
             $this->childs[] = $this->getFormatter()->createForeignKey($this, $node);
         }
     }

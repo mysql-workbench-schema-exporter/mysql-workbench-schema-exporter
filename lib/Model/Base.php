@@ -449,4 +449,18 @@ abstract class Base
     {
         return $this->getId();
     }
+
+    /**
+     * Get value from node.
+     *
+     * @param \SimpleXMLElement $node
+     * @param string $key
+     * @return string
+     */
+    public function getNodeValue(\SimpleXMLElement $node, $key)
+    {
+        if (count($nodes = $node->xpath(sprintf("value[@key='%s']", $key)))) {
+            return (string) $nodes[0];
+        }
+    }
 }
