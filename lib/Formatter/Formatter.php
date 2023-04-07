@@ -426,10 +426,11 @@ EOF;
      *
      * @param string $comment  Comment content
      * @param string $format  Comment wrapper format
+     * @param int $width  Maximum line width
      * @return string
      */
-    public function getFormattedComment($comment, $format)
+    public function getFormattedComment($comment, $format, $width = 80)
     {
-        return implode("\n", Comment::wrap($comment, $format));
+        return implode("\n", Comment::wrap($comment, $format, $width));
     }
 }

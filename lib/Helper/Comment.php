@@ -45,12 +45,16 @@ class Comment
     public static function wrap($comment, $format, $width = 80)
     {
         $result = [];
-        $width = $width - self::getWidth($format);
         // collect lines
-        $lines = [];
-        foreach (explode("\n", $comment) as $line) {
-            foreach (explode("\n", wordwrap($line, $width, "\n")) as $sline) {
-                $lines[] = $sline;
+        if (null === $width) {
+            $lines = explode("\n", $comment);
+        } else {
+            $width = $width - self::getWidth($format);
+            $lines = [];
+            foreach (explode("\n", $comment) as $line) {
+                foreach (explode("\n", wordwrap($line, $width, "\n")) as $sline) {
+                    $lines[] = $sline;
+                }
             }
         }
         // write lines
