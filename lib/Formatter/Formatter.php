@@ -35,6 +35,7 @@ use MwbExporter\Configuration\ConsoleLogging as ConsoleLoggingConfiguration;
 use MwbExporter\Configuration\EOL as EOLConfiguration;
 use MwbExporter\Configuration\FileLogging as FileLoggingConfiguration;
 use MwbExporter\Configuration\Filename as FilenameConfiguration;
+use MwbExporter\Configuration\Header as HeaderConfiguration;
 use MwbExporter\Configuration\IdentifierStrategy as IdentifierStrategyConfiguration;
 use MwbExporter\Configuration\Indentation as IndentationConfiguration;
 use MwbExporter\Configuration\Language as LanguageConfiguration;
@@ -102,6 +103,7 @@ abstract class Formatter implements FormatterInterface
             ->add(new EOLConfiguration())
             ->add(new FilenameConfiguration())
             ->add(new BackupConfiguration())
+            ->add(new HeaderConfiguration())
             ->add(new CommentConfiguration())
             ->add(new NamingStrategyConfiguration())
             ->add(new IdentifierStrategyConfiguration())
@@ -416,6 +418,18 @@ EOF;
      */
     public function getComment($format)
     {
-        return implode("\n", Comment::wrap(strtr($this->getCommentFormat(), $this->getCommentVars()), $format));
+        return $this->getFormattedComment(strtr($this->getCommentFormat(), $this->getCommentVars()), $format);
+    }
+
+    /**
+     * Get formatted comment.
+     *
+     * @param string $comment  Comment content
+     * @param string $format  Comment wrapper format
+     * @return string
+     */
+    public function getFormattedComment($comment, $format)
+    {
+        return implode("\n", Comment::wrap($comment, $format));
     }
 }

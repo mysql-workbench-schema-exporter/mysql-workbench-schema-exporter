@@ -1,12 +1,11 @@
-# README
-
 ![Build Status](https://github.com/mysql-workbench-schema-exporter/mysql-workbench-schema-exporter/actions/workflows/continuous-integration.yml/badge.svg)
 [![Latest Stable Version](https://poser.pugx.org/mysql-workbench-schema-exporter/mysql-workbench-schema-exporter/v/stable.svg)](https://packagist.org/packages/mysql-workbench-schema-exporter/mysql-workbench-schema-exporter)
 [![Total Downloads](https://poser.pugx.org/mysql-workbench-schema-exporter/mysql-workbench-schema-exporter/downloads.svg)](https://packagist.org/packages/mysql-workbench-schema-exporter/mysql-workbench-schema-exporter) 
 [![License](https://poser.pugx.org/mysql-workbench-schema-exporter/mysql-workbench-schema-exporter/license.svg)](https://packagist.org/packages/mysql-workbench-schema-exporter/mysql-workbench-schema-exporter)
 
-What is MySQL Workbench Schema Exporter?
-----------------------------------------
+# README
+
+## What is MySQL Workbench Schema Exporter?
 
 [MySQL Workbench](http://www.mysql.com/products/workbench/) Schema Exporter is a library to
 transform the MySQL Workbench model (`*.mwb`) to useful another schemas.
@@ -44,28 +43,73 @@ The actual conversion to another schema is done using an exporter. These plugins
 
 ## Installation
 
-### Using Composer
-
   1. In your project directory issue:
 
-    php composer.phar require --dev mysql-workbench-schema-exporter/mysql-workbench-schema-exporter
+    composer require --dev mysql-workbench-schema-exporter/mysql-workbench-schema-exporter
 
   2. You then can invoke the CLI script using `vendor/bin/mysql-workbench-schema-export`.
 
   3. You can directly require an exporter for your project:
 
-    php composer.phar require --dev mysql-workbench-schema-exporter/doctrine2-exporter
+    composer require --dev mysql-workbench-schema-exporter/doctrine2-exporter
 
-### Stand alone
+## Command Line Interface (CLI)
 
-  1. Get the source code using Git or
-  [download](https://github.com/johmue/mysql-workbench-schema-exporter/releases) from Github.
-  2. Get [composer](https://getcomposer.org/).
-  3. Install dependencies:
+The `mysql-workbench-schema-export` command helps export a workbench schema model directly
+from command line. It has feature to customize export configuration before exporting.
+By default, it will use config file `export.json` located in the current directory to supply
+the parameter if it find it.
 
-    php composer.phar install
+Command usage:
 
-  4. You then can invoke the CLI script using `bin/mysql-workbench-schema-export`.
+    php bin/mysql-workbench-schema-export [options] FILE [DEST]
+
+Where:
+
+  * `FILE`
+
+    The MySQL Workbench model file to export.
+
+  * `DEST`
+
+    The destination directory (optional), if not specified current directory assumed.
+
+Options:
+
+  * `--export=type`
+
+  Choose the result of the export, supported type can be obtained using `--list-exporter`.
+  If this option is omitted and no config file found, the CLI will prompt to choose which exporter
+  to use.
+
+  * `--config=file`
+
+  Read export parameters from file (in JSON format).
+
+  * `--save-config`
+
+  Save export parameters to file `export.json`, later can be used as value for `--config=file`.
+
+  * `--list-exporter`
+
+  Show all available exporter.
+
+  * `--no-auto-config`
+
+  Disable automatic config file lookup.
+
+  * `--zip`
+
+  Compress the result.
+
+  * `--help`
+
+  Show the usage (or suppress any parameters).
+
+Sample usage:
+
+    php bin/mysql-workbench-schema-export --export=doctrine1-yaml example/data/test.mwb ./generated
+    php bin/mysql-workbench-schema-export --zip example/data/test.mwb
 
 ## Configuring MySQL Workbench Schema Exporter
 
@@ -189,85 +233,6 @@ General options applied to all formatter.
 - [NodeJS Sequelize ](https://github.com/mysql-workbench-schema-exporter/node-exporter#formatter-setup-options)
 - [Sencha ExtJS3 and ExtJS4](https://github.com/mysql-workbench-schema-exporter/sencha-exporter#formatter-setup-options)
 
-
-## Command Line Interface (CLI)
-
-The `mysql-workbench-schema-export` command helps export a workbench schema model directly
-from command line. It has feature to customize export configuration before exporting.
-By default, it will use config file `export.json` located in the current directory to supply
-the parameter if it find it. To disable this behaviour, see the option below.
-
-Command usage:
-
-    php bin/mysql-workbench-schema-export [options] FILE [DEST]
-
-Where:
-
-  * `FILE`
-
-    The MySQL Workbench model file to export.
-
-  * `DEST`
-
-    The destination directory (optional), if not specified current directory assumed.
-
-Options:
-
-  * `--export=type`
-
-  Choose the result of the export, supported type can be obtained using `--list-exporter`.
-  If this option is omitted and no config file found, the CLI will prompt to choose which exporter
-  to use.
-
-  * `--config=file`
-
-  Read export parameters from file (in JSON format).
-
-  * `--saveconfig`
-
-  Save export parameters to file `export.json`, later can be used as value for `--config=file`.
-
-  * `--list-exporter`
-
-  Show all available exporter.
-
-  * `--no-auto-config`
-
-  Disable automatic config file lookup.
-
-  * `--zip`
-
-  Compress the result.
-
-  * `--help`
-
-  Show the usage (or suppress any parameters).
-
-Sample usage:
-
-    php bin/mysql-workbench-schema-export --export=doctrine1-yaml example/data/test.mwb ./generated
-    php bin/mysql-workbench-schema-export --zip example/data/test.mwb
-
-Sample export parameters (JSON) for doctrine2-annotation:
-
-    {
-        "export": "doctrine2-annotation",
-        "zip": false,
-        "dir": "temp",
-        "params": {
-            "backupExistingFile": true,
-            "skipPluralNameChecking": false,
-            "enhanceManyToManyDetection": true,
-            "bundleNamespace": "",
-            "entityNamespace": "",
-            "repositoryNamespace": "",
-            "useAnnotationPrefix": "ORM\\",
-            "useAutomaticRepository": true,
-            "indentation": 4,
-            "filename": "%entity%.%extension%",
-            "quoteIdentifier": false
-        }
-    }
 
 ## Using MySQL Workbench Schema Exporter as Library
 

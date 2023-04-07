@@ -258,4 +258,13 @@ interface FormatterInterface
      * @return string
      */
     public function getComment($format);
+
+    /**
+     * Get formatted comment.
+     *
+     * @param string $comment  Comment content
+     * @param string $format   Comment wrapper format
+     * @return string
+     */
+    public function getFormattedComment($comment, $format);
 }

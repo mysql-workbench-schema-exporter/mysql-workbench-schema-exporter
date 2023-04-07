@@ -81,6 +81,7 @@ Options:
                     application will looking config file named export.json.
 --zip               Export as zip archive.
 
+
 EOF;
     die(0);
 }
@@ -168,7 +169,7 @@ function askValue($prompt, &$value, $show = true)
 function setupFormatter(Configurations $setup, $verbose)
 {
     foreach ($setup->getCategories() as $category => $configurations) {
-        echo sprintf("--- %s ---\n", getConfigName($category));
+        echo sprintf("\n--- %s ---\n", getConfigName($category));
         /** @var \MwbExporter\Configuration\Configuration $config */
         foreach ($configurations as $config) {
             if ($config->isEnabled()) {
@@ -215,6 +216,7 @@ function listFormatter($bootstrap, $ordered = false, $title = null)
             $formatter = $bootstrap->getFormatter($name);
             echo sprintf("%s %-{$len}s %s\n", $ordered ? str_pad((string) $i, $nlen, ' ', STR_PAD_LEFT).'.' : '-', $name, $formatter->getTitle());
         }
+        echo "\n";
     } else {
         echo <<<EOF
 No exporter found.
@@ -224,6 +226,7 @@ You can find all exporters at https://github.com/mysql-workbench-schema-exporter
 
 Example:
   php composer.phar require --dev mysql-workbench-schema-exporter/doctrine2-exporter
+
 
 EOF;
     }
@@ -354,7 +357,7 @@ function main($filename, $dir, $params, $options)
         echo sprintf("File exported to %s.\n\n", $document->getWriter()->getStorage()->getResult());
         // show some information about used memory
         // show the time needed to parse the mwb file
-        echo sprintf("Done in %0.3f second, %0.3f MB memory used.\n", $end - $start, memory_get_peak_usage(true) / 1024 / 1024);
+        echo sprintf("Done in %0.3f second, %0.3f MB memory used.\n\n", $end - $start, memory_get_peak_usage(true) / 1024 / 1024);
         die(0);
     } else {
         throw new Exception("Export failed, may be there is no storage available.");
