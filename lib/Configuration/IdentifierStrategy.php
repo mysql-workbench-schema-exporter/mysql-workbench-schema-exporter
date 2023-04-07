@@ -28,7 +28,9 @@ namespace MwbExporter\Configuration;
 
 /**
  * Determines how identifier like table name will be treated for generated
- * entity/model name.
+ * entity/model name. Supported identifier strategies are `fix-underscore`
+ * which will fix for double underscore to single underscore, and `none` which
+ * will do nothing.
  *
  * @author Toha <tohenk@yahoo.com>
  * @config identifierStrategy

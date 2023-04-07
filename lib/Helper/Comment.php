@@ -44,66 +44,6 @@ class Comment
      */
     public static function wrap($comment, $format, $width = 80)
     {
-        $result = [];
-        // collect lines
-        if (null === $width) {
-            $lines = explode("\n", $comment);
-        } else {
-            $width = $width - self::getWidth($format);
-            $lines = [];
-            foreach (explode("\n", $comment) as $line) {
-                foreach (explode("\n", wordwrap($line, $width, "\n")) as $sline) {
-                    $lines[] = $sline;
-                }
-            }
-        }
-        // write lines
-        $no = 0;
-        $count = count($lines);
-        foreach ($lines as $line) {
-            $no++;
-            self::getLine($no, $count, $format, $line, $result);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Get comment line.
-     *
-     * @param int $line  Current line number, start from 1
-     * @param int $count  Total line number
-     * @param string $format  Comment format
-     * @param string $content  Line content
-     * @param array $result Result array
-     */
-    protected static function getLine($line, $count, $format, $content, &$result)
-    {
-        // make sure format is an array
-        $format = explode('|', $format);
-        // is first line
-        if (count($format) >= 3 && 1 === $line) {
-            $result[] = $format[0];
-        }
-        // format line
-        $result[] = rtrim(sprintf(count($format) >= 3 ? $format[1] : $format[0], $content));
-        // is last line
-        if (count($format) >= 3 && $count === $line) {
-            $result[] = $format[2];
-        }
-    }
-
-    /**
-     * Get the width of line format.
-     *
-     * @param array $format
-     * @return int
-     */
-    protected static function getWidth($format)
-    {
-        $lines = [];
-        self::getLine(2, 3, $format, '-', $lines);
-
-        return strlen($lines[0]) - 1;
+        return LineWrap::wrap($comment, $format, $width);
     }
 }

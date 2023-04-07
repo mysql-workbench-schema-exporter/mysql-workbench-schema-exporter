@@ -39,9 +39,12 @@ use MwbExporter\Formatter\FormatterInterface;
 
 const CMD_PARAM_EXPORT = 'export';
 const CMD_PARAM_CONFIG = 'config';
+const CMD_PARAM_FORMAT = 'format';
+const CMD_PARAM_OUTPUT = 'out';
 const CMD_OPT_VERBOSE = 'verbose';
-const CMD_OPT_SAVE_CONFIG = 'save-config';
+const CMD_OPT_DUMP_FORMATTER = 'dump';
 const CMD_OPT_LIST_EXPORTER = 'list-exporter';
+const CMD_OPT_SAVE_CONFIG = 'save-config';
 const CMD_OPT_NO_AUTO_CONFIG = 'no-auto-config';
 const CMD_OPT_ZIP = 'zip';
 const CMD_OPT_HELP = 'help';
@@ -198,7 +201,7 @@ function setupFormatter(Configurations $setup, $verbose)
     }
 }
 
-function listFormatter($bootstrap, $ordered = false, $title = null)
+function listFormatter(Bootstrap $bootstrap, $ordered = false, $title = null)
 {
     if (count($formatters = $bootstrap->getFormatters())) {
         if ($ordered) {
@@ -234,7 +237,7 @@ EOF;
     return $formatters;
 }
 
-function chooseFormatter($bootstrap, $title)
+function chooseFormatter(Bootstrap $bootstrap, $title)
 {
     if (count($formatters = listFormatter($bootstrap, true, $title))) {
         $choice = 1;
@@ -250,14 +253,59 @@ function chooseFormatter($bootstrap, $title)
     }
 }
 
+function dumpFormatter(Bootstrap $bootstrap, $ordered = true)
+{
+    if (count($formatters = $bootstrap->getFormatters())) {
+        if ($ordered) {
+            ksort($formatters);
+        }
+        foreach (array_keys($formatters) as $name) {
+            $formatter = $bootstrap->getFormatter($name);
+            if (is_callable([$formatter, 'getDocDir'])) {
+                $docDir = call_user_func([$formatter, 'getDocDir']);
+                if (!is_dir($docDir)) {
+                    mkdir($docDir, 0777, true);
+                }
+                $filename = realpath($docDir).DIRECTORY_SEPARATOR.$name.'.md';
+                $title = $formatter->getTitle();
+                $date = date(DateTime::ISO8601);
+                echo sprintf("Dumping configuration %s...\n", $title);
+                echo sprintf("Save to %s...\n", $filename);
+                $content = $formatter->dump('md');
+                file_put_contents($filename, <<<EOF
+# $title Configuration
+
+Auto generated at $date.
+
+$content
+EOF
+                );
+            }
+        }
+    }
+}
+
 function main($filename, $dir, $params, $options)
 {
     showTitle();
 
     // bootstrap
     $bootstrap = new Bootstrap();
+
+    if ($options[CMD_OPT_DUMP_FORMATTER]) {
+        dumpFormatter($bootstrap);
+        die(0);
+    }
+
     if ($options[CMD_OPT_LIST_EXPORTER]) {
-        listFormatter($bootstrap, true, 'Supported exporter:');
+        if ($formatter = chooseFormatter($bootstrap, "Supported exporter:")) {
+            $formatter = $bootstrap->getFormatter($formatter);
+            $content = $formatter->dump($params[CMD_PARAM_FORMAT]);
+            echo "\n".$content;
+            if ($params[CMD_PARAM_OUTPUT]) {
+                file_put_contents($params[CMD_PARAM_OUTPUT], $content);
+            }
+        }
         die(0);
     }
 
@@ -372,19 +420,22 @@ try {
     $options = [
         CMD_OPT_HELP => false,
         CMD_OPT_VERBOSE => false,
-        CMD_OPT_SAVE_CONFIG => false,
+        CMD_OPT_DUMP_FORMATTER => false,
         CMD_OPT_LIST_EXPORTER => false,
         CMD_OPT_NO_AUTO_CONFIG => false,
+        CMD_OPT_SAVE_CONFIG => false,
         CMD_OPT_ZIP => false,
     ];
     $params = [
         CMD_PARAM_EXPORT => null,
         CMD_PARAM_CONFIG => null,
+        CMD_PARAM_FORMAT => null,
+        CMD_PARAM_OUTPUT => null,
     ];
 
     array_shift($arguments);
     parseCmdLine($arguments, $params, $options, $values);
-    if ($options[CMD_OPT_HELP] || (count($values) < 1) && !$options[CMD_OPT_LIST_EXPORTER]) {
+    if ($options[CMD_OPT_HELP] || (count($values) < 1) && !$options[CMD_OPT_DUMP_FORMATTER] && !$options[CMD_OPT_LIST_EXPORTER]) {
         usage();
     }
 

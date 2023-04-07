@@ -397,6 +397,33 @@ class DocBlock
     }
 
     /**
+     * Split on blank lines.
+     *
+     * @param array $lines
+     * @return array
+     */
+    public function splitOnBlank($lines)
+    {
+        $result = [];
+        $group = [];
+        for ($i = 0, $n = count($lines) - 1; $i <= $n; $i++) {
+            if ($lines[$i] === '' || $i === $n) {
+                if ($i === $n) {
+                    $group[] = $lines[$i];
+                }
+                if (count($group)) {
+                    $result[] = $group;
+                }
+                $group = [];
+            } else {
+                $group[] = $lines[$i];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Create doc block.
      *
      * @param string $comment  The doc comment

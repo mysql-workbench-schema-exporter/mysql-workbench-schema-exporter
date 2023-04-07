@@ -26,6 +26,9 @@
 
 namespace MwbExporter\Configuration;
 
+use MwbExporter\Helper\Dumper;
+use ReflectionClass;
+
 class Configurations
 {
     /**
@@ -119,17 +122,22 @@ class Configurations
      * Merge configurations.
      *
      * @param array $configurations
+     * @param bool $override
      * @throws \RuntimeException
      * @return \MwbExporter\Formatter\Formatter
      */
-    public function merge($configurations)
+    public function merge($configurations, $override = false)
     {
         foreach ($configurations as $key => $value) {
             $config = $this->get($key);
             if (!$config) {
                 throw new \RuntimeException(sprintf('Unknown configuration key %s.', $key));
             }
-            $config->setValue($value);
+            if ($override) {
+                $config->setDefaultValue($value);
+            } else {
+                $config->setValue($value);
+            }
         }
 
         return $this;
@@ -151,5 +159,104 @@ class Configurations
         }
 
         return $result;
+    }
+
+    /**
+     * Describe configuration by class.
+     *
+     * @param string $class
+     * @return array
+     */
+    public function describe($class)
+    {
+        $result = [];
+        $r = new ReflectionClass($class);
+        if ($r->getParentClass()) {
+            $result = array_merge($result, $this->describe($r->getParentClass()->getName()));
+        }
+        $groups = [];
+        $names = explode('\\', $r->getNamespaceName());
+        while (true) {
+            if (count($names) && $names[count($names) - 1] === 'Formatter') {
+                array_pop($names);
+            } else {
+                break;
+            }
+        }
+        $names[] = 'Configuration';
+        $ns = implode('\\', $names);
+        foreach ($this->items as $config) {
+            $rr = new ReflectionClass($config);
+            if ($ns === $rr->getNamespaceName()) {
+                $groups[] = $config;
+            }
+        }
+        $result[$r->getName()] = $groups;
+
+        return $result;
+    }
+
+    /**
+     * Dump configurations.
+     *
+     * @param string $class
+     * @param string $format
+     * @return string
+     */
+    public function dump($class, $format)
+    {
+        $dumper = Dumper::get($format);
+        $descriptions = $this->describe($class);
+        foreach ($descriptions as $sclass => $configurations) {
+            $scope = $sclass::getScope();
+            $dumper
+                ->addTitle(sprintf('%s Configuration', $scope))
+                ->addBlank();
+            /** @var \MwbExporter\Configuration\Configuration $config */
+            foreach ($configurations as $config) {
+                if (count($config->getAliases())) {
+                    $dumper->addLine(sprintf(
+                        '%s (alias: %s)',
+                        $dumper->highlight($config->getKey()),
+                        implode(', ', $dumper->highlightValues($config->getAliases()))
+                    ));
+                } else {
+                    $dumper->addLine($dumper->highlight($config->getKey()));
+                }
+                if (!$help = $config->getHelp()) {
+                    $help = 'No description available';
+                }
+                $dumper
+                    ->addSubLine($help)
+                    ->addBlank();
+                if ($usage = $config->getUsage()) {
+                    $dumper
+                        ->addSubLine($usage, true)
+                        ->addBlank();
+                }
+                if (count($config->getChoices())) {
+                    $dumper
+                        ->addSubLine(sprintf('Valid values: %s', implode(', ', $dumper->highlightValues($config->getChoices()))))
+                        ->addBlank();
+                }
+                $defaultValue = $config->getDefaultValue();
+                if ('' === $defaultValue) {
+                    $defaultValue = 'blank';
+                } elseif (true === $defaultValue) {
+                    $defaultValue = 'true';
+                } elseif (false === $defaultValue) {
+                    $defaultValue = 'false';
+                } elseif (is_array($defaultValue)) {
+                    $defaultValue = sprintf('[%s]', implode(', ', $dumper->highlightValues($defaultValue)));
+                }
+                $dumper
+                    ->addSubLine(sprintf('Default value: %s', $dumper->highlight($defaultValue)))
+                    ->addBlank();
+            }
+        }
+        $dumper
+            ->addBlank();
+
+        return implode("\n", $dumper->getLines());
     }
 }

@@ -28,7 +28,8 @@ namespace MwbExporter\Configuration;
 
 /**
  * Include file as header in the generated files. It will be wrapped as a
- * comment selected formatter.
+ * comment by choosen formatter. This configuration useful as for example
+ * to include notice to generated files such as license file.
  *
  * @author Toha <tohenk@yahoo.com>
  * @config headerFile

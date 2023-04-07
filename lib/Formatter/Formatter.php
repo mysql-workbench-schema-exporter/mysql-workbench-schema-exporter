@@ -433,4 +433,25 @@ EOF;
     {
         return implode("\n", Comment::wrap($comment, $format, $width));
     }
+
+    /**
+     * Dump all configurations.
+     *
+     * @param string $format
+     * @return string
+     */
+    public function dump($format = 'plain')
+    {
+        return $this->getConfigurations()->dump(get_class($this), $format);
+    }
+
+    /**
+     * Get configuration scope.
+     *
+     * @return string
+     */
+    public static function getScope()
+    {
+        return 'Global';
+    }
 }

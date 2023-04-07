@@ -268,4 +268,12 @@ interface FormatterInterface
      * @return string
      */
     public function getFormattedComment($comment, $format, $width = 80);
+
+    /**
+     * Dump all configurations.
+     *
+     * @param string $format
+     * @return string
+     */
+    public function dump($format = 'plain');
 }

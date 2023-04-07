@@ -22,20 +22,19 @@ Currently, MySQL Workbench Schema Exporter can export the model to various schem
     [Annotation Classes](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/annotations-reference.html)
     or Annotation Classes with [Zend Framework 2](http://framework.zend.com/)
     [Input Filter support](http://framework.zend.com/manual/2.1/en/modules/zend.input-filter.intro.html).
-  * [Zend DbTable](http://framework.zend.com/manual/1.12/en/zend.db.table.html).
-  * Zend Rest Controller.
-  * Sencha ExtJS3 Model.
-  * Sencha [ExtJS4 Model](http://www.sencha.com/products/extjs/).
-  * Propel [XML Schema](http://www.propelorm.org/reference/schema) and YAML Schema.
   * [Node Sequelize](https://sequelize.org).
+  * Propel [XML Schema](http://www.propelorm.org/reference/schema) and YAML Schema.
+  * Sencha ExtJS3 Model and Sencha [ExtJS4 Model](http://www.sencha.com/products/extjs/).
+  * [Zend DbTable](http://framework.zend.com/manual/1.12/en/zend.db.table.html) and Zend Rest Controller.
 
 The actual conversion to another schema is done using an exporter. These plugins are available in subprojects:
  * [Doctrine1 Exporter](https://github.com/mysql-workbench-schema-exporter/doctrine1-exporter)
  * [Doctrine2 Exporter](https://github.com/mysql-workbench-schema-exporter/doctrine2-exporter)
- * [Propel1 Exporter](https://github.com/mysql-workbench-schema-exporter/propel1-exporter)
- * [Zend Framework 1 Exporter](https://github.com/mysql-workbench-schema-exporter/zend1-exporter)
  * [Node Exporter](https://github.com/mysql-workbench-schema-exporter/node-exporter)
-
+ * [Propel1 Exporter](https://github.com/mysql-workbench-schema-exporter/propel1-exporter)
+ * [Sencha ExtJS Exporter](https://github.com/mysql-workbench-schema-exporter/sencha-exporter)
+ * [Zend Framework 1 Exporter](https://github.com/mysql-workbench-schema-exporter/zend1-exporter)
+ 
 ## Prerequisites
 
   * PHP 7.2+
@@ -62,7 +61,7 @@ the parameter if it find it.
 
 Command usage:
 
-    php bin/mysql-workbench-schema-export [options] FILE [DEST]
+    vendor/bin/mysql-workbench-schema-export [options] FILE [DEST]
 
 Where:
 
@@ -108,110 +107,26 @@ Options:
 
 Sample usage:
 
-    php bin/mysql-workbench-schema-export --export=doctrine1-yaml example/data/test.mwb ./generated
-    php bin/mysql-workbench-schema-export --zip example/data/test.mwb
+    vendor/bin/mysql-workbench-schema-export --export=doctrine1-yaml example/data/test.mwb ./generated
+    vendor/bin/mysql-workbench-schema-export --zip example/data/test.mwb
 
 ## Configuring MySQL Workbench Schema Exporter
 
 MySQL Workbench Schema Exporter can be configured at runtime using methods:
 
-  * Setup options.
+  * Configuration files.
   * Model comment, either applied to table, column, or foreign key object.
 
-Both methods accept different options, and generally divided as common options and exporter
-(formatter) specific options.
+Refers to exporter project to show detailed information.
 
-### Common Setup Options
+ * [Doctrine1 Exporter](https://github.com/mysql-workbench-schema-exporter/doctrine1-exporter#readme)
+ * [Doctrine2 Exporter](https://github.com/mysql-workbench-schema-exporter/doctrine2-exporter#readme)
+ * [Node Exporter](https://github.com/mysql-workbench-schema-exporter/node-exporter#readme)
+ * [Propel1 Exporter](https://github.com/mysql-workbench-schema-exporter/propel1-exporter#readme)
+ * [Sencha ExtJS Exporter](https://github.com/mysql-workbench-schema-exporter/sencha-exporter#readme)
+ * [Zend Framework 1 Exporter](https://github.com/mysql-workbench-schema-exporter/zend1-exporter#readme)
 
-General options applied to all formatter.
-
-  * `filename`
-
-    The output filename format, use the following tag `%schema%`, `%table%`, `%entity%`, and
-    `%extension%` to allow the filename to be replaced with contextual data.
-
-    Default is `%entity%.%extension%`.
-
-  * `indentation`
-
-    The indentation size for generated code.
-
-  * `useTabs`
-
-    Use tabs for indentation instead of spaces. Setting this option will ignore the
-    `indentation`-option.
-
-  * `eolDelimeter`
-
-    EOL type for generated code. Supported EOLs are `win` and `unix`.
-
-  * `addGeneratorInfoAsComment`
-
-    Add generator information to the generated code as a comment.
-
-    Default is `true`.
-
-  * `skipPluralNameChecking`
-
-    Skip checking the plural name of model and leave as is, useful for non English table names.
-
-    Default is `false`.
-
-  * `backupExistingFile`
-
-    If target already exists create a backup before replacing the content.
-
-    Default is `true`.
-
-  * `enhanceManyToManyDetection`
-
-    If enabled, many to many relations between tables will be added to generated code.
-
-    Default is `true`.
-
-  * `sortTablesAndViews`
-
-    If enabled, sorting of tables and views is performed prior to code generation for each table
-    and view. For table, it sorted by table model name and for view sorted by view model name.
-
-    Default is `true`.
-
-  * `exportOnlyTableCategorized`
-
-    If specified, only export the tables if its category matched.
-
-  * `logToConsole`
-
-    If enabled, output the log to console.
-
-    Default is `false`.
-
-  * `logFile`
-
-    If specified, output the log to a file. If this option presence, option `logToConsole` will be
-    ignored instead.
-
-    Default is `empty`.
-
-  * `stripMultipleUnderscores`
-
-    If enabled, consider multiple underscores as single ones so for example, a table named `user__group` 
-    will still produce a `UserGroup` entity.
-
-    Default is `false`.
-  
-  * `asIsUserDatatypePrefix`
-
-    This option gives the ability to bypass user type convertion and forward user type to models, as is. 
-    
-    For example, if defined to `_`, and a user type 
-    `_BOOLEAN` is defined in MySQL Workbench (resolving to `TINYINT(1)`, for example, but no matter), then the model field will have `BOOLEAN`. 
-    
-    It is usefull for non MySQL types like `BOOLEAN` or `JSONB` that certain ORMs can handle.
-
-    Default is `""` (disabled).
-
-### Common Model Comment Behavior
+## Common Model Comment Behavior
 
   * `{MwbExporter:external}true{/MwbExporter:external}` (applied to Table, View)
 
@@ -223,16 +138,6 @@ General options applied to all formatter.
     Table category used to groups the table for sorting. This way, generated table
     output can be sorted as you need such as in Propel YAML schema (obviously useful
     for exporter which results in single file output).
-
-## Formatter Setup Options
-
-- [Doctrine 2 Annotation, YAML and ZF2 Input Filter](https://github.com/mysql-workbench-schema-exporter/doctrine2-exporter#formatter-setup-options)
-- [Doctrine 1 YAML](https://github.com/mysql-workbench-schema-exporter/doctrine1-exporter#formatter-setup-options)
-- [Propel 1 YAML and XML](https://github.com/mysql-workbench-schema-exporter/propel1-exporter#formatter-setup-options)
-- [Zend 1 Rest and DbTable](https://github.com/mysql-workbench-schema-exporter/zend1-exporter#formatter-setup-options)
-- [NodeJS Sequelize ](https://github.com/mysql-workbench-schema-exporter/node-exporter#formatter-setup-options)
-- [Sencha ExtJS3 and ExtJS4](https://github.com/mysql-workbench-schema-exporter/sencha-exporter#formatter-setup-options)
-
 
 ## Using MySQL Workbench Schema Exporter as Library
 
@@ -246,6 +151,3 @@ If you want to use MySQL Workbench Schema Exporter as a library for other projec
 ## Links
 
   * [MySQL Workbench](http://wb.mysql.com/)
-  * [Doctrine Project](http://www.doctrine-project.org/)
-  * [Symfony Project](http://www.symfony.com/)
-  * [Sencha - Open source FAQ](http://www.sencha.com/legal/open-source-faq/)

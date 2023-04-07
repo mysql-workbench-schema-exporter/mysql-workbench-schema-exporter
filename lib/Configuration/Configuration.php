@@ -115,11 +115,18 @@ abstract class Configuration
             if (count($tags = $docBlock->getNamedTags('label'))) {
                 $this->metadata['label'] = $tags[0]['data'];
             }
-            if ($description = $docBlock->getBriefDescription()) {
-                $this->metadata['help'] = $description;
-            }
-            if ($description = $docBlock->getExtraDescription()) {
-                $this->metadata['usage'] = $description;
+            if ($description = $docBlock->getRawDescription()) {
+                if (count($lines = $docBlock->splitOnBlank(explode("\n", $description)))) {
+                    $firstPara = array_shift($lines);
+                    $extraPara = [];
+                    foreach ($lines as $para) {
+                        $extraPara[] = implode("\n", $para);
+                    }
+                    $this->metadata['help'] = implode("\n", $firstPara);
+                    if (count($extraPara)) {
+                        $this->metadata['usage'] = implode("\n\n", $extraPara);
+                    }
+                }
             }
         }
     }
@@ -269,6 +276,19 @@ abstract class Configuration
     public function getValue()
     {
         return $this->value;
+    }
+
+    /**
+     * Set configuration default value.
+     *
+     * @param mixed $defaultValue
+     * @return \MwbExporter\Configuration\Configuration
+     */
+    public function setDefaultValue($defaultValue)
+    {
+        $this->defaultValue = $defaultValue;
+
+        return $this;
     }
 
     /**
