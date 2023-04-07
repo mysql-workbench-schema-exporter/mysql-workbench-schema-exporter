@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,14 +27,16 @@
 
 namespace MwbExporter\Model;
 
-use MwbExporter\Formatter\FormatterInterface;
+use MwbExporter\Configuration\Category as CategoryConfiguration;
+use MwbExporter\Configuration\M2MSkip as M2MSkipConfiguration;
+use MwbExporter\Configuration\PluralSkip as PluralSkipConfiguration;
 use MwbExporter\Writer\WriterInterface;
 
 class Table extends Base
 {
-    const WRITE_OK = 1;
-    const WRITE_EXTERNAL = 2;
-    const WRITE_M2M = 3;
+    public const WRITE_OK = 1;
+    public const WRITE_EXTERNAL = 2;
+    public const WRITE_M2M = 3;
 
     /**
      * @var \MwbExporter\Model\Columns
@@ -234,32 +236,27 @@ class Table extends Base
                     $this->isM2M = 'true' === $m2m ? true : false;
                     $this->getDocument()->addLog(sprintf('  * %s: M2M from comment "%s"', $this->getRawTableName(), var_export($this->isM2M, true)));
                     break;
-
-                // contains 2 foreign keys
+                    // contains 2 foreign keys
                 case (2 !== count($fkeys = $this->getForeignKeys())):
                     $this->isM2M = false;
                     $this->getDocument()->addLog(sprintf('  * %s: M2M set to false, foreign keys not equal to 2', $this->getRawTableName()));
                     break;
-
-                // different foreign tables
+                    // different foreign tables
                 case ($fkeys[0]->getReferencedTable()->getId() === $fkeys[1]->getReferencedTable()->getId()):
                     $this->isM2M = false;
                     $this->getDocument()->addLog(sprintf('  * %s: M2M set to false, foreign table is same', $this->getRawTableName()));
                     break;
-
-                // foreign tables is not many to many
+                    // foreign tables is not many to many
                 case $deep && $fkeys[0]->getReferencedTable()->isManyToMany(false):
                 case $deep && $fkeys[1]->getReferencedTable()->isManyToMany(false):
                     $this->isM2M = false;
                     $this->getDocument()->addLog(sprintf('  * %s: M2M set to false, foreign table is M2M', $this->getRawTableName()));
                     break;
-
-                // has more columns than id + 2 x key columnns, is not many to many
+                    // has more columns than id + 2 x key columnns, is not many to many
                 case (count($this->getColumns()) >= 3):
                     $this->isM2M = false;
                     $this->getDocument()->addLog(sprintf('  * %s: M2M set to false, columns are 3 or more', $this->getRawTableName()));
                     break;
-
                 default:
                     $this->isM2M = true;
                     $this->getDocument()->addLog(sprintf('  * %s: is M2M', $this->getRawTableName()));
@@ -319,7 +316,7 @@ class Table extends Base
     {
         $name = $this->getRawTableName();
         // check if table name is plural --> convert to singular
-        if (!$this->getConfig()->get(FormatterInterface::CFG_SKIP_PLURAL) &&
+        if (!$this->getConfig(PluralSkipConfiguration::class)->getValue() &&
             ($name != ($singular = $this->singularize($name)))
         ) {
             $name = $singular;
@@ -440,9 +437,9 @@ class Table extends Base
     protected function getVars()
     {
         return [
-            '%table%'     => $this->getRawTableName(),
-            '%entity%'    => $this->getModelName(),
-            '%category%'  => $this->getCategory(),
+            '%table%' => $this->getRawTableName(),
+            '%entity%' => $this->getModelName(),
+            '%category%' => $this->getCategory(),
         ];
     }
 
@@ -455,8 +452,7 @@ class Table extends Base
      */
     public function getTableFileName($format = null, $vars = [])
     {
-        if (0 === strlen($filename = $this->getDocument()->translateFilename($format, $this, $vars)))
-        {
+        if (0 === strlen($filename = $this->getDocument()->translateFilename($format, $this, $vars))) {
             $filename = implode('.', [$this->getSchema()->getName(), $this->getRawTableName(), $this->getFormatter()->getFileExtension()]);
         }
 
@@ -512,11 +508,7 @@ class Table extends Base
     public function isForeignKeyIgnored($foreignKey)
     {
         // do not create entities for many2many tables
-        if ($this->getConfig()->get(FormatterInterface::CFG_SKIP_M2M_TABLES) && $foreignKey->getReferencedTable()->isManyToMany()) {
-            return true;
-        }
-
-        return false;
+        return $this->getConfig(M2MSkipConfiguration::class)->getValue() && $foreignKey->getReferencedTable()->isManyToMany() ? true : false;
     }
 
     /**
@@ -528,7 +520,7 @@ class Table extends Base
     public function isLocalForeignKeyIgnored($foreignKey)
     {
         // do not create entities for many2many tables
-        if ($this->getConfig()->get(FormatterInterface::CFG_SKIP_M2M_TABLES) && $foreignKey->getOwningTable()->isManyToMany()) {
+        if ($this->getConfig(M2MSkipConfiguration::class)->getValue() && $foreignKey->getOwningTable()->isManyToMany()) {
             return true;
         }
         // do not output mapping in foreign table when the unidirectional option is set
@@ -690,23 +682,21 @@ class Table extends Base
     public function write(WriterInterface $writer)
     {
         try {
-            if (strlen($category = $this->getConfig()->get(FormatterInterface::CFG_EXPORT_TABLE_CATEGORY)) && 
-                $this->getCategory() != $category) {
+            /** @var \MwbExporter\Configuration\Category $exportedCategory */
+            $exportedCategory = $this->getConfig(CategoryConfiguration::class);
+            if (!$exportedCategory->isMatch($this->getCategory())) {
                 $status = 'skipped, not in category';
             } else {
                 switch ($this->writeTable($writer)) {
                     case self::WRITE_OK:
                         $status = 'OK';
                         break;
-
                     case self::WRITE_EXTERNAL:
                         $status = 'skipped, marked as external';
                         break;
-
                     case self::WRITE_M2M:
                         $status = 'skipped, M2M table';
                         break;
-
                     default:
                         $status = 'unsupported';
                         break;

@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,36 +29,9 @@ namespace MwbExporter\Formatter;
 
 use MwbExporter\Model\Base;
 
-interface FormatterInterface {
-
-    const VERSION                           = '3.2.2-dev';
-
-    const CFG_LANGUAGE                      = 'language';
-    const CFG_NAMING_STRATEGY               = 'namingStrategy';
-    const CFG_FILENAME                      = 'filename';
-    const CFG_INDENTATION                   = 'indentation';
-    const CFG_USE_TABS                      = 'useTabs';
-    const CFG_EOL                           = 'eolDelimeter';
-    const CFG_ADD_COMMENT                   = 'addGeneratorInfoAsComment';
-    const CFG_SKIP_PLURAL                   = 'skipPluralNameChecking';
-    const CFG_BACKUP_FILE                   = 'backupExistingFile';
-    const CFG_USE_LOGGED_STORAGE            = 'useLoggedStorage';
-    const CFG_ENHANCE_M2M_DETECTION         = 'enhanceManyToManyDetection';
-    const CFG_SKIP_M2M_TABLES               = 'skipManyToManyTables';
-    const CFG_SORT_TABLES_AND_VIEWS         = 'sortTablesAndViews';
-    const CFG_EXPORT_TABLE_CATEGORY         = 'exportOnlyTableCategorized';
-    const CFG_LOG_TO_CONSOLE                = 'logToConsole';
-    const CFG_LOG_FILE                      = 'logFile';
-    const CFG_STRIP_MULTIPLE_UNDERSCORES    = 'stripMultipleUnderscores';
-
-    const NAMING_AS_IS                      = 'as-is';
-    const NAMING_CAMEL_CASE                 = 'camel-case';
-    const NAMING_PASCAL_CASE                = 'pascal-case';
-
-    const EOL_WIN                           = 'win';
-    const EOL_UNIX                          = 'unix';
-
-    const CFG_AS_IS_USER_DATATYPE_PREFIX    = 'asIsUserDatatypePrefix';
+interface FormatterInterface
+{
+    public const VERSION = '4.0.0-dev';
 
     /**
      * Get formatter name.
@@ -89,25 +62,19 @@ interface FormatterInterface {
     public function getDatatypeConverter();
 
     /**
-     * Get all configurations.
+     * Get configurations.
      *
-     * @return array
+     * @return \MwbExporter\Configuration\Configurations
      */
     public function getConfigurations();
 
     /**
-     * Get configuration validators.
+     * Get configuration.
      *
-     * @return array
+     * @param string $key
+     * @return \MwbExporter\Configuration\Configuration
      */
-    public function getValidators();
-
-    /**
-     * Get configuration dependencies.
-     *
-     * @return array
-     */
-    public function getDependencies();
+    public function getConfig($key);
 
     /**
      * Setup formatter.
@@ -253,13 +220,6 @@ interface FormatterInterface {
      * @return string
      */
     public function getPreferredWriter();
-
-    /**
-     * Get inflector.
-     *
-     * @return \Doctrine\Inflector\Inflector
-     */
-    public function getInflector();
 
     /**
      * Get all prefixes recognized as tag for comment.

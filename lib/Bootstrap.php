@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,13 +28,17 @@
 namespace MwbExporter;
 
 use ReflectionClass;
-
+use MwbExporter\Configuration\Backup as BackupConfiguration;
+use MwbExporter\Configuration\ConsoleLogging as ConsoleLoggingConfiguration;
+use MwbExporter\Configuration\EOL as EOLConfiguration;
+use MwbExporter\Configuration\FileLogging as FileLoggingConfiguration;
+use MwbExporter\Configuration\LoggedStorage as LoggedStorageConfiguration;
 use MwbExporter\Formatter\FormatterInterface;
-use MwbExporter\Model\Document;
-use MwbExporter\Storage\LoggedStorage;
 use MwbExporter\Logger\Logger;
 use MwbExporter\Logger\LoggerFile;
 use MwbExporter\Logger\LoggerConsole;
+use MwbExporter\Model\Document;
+use MwbExporter\Storage\LoggedStorage;
 
 class Bootstrap
 {
@@ -151,29 +155,21 @@ class Bootstrap
             throw new \InvalidArgumentException(sprintf('Document not found "%s".', $filename));
         }
         if ($formatter && $storage = $this->getStorage($storage)) {
-            if ($formatter->getRegistry()->config->get(FormatterInterface::CFG_USE_LOGGED_STORAGE)) {
+            if ($formatter->getConfig(LoggedStorageConfiguration::class)->getValue()) {
                 $storage = new LoggedStorage($storage);
             }
             $storage->setName(basename($filename, '.mwb'));
             $storage->setOutdir(realpath($outDir) ? realpath($outDir) : $outDir);
-            $storage->setBackup($formatter->getRegistry()->config->get(FormatterInterface::CFG_BACKUP_FILE));
+            $storage->setBackup($formatter->getConfig(BackupConfiguration::class)->getValue());
             $writer = $this->getWriter($formatter->getPreferredWriter());
             $writer->setStorage($storage);
-            if ($eol = strtolower(trim($formatter->getRegistry()->config->get(FormatterInterface::CFG_EOL)))) {
-                switch ($eol) {
-                    case FormatterInterface::EOL_WIN:
-                        $writer->getBuffer()->setEol("\r\n");
-                        break;
-
-                    case FormatterInterface::EOL_UNIX:
-                        $writer->getBuffer()->setEol("\n");
-                        break;
-                }
-            }
+            /** @var \MwbExporter\Configuration\EOL $eol */
+            $eol = $formatter->getConfig(EOLConfiguration::class);
+            $writer->getBuffer()->setEol($eol->getEol());
             $document = new Document($formatter);
-            if (strlen($logFile = $formatter->getRegistry()->config->get(FormatterInterface::CFG_LOG_FILE))) {
+            if (strlen($logFile = $formatter->getConfig(FileLoggingConfiguration::class)->getValue())) {
                 $logger = new LoggerFile(['filename' => $logFile]);
-            } elseif ($formatter->getRegistry()->config->get(FormatterInterface::CFG_LOG_TO_CONSOLE)) {
+            } elseif ($formatter->getConfig(ConsoleLoggingConfiguration::class)->getValue()) {
                 $logger = new LoggerConsole();
             } else {
                 $logger = new Logger();

@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,10 +29,10 @@ namespace MwbExporter\Helper;
 
 class Comment
 {
-    const FORMAT_PHP        = '/**| * %s| */';
-    const FORMAT_JS         = '/**| * %s| */';
-    const FORMAT_XML        = '<!--|  %s|-->';
-    const FORMAT_YAML       = '# %s';
+    public const FORMAT_PHP = '/**| * %s| */';
+    public const FORMAT_JS = '/**| * %s| */';
+    public const FORMAT_XML = '<!--|  %s|-->';
+    public const FORMAT_YAML = '# %s';
 
     /**
      * Wrap comment.
@@ -69,7 +69,7 @@ class Comment
      *
      * @param int $line  Current line number, start from 1
      * @param int $count  Total line number
-     * @param array $format  Comment format
+     * @param string $format  Comment format
      * @param string $content  Line content
      * @param array $result Result array
      */

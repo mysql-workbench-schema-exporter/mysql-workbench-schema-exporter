@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,11 +36,11 @@ class ZendURLFormatter
      */
     public static function fromCamelCaseToDashConnection($string)
     {
-        $return = preg_replace_callback('/([A-Z])/', function($matches){
+        $return = preg_replace_callback('/([A-Z])/', function($matches) {
             return '-' . ucwords(strtolower($matches[1]));
         }, $string);
 
-        if (substr($return, 0,1) === '-') {
+        if (substr($return, 0, 1) === '-') {
             $return = substr($return, 1, strlen($return));
         }
 
@@ -54,8 +54,8 @@ class ZendURLFormatter
      */
     public static function fromUnderscoreConnectionToDashConnection($string)
     {
-        $return = str_replace(' ','-',ucwords(str_replace('_',' ',$string)));
-        if (substr($return, 0,1) === '-') {
+        $return = str_replace(' ', '-', ucwords(str_replace('_', ' ', $string)));
+        if (substr($return, 0, 1) === '-') {
             $return = substr($return, 1, strlen($return));
         }
 

@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,17 +33,19 @@ include 'util.php';
 // enable autoloading of classes
 autoload();
 
-use \MwbExporter\Formatter\Zend\DbTable\Formatter;
+use MwbExporter\Configuration\Indentation as IndentationConfiguration;
+use MwbExporter\Configuration\Filename as FilenameConfiguration;
+use MwbExporter\Configuration\LoggedStorage as LoggedStorageConfiguration;
+use MwbExporter\Formatter\Zend\Configuration\TableParent as TableParentConfiguration;
+use MwbExporter\Formatter\Zend\Configuration\TablePrefix as TablePrefixConfiguration;
 
 // formatter setup
 $setup = [
-    Formatter::CFG_USE_LOGGED_STORAGE      => true,
-    Formatter::CFG_INDENTATION             => 4,
-    Formatter::CFG_FILENAME                => 'DbTable/%schema%/%entity%.%extension%',
-    Formatter::CFG_TABLE_PREFIX            => 'Application_Model_DbTable_',
-    Formatter::CFG_PARENT_TABLE            => 'Zend_Db_Table_Abstract',
-    Formatter::CFG_GENERATE_DRI            => false,
-    Formatter::CFG_GENERATE_GETTER_SETTER  => false,
+    LoggedStorageConfiguration::class => true,
+    IndentationConfiguration::class => 4,
+    FilenameConfiguration::class => 'DbTable/%schema%/%entity%.%extension%',
+    TablePrefixConfiguration::class => 'Application_Model_DbTable_',
+    TableParentConfiguration::class => 'Zend_Db_Table_Abstract',
 ];
 
 // lets do it

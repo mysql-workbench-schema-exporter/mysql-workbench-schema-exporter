@@ -3,7 +3,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,25 +24,39 @@
  * THE SOFTWARE.
  */
 
-namespace MwbExporter\Validator;
+namespace MwbExporter\Configuration;
 
-abstract class Validator
+/**
+ * End of line (EOL) delimiter detemines the end of line in generated files.
+ *
+ * @author Toha <tohenk@yahoo.com>
+ * @config eolDelimiter|eolDelimeter
+ * @label End of line delimiter
+ */
+class EOL extends Configuration
 {
-    /**
-     * Check if value is valid.
-     *
-     * @param mixed $value
-     * @return bool
-     */
-    abstract public function isValid(&$value);
+    public const WIN = 'win';
+    public const UNIX = 'unix';
 
     /**
-     * Get value choices.
+     * Configured EOLs.
      *
-     * @return array
+     * @var array
      */
-    public function getChoices()
+    protected $eols = [self::WIN => "\r\n", self::UNIX => "\n"];
+
+    protected function initialize()
     {
-        return [];
+        $this->category = 'codeGeneration';
+        $this->defaultValue = static::WIN;
+        $this->choices = [
+            static::WIN,
+            static::UNIX,
+        ];
+    }
+
+    public function getEol()
+    {
+        return $this->eols[$this->getValue()];
     }
 }

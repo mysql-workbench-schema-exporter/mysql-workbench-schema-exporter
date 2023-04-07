@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,8 +27,9 @@
 
 namespace MwbExporter\Model;
 
+use MwbExporter\Configuration\M2MEnhanced as M2MEnhancedConfiguration;
+use MwbExporter\Configuration\TableAndViewSort as TableAndViewSortConfiguration;
 use MwbExporter\Writer\WriterInterface;
-use MwbExporter\Formatter\FormatterInterface;
 use Traversable;
 
 class Tables extends Base implements \ArrayAccess, \IteratorAggregate, \Countable
@@ -50,7 +51,7 @@ class Tables extends Base implements \ArrayAccess, \IteratorAggregate, \Countabl
             $this->childs[] = $table;
         }
         // apply sorting
-        if ($this->getConfig()->get(FormatterInterface::CFG_SORT_TABLES_AND_VIEWS)) {
+        if ($this->getConfig(TableAndViewSortConfiguration::class)->getValue()) {
             usort($this->childs, function($a, $b) {
                 return strcmp($a->getSortValue(), $b->getSortValue());
             });
@@ -65,7 +66,7 @@ class Tables extends Base implements \ArrayAccess, \IteratorAggregate, \Countabl
             $table->initForeignKeys();
         }
         // initialize many to many relation
-        if ($this->getConfig()->get(FormatterInterface::CFG_ENHANCE_M2M_DETECTION)) {
+        if ($this->getConfig(M2MEnhancedConfiguration::class)->getValue()) {
             foreach ($this->childs as $table) {
                 $table->initManyToManyRelations();
             }

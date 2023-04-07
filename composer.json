@@ -34,8 +34,7 @@
 		"doctrine/inflector" : "^1.0.0"
 	},
 	"bin" : [
-		"bin/mysql-workbench-schema-export",
-		"bin/update-sql-reserved-words"
+		"bin/mysql-workbench-schema-export"
 	],
 	"autoload" : {
 		"psr-4" : {

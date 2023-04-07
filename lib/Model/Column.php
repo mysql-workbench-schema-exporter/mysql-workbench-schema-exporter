@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -73,8 +73,8 @@ class Column extends Base
         $this->getDocument()->addLog(sprintf('Processing column "%s.%s"', $this->getTable()->getRawTableName(), $this->getColumnName()));
         // iterate on links to other wb objects
         foreach ($this->node->xpath("link") as $key => $node) {
-            $attributes         = $node->attributes();
-            $key                = (string) $attributes['key'];
+            $attributes = $node->attributes();
+            $key = (string) $attributes['key'];
             $this->links->set((string) $attributes['key'], (string) $node[0]);
         }
     }
@@ -241,6 +241,7 @@ class Column extends Base
         if (is_array($flags)) {
             return array_key_exists('UNSIGNED', array_flip($flags));
         }
+
         return false;
     }
 
@@ -290,7 +291,8 @@ class Column extends Base
      *
      * @return string
      */
-    public function getColumnGetterName() {
+    public function getColumnGetterName()
+    {
         $prefix = 'get';
         $name = $this->getBeautifiedColumnName();
 

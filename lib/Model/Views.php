@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,8 +27,8 @@
 
 namespace MwbExporter\Model;
 
+use MwbExporter\Configuration\TableAndViewSort as TableAndViewSortConfiguration;
 use MwbExporter\Writer\WriterInterface;
-use MwbExporter\Formatter\FormatterInterface;
 use Traversable;
 
 class Views extends Base implements \ArrayAccess, \IteratorAggregate, \Countable
@@ -38,14 +38,14 @@ class Views extends Base implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     protected $childs = [];
 
-    protected  function init()
+    protected function init()
     {
         // iterate on childs
         foreach ($this->node->value as $key => $node) {
             $this->childs[] = $this->getFormatter()->createView($this, $node);
         }
         // apply sorting
-        if ($this->getConfig()->get(FormatterInterface::CFG_SORT_TABLES_AND_VIEWS)) {
+        if ($this->getConfig(TableAndViewSortConfiguration::class)->getValue()) {
             usort($this->childs, function($a, $b) {
                 return strcmp($a->getCategory().$a->getModelName(), $b->getCategory().$b->getModelName());
             });

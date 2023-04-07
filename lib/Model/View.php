@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,8 +31,8 @@ use MwbExporter\Writer\WriterInterface;
 
 class View extends Base
 {
-    const WRITE_OK = 1;
-    const WRITE_EXTERNAL = 2;
+    public const WRITE_OK = 1;
+    public const WRITE_EXTERNAL = 2;
 
     /**
      * @var \MwbExporter\Model\Columns
@@ -124,9 +124,9 @@ class View extends Base
     protected function getVars()
     {
         return [
-            '%view%'      => $this->getRawViewName(),
-            '%entity%'    => $this->getModelName(),
-            '%category%'  => $this->getCategory(),
+            '%view%' => $this->getRawViewName(),
+            '%entity%' => $this->getModelName(),
+            '%category%' => $this->getCategory(),
         ];
     }
 
@@ -139,8 +139,7 @@ class View extends Base
      */
     public function getViewFileName($format = null, $vars = [])
     {
-        if (0 === strlen($filename = $this->getDocument()->translateFilename($format, $this, $vars)))
-        {
+        if (0 === strlen($filename = $this->getDocument()->translateFilename($format, $this, $vars))) {
             $filename = implode('.', [$this->getSchema()->getName(), $this->getRawViewName(), $this->getFormatter()->getFileExtension()]);
         }
 
@@ -158,11 +157,9 @@ class View extends Base
                 case self::WRITE_OK:
                     $status = 'OK';
                     break;
-
                 case self::WRITE_EXTERNAL:
                     $status = 'skipped, marked as external';
                     break;
-
                 default:
                     $status = 'unsupported';
                     break;

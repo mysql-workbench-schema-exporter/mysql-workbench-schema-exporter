@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,8 +33,14 @@ include 'util.php';
 // enable autoloading of classes
 autoload();
 
-use \MwbExporter\Formatter\Propel1\Xml\Formatter as PropelFormatter;
-use \MwbExporter\Formatter\Doctrine2\Annotation\Formatter as DoctrineFormatter;
+use MwbExporter\Configuration\Indentation as IndentationConfiguration;
+use MwbExporter\Configuration\LoggedStorage as LoggedStorageConfiguration;
+use MwbExporter\Formatter\Propel1\Configuration\ModelNamespace as ModelNamespaceConfiguration;
+use MwbExporter\Formatter\Propel1\Xml\Configuration\Vendor as VendorConfiguration;
+use MwbExporter\Formatter\Doctrine2\Configuration\AutomaticRepository as AutomaticRepositoryConfiguration;
+use MwbExporter\Formatter\Doctrine2\Configuration\BundleNamespace as BundleNamespaceConfiguration;
+use MwbExporter\Formatter\Doctrine2\Configuration\EntityNamespace as EntityNamespaceConfiguration;
+use MwbExporter\Formatter\Doctrine2\Annotation\Configuration\GetterSetterSkip as GetterSetterSkipConfiguration;
 
 /**********************************************
  *                                            *
@@ -43,10 +49,10 @@ use \MwbExporter\Formatter\Doctrine2\Annotation\Formatter as DoctrineFormatter;
  **********************************************/
 
 $setup = [
-    PropelFormatter::CFG_USE_LOGGED_STORAGE  => true,
-    PropelFormatter::CFG_INDENTATION         => 4,
-    PropelFormatter::CFG_ADD_VENDOR          => true,
-    PropelFormatter::CFG_NAMESPACE           => 'Acme\Namespace',
+    LoggedStorageConfiguration::class => true,
+    IndentationConfiguration::class => 4,
+    ModelNamespaceConfiguration::class => 'Acme\Namespace',
+    VendorConfiguration::class => true,
 ];
 
 // lets do it
@@ -59,15 +65,12 @@ export('propel1-xml', $setup);
  *******************************************************/
 
 $setup = [
-    DoctrineFormatter::CFG_USE_LOGGED_STORAGE        => true,
-    DoctrineFormatter::CFG_INDENTATION               => 4,
-    DoctrineFormatter::CFG_FILENAME                  => '%entity%.%extension%',
-    DoctrineFormatter::CFG_ANNOTATION_PREFIX         => 'ORM\\',
-    DoctrineFormatter::CFG_BUNDLE_NAMESPACE          => 'MyBundle',
-    DoctrineFormatter::CFG_ENTITY_NAMESPACE          => 'Entity',
-    DoctrineFormatter::CFG_REPOSITORY_NAMESPACE      => '',
-    DoctrineFormatter::CFG_AUTOMATIC_REPOSITORY      => true,
-    DoctrineFormatter::CFG_SKIP_GETTER_SETTER        => false,
+    LoggedStorageConfiguration::class => true,
+    IndentationConfiguration::class => 4,
+    BundleNamespaceConfiguration::class => 'MyBundle',
+    EntityNamespaceConfiguration::class => 'Entity',
+    AutomaticRepositoryConfiguration::class => true,
+    GetterSetterSkipConfiguration::class => false,
 ];
 
 // lets do it again

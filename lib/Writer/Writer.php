@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,11 +27,10 @@
 
 namespace MwbExporter\Writer;
 
-use MwbExporter\Storage\StorageInterface;
-
-use MwbExporter\Formatter\FormatterInterface;
-use MwbExporter\Model\Document;
 use MwbExporter\Buffer\Buffer;
+use MwbExporter\Configuration\Indentation as IndentationConfiguration;
+use MwbExporter\Model\Document;
+use MwbExporter\Storage\StorageInterface;
 
 abstract class Writer implements WriterInterface
 {
@@ -53,7 +52,7 @@ abstract class Writer implements WriterInterface
     /**
      * @var int
      */
-    protected $indentation = 0;
+    protected $level = 0;
 
     /**
      * @var string
@@ -150,7 +149,7 @@ abstract class Writer implements WriterInterface
         if ($this->opened) {
             $this->close();
         }
-        $this->indentation = 0;
+        $this->level = 0;
         $this->buffer->clear();
         $this->filename = $filename;
         $this->opened = true;
@@ -221,7 +220,7 @@ abstract class Writer implements WriterInterface
         if (count($args) > 1) {
             $condition = array_shift($args);
             if ((bool) $condition) {
-                call_user_func_array(array($this, 'write'), $args);
+                call_user_func_array([$this, 'write'], $args);
             }
         }
 
@@ -252,7 +251,7 @@ abstract class Writer implements WriterInterface
      */
     public function indent()
     {
-        $this->indentation++;
+        $this->level++;
 
         return $this;
     }
@@ -263,8 +262,8 @@ abstract class Writer implements WriterInterface
      */
     public function outdent()
     {
-        $this->indentation--;
-        if ($this->indentation < 0) {
+        $this->level--;
+        if ($this->level < 0) {
             throw new \RuntimeException(sprintf('Can\'t outdent more.'));
         }
 
@@ -279,13 +278,10 @@ abstract class Writer implements WriterInterface
     protected function getIndentation()
     {
         if ($this->document) {
-            if ($this->document->getConfig()->get(FormatterInterface::CFG_USE_TABS)) {
-                $indentation = "\t";
-            } else {
-                $indentation = str_repeat(' ', $this->document->getConfig()->get(FormatterInterface::CFG_INDENTATION));
-            }
+            /** @var \MwbExporter\Configuration\Indentation $indentation */
+            $indentation = $this->document->getConfig(IndentationConfiguration::class);
 
-            return str_repeat($indentation, $this->indentation);
+            return $indentation->getIndentation($this->level);
         }
     }
 

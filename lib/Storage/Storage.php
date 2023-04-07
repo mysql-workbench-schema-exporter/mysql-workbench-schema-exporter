@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -89,7 +89,7 @@ abstract class Storage implements StorageInterface
 
     /**
      * Create directory.
-     * 
+     *
      * @param string $path
      * @return \MwbExporter\Storage\StorageInterface
      */
@@ -157,7 +157,7 @@ abstract class Storage implements StorageInterface
      * @param string $content   The content
      * @return \MwbExporter\Storage\StorageInterface
      */
-    abstract function save($filename, $content);
+    abstract public function save($filename, $content);
 
     /**
      * Get result file name.

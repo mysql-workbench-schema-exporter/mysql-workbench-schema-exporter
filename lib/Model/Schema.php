@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,12 +39,12 @@ class Schema extends Base
     /**
      * @var \MwbExporter\Model\Views
      */
-    protected $views  = null;
+    protected $views = null;
 
     /**
      * @var string
      */
-    protected $name   = null;
+    protected $name = null;
 
     protected function init()
     {
@@ -54,7 +54,7 @@ class Schema extends Base
         $elems = $this->node->xpath("value[@key='tables']");
         $this->tables = $this->getFormatter()->createTables($this, $elems[0]);
         $elems = $this->node->xpath("value[@key='views']");
-        $this->views  = $this->getFormatter()->createViews($this, $elems[0]);
+        $this->views = $this->getFormatter()->createViews($this, $elems[0]);
     }
 
     /**

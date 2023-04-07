@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,14 +33,17 @@ include 'util.php';
 // enable autoloading of classes
 autoload();
 
-use \MwbExporter\Formatter\Propel1\Xml\Formatter;
+use MwbExporter\Configuration\Indentation as IndentationConfiguration;
+use MwbExporter\Configuration\LoggedStorage as LoggedStorageConfiguration;
+use MwbExporter\Formatter\Propel1\Configuration\ModelNamespace as ModelNamespaceConfiguration;
+use MwbExporter\Formatter\Propel1\Xml\Configuration\Vendor as VendorConfiguration;
 
 // formatter setup
 $setup = [
-    Formatter::CFG_USE_LOGGED_STORAGE  => true,
-    Formatter::CFG_INDENTATION         => 4,
-    Formatter::CFG_ADD_VENDOR          => false,
-    Formatter::CFG_NAMESPACE           => 'Acme\Namespace',
+    LoggedStorageConfiguration::class => true,
+    IndentationConfiguration::class => 4,
+    ModelNamespaceConfiguration::class => 'Acme\Namespace',
+    VendorConfiguration::class => false,
 ];
 
 // lets do it

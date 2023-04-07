@@ -2,7 +2,7 @@
 <?php
 
 /*
- * Copyright (c) 2012-2020 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -32,17 +32,19 @@ try {
 }
 
 use MwbExporter\Bootstrap;
+use MwbExporter\Configuration\Configurations;
 use MwbExporter\Formatter\FormatterInterface;
 
 // ----------------------------------------- CONST --------------------------------------------------- //
 
-const CMD_PARAM_EXPORT       = 'export';
-const CMD_PARAM_CONFIG       = 'config';
-const CMD_OPT_SAVE_CONFIG    = 'saveconfig';
-const CMD_OPT_LIST_EXPORTER  = 'list-exporter';
+const CMD_PARAM_EXPORT = 'export';
+const CMD_PARAM_CONFIG = 'config';
+const CMD_OPT_VERBOSE = 'verbose';
+const CMD_OPT_SAVE_CONFIG = 'save-config';
+const CMD_OPT_LIST_EXPORTER = 'list-exporter';
 const CMD_OPT_NO_AUTO_CONFIG = 'no-auto-config';
-const CMD_OPT_ZIP            = 'zip';
-const CMD_OPT_HELP           = 'help';
+const CMD_OPT_ZIP = 'zip';
+const CMD_OPT_HELP = 'help';
 
 // ----------------------------------------- COMMAND LINE -------------------------------------------- //
 
@@ -51,7 +53,7 @@ function showTitle()
     $version = FormatterInterface::VERSION;
     echo <<<EOF
 MySQL Workbench Schema Exporter version $version.
-Copyright (c) 2010-2023 Johannes Mueller <circus2@web.de>
+Copyright (c) 2010-2012 Johannes Mueller <circus2@web.de>
 Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
 
 
@@ -72,7 +74,7 @@ Options:
 --export=type       Select the exporter, for a list of available exporter
                     use --list-exporter option.
 --config=file       Read file for export parameters, in JSON format.
---saveconfig        Save export parameters to file.
+--save-config       Save export parameters to file.
 --list-exporter     List all available exporter.
 --no-auto-config    Disable automatic config file lookup in the current
                     directory if no --config option specified. Normally,
@@ -90,11 +92,11 @@ function parseCmdLine($args = [], &$params = [], &$options = [], &$values = [])
         if (!count($args)) {
             break;
         }
-        $p        = strpos($args[0], '=');
-        $is_opt   = '--' == substr($args[0], 0, 2);
+        $p = strpos($args[0], '=');
+        $is_opt = '--' == substr($args[0], 0, 2);
         $is_param = $is_opt && false !== $p;
-        $arg      = $is_opt ? ($is_param ? substr($args[0], 2, $p - 2) : substr($args[0], 2)) : $args[0];
-        $val      = $is_param ? substr($args[0], $p + 1) : null;
+        $arg = $is_opt ? ($is_param ? substr($args[0], 2, $p - 2) : substr($args[0], 2)) : $args[0];
+        $val = $is_param ? substr($args[0], $p + 1) : null;
         if ($is_opt) {
             $found = false;
             if ($is_param) {
@@ -144,7 +146,7 @@ function askValue($prompt, &$value, $show = true)
         }
         if (is_bool($value)) {
             $input = strtolower($input);
-            if (in_array($input, array('y', 'n'))) {
+            if (in_array($input, ['y', 'n'])) {
                 $value = 'y' == $input ? true : false;
                 break;
             }
@@ -163,48 +165,35 @@ function askValue($prompt, &$value, $show = true)
     }
 }
 
-function mergeFormatter(&$setup, $configs)
+function setupFormatter(Configurations $setup, $verbose)
 {
-    $keys = array_keys($setup);
-    for ($i = 0; $i < count($keys); $i++) {
-        if (isset($configs[$keys[$i]])) {
-            $setup[$keys[$i]] = $configs[$keys[$i]];
-        }
-    }
-}
-
-function setupFormatter(&$setup, $validators, $dependencies)
-{
-    $keys = array_keys($setup);
-    for ($i = 0; $i < count($keys); $i++) {
-        $label = getConfigName($keys[$i]);
-        $value = $setup[$keys[$i]];
-        // is configuration validator exist
-        $validator = isset($validators[$keys[$i]]) ? $validators[$keys[$i]] : null;
-        if ($validator && count($choices = $validator->getChoices())) {
-            $label = sprintf('%s (%s)', $label, implode(', ', $choices));
-        }
-        $ask = true;
-        // is configuration depend on other
-        if (isset($dependencies[$keys[$i]])) {
-            $ask = $setup[$dependencies[$keys[$i]][0]] === $dependencies[$keys[$i]][1];
-        }
-        if ($ask) {
-            while (true) {
-                askValue($label, $value);
-                // apply value validation if available
-                if ($validator) {
-                    if ($validator->isValid($value)) {
-                        break;
-                    }
-                } else {
-                    break;
+    foreach ($setup->getCategories() as $category => $configurations) {
+        echo sprintf("--- %s ---\n", getConfigName($category));
+        /** @var \MwbExporter\Configuration\Configuration $config */
+        foreach ($configurations as $config) {
+            if ($config->isEnabled()) {
+                if ($verbose && $config->getHelp()) {
+                    echo $config->getHelp()."\n";
                 }
+                $value = $config->getValue();
+                $label = $config->getLabel();
+                if (count($config->getChoices())) {
+                    $label = sprintf('%s (%s)', $label, implode(', ', $config->getChoices()));
+                }
+                while (true) {
+                    askValue($label, $value);
+                    // apply value validation if available
+                    try {
+                        $config->setValue($value);
+                        break;
+                    } catch (\Exception $e) {
+                        echo $e->getMessage();
+                    }
+                }
+            } else {
+                echo sprintf("%s [%s] skipped...\n", $config->getLabel(), getConfigValue($config->getValue()));
             }
-        } else {
-            echo sprintf("%s [%s] skipped...\n", $label, getConfigValue($value));
         }
-        $setup[$keys[$i]] = $value;
     }
 }
 
@@ -224,7 +213,7 @@ function listFormatter($bootstrap, $ordered = false, $title = null)
         foreach ($formatters as $name => $class) {
             $i++;
             $formatter = $bootstrap->getFormatter($name);
-            echo sprintf("%s %-${len}s %s\n", $ordered ? str_pad((string) $i, $nlen, ' ', STR_PAD_LEFT).'.' : '-', $name, $formatter->getTitle());
+            echo sprintf("%s %-{$len}s %s\n", $ordered ? str_pad((string) $i, $nlen, ' ', STR_PAD_LEFT).'.' : '-', $name, $formatter->getTitle());
         }
     } else {
         echo <<<EOF
@@ -253,7 +242,7 @@ function chooseFormatter($bootstrap, $title)
             }
         }
         $keys = array_keys($formatters);
-    
+
         return $keys[$choice - 1];
     }
 }
@@ -327,12 +316,15 @@ function main($filename, $dir, $params, $options)
     echo sprintf("Exporting %s as %s.\n\n", basename($filename), $formatter->getTitle());
     $setup = $formatter->getConfigurations();
     if (count($configs)) {
-        mergeFormatter($setup, $configs);
+        if (count($invalids = $setup->validate($configs))) {
+            echo sprintf("The following configuration keys were invalid and skipped:\n%s\n\n", implode(', ', $invalids));
+        }
+        $setup->merge($configs);
     } else {
         $ask = false;
         askValue('Would you like to change the setup configuration before exporting', $ask);
         if ($ask) {
-            setupFormatter($setup, $formatter->getValidators(), $formatter->getDependencies());
+            setupFormatter($setup, $options[CMD_OPT_VERBOSE]);
         }
         echo "\n";
     }
@@ -343,7 +335,7 @@ function main($filename, $dir, $params, $options)
             [
                 CMD_PARAM_EXPORT => $params[CMD_PARAM_EXPORT],
                 CMD_OPT_ZIP => $options[CMD_OPT_ZIP],
-                'dir' => $dir, 'params' => $setup
+                'dir' => $dir, 'params' => $setup->export(),
             ],
             JSON_PRETTY_PRINT
         ));
@@ -353,7 +345,6 @@ function main($filename, $dir, $params, $options)
     $start = microtime(true);
 
     // parse the mwb file
-    $formatter->setup($setup);
     $document = $bootstrap->export($formatter, $filename, $dir, $options[CMD_OPT_ZIP] ? 'zip' : 'file');
 
     // end time
@@ -376,15 +367,16 @@ try {
     // default values
     $arguments = $_SERVER['argv'];
     $options = [
-        CMD_OPT_HELP           => false,
-        CMD_OPT_ZIP            => false,
-        CMD_OPT_SAVE_CONFIG    => false,
-        CMD_OPT_LIST_EXPORTER  => false,
+        CMD_OPT_HELP => false,
+        CMD_OPT_VERBOSE => false,
+        CMD_OPT_SAVE_CONFIG => false,
+        CMD_OPT_LIST_EXPORTER => false,
         CMD_OPT_NO_AUTO_CONFIG => false,
+        CMD_OPT_ZIP => false,
     ];
     $params = [
-        CMD_PARAM_EXPORT        => null,
-        CMD_PARAM_CONFIG        => null,
+        CMD_PARAM_EXPORT => null,
+        CMD_PARAM_CONFIG => null,
     ];
 
     array_shift($arguments);
@@ -394,7 +386,6 @@ try {
     }
 
     main(count($values) ? $values[0] : null, count($values) > 1 ? $values[1] : getcwd(), $params, $options);
-
 } catch (\Exception $e) {
     echo "Error:\n";
     echo $e->getMessage();

@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,26 @@
 
 namespace MwbExporter\Formatter;
 
-use MwbExporter\Registry\Registry;
+use MwbExporter\Configuration\Configurations;
+use MwbExporter\Configuration\Backup as BackupConfiguration;
+use MwbExporter\Configuration\Category as CategoryConfiguration;
+use MwbExporter\Configuration\Comment as CommentConfiguration;
+use MwbExporter\Configuration\ConsoleLogging as ConsoleLoggingConfiguration;
+use MwbExporter\Configuration\EOL as EOLConfiguration;
+use MwbExporter\Configuration\FileLogging as FileLoggingConfiguration;
+use MwbExporter\Configuration\Filename as FilenameConfiguration;
+use MwbExporter\Configuration\IdentifierStrategy as IdentifierStrategyConfiguration;
+use MwbExporter\Configuration\Indentation as IndentationConfiguration;
+use MwbExporter\Configuration\Language as LanguageConfiguration;
+use MwbExporter\Configuration\LoggedStorage as LoggedStorageConfiguration;
+use MwbExporter\Configuration\M2MEnhanced as M2MEnhancedConfiguration;
+use MwbExporter\Configuration\M2MSkip as M2MSkipConfiguration;
+use MwbExporter\Configuration\NamingStrategy as NamingStrategyConfiguration;
+use MwbExporter\Configuration\PluralSkip as PluralSkipConfiguration;
+use MwbExporter\Configuration\Tab as TabConfiguration;
+use MwbExporter\Configuration\TableAndViewSort as TableAndViewSortConfiguration;
+use MwbExporter\Configuration\UserDatatype as UserDatatypeConfiguration;
+use MwbExporter\Helper\Comment;
 use MwbExporter\Model\Base;
 use MwbExporter\Model\Catalog;
 use MwbExporter\Model\Schemas;
@@ -42,10 +61,7 @@ use MwbExporter\Model\Columns;
 use MwbExporter\Model\Column;
 use MwbExporter\Model\Views;
 use MwbExporter\Model\View;
-use MwbExporter\Helper\Comment;
-use MwbExporter\Validator\ChoiceValidator;
-use Doctrine\Inflector\InflectorFactory;
-use Doctrine\Inflector\Language;
+use MwbExporter\Registry\Registry;
 
 abstract class Formatter implements FormatterInterface
 {
@@ -53,6 +69,11 @@ abstract class Formatter implements FormatterInterface
      * @var string
      */
     private $name;
+
+    /**
+     * @var \MwbExporter\Configuration\Configurations
+     */
+    private $configurations = null;
 
     /**
      * @var \MwbExporter\Registry\Registry
@@ -65,11 +86,6 @@ abstract class Formatter implements FormatterInterface
     private $datatypeConverter = null;
 
     /**
-     * @var \Doctrine\Inflector\Inflector
-     */
-    private $inflector = null;
-
-    /**
      * Constructor.
      *
      * @param string $name  Formatter name
@@ -77,40 +93,28 @@ abstract class Formatter implements FormatterInterface
     public function __construct($name = null)
     {
         $this->name = $name;
+        $this->configurations = new Configurations();
         $this->registry = new Registry();
-        $this->addConfigurations([
-            static::CFG_LANGUAGE                    => Language::ENGLISH,
-            static::CFG_NAMING_STRATEGY             => static::NAMING_AS_IS,
-            static::CFG_LOG_TO_CONSOLE              => false,
-            static::CFG_LOG_FILE                    => '',
-            static::CFG_BACKUP_FILE                 => true,
-            static::CFG_USE_TABS                    => false,
-            static::CFG_INDENTATION                 => 2,
-            static::CFG_EOL                         => static::EOL_WIN,
-            static::CFG_ADD_COMMENT                 => true,
-            static::CFG_FILENAME                    => '%entity%.%extension%',
-            static::CFG_SKIP_PLURAL                 => false,
-            static::CFG_USE_LOGGED_STORAGE          => false,
-            static::CFG_SORT_TABLES_AND_VIEWS       => true,
-            static::CFG_EXPORT_TABLE_CATEGORY       => '',
-            static::CFG_ENHANCE_M2M_DETECTION       => true,
-            static::CFG_SKIP_M2M_TABLES             => true,
-            static::CFG_STRIP_MULTIPLE_UNDERSCORES  => false,
-            static::CFG_AS_IS_USER_DATATYPE_PREFIX  => ''
-        ]);
-        $this->addValidators([
-            static::CFG_LANGUAGE                    => new ChoiceValidator([
-                Language::ENGLISH, Language::FRENCH, Language::NORWEGIAN_BOKMAL, Language::PORTUGUESE, Language::SPANISH, Language::TURKISH,
-            ]),
-            static::CFG_NAMING_STRATEGY             => new ChoiceValidator([
-                static::NAMING_AS_IS, static::NAMING_CAMEL_CASE, static::NAMING_PASCAL_CASE,
-            ]),
-            static::CFG_EOL                         => new ChoiceValidator([
-                static::EOL_WIN, static::EOL_UNIX,
-            ]),
-        ]);
-        $this->addDependency([static::CFG_LOG_FILE], static::CFG_LOG_TO_CONSOLE, false);
-        $this->addDependency([static::CFG_INDENTATION], static::CFG_USE_TABS, false);
+        $this->configurations
+            ->add(new LanguageConfiguration())
+            ->add(new TabConfiguration())
+            ->add(new IndentationConfiguration())
+            ->add(new EOLConfiguration())
+            ->add(new FilenameConfiguration())
+            ->add(new BackupConfiguration())
+            ->add(new CommentConfiguration())
+            ->add(new NamingStrategyConfiguration())
+            ->add(new IdentifierStrategyConfiguration())
+            ->add(new UserDatatypeConfiguration())
+            ->add(new M2MEnhancedConfiguration())
+            ->add(new TableAndViewSortConfiguration())
+            ->add(new M2MSkipConfiguration())
+            ->add(new PluralSkipConfiguration())
+            ->add(new CategoryConfiguration())
+            ->add(new ConsoleLoggingConfiguration())
+            ->add(new FileLoggingConfiguration())
+            ->add(new LoggedStorageConfiguration())
+        ;
         $this->setDatatypeConverter($this->createDatatypeConverter());
         $this->init();
     }
@@ -123,80 +127,24 @@ abstract class Formatter implements FormatterInterface
     }
 
     /**
-     * Add configurations data.
+     * Get configurations.
      *
-     * @param array $configurations Configurations data
-     * @return \MwbExporter\Formatter\Formatter
-     */
-    protected function addConfigurations($configurations = [])
-    {
-        foreach ($configurations as $key => $value) {
-            $this->registry->config->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Get all configurations.
-     *
-     * @return array
+     * @return \MwbExporter\Configuration\Configurations
      */
     public function getConfigurations()
     {
-        return $this->registry->config->getAll();
+        return $this->configurations;
     }
 
     /**
-     * Add configuration validators.
+     * Get configuration.
      *
-     * @param array $validators Configuration validators
-     * @return \MwbExporter\Formatter\Formatter
+     * @param string $key
+     * @return \MwbExporter\Configuration\Configuration
      */
-    protected function addValidators($validators = [])
+    public function getConfig($key)
     {
-        foreach ($validators as $key => $validator) {
-            $this->registry->validator->set($key, $validator);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Get configuration validators.
-     *
-     * @return array
-     */
-    public function getValidators()
-    {
-        return $this->registry->validator->getAll();
-    }
-
-    /**
-     * Add configuration dependency.
-     *
-     * @param array $configs
-     * @param string $ref
-     * @param mixed $value
-     * @return \MwbExporter\Formatter\Formatter
-     */
-    protected function addDependency($configs, $ref, $value)
-    {
-        foreach ($configs as $config) {
-            $this->registry->dependency->set($config, [$ref, $value]);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Get configuration dependencies.
-     *
-     * @return array
-     */
-    public function getDependencies()
-    {
-        return $this->registry->dependency->getAll();
+        return $this->configurations->get($key);
     }
 
     /**
@@ -208,22 +156,7 @@ abstract class Formatter implements FormatterInterface
      */
     public function setup($configurations = [])
     {
-        foreach ($configurations as $key => $value) {
-            if (!$this->registry->config->has($key)) {
-                throw new \RuntimeException(sprintf('Unknown setup key %s.', $key));
-            }
-            if ($this->registry->validator->has($key)) {
-                $validator = $this->registry->validator->get($key);
-                if (!$validator->isValid($value)) {
-                    if (count($choices = $validator->getChoices())) {
-                        throw new \RuntimeException(sprintf('Invalid value %s for %s, values are %s.', var_export($value, true), $key, implode(', ', $choices)));
-                    } else {
-                        throw new \RuntimeException(sprintf('Invalid value %s for %s.', var_export($value, true), $key));
-                    }
-                }
-            }
-            $this->registry->config->set($key, $value);
-        }
+        $this->configurations->merge($configurations);
 
         return $this;
     }
@@ -421,19 +354,6 @@ abstract class Formatter implements FormatterInterface
     public function getPreferredWriter()
     {
         return 'default';
-    }
-
-    /**
-     * {@inheritDoc}
-     * @see \MwbExporter\Formatter\FormatterInterface::getInflector()
-     */
-    public function getInflector()
-    {
-        if (null === $this->inflector) {
-            $this->inflector = InflectorFactory::createForLanguage($this->registry->config->get(static::CFG_LANGUAGE))->build();
-        }
-
-        return $this->inflector;
     }
 
     /**

@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2014 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,9 +27,11 @@
 
 namespace MwbExporter\Model;
 
+use MwbExporter\Configuration\Filename as FilenameConfiguration;
+use MwbExporter\Configuration\UserDatatype as UserDatatypeConfiguration;
 use MwbExporter\Formatter\FormatterInterface;
-use MwbExporter\Writer\WriterInterface;
 use MwbExporter\Logger\LoggerInterface;
+use MwbExporter\Writer\WriterInterface;
 
 class Document extends Base
 {
@@ -139,13 +141,14 @@ class Document extends Base
     }
 
     /**
-     * Get configuration object.
+     * Get configuration.
      *
-     * @return \MwbExporter\Registry\RegistryHolder
+     * @param string $key
+     * @return \MwbExporter\Configuration\Configuration
      */
-    public function getConfig()
+    public function getConfig($key)
     {
-        return $this->formatter->getRegistry()->config;
+        return $this->formatter->getConfig($key);
     }
 
     /**
@@ -208,7 +211,7 @@ class Document extends Base
         $this->xml = simplexml_load_file("zip://".str_replace("\\", "/", realpath($filename))."#document.mwb.xml");
         if (false === $this->xml) {
             throw new \RuntimeException(sprintf('Can\'t load "%s", may be it not MySQL Workbench document.', $filename));
-        } 
+        }
     }
 
     protected function loadUserDataTypes()
@@ -216,11 +219,13 @@ class Document extends Base
         $dataTypeConverter = $this->formatter->getDataTypeConverter();
         $dataTypes = [];
         $userTypes = $this->node->xpath("//value[@key='userDatatypes']")[0];
-        $AsIsDataTypePrefix = $this->getConfig()->get(FormatterInterface::CFG_AS_IS_USER_DATATYPE_PREFIX);
+        /** @var \MwbExporter\Configuration\UserDatatype $userDatatype */
+        $userDatatype = $this->getConfig(UserDatatypeConfiguration::class);
         foreach ($userTypes as $userType) {
-            $userTypeName = (string) $userType->xpath("value")[2];
-            if (strlen($AsIsDataTypePrefix) && substr($userTypeName, 0, strlen($AsIsDataTypePrefix)) === $AsIsDataTypePrefix) {
-                $dataTypes[(string) $userType['id']] = substr($userTypeName, strlen($AsIsDataTypePrefix));
+            $userDatatypeName = (string) $userType->xpath("value")[2];
+            $cleanedUserDatatypeName = $userDatatype->clean($userDatatypeName);
+            if ($userDatatypeName !== $cleanedUserDatatypeName) {
+                $dataTypes[(string) $userType['id']] = $cleanedUserDatatypeName;
             } else {
                 $dataTypes[(string) $userType['id']] = $dataTypeConverter->getDataType((string) $userType->xpath("link[@key='actualType']")[0]);
             }
@@ -250,7 +255,7 @@ class Document extends Base
     public function write(WriterInterface $writer)
     {
         $this->writer = $writer;
-        $this->error  = null;
+        $this->error = null;
         $writer->setDocument($this);
         $writer->begin();
         try {
@@ -280,7 +285,7 @@ class Document extends Base
     /**
      * Translate and replace variable tags with contextual data from object using supplied format.
      *
-     * If format omitted, it considered equal to configuration `FormatterInterface::CFG_FILENAME`.
+     * If format omitted, it considered equal to configuration `%entity%.%extension%`.
      * By default, the translated filename will be checked against the variables provided by the object
      * to ensure no variables tag ('%var%') left.
      *
@@ -293,8 +298,7 @@ class Document extends Base
      */
     public function translateFilename($format, Base $object, $vars = [], $check = true)
     {
-        if ($object && ($filename = $object->translateVars(null !== $format ? $format : $this->getConfig()->get(FormatterInterface::CFG_FILENAME), $vars)))
-        {
+        if ($object && ($filename = $object->translateVars(null !== $format ? $format : $this->getConfig(FilenameConfiguration::class)->getValue(), $vars))) {
             if ($check && false !== strpos($filename, '%')) {
                 throw new \Exception(sprintf('All filename variable where not converted. Perhaps a misstyped name (%s) ?', substr($filename, strpos($filename, '%'), strrpos($filename, '%'))));
             }
