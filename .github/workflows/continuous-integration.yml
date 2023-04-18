@@ -2,9 +2,9 @@ name: Build
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "4.X" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "4.X" ]
 
 permissions:
   contents: read
@@ -46,12 +46,12 @@ jobs:
     - name: Install dependencies
       run: |
         composer install --prefer-dist --no-progress
-        composer require --dev --no-progress mysql-workbench-schema-exporter/doctrine1-exporter:dev-master
-        composer require --dev --no-progress mysql-workbench-schema-exporter/doctrine2-exporter:dev-master
-        composer require --dev --no-progress mysql-workbench-schema-exporter/node-exporter:dev-master
-        composer require --dev --no-progress mysql-workbench-schema-exporter/propel-exporter:dev-master
-        composer require --dev --no-progress mysql-workbench-schema-exporter/sencha-exporter:dev-master
-        composer require --dev --no-progress mysql-workbench-schema-exporter/zend1-exporter:dev-master
+        composer require --dev --no-progress mysql-workbench-schema-exporter/doctrine1-exporter
+        composer require --dev --no-progress mysql-workbench-schema-exporter/doctrine2-exporter
+        composer require --dev --no-progress mysql-workbench-schema-exporter/node-exporter
+        composer require --dev --no-progress mysql-workbench-schema-exporter/propel-exporter
+        composer require --dev --no-progress mysql-workbench-schema-exporter/sencha-exporter
+        composer require --dev --no-progress mysql-workbench-schema-exporter/zend1-exporter
 
     - name: Build examples
       run: |
