@@ -66,13 +66,17 @@ abstract class Configuration
     protected $defaultValue;
 
     /**
+     * @var bool
+     */
+    protected $defaultSet = false;
+
+    /**
      * Constructor.
      */
     public function __construct()
     {
         $this->initialize();
         $this->buildMetadata();
-        $this->configure();
     }
 
     /**
@@ -82,16 +86,6 @@ abstract class Configuration
      */
     protected function initialize()
     {
-    }
-
-    /**
-     * Do configuration.
-     *
-     * @return void
-     */
-    protected function configure()
-    {
-        $this->value = $this->defaultValue;
     }
 
     /**
@@ -266,6 +260,9 @@ abstract class Configuration
             throw new \RuntimeException(sprintf('%s: invalid value %s, valid values are %s!', $this->getKey(), $value, implode(', ', $this->choices)));
         }
         $this->value = $value;
+        if (!$this->defaultSet) {
+            $this->defaultSet = true;
+        }
     }
 
     /**
@@ -275,6 +272,11 @@ abstract class Configuration
      */
     public function getValue()
     {
+        if (!$this->defaultSet) {
+            $this->defaultSet = true;
+            $this->value = $this->defaultValue;
+        }
+
         return $this->value;
     }
 
