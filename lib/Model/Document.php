@@ -300,7 +300,7 @@ class Document extends Base
     {
         if ($object && ($filename = $object->translateVars(null !== $format ? $format : $this->getConfig(FilenameConfiguration::class)->getValue(), $vars))) {
             if ($check && false !== strpos($filename, '%')) {
-                throw new \Exception(sprintf('All filename variable where not converted. Perhaps a misstyped name (%s) ?', substr($filename, strpos($filename, '%'), strrpos($filename, '%'))));
+                throw new \Exception(sprintf('Some filename variables were not converted, may be a mistype (%s)!', substr($filename, strpos($filename, '%'), strrpos($filename, '%') + 1)));
             }
 
             return $filename;
