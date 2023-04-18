@@ -39,6 +39,8 @@ use Doctrine\Inflector\Language as InflectorLanguage;
  */
 class Language extends Configuration
 {
+    public const NONE = 'none';
+
     /**
      * @var \Doctrine\Inflector\Inflector
      */
@@ -47,8 +49,9 @@ class Language extends Configuration
     protected function initialize()
     {
         $this->category = 'general';
-        $this->defaultValue = InflectorLanguage::ENGLISH;
+        $this->defaultValue = static::NONE;
         $this->choices = [
+            static::NONE,
             InflectorLanguage::ENGLISH,
             InflectorLanguage::FRENCH,
             InflectorLanguage::NORWEGIAN_BOKMAL,
@@ -65,7 +68,7 @@ class Language extends Configuration
      */
     public function getInflector()
     {
-        if (null === $this->inflector) {
+        if (null === $this->inflector && static::NONE !== $this->getValue()) {
             $this->inflector = InflectorFactory::createForLanguage($this->getValue())->build();
         }
 
