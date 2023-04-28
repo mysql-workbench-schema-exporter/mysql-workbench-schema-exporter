@@ -61,17 +61,21 @@ class Bootstrap
             if ($composer = $this->getComposer()) {
                 $r = new ReflectionClass($composer);
                 $composerDir = dirname($r->getFileName());
-                if (is_readable($installed = $composerDir.'/installed.json')) {
+                $vendorDir = dirname($composerDir);
+                if (is_readable($installed = $composerDir.DIRECTORY_SEPARATOR.'installed.json')) {
                     $packages = json_decode(file_get_contents($installed), true);
                     // Composer 2.0 wraps 'packages' into $packages['packages']
                     $packages = isset($packages['packages']) ? $packages['packages'] : $packages;
-                    $dirs = array_merge($dirs, $this->registerComposerFormatters(dirname($composerDir), $packages));
+                    foreach ($packages as $package) {
+                        if (isset($package['name']) && count($res = $this->checkDirForFormatter($vendorDir.DIRECTORY_SEPARATOR.$package['name']))) {
+                            $dirs = array_merge($dirs, $res);
+                        }
+                    }
                 }
                 // assume root dir has formatter
-                $rootDir = dirname(dirname($composerDir));
-                if (is_readable($installed = $rootDir.'/composer.json')) {
-                    $package = json_decode(file_get_contents($installed), true);
-                    $dirs = array_merge($dirs, $this->registerComposerFormatters($rootDir, [$package]));
+                $rootDir = dirname($vendorDir);
+                if (count($res = $this->checkDirForFormatter($rootDir))) {
+                    $dirs = array_merge($dirs, $res);
                 }
             } else {
                 $dirs[] = realpath(__DIR__.'/../..');
@@ -201,6 +205,23 @@ class Bootstrap
         static::$formatters[$name] = $class;
 
         return $this;
+    }
+
+    /**
+     * Check for a formatter in a directory.
+     *
+     * @param string $dir
+     * @return array
+     */
+    protected function checkDirForFormatter($dir)
+    {
+        $dirs = [];
+        if (is_readable($composer = $dir.DIRECTORY_SEPARATOR.'composer.json')) {
+            $package = json_decode(file_get_contents($composer), true);
+            $dirs = $this->registerComposerFormatters($dir, [$package]);
+        }
+
+        return $dirs;
     }
 
     /**
