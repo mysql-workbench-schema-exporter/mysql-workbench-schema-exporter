@@ -212,45 +212,51 @@ class Configurations
             $dumper
                 ->addTitle(sprintf('%s Configuration', $scope))
                 ->addBlank();
-            /** @var \MwbExporter\Configuration\Configuration $config */
-            foreach ($configurations as $config) {
-                if (count($config->getAliases())) {
-                    $dumper->addLine(sprintf(
-                        '%s (alias: %s)',
-                        $dumper->highlight($config->getKey()),
-                        implode(', ', $dumper->highlightValues($config->getAliases()))
-                    ));
-                } else {
-                    $dumper->addLine($dumper->highlight($config->getKey()));
-                }
-                if (!$help = $config->getHelp()) {
-                    $help = 'No description available';
-                }
-                $dumper
-                    ->addSubLine($help)
-                    ->addBlank();
-                if ($usage = $config->getUsage()) {
+            if (count($configurations)) {
+                /** @var \MwbExporter\Configuration\Configuration $config */
+                foreach ($configurations as $config) {
+                    if (count($config->getAliases())) {
+                        $dumper->addLine(sprintf(
+                            '%s (alias: %s)',
+                            $dumper->highlight($config->getKey()),
+                            implode(', ', $dumper->highlightValues($config->getAliases()))
+                        ));
+                    } else {
+                        $dumper->addLine($dumper->highlight($config->getKey()));
+                    }
+                    if (!$help = $config->getHelp()) {
+                        $help = 'No description available';
+                    }
                     $dumper
-                        ->addSubLine($usage, true)
+                        ->addSubLine($help)
+                        ->addBlank();
+                    if ($usage = $config->getUsage()) {
+                        $dumper
+                            ->addSubLine($usage, true)
+                            ->addBlank();
+                    }
+                    if (count($config->getChoices())) {
+                        $dumper
+                            ->addSubLine(sprintf('Valid values: %s', implode(', ', $dumper->highlightValues($config->getChoices()))))
+                            ->addBlank();
+                    }
+                    $defaultValue = $config->getDefaultValue();
+                    if ('' === $defaultValue) {
+                        $defaultValue = 'blank';
+                    } elseif (true === $defaultValue) {
+                        $defaultValue = 'true';
+                    } elseif (false === $defaultValue) {
+                        $defaultValue = 'false';
+                    } elseif (is_array($defaultValue)) {
+                        $defaultValue = sprintf('[%s]', implode(', ', $defaultValue));
+                    }
+                    $dumper
+                        ->addSubLine(sprintf('Default value: %s', $dumper->highlight($defaultValue)))
                         ->addBlank();
                 }
-                if (count($config->getChoices())) {
-                    $dumper
-                        ->addSubLine(sprintf('Valid values: %s', implode(', ', $dumper->highlightValues($config->getChoices()))))
-                        ->addBlank();
-                }
-                $defaultValue = $config->getDefaultValue();
-                if ('' === $defaultValue) {
-                    $defaultValue = 'blank';
-                } elseif (true === $defaultValue) {
-                    $defaultValue = 'true';
-                } elseif (false === $defaultValue) {
-                    $defaultValue = 'false';
-                } elseif (is_array($defaultValue)) {
-                    $defaultValue = sprintf('[%s]', implode(', ', $dumper->highlightValues($defaultValue)));
-                }
+            } else {
                 $dumper
-                    ->addSubLine(sprintf('Default value: %s', $dumper->highlight($defaultValue)))
+                    ->addLine('No configuration available')
                     ->addBlank();
             }
         }
