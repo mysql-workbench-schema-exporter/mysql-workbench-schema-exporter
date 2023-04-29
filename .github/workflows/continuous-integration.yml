@@ -67,5 +67,6 @@ jobs:
         php -f example/sencha.extjs4.php
         php -f example/sequelize5.php
         php -f example/sequelize6.php
+        php -f example/sequelize7.php
         php -f example/zend.dbtable.php
         php -f example/zend.restcontroller.php

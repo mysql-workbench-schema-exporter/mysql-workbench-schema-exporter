@@ -51,4 +51,4 @@ $setup = [
 ];
 
 // lets do it
-export('node-sequelize6', $setup);
+export('node-sequelize7', $setup);

@@ -180,7 +180,7 @@ abstract class Formatter implements FormatterInterface
      */
     protected function setDatatypeConverter(DatatypeConverterInterface $datatypeConverter)
     {
-        if (null == $datatypeConverter) {
+        if (null === $datatypeConverter) {
             throw new \RuntimeException('DatatypeConverter can\'t be null.');
         }
         $this->datatypeConverter = $datatypeConverter;
