@@ -43,22 +43,32 @@ abstract class DatatypeConverter implements DatatypeConverterInterface
 
     /**
      * Register data types mapping.
+     *
+     * @param array $dataTypes
+     * @return \MwbExporter\Formatter\DatatypeConverter
      */
     protected function register($dataTypes = [])
     {
-        if (!count($this->dataTypes)) {
-            $this->dataTypes = $dataTypes;
+        if (count($dataTypes)) {
+            $this->dataTypes = array_merge($this->dataTypes, $dataTypes);
         }
+
+        return $this;
     }
 
     /**
+     * Register user data types mapping.
+     *
      * @param array $dataTypes
+     * @return \MwbExporter\Formatter\DatatypeConverter
      */
     public function registerUserDatatypes($dataTypes = [])
     {
-        if (!count($this->userDatatypes)) {
-            $this->userDatatypes = $dataTypes;
+        if (count($dataTypes)) {
+            $this->userDatatypes = array_merge($this->userDatatypes, $dataTypes);
         }
+
+        return $this;
     }
 
     /**
