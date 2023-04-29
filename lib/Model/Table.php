@@ -167,7 +167,7 @@ class Table extends Base
     /**
      * Get columns model.
      *
-     * @return \MwbExporter\Model\Columns;
+     * @return \MwbExporter\Model\Columns
      */
     public function getColumns()
     {
@@ -230,6 +230,7 @@ class Table extends Base
     public function isManyToMany($deep = true)
     {
         if (null === $this->isM2M) {
+            $fkeys = [];
             switch (true) {
                 // user hinted that this is a m2m table or not
                 case in_array($m2m = $this->parseComment('m2m'), ['true', 'false']):
@@ -462,7 +463,7 @@ class Table extends Base
     /**
      * Get all foreign keys references.
      *
-     * @return array \MwbExporter\Model\ForeignKey
+     * @return \MwbExporter\Model\ForeignKey[]
      */
     public function getAllForeignKeys()
     {
@@ -482,7 +483,7 @@ class Table extends Base
     /**
      * Get all local foreign keys references.
      *
-     * @return array \MwbExporter\Model\ForeignKey
+     * @return \MwbExporter\Model\ForeignKey[]
      */
     public function getAllLocalForeignKeys()
     {
