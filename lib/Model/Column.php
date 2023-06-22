@@ -185,7 +185,7 @@ class Column extends Base
     }
 
     /**
-     * Is column has one to many relation.
+     * Is column has one to many relation?
      *
      * @return bool
      */
@@ -201,7 +201,7 @@ class Column extends Base
     }
 
     /**
-     * return true if the column is a primary key
+     * Is the column is a primary key?
      *
      * @return boolean
      */
@@ -211,7 +211,7 @@ class Column extends Base
     }
 
     /**
-     * Is column not null (aka. required).
+     * Is column not null (aka. required)?
      *
      * @return boolean
      */
@@ -221,7 +221,7 @@ class Column extends Base
     }
 
     /**
-     * Is column auto increment.
+     * Is column auto increment?
      *
      * @return boolean
      */
@@ -231,7 +231,7 @@ class Column extends Base
     }
 
     /**
-     * Is the field an unsigned value
+     * Is the field an unsigned value?
      *
      * @return boolean
      */
@@ -258,6 +258,18 @@ class Column extends Base
                 return trim($defaultValue, '"');
             }
         }
+    }
+
+    /**
+     * Is column default value current time stamp?
+     *
+     * @return boolean
+     */
+    public function isDefaultValueCurrentTimestamp()
+    {
+        $currentTimestamp = 'CURRENT_TIMESTAMP';
+
+        return substr((string) $this->getDefaultValue(), 0, strlen($currentTimestamp)) === $currentTimestamp ? true : false;
     }
 
     /**
