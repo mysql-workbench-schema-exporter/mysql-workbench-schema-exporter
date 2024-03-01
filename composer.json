@@ -31,7 +31,7 @@
 	],
 	"require" : {
 		"php" : ">=7.2",
-		"doctrine/inflector" : "^1.0.0"
+		"doctrine/inflector" : "^1.0.0 || ^2.0.0"
 	},
 	"bin" : [
 		"bin/mysql-workbench-schema-export"
