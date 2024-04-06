@@ -29,6 +29,7 @@ namespace MwbExporter\Model;
 
 use MwbExporter\Configuration\Language as LanguageConfiguration;
 use MwbExporter\Configuration\NamingStrategy as NamingStrategyConfiguration;
+use MwbExporter\Configuration\PluralSkip as PluralSkipConfiguration;
 use MwbExporter\Helper\Comment;
 use MwbExporter\Registry\RegistryHolder;
 use MwbExporter\Writer\WriterInterface;
@@ -186,6 +187,42 @@ abstract class Base
     public function getName()
     {
         return $this->parameters->get('name');
+    }
+
+    /**
+     * Get singular name.
+     *
+     * @return string
+     */
+    public function getSingularName()
+    {
+        $name = $this->getName();
+        // check if name is plural --> convert to singular
+        if (!$this->getConfig(PluralSkipConfiguration::class)->getValue() &&
+            ($name != ($singular = $this->singularize($name)))
+        ) {
+            $name = $singular;
+        }
+
+        return $name;
+    }
+
+    /**
+     * Get plural name.
+     *
+     * @return string
+     */
+    public function getPluralName()
+    {
+        $name = $this->getName();
+        // check if name is singular --> convert to plural
+        if (!$this->getConfig(PluralSkipConfiguration::class)->getValue() &&
+            ($name != ($plural = $this->pluralize($name)))
+        ) {
+            $name = $plural;
+        }
+
+        return $name;
     }
 
     /**
@@ -378,20 +415,6 @@ abstract class Base
     }
 
     /**
-     * Beautify an underscored_text and change into CamelCaseText.
-     *
-     * @param string $underscored_text
-     * @return string
-     */
-    public function beautify($underscored_text)
-    {
-        /** @var \MwbExporter\Configuration\NamingStrategy $namingStrategy */
-        $namingStrategy = $this->getConfig(NamingStrategyConfiguration::class);
-
-        return $namingStrategy->beautify($underscored_text);
-    }
-
-    /**
      * Get name using naming strategy.
      *
      * @param string $name
@@ -404,6 +427,20 @@ abstract class Base
         $namingStrategy = $this->getConfig(NamingStrategyConfiguration::class);
 
         return $namingStrategy->getNaming($name, $strategy);
+    }
+
+    /**
+     * Beautify an underscored_text and change into CamelCaseText.
+     *
+     * @param string $underscored_text
+     * @return string
+     */
+    public function beautify($underscored_text)
+    {
+        /** @var \MwbExporter\Configuration\NamingStrategy $namingStrategy */
+        $namingStrategy = $this->getConfig(NamingStrategyConfiguration::class);
+
+        return $namingStrategy->beautify($underscored_text);
     }
 
     /**

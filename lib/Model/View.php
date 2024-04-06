@@ -77,17 +77,17 @@ class View extends Base
      */
     public function getModelName()
     {
-        return $this->beautify($this->getRawViewName());
+        return $this->beautify($this->getSingularName());
     }
 
     /**
-     * Get the view model name in plural form.
+     * Get the view plural model name.
      *
      * @return string
      */
     public function getPluralModelName()
     {
-        return $this->pluralize($this->getModelName());
+        return $this->beautify($this->getPluralName());
     }
 
     /**

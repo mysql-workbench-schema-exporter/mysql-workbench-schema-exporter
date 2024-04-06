@@ -107,10 +107,14 @@ class Schema extends Base
     public function writeSchema(WriterInterface $writer)
     {
         $this->getDocument()->addLog(sprintf('Processing schema %s:', $this->name));
-        $this->getDocument()->addLog('Processing tables:');
-        $this->getTables()->write($writer);
-        $this->getDocument()->addLog('Processing views:');
-        $this->getViews()->write($writer);
+        if (count($this->getTables())) {
+            $this->getDocument()->addLog('Processing tables:');
+            $this->getTables()->write($writer);
+        }
+        if (count($this->getViews())) {
+            $this->getDocument()->addLog('Processing views:');
+            $this->getViews()->write($writer);
+        }
 
         return $this;
     }
