@@ -43,4 +43,4 @@ $setup = [
 ];
 
 // lets do it
-export('node-sequelize5', $setup);
+export('sequelize-v5', $setup);

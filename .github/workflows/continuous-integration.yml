@@ -51,9 +51,9 @@ jobs:
         composer install --prefer-dist --no-progress
         composer require --dev --no-progress mysql-workbench-schema-exporter/doctrine1-exporter:dev-master
         composer require --dev --no-progress mysql-workbench-schema-exporter/doctrine2-exporter:dev-master
-        composer require --dev --no-progress mysql-workbench-schema-exporter/node-exporter:dev-master
         composer require --dev --no-progress mysql-workbench-schema-exporter/propel-exporter:dev-master
         composer require --dev --no-progress mysql-workbench-schema-exporter/sencha-exporter:dev-master
+        composer require --dev --no-progress mysql-workbench-schema-exporter/sequelize-exporter:dev-master
         composer require --dev --no-progress mysql-workbench-schema-exporter/zend1-exporter:dev-master
 
     - name: Build examples

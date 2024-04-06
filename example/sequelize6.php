@@ -35,10 +35,10 @@ autoload();
 
 use MwbExporter\Configuration\Indentation as IndentationConfiguration;
 use MwbExporter\Configuration\LoggedStorage as LoggedStorageConfiguration;
-use MwbExporter\Formatter\Node\Configuration\Association as AssociationConfiguration;
-use MwbExporter\Formatter\Node\Configuration\Extendable as ExtendableConfiguration;
-use MwbExporter\Formatter\Node\Configuration\ForeignKey as ForeignKeyConfiguration;
-use MwbExporter\Formatter\Node\Configuration\SemiColon as SemiColonConfiguration;
+use MwbExporter\Formatter\Sequelize\Configuration\Association as AssociationConfiguration;
+use MwbExporter\Formatter\Sequelize\Configuration\Extendable as ExtendableConfiguration;
+use MwbExporter\Formatter\Sequelize\Configuration\ForeignKey as ForeignKeyConfiguration;
+use MwbExporter\Formatter\Sequelize\Configuration\SemiColon as SemiColonConfiguration;
 
 // formatter setup
 $setup = [
@@ -51,4 +51,4 @@ $setup = [
 ];
 
 // lets do it
-export('node-sequelize6', $setup);
+export('sequelize-v6', $setup);

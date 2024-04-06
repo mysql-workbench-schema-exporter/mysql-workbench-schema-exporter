@@ -22,7 +22,7 @@ Currently, MySQL Workbench Schema Exporter can export the model to various schem
     [Annotation Classes](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/annotations-reference.html)
     or Annotation Classes with [Zend Framework 2](http://framework.zend.com/)
     [Input Filter support](http://framework.zend.com/manual/2.1/en/modules/zend.input-filter.intro.html).
-  * [Node Sequelize](https://sequelize.org).
+  * [Sequelize](https://sequelize.org).
   * Propel [XML Schema](http://www.propelorm.org/reference/schema) and YAML Schema.
   * Sencha ExtJS3 Model and Sencha [ExtJS4 Model](http://www.sencha.com/products/extjs/).
   * [Zend DbTable](http://framework.zend.com/manual/1.12/en/zend.db.table.html) and Zend Rest Controller.
@@ -30,9 +30,9 @@ Currently, MySQL Workbench Schema Exporter can export the model to various schem
 The actual conversion to another schema is done using an exporter. These plugins are available in subprojects:
  * [Doctrine1 Exporter](https://github.com/mysql-workbench-schema-exporter/doctrine1-exporter)
  * [Doctrine2 Exporter](https://github.com/mysql-workbench-schema-exporter/doctrine2-exporter)
- * [Node Exporter](https://github.com/mysql-workbench-schema-exporter/node-exporter)
  * [Propel1 Exporter](https://github.com/mysql-workbench-schema-exporter/propel1-exporter)
  * [Sencha ExtJS Exporter](https://github.com/mysql-workbench-schema-exporter/sencha-exporter)
+ * [Sequelize Exporter](https://github.com/mysql-workbench-schema-exporter/sequelize-exporter)
  * [Zend Framework 1 Exporter](https://github.com/mysql-workbench-schema-exporter/zend1-exporter)
  
 ## Prerequisites
@@ -121,9 +121,9 @@ Refers to exporter project to show detailed information.
 
  * [Doctrine1 Exporter](https://github.com/mysql-workbench-schema-exporter/doctrine1-exporter#readme)
  * [Doctrine2 Exporter](https://github.com/mysql-workbench-schema-exporter/doctrine2-exporter#readme)
- * [Node Exporter](https://github.com/mysql-workbench-schema-exporter/node-exporter#readme)
  * [Propel1 Exporter](https://github.com/mysql-workbench-schema-exporter/propel1-exporter#readme)
  * [Sencha ExtJS Exporter](https://github.com/mysql-workbench-schema-exporter/sencha-exporter#readme)
+ * [Sequelize Exporter](https://github.com/mysql-workbench-schema-exporter/sequelize-exporter#readme)
  * [Zend Framework 1 Exporter](https://github.com/mysql-workbench-schema-exporter/zend1-exporter#readme)
 
 ## Common Model Comment Behavior
