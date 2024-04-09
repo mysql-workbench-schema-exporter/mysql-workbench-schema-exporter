@@ -100,4 +100,6 @@ interface DatatypeConverterInterface
     public function getNativeType($type);
     public function getMappedType(Column $column);
     public function getType(Column $column);
+    public function transformDataType($key, $dataType);
+    public function setFormatter(FormatterInterface $formatter);
 }

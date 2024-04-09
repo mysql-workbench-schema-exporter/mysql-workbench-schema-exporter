@@ -184,6 +184,7 @@ abstract class Formatter implements FormatterInterface
             throw new \RuntimeException('DatatypeConverter can\'t be null.');
         }
         $this->datatypeConverter = $datatypeConverter;
+        $this->datatypeConverter->setFormatter($this);
         $this->datatypeConverter->setup();
 
         return $this;
