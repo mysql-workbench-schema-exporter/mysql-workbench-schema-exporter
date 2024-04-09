@@ -32,6 +32,11 @@ use MwbExporter\Model\Column;
 abstract class DatatypeConverter implements DatatypeConverterInterface
 {
     /**
+     * @var \MwbExporter\Formatter\FormatterInterface
+     */
+    protected $formatter;
+
+    /**
      * @var array
      */
     protected $dataTypes = [];
@@ -155,20 +160,25 @@ abstract class DatatypeConverter implements DatatypeConverterInterface
     /**
      * Get data type mapping for associated key.
      *
-     * @return string|null
+     * @throws \RuntimeException
+     * @return string
      */
     public function getDataType($key)
     {
+        $result = null;
         // check for existing datatype, and raise an exception
         // if it doesn't exist. Usefull when new data type defined
         // in the new version of MySQL Workbench
         if (isset($this->dataTypes[$key])) {
-            return $this->dataTypes[$key];
-        } elseif (isset($this->userDatatypes[$key])) {
-            return $this->userDatatypes[$key];
-        } else {
+            $result = $this->dataTypes[$key];
+        } else if (isset($this->userDatatypes[$key])) {
+            $result = $this->userDatatypes[$key];
+        }
+        if (null === $result) {
             throw new \RuntimeException(sprintf('Unknown data type "%s".', $key));
         }
+
+        return $this->transformDataType($key, $result);
     }
 
     /**
@@ -202,5 +212,27 @@ abstract class DatatypeConverter implements DatatypeConverterInterface
     public function getType(Column $column)
     {
         return $this->getMappedType($column);
+    }
+
+    /**
+     * Perform data type transformation if necessary.
+     *
+     * @param string $key
+     * @param string $dataType
+     * @return string
+     */
+    public function transformDataType($key, $dataType)
+    {
+        return $dataType;
+    }
+
+    /**
+     * Set formatter.
+     *
+     * @param \MwbExporter\Formatter\FormatterInterface $formatter
+     */
+    public function setFormatter(FormatterInterface $formatter)
+    {
+        $this->formatter = $formatter;
     }
 }
