@@ -114,6 +114,28 @@ interface WriterInterface
     public function writeCallback($callback);
 
     /**
+     * Set comment format.
+     *
+     * @param string $format  Comment format
+     * @return \MwbExporter\Writer\WriterInterface
+     */
+    public function commentFormat($format);
+
+    /**
+     * Start next write as comment.
+     *
+     * @return \MwbExporter\Writer\WriterInterface
+     */
+    public function commentStart();
+
+    /**
+     * End next write as comment.
+     *
+     * @return \MwbExporter\Writer\WriterInterface
+     */
+    public function commentEnd();
+
+    /**
      * Increase indentation.
      *
      * @return \MwbExporter\Writer\WriterInterface

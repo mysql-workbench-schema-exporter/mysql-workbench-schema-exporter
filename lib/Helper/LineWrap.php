@@ -74,7 +74,7 @@ class LineWrap
     protected static function getLine($line, $count, $format, $content, &$result)
     {
         // make sure format is an array
-        $format = explode('|', $format);
+        $format = null !== $format ? explode('|', $format) : ['%s'];
         // is first line
         if (count($format) >= 3 && 1 === $line) {
             $result[] = $format[0];

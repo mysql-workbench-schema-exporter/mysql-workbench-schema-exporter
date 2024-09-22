@@ -259,6 +259,9 @@ class Document extends Base
         $writer->setDocument($this);
         $writer->begin();
         try {
+            if ($format = $this->getFormatter()->getCommentFormatter()) {
+                $writer->commentFormat($format);
+            }
             $this->addLog(sprintf('Start writing document "%s"', basename($this->filename)));
             $this->physicalModel->write($writer);
             $this->addLog('Done writing document');

@@ -233,7 +233,7 @@ interface FormatterInterface
     public function getCommentTagPrefix();
 
     /**
-     * Get generated comment format.
+     * Get comment template.
      *
      * Variable placeholders supported:
      *   %VERSION%      Exporter version
@@ -242,7 +242,7 @@ interface FormatterInterface
      *
      * @return string
      */
-    public function getCommentFormat();
+    public function getCommentTemplate();
 
     /**
      * Get comment variable substitution.
@@ -268,6 +268,13 @@ interface FormatterInterface
      * @return string
      */
     public function getFormattedComment($comment, $format, $width = 80);
+
+    /**
+     * Get comment formatter.
+     *
+     * @return string
+     */
+    public function getCommentFormatter();
 
     /**
      * Dump all configurations.
