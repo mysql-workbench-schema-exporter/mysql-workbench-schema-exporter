@@ -268,6 +268,20 @@ abstract class Writer implements WriterInterface
 
     /**
      * (non-PHPdoc)
+     * @see \MwbExporter\Writer\WriterInterface::writeComment()
+     */
+    public function writeComment($comment)
+    {
+        $this
+            ->commentStart()
+            ->write($comment)
+            ->commentEnd();
+
+        return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
      * @see \MwbExporter\Writer\WriterInterface::commentFormat()
      */
     public function commentFormat($format)

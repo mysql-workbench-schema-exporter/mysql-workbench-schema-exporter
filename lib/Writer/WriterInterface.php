@@ -114,6 +114,14 @@ interface WriterInterface
     public function writeCallback($callback);
 
     /**
+     * Write content as comment.
+     *
+     * @param string $comment  The comment
+     * @return \MwbExporter\Writer\WriterInterface
+     */
+    public function writeComment($comment);
+
+    /**
      * Set comment format.
      *
      * @param string $format  Comment format
