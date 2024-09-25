@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2024 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -259,6 +259,9 @@ class Document extends Base
         $writer->setDocument($this);
         $writer->begin();
         try {
+            if ($format = $this->getFormatter()->getCommentFormatter()) {
+                $writer->commentFormat($format);
+            }
             $this->addLog(sprintf('Start writing document "%s"', basename($this->filename)));
             $this->physicalModel->write($writer);
             $this->addLog('Done writing document');

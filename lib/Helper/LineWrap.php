@@ -3,7 +3,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2023 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2023-2024 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -74,7 +74,7 @@ class LineWrap
     protected static function getLine($line, $count, $format, $content, &$result)
     {
         // make sure format is an array
-        $format = explode('|', $format);
+        $format = null !== $format ? explode('|', $format) : ['%s'];
         // is first line
         if (count($format) >= 3 && 1 === $line) {
             $result[] = $format[0];

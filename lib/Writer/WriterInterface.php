@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2024 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -112,6 +112,36 @@ interface WriterInterface
      * @return \MwbExporter\Writer\WriterInterface
      */
     public function writeCallback($callback);
+
+    /**
+     * Write content as comment.
+     *
+     * @param string $comment  The comment
+     * @return \MwbExporter\Writer\WriterInterface
+     */
+    public function writeComment($comment);
+
+    /**
+     * Set comment format.
+     *
+     * @param string $format  Comment format
+     * @return \MwbExporter\Writer\WriterInterface
+     */
+    public function commentFormat($format);
+
+    /**
+     * Start next write as comment.
+     *
+     * @return \MwbExporter\Writer\WriterInterface
+     */
+    public function commentStart();
+
+    /**
+     * End next write as comment.
+     *
+     * @return \MwbExporter\Writer\WriterInterface
+     */
+    public function commentEnd();
 
     /**
      * Increase indentation.

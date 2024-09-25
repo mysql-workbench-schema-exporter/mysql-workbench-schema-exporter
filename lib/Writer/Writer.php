@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2024 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ namespace MwbExporter\Writer;
 
 use MwbExporter\Buffer\Buffer;
 use MwbExporter\Configuration\Indentation as IndentationConfiguration;
+use MwbExporter\Helper\LineWrap;
 use MwbExporter\Model\Document;
 use MwbExporter\Storage\StorageInterface;
 
@@ -65,11 +66,27 @@ abstract class Writer implements WriterInterface
     protected $opened = false;
 
     /**
+     * @var string
+     */
+    protected $cfmt = null;
+
+    /**
+     * @var \MwbExporter\Buffer\Buffer
+     */
+    protected $cbuff = null;
+
+    /**
+     * @var bool
+     */
+    protected $comment = false;
+
+    /**
      * Constructor.
      */
     public function __construct()
     {
         $this->buffer = new Buffer();
+        $this->cbuff = new Buffer();
         $this->init();
     }
 
@@ -201,10 +218,14 @@ abstract class Writer implements WriterInterface
         }
         $lines = explode("\n", $line);
         foreach ($lines as $line) {
-            if ($line) {
-                $line = $this->getIndentation().$line;
+            if (!$this->comment) {
+                if ($line) {
+                    $line = $this->getIndentation().$line;
+                }
+                $this->buffer[] = $line;
+            } else {
+                $this->cbuff[] = $line;
             }
-            $this->buffer[] = $line;
         }
 
         return $this;
@@ -240,6 +261,64 @@ abstract class Writer implements WriterInterface
             // this is the current function caller debug backtrace
             $caller = array_shift($debugs);
             call_user_func($callback, $this, isset($caller['object']) ? $caller['object'] : $this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Writer\WriterInterface::writeComment()
+     */
+    public function writeComment($comment)
+    {
+        $this
+            ->commentStart()
+            ->write($comment)
+            ->commentEnd();
+
+        return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Writer\WriterInterface::commentFormat()
+     */
+    public function commentFormat($format)
+    {
+        $this->cfmt = $format;
+
+        return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Writer\WriterInterface::commentStart()
+     */
+    public function commentStart()
+    {
+        if ($this->comment) {
+            throw new \RuntimeException('A comment already started.');
+        }
+        $this->cbuff->clear();
+        $this->comment = true;
+
+        return $this;
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see \MwbExporter\Writer\WriterInterface::commentEnd()
+     */
+    public function commentEnd()
+    {
+        if (!$this->comment) {
+            throw new \RuntimeException('No comment has been started.');
+        }
+        $lines = LineWrap::wrap((string) $this->cbuff, $this->cfmt, null);
+        $this->comment = false;
+        foreach ($lines as $line) {
+            $this->write($line);
         }
 
         return $this;

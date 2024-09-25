@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2023 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2024 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,7 @@ use MwbExporter\Model\Base;
 
 interface FormatterInterface
 {
-    public const VERSION = '4.0.6';
+    public const VERSION = '4.1.0';
 
     /**
      * Get formatter name.
@@ -233,7 +233,7 @@ interface FormatterInterface
     public function getCommentTagPrefix();
 
     /**
-     * Get generated comment format.
+     * Get comment template.
      *
      * Variable placeholders supported:
      *   %VERSION%      Exporter version
@@ -242,7 +242,7 @@ interface FormatterInterface
      *
      * @return string
      */
-    public function getCommentFormat();
+    public function getCommentTemplate();
 
     /**
      * Get comment variable substitution.
@@ -268,6 +268,13 @@ interface FormatterInterface
      * @return string
      */
     public function getFormattedComment($comment, $format, $width = 80);
+
+    /**
+     * Get comment formatter.
+     *
+     * @return string
+     */
+    public function getCommentFormatter();
 
     /**
      * Dump all configurations.
