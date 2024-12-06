@@ -72,7 +72,7 @@ abstract class Base
      * @param \MwbExporter\Model\Base $parent
      * @param \SimpleXMLElement $node
      */
-    public function __construct(Base $parent = null, $node = null)
+    public function __construct(?Base $parent = null, $node = null)
     {
         $this->parameters = new RegistryHolder();
         $this->parent = $parent;

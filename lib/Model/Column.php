@@ -62,7 +62,7 @@ class Column extends Base
      * @param \MwbExporter\Model\Base $parent
      * @param \SimpleXMLElement $node
      */
-    public function __construct(Base $parent = null, $node = null)
+    public function __construct(?Base $parent = null, $node = null)
     {
         $this->links = new RegistryHolder();
         parent::__construct($parent, $node);
