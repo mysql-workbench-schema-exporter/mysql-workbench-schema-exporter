@@ -4,7 +4,7 @@
  * The MIT License
  *
  * Copyright (c) 2010 Johannes Mueller <circus2(at)web.de>
- * Copyright (c) 2012-2024 Toha <tohenk@yahoo.com>
+ * Copyright (c) 2012-2025 Toha <tohenk@yahoo.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -315,7 +315,7 @@ abstract class Writer implements WriterInterface
         if (!$this->comment) {
             throw new \RuntimeException('No comment has been started.');
         }
-        $lines = LineWrap::wrap((string) $this->cbuff, $this->cfmt, null);
+        $lines = LineWrap::wrap(trim((string) $this->cbuff), $this->cfmt, null);
         $this->comment = false;
         foreach ($lines as $line) {
             $this->write($line);
