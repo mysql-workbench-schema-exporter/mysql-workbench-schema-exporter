@@ -31,7 +31,7 @@ use MwbExporter\Model\Base;
 
 interface FormatterInterface
 {
-    public const VERSION = '4.1.0';
+    public const VERSION = '4.2.0';
 
     /**
      * Get formatter name.
