@@ -37,7 +37,7 @@ The actual conversion to another schema is done using an exporter. These plugins
  
 ## Prerequisites
 
-  * PHP 7.2+
+  * PHP 7.4+
   * Composer to install the dependencies
 
 ## Installation
